@@ -1,0 +1,24 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - secure: |-
+        Gsnp9ERFnXt+diCfc7Vb72g+7HDn1MCHvw4zfUDdoBh9bxxFlLQRlzZZfwWhzni57lflrt
+        0QHXafu+oBVOJuNv6WauV3+ZyuWIQRmNGjZFNLvZsXHK/dyad2vGQBPvEkb+8l/aCyTpbr
+        6pxmyzLHSn1ZR7OX5rfPvwM3tOyZ3H0=
+  matrix:
+    - BUILD=Doc
+    - BUILD=Debug
+    - BUILD=Release
+
+matrix:
+  exclude:
+    - os: osx
+      env: BUILD=Doc
+
+script:
+  - support/travis-build.py

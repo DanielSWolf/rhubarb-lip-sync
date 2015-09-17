@@ -1,0 +1,17 @@
+/bin
+/_CPack_Packages
+/doc/doxyxml
+/doc/html
+/doc/virtualenv
+/Testing
+/install_manifest.txt
+*~
+*.a
+*.zip
+cmake_install.cmake
+CPack*Config.cmake
+CTestTestfile.cmake
+CMakeCache.txt
+CMakeFiles
+Makefile
+run-msbuild.bat
