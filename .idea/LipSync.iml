@@ -3,6 +3,10 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/cppformat/format.cc" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/cppformat/format.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/cppformat/posix.cc" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/lib/cppformat/posix.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/pocketsphinx/src/libpocketsphinx/acmod.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/pocketsphinx/src/libpocketsphinx/acmod.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/pocketsphinx/src/libpocketsphinx/allphone_search.c" isTestSource="false" />
@@ -122,8 +126,19 @@
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase/src/libsphinxbase/util/slamch.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase/src/libsphinxbase/util/slapack_lite.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase/src/libsphinxbase/util/strfuncs.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/tmp.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/16kHzMonoStream.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/16kHzMonoStream.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/AudioStream.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/IOTools.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileWriter.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileWriter.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -135,7 +150,9 @@
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx/include" />
+          <root url="file://$MODULE_DIR$/lib/r8brain-free-src-1.6" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase/include" />
         </CLASSES>
         <SOURCES>
@@ -144,9 +161,20 @@
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx/include" />
+          <root url="file://$MODULE_DIR$/lib/r8brain-free-src-1.6" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase/include" />
         </SOURCES>
+        <excluded>
+          <root url="file://$MODULE_DIR$/lib/cppformat/posix.cc" />
+          <root url="file://$MODULE_DIR$/lib/cppformat/posix.h" />
+          <root url="file://$MODULE_DIR$/lib/cppformat/format.h" />
+          <root url="file://$MODULE_DIR$/lib/cppformat/format.cc" />
+          <root url="file://$MODULE_DIR$/lib/r8brain-free-src-1.6/r8bbase.h" />
+          <root url="file://$MODULE_DIR$/lib/r8brain-free-src-1.6/example.cpp" />
+          <root url="file://$MODULE_DIR$/lib/r8brain-free-src-1.6/r8bbase.cpp" />
+        </excluded>
       </library>
     </orderEntry>
   </component>
