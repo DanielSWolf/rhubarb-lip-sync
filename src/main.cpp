@@ -2,11 +2,23 @@
 #include <stdexcept>
 #include <fstream>
 #include <memory>
+#include <vector>
+#include <iostream>
+#include <chrono>
+#include "audio_input/16kHzMonoStream.h"
 
 using std::runtime_error;
 using std::shared_ptr;
+using std::unique_ptr;
 
 #define MODELDIR "X:/dev/projects/LipSync/lib/pocketsphinx/model"
+
+// Converts a float in the range -1..1 to a signed 16-bit int
+int16_t floatSampleToInt16(float sample) {
+	sample = std::max(sample, -1.0f);
+	sample = std::min(sample, 1.0f);
+	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
+}
 
 int main(int argc, char *argv[]) {
 	shared_ptr<cmd_ln_t> config(
@@ -33,22 +45,40 @@ int main(int argc, char *argv[]) {
 		[](ps_decoder_t* recognizer) { ps_free(recognizer); });
 	if (!recognizer) throw runtime_error("Error creating speech recognizer.");
 
-	shared_ptr<FILE> file(
-		fopen("X:/dev/projects/LipSync/lib/pocketsphinx/test/data/goforward.raw", "rb"),
-		[](FILE* file) { fclose(file); });
-	if (!file) throw runtime_error("Error opening sound file.");
+	unique_ptr<AudioStream> audioStream =
+		create16kHzMonoStream(R"(C:\Users\Daniel\Desktop\audio-test\test 16000Hz 1ch 16bit.wav)");
 
 	int error = ps_start_utt(recognizer.get());
 	if (error) throw runtime_error("Error starting utterance processing.");
 
-	int16 buffer[512];
-	while (!feof(file.get())) {
-		size_t sampleCount = fread(buffer, 2, 512, file.get());
-		int searchedFrameCount = ps_process_raw(recognizer.get(), buffer, sampleCount, false, false);
+	auto start = std::chrono::steady_clock::now();
+
+	std::vector<int16_t> buffer;
+	const int capacity = 1600;
+	buffer.reserve(capacity); // 0.1 second capacity
+	int sampleCount = 0;
+	do {
+		// Read to buffer
+		buffer.clear();
+		while (buffer.size() < capacity) {
+			float sample;
+			if (!audioStream->getNextSample(sample)) break;
+			buffer.push_back(floatSampleToInt16(sample));
+		}
+
+		// Analyze buffer
+		int searchedFrameCount = ps_process_raw(recognizer.get(), buffer.data(), buffer.size(), false, false);
 		if (searchedFrameCount < 0) throw runtime_error("Error decoding raw audio data.");
-	}
+
+		sampleCount += buffer.size();
+
+		std::cout << sampleCount / 16000.0 << "s\n";
+	} while (buffer.size());
 	error = ps_end_utt(recognizer.get());
 	if (error) throw runtime_error("Error ending utterance processing.");
+
+	auto end = std::chrono::steady_clock::now();
+	std::cout << std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count() << "\n";
 
 	ps_seg_t *segmentationIter;
 	int32 score;
