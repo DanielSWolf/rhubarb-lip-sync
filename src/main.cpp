@@ -11,7 +11,7 @@ using std::runtime_error;
 using std::shared_ptr;
 using std::unique_ptr;
 
-#define MODELDIR "X:/dev/projects/LipSync/lib/pocketsphinx/model"
+#define MODELDIR "X:/dev/projects/LipSync/lib/pocketsphinx-5prealpha-2015-08-05/model"
 
 // Converts a float in the range -1..1 to a signed 16-bit int
 int16_t floatSampleToInt16(float sample) {
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
 			"-hmm", MODELDIR "/en-us/en-us",
 			// Set phonetic language model
 			"-allphone", MODELDIR "/en-us/en-us-phone.lm.bin",
+			"-allphone_ci", "yes",
 			// The following settings are Voodoo to me.
 			// I copied them from http://cmusphinx.sourceforge.net/wiki/phonemerecognition
 			// Set beam width applied to every frame in Viterbi search
