@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
 	auto start = std::chrono::steady_clock::now();
 
 	std::vector<int16_t> buffer;
-	const int capacity = 1600;
-	buffer.reserve(capacity); // 0.1 second capacity
+	const int capacity = 1600; // 0.1 second capacity
+	buffer.reserve(capacity);
 	int sampleCount = 0;
 	do {
 		// Read to buffer
