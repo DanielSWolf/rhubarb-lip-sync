@@ -150,6 +150,7 @@
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://$MODULE_DIR$/../../lib/boost_1_59_0" />
           <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx-5prealpha-2015-08-05/include" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/include" />
@@ -160,6 +161,7 @@
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
           <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://$MODULE_DIR$/../../lib/boost_1_59_0" />
           <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx-5prealpha-2015-08-05/include" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/include" />

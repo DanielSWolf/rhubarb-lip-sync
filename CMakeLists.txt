@@ -3,6 +3,13 @@ project(LipSync)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+# Find Boost libraries
+set(Boost_USE_STATIC_LIBS ON) # Use static libs
+set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
+set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
+find_package(Boost REQUIRED COMPONENTS filesystem locale )
+include_directories(${Boost_INCLUDE_DIRS})
+
 set(SOURCE_FILES src/main.cpp src/audio_input/WaveFileReader.cpp src/audio_input/WaveFileReader.h src/audio_input/ChannelDownmixer.cpp src/audio_input/ChannelDownmixer.h src/audio_input/AudioStream.h src/audio_input/SampleRateConverter.cpp src/audio_input/SampleRateConverter.h src/audio_input/16kHzMonoStream.cpp src/audio_input/16kHzMonoStream.h src/audio_input/WaveFileWriter.cpp src/audio_input/WaveFileWriter.h src/audio_input/IOTools.h)
 
 include_directories("lib/sphinxbase-5prealpha-2015-08-05/include" "lib/pocketsphinx-5prealpha-2015-08-05/include" "lib/cppformat")
@@ -11,3 +18,4 @@ FILE(GLOB POCKETSPHINX "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphin
 FILE(GLOB CPPFORMAT "lib/cppformat/*.cc")
 
 add_executable(LipSync ${SOURCE_FILES} ${SPHINX_BASE} ${POCKETSPHINX} ${CPPFORMAT})
+target_link_libraries(LipSync ${Boost_LIBRARIES})
