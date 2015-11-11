@@ -3,6 +3,10 @@ project(LipSync)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
 # Find Boost libraries
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
@@ -19,3 +23,26 @@ FILE(GLOB CPPFORMAT "lib/cppformat/*.cc")
 
 add_executable(LipSync ${SOURCE_FILES} ${SPHINX_BASE} ${POCKETSPHINX} ${CPPFORMAT})
 target_link_libraries(LipSync ${Boost_LIBRARIES})
+
+function(copy_after_build sourceGlob relativeTargetDirectory)
+	# Set `sourcePaths`
+	file(GLOB sourcePaths "${sourceGlob}")
+	
+	foreach(sourcePath ${sourcePaths})
+		# Set `fileName`
+		get_filename_component(fileName "${sourcePath}" NAME)
+		
+		# Set `targetPath`
+		set(targetPath "${CMAKE_BINARY_DIR}/${relativeTargetDirectory}/${fileName}")
+		
+		add_custom_command(TARGET LipSync POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "${targetPath}"
+			COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
+		)
+	endforeach()
+endfunction()
+
+# Copy resource files
+set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-5prealpha-2015-08-05/model")
+copy_after_build("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx/acoustic_model")
+copy_after_build("${modelDir}/en-us/en-us/*" "res/sphinx/language_model")
