@@ -126,19 +126,25 @@
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/slamch.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/slapack_lite.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/strfuncs.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/16kHzMonoStream.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/16kHzMonoStream.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/AudioStream.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/IOTools.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/io_tools.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/wave_file_writing.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/wave_file_writing.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileWriter.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/WaveFileWriter.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/centiseconds.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/centiseconds.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Phone.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Phone.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/platform_tools.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/platform_tools_win.cpp" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -169,8 +175,8 @@
         <excluded>
           <root url="file://$MODULE_DIR$/lib/cppformat/format.cc" />
           <root url="file://$MODULE_DIR$/lib/cppformat/posix.cc" />
-          <root url="file://$MODULE_DIR$/lib/cppformat/posix.h" />
           <root url="file://$MODULE_DIR$/lib/cppformat/format.h" />
+          <root url="file://$MODULE_DIR$/lib/cppformat/posix.h" />
         </excluded>
       </library>
     </orderEntry>

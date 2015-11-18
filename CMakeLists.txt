@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(LipSync)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -11,10 +11,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost REQUIRED COMPONENTS filesystem locale )
+find_package(Boost REQUIRED COMPONENTS filesystem locale system)
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SOURCE_FILES src/main.cpp src/audio_input/WaveFileReader.cpp src/audio_input/WaveFileReader.h src/audio_input/ChannelDownmixer.cpp src/audio_input/ChannelDownmixer.h src/audio_input/AudioStream.h src/audio_input/SampleRateConverter.cpp src/audio_input/SampleRateConverter.h src/audio_input/16kHzMonoStream.cpp src/audio_input/16kHzMonoStream.h src/audio_input/WaveFileWriter.cpp src/audio_input/WaveFileWriter.h src/audio_input/IOTools.h)
+set(SOURCE_FILES src/main.cpp src/audio_input/WaveFileReader.cpp src/audio_input/WaveFileReader.h src/audio_input/ChannelDownmixer.cpp src/audio_input/ChannelDownmixer.h src/audio_input/AudioStream.h src/audio_input/SampleRateConverter.cpp src/audio_input/SampleRateConverter.h src/audio_input/wave_file_writing.cpp src/audio_input/wave_file_writing.h src/audio_input/io_tools.h src/platform_tools.h src/phone_extraction.cpp src/phone_extraction.h src/Phone.cpp src/Phone.h src/centiseconds.cpp src/centiseconds.h)
+if(WIN32)
+	set(SOURCE_FILES "${SOURCE_FILES};src/platform_tools_win.cpp")
+else()
+	message(FATAL_ERROR "Target platform not supported.")
+endif()
 
 include_directories("lib/sphinxbase-5prealpha-2015-08-05/include" "lib/pocketsphinx-5prealpha-2015-08-05/include" "lib/cppformat")
 FILE(GLOB_RECURSE SPHINX_BASE "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
@@ -44,5 +49,5 @@ endfunction()
 
 # Copy resource files
 set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-5prealpha-2015-08-05/model")
-copy_after_build("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx/acoustic_model")
-copy_after_build("${modelDir}/en-us/en-us/*" "res/sphinx/language_model")
+copy_after_build("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx")
+copy_after_build("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic_model")

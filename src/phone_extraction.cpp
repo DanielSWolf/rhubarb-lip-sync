@@ -1,0 +1,116 @@
+#include <pocketsphinx.h>
+#include <iostream>
+#include <boost/filesystem.hpp>
+#include "phone_extraction.h"
+#include "audio_input/SampleRateConverter.h"
+#include "audio_input/ChannelDownmixer.h"
+#include "platform_tools.h"
+using std::runtime_error;
+using std::unique_ptr;
+using std::shared_ptr;
+using std::string;
+using std::map;
+using boost::filesystem::path;
+
+unique_ptr<AudioStream> to16kHzMono(unique_ptr<AudioStream> stream) {
+	// Downmix, if required
+	if (stream->getChannelCount() != 1) {
+		stream.reset(new ChannelDownmixer(std::move(stream)));
+	}
+
+	// Downsample, if required
+	if (stream->getFrameRate() < 16000) {
+		throw runtime_error("Sample rate must not be below 16kHz.");
+	}
+	if (stream->getFrameRate() != 16000) {
+		stream.reset(new SampleRateConverter(std::move(stream), 16000));
+	}
+
+	return stream;
+}
+
+// Converts a float in the range -1..1 to a signed 16-bit int
+int16_t floatSampleToInt16(float sample) {
+	sample = std::max(sample, -1.0f);
+	sample = std::min(sample, 1.0f);
+	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
+}
+
+map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
+	// Convert audio stream to the exact format PocketSphinx requires
+	audioStream = to16kHzMono(std::move(audioStream));
+
+	// Create PocketSphinx configuration
+	path binDirectory(getBinDirectory());
+	path resDirectory(binDirectory.parent_path() / "res");
+	shared_ptr<cmd_ln_t> config(
+		cmd_ln_init(
+			nullptr, ps_args(), true,
+			// Set acoustic model
+			"-hmm", (resDirectory / "sphinx/acoustic_model").string().c_str(),
+			// Set phonetic language model
+			"-allphone", (resDirectory / "sphinx/en-us-phone.lm.bin").string().c_str(),
+			"-allphone_ci", "yes",
+			// The following settings are taken from http://cmusphinx.sourceforge.net/wiki/phonemerecognition
+			// Set beam width applied to every frame in Viterbi search
+			"-beam", "1e-20",
+			// Set beam width applied to phone transitions
+			"-pbeam", "1e-20",
+			// Set language model probability weight
+			"-lw", "2.0",
+			nullptr),
+		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
+	if (!config) throw runtime_error("Error creating configuration.");
+
+	// Create phone recognizer
+	shared_ptr<ps_decoder_t> recognizer(
+		ps_init(config.get()),
+		[](ps_decoder_t* recognizer) { ps_free(recognizer); });
+	if (!recognizer) throw runtime_error("Error creating speech recognizer.");
+
+	// Start recognition
+	int error = ps_start_utt(recognizer.get());
+	if (error) throw runtime_error("Error starting utterance processing.");
+
+	// Process entire sound file
+	std::vector<int16_t> buffer;
+	const int capacity = 1600; // 0.1 second capacity
+	buffer.reserve(capacity);
+	int sampleCount = 0;
+	do {
+		// Read to buffer
+		buffer.clear();
+		while (buffer.size() < capacity) {
+			float sample;
+			if (!audioStream->getNextSample(sample)) break;
+			buffer.push_back(floatSampleToInt16(sample));
+		}
+
+		// Analyze buffer
+		int searchedFrameCount = ps_process_raw(recognizer.get(), buffer.data(), buffer.size(), false, false);
+		if (searchedFrameCount < 0) throw runtime_error("Error decoding raw audio data.");
+
+		sampleCount += buffer.size();
+	} while (buffer.size());
+	error = ps_end_utt(recognizer.get());
+	if (error) throw runtime_error("Error ending utterance processing.");
+
+	// Collect results into map
+	map<centiseconds, Phone> result;
+	ps_seg_t *segmentationIter;
+	int32 score;
+	int endFrame;
+	for (segmentationIter = ps_seg_iter(recognizer.get(), &score); segmentationIter; segmentationIter = ps_seg_next(segmentationIter)) {
+		// Get phone
+		char const *phone = ps_seg_word(segmentationIter);
+
+		// Get timing
+		int startFrame;
+		ps_seg_frames(segmentationIter, &startFrame, &endFrame);
+
+		result[centiseconds(startFrame)] = stringToPhone(phone);
+	}
+	// Add dummy entry past the last phone
+	result[centiseconds(endFrame + 1)] = Phone::None;
+	return result;
+}
