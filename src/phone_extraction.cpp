@@ -1,6 +1,8 @@
 #include <pocketsphinx.h>
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <sphinxbase/err.h>
 #include "phone_extraction.h"
 #include "audio_input/SampleRateConverter.h"
 #include "audio_input/ChannelDownmixer.h"
@@ -120,7 +122,42 @@ map<centiseconds, Phone> getPhones(ps_decoder_t& recognizer) {
 	return result;
 };
 
+void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* format, ...) {
+	if (errorLevel < ERR_WARN) return;
+
+	// Create varArgs list
+	va_list args;
+	va_start(args, format);
+	auto _ = finally([&args](){ va_end(args); });
+
+	// Format message
+	const int initialSize = 256;
+	std::vector<char> chars(initialSize);
+	bool success = false;
+	while (!success) {
+		int charsWritten = vsnprintf(chars.data(), chars.size(), format, args);
+		if (charsWritten < 0) throw runtime_error("Error formatting Pocketsphinx log message.");
+
+		success = charsWritten < static_cast<int>(chars.size());
+		if (!success) chars.resize(chars.size() * 2);
+	}
+	string message(chars.data());
+	boost::algorithm::trim(message);
+
+	// Append message to error string
+	string* errorString = static_cast<string*>(user_data);
+	if (errorString->size() > 0) *errorString += "\n";
+	*errorString += message;
+}
+
 map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
+	// Discard Pocketsphinx output
+	err_set_logfp(nullptr);
+
+	// Collect all Pocketsphinx error messages in a string
+	string errorMessage;
+	err_set_callback(sphinxErrorCallback, &errorMessage);
+
 	try {
 		// Create PocketSphinx configuration
 		path sphinxModelDirectory(getBinDirectory().parent_path() / "res/sphinx");
@@ -138,6 +175,6 @@ map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
 		// Collect results into map
 		return getPhones(*recognizer.get());
 	} catch (...) {
-		std::throw_with_nested(runtime_error("Error detecting phones via Pocketsphinx."));
+		std::throw_with_nested(runtime_error("Error detecting phones via Pocketsphinx. " + errorMessage));
 	}
 }
