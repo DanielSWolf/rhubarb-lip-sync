@@ -4,6 +4,8 @@
 #include <string>
 #include <cstdint>
 #include <fstream>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include "AudioStream.h"
 
 enum class SampleFormat {
@@ -15,14 +17,14 @@ enum class SampleFormat {
 
 class WaveFileReader : public AudioStream {
 public:
-	WaveFileReader(std::string fileName);
+	WaveFileReader(boost::filesystem::path filePath);
 	virtual int getFrameRate() override ;
 	virtual int getFrameCount() override;
 	virtual int getChannelCount() override;
 	virtual bool getNextSample(float &sample) override;
 
 private:
-	std::ifstream file;
+	boost::filesystem::ifstream file;
 	SampleFormat sampleFormat;
 	int frameRate;
 	int frameCount;

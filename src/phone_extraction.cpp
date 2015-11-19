@@ -5,15 +5,14 @@
 #include "audio_input/SampleRateConverter.h"
 #include "audio_input/ChannelDownmixer.h"
 #include "platform_tools.h"
+#include "tools.h"
+
 using std::runtime_error;
 using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
 using std::map;
 using boost::filesystem::path;
-
-template<typename T>
-using lambda_unique_ptr = std::unique_ptr<T,std::function<void(T*)>>;
 
 unique_ptr<AudioStream> to16kHzMono(unique_ptr<AudioStream> stream) {
 	// Downmix, if required

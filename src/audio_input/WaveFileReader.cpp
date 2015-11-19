@@ -24,10 +24,10 @@ enum class Codec {
 	Float = 0x03
 };
 
-WaveFileReader::WaveFileReader(std::string fileName) {
+WaveFileReader::WaveFileReader(boost::filesystem::path filePath) {
 	// Open file
 	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	file.open(fileName, std::ios::binary);
+	file.open(filePath, std::ios::binary);
 
 	// Read header
 	uint32_t rootChunkId = read<uint32_t>(file);

@@ -1,9 +1,11 @@
 #include <iostream>
 #include "audio_input/WaveFileReader.h"
 #include "phone_extraction.h"
+#include "platform_tools.h"
 
 using std::exception;
 using std::string;
+using std::wstring;
 using std::unique_ptr;
 
 string getMessage(const exception& e) {
@@ -17,9 +19,9 @@ string getMessage(const exception& e) {
 	return result;
 }
 
-unique_ptr<AudioStream> createAudioStream(string fileName) {
+unique_ptr<AudioStream> createAudioStream(boost::filesystem::path filePath) {
 	try {
-		return unique_ptr<AudioStream>(new WaveFileReader(fileName));
+		return unique_ptr<AudioStream>(new WaveFileReader(filePath));
 	} catch (...) {
 		std::throw_with_nested(std::runtime_error("Could not open sound file.") );
 	}
@@ -27,8 +29,17 @@ unique_ptr<AudioStream> createAudioStream(string fileName) {
 
 int main(int argc, char *argv[]) {
 	try {
-		unique_ptr<AudioStream> audioStream = createAudioStream(R"(C:\Users\Daniel\Desktop\audio-test\test 16000Hz 1ch 16bit.wav)");
+		// Get sound file name
+		std::vector<wstring> commandLineArgs = getCommandLineArgs(argc, argv);
+		if (commandLineArgs.size() != 2) {
+			throw std::runtime_error("Invalid command line arguments. Call with sound file name as sole argument.");
+		}
+		wstring soundFileName = commandLineArgs[1];
 
+		// Create audio streams
+		unique_ptr<AudioStream> audioStream = createAudioStream(soundFileName);
+
+		// Detect phones
 		std::map<centiseconds, Phone> phones = detectPhones(std::move(audioStream));
 
 		for (auto &pair : phones) {

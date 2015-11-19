@@ -145,6 +145,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/platform_tools.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/platform_tools_win.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/tools.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/tools.h" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

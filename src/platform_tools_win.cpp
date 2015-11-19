@@ -1,9 +1,31 @@
+#include <Windows.h>
+#include "tools.h"
 #include "platform_tools.h"
 
-#include <Windows.h>
+std::vector<std::wstring> getCommandLineArgs(int argc, char **argv) {
+	UNUSED(argv);
+
+	// Get command line as single Unicode string
+	LPWSTR commandLine = GetCommandLineW();
+
+	// Split into individual args
+	int argumentCount;
+	LPWSTR* arguments = CommandLineToArgvW(commandLine, &argumentCount);
+	if (!arguments) throw std::runtime_error("Could not determine command line arguments.");
+	auto _ = finally([&arguments](){ LocalFree(arguments); });
+	assert(argumentCount == argc);
+
+	// Convert to vector
+	std::vector<std::wstring> result;
+	for (int i = 0; i < argumentCount; i++) {
+		result.push_back(arguments[i]);
+	}
+
+	return result;
+}
 
 boost::filesystem::path getBinDirectory() {
-	std::vector<wchar_t> executablePath(MAX_PATH);
+	std::vector<WCHAR> executablePath(MAX_PATH);
 
 	// Try to get the executable path with a buffer of MAX_PATH characters.
 	DWORD result = GetModuleFileNameW(0, executablePath.data(), executablePath.size());
