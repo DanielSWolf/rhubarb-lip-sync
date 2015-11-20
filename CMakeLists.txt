@@ -14,7 +14,7 @@ set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
 find_package(Boost REQUIRED COMPONENTS filesystem locale system)
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SOURCE_FILES src/main.cpp src/audio_input/WaveFileReader.cpp src/audio_input/WaveFileReader.h src/audio_input/ChannelDownmixer.cpp src/audio_input/ChannelDownmixer.h src/audio_input/AudioStream.h src/audio_input/SampleRateConverter.cpp src/audio_input/SampleRateConverter.h src/audio_input/wave_file_writing.cpp src/audio_input/wave_file_writing.h src/audio_input/io_tools.h src/platform_tools.h src/phone_extraction.cpp src/phone_extraction.h src/Phone.cpp src/Phone.h src/centiseconds.cpp src/centiseconds.h src/tools.cpp src/tools.h)
+set(SOURCE_FILES src/main.cpp src/audio_input/WaveFileReader.cpp src/audio_input/WaveFileReader.h src/audio_input/ChannelDownmixer.cpp src/audio_input/ChannelDownmixer.h src/audio_input/AudioStream.h src/audio_input/SampleRateConverter.cpp src/audio_input/SampleRateConverter.h src/audio_input/wave_file_writing.cpp src/audio_input/wave_file_writing.h src/audio_input/io_tools.h src/platform_tools.h src/phone_extraction.cpp src/phone_extraction.h src/Phone.cpp src/Phone.h src/centiseconds.cpp src/centiseconds.h src/tools.cpp src/tools.h src/Shape.cpp src/Shape.h src/mouth_animation.cpp src/mouth_animation.h)
 if(WIN32)
 	set(SOURCE_FILES "${SOURCE_FILES};src/platform_tools_win.cpp")
 else()

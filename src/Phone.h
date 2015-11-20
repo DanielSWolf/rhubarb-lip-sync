@@ -74,5 +74,6 @@ Phone stringToPhone(const std::string& s);
 
 std::string phoneToString(Phone phone);
 
+std::ostream& operator <<(std::ostream& stream, const Phone phone);
 
 #endif //LIPSYNC_PHONE_H

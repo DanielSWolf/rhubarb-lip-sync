@@ -34,3 +34,6 @@ string phoneToString(Phone phone) {
 	return (it != phonesByName.right.end()) ? it->second : phoneToString(Phone::Unknown);
 }
 
+std::ostream &operator<<(std::ostream &stream, const Phone phone) {
+	return stream << phoneToString(phone);
+}

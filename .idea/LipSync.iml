@@ -139,12 +139,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src/centiseconds.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/centiseconds.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/mouth_animation.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/mouth_animation.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Phone.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Phone.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/platform_tools.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/platform_tools_win.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Shape.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Shape.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools.h" isTestSource="false" />
     </content>

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "audio_input/WaveFileReader.h"
 #include "phone_extraction.h"
+#include "mouth_animation.h"
 #include "platform_tools.h"
 
 using std::exception;
@@ -42,8 +43,14 @@ int main(int argc, char *argv[]) {
 		// Detect phones
 		std::map<centiseconds, Phone> phones = detectPhones(std::move(audioStream));
 
+		// Generate mouth shapes
+		std::map<centiseconds, Shape> shapes = animate(phones);
+
 		for (auto &pair : phones) {
-			std::cout << pair.first << ": " << phoneToString(pair.second) << "\n";
+			std::cout << pair.first << ": " << pair.second << "\n";
+		}
+		for (auto &pair : shapes) {
+			std::cout << pair.first << ": " << pair.second << "\n";
 		}
 
 		return 0;
