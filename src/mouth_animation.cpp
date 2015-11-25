@@ -68,8 +68,13 @@ Shape getShape(Phone phone) {
 
 map<centiseconds, Shape> animate(const map<centiseconds, Phone> &phones) {
 	map<centiseconds, Shape> shapes;
+	Shape lastShape = Shape::Invalid;
 	for (auto& pair : phones) {
-		shapes[pair.first] = getShape(pair.second);
+		Shape shape = getShape(pair.second);
+		if (shape != lastShape) {
+			shapes[pair.first] = shape;
+			lastShape = shape;
+		}
 	}
 	return shapes;
 }

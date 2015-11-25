@@ -7,6 +7,7 @@
 // For reference, see http://sunewatts.dk/lipsync/lipsync/article_02.php
 // For visual examples, see https://flic.kr/s/aHsj86KR4J. Their shapes "BMP".."L" map to A..H.
 enum class Shape {
+	Invalid = -1,
 	A,	// Closed mouth (silence, M, B, P)
 	B,	// Clenched teeth (most vowels, m[e]n)
 	C,	// Mouth slightly open (b[ir]d, s[ay], w[i]n...)

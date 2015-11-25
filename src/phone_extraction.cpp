@@ -105,6 +105,7 @@ void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recogni
 map<centiseconds, Phone> getPhones(ps_decoder_t& recognizer) {
 	map<centiseconds, Phone> result;
 	ps_seg_t *segmentationIter;
+	result[centiseconds(0)] = Phone::None;
 	int32 score;
 	int endFrame;
 	for (segmentationIter = ps_seg_iter(&recognizer, &score); segmentationIter; segmentationIter = ps_seg_next(segmentationIter)) {
@@ -116,9 +117,8 @@ map<centiseconds, Phone> getPhones(ps_decoder_t& recognizer) {
 		ps_seg_frames(segmentationIter, &startFrame, &endFrame);
 
 		result[centiseconds(startFrame)] = stringToPhone(phone);
+		result[centiseconds(endFrame + 1)] = Phone::None;
 	}
-	// Add dummy entry past the last phone
-	result[centiseconds(endFrame + 1)] = Phone::None;
 	return result;
 };
 
