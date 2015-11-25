@@ -9,7 +9,6 @@
 
 using std::exception;
 using std::string;
-using std::wstring;
 using std::unique_ptr;
 using std::map;
 using std::chrono::duration;
@@ -70,11 +69,10 @@ ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones
 int main(int argc, char *argv[]) {
 	try {
 		// Get sound file name
-		std::vector<wstring> commandLineArgs = getCommandLineArgs(argc, argv);
-		if (commandLineArgs.size() != 2) {
+		if (argc != 2) {
 			throw std::runtime_error("Invalid command line arguments. Call with sound file name as sole argument.");
 		}
-		wstring soundFileName = commandLineArgs[1];
+		string soundFileName = argv[1];
 
 		// Create audio streams
 		unique_ptr<AudioStream> audioStream = createAudioStream(soundFileName);
