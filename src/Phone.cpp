@@ -25,6 +25,7 @@ boost::bimap<string, Phone> phonesByName = makeBimap<string, Phone>({
 });
 
 Phone stringToPhone(const string& s) {
+	if (s == "SIL") return Phone::None;
 	auto it = phonesByName.left.find(s);
 	return (it != phonesByName.left.end()) ? it->second : Phone::Unknown;
 }

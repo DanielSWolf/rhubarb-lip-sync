@@ -1,4 +1,5 @@
 #include "mouth_animation.h"
+#include <boost/utility.hpp>
 
 using std::map;
 
@@ -69,10 +70,10 @@ Shape getShape(Phone phone) {
 map<centiseconds, Shape> animate(const map<centiseconds, Phone> &phones) {
 	map<centiseconds, Shape> shapes;
 	Shape lastShape = Shape::Invalid;
-	for (auto& pair : phones) {
-		Shape shape = getShape(pair.second);
-		if (shape != lastShape) {
-			shapes[pair.first] = shape;
+	for (auto it = phones.cbegin(); it != phones.cend(); it++) {
+		Shape shape = getShape(it->second);
+		if (shape != lastShape || next(it) == phones.cend()) {
+			shapes[it->first] = shape;
 			lastShape = shape;
 		}
 	}
