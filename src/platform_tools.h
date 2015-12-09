@@ -3,6 +3,7 @@
 
 #include <boost/filesystem.hpp>
 
+boost::filesystem::path getBinPath();
 boost::filesystem::path getBinDirectory();
 
 #endif //LIPSYNC_PLATFORM_TOOLS_H

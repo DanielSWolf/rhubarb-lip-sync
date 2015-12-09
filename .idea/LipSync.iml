@@ -145,8 +145,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/Phone.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/phone_extraction.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/platform_tools.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/platform_tools.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/platform_tools_win.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Shape.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Shape.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools.cpp" isTestSource="false" />
