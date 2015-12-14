@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
 
-project(LipSync)
+project("Rhubarb Lip Sync")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
 
@@ -29,8 +29,8 @@ FILE(GLOB_RECURSE SPHINX_BASE "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinx
 FILE(GLOB POCKETSPHINX "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx/*.c")
 FILE(GLOB CPPFORMAT "lib/cppformat/*.cc")
 
-add_executable(LipSync ${SOURCE_FILES} ${SPHINX_BASE} ${POCKETSPHINX} ${CPPFORMAT})
-target_link_libraries(LipSync ${Boost_LIBRARIES})
+add_executable(rhubarb ${SOURCE_FILES} ${SPHINX_BASE} ${POCKETSPHINX} ${CPPFORMAT})
+target_link_libraries(rhubarb ${Boost_LIBRARIES})
 
 function(copy_after_build sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
@@ -43,7 +43,7 @@ function(copy_after_build sourceGlob relativeTargetDirectory)
 		# Set `targetPath`
 		set(targetPath "${CMAKE_BINARY_DIR}/${relativeTargetDirectory}/${fileName}")
 		
-		add_custom_command(TARGET LipSync POST_BUILD
+		add_custom_command(TARGET rhubarb POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "${targetPath}"
 			COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
 		)
