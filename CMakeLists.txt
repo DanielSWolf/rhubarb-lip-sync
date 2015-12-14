@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.3)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
+
 project(LipSync)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+
+if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+	# Make sure Xcode uses libc++ instead of libstdc++, allowing us to use the C++11 standard library prior to OS X 10.9
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
