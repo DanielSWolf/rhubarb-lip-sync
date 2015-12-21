@@ -1,13 +1,16 @@
-#include <pocketsphinx.h>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <sphinxbase/err.h>
 #include "phone_extraction.h"
 #include "audio_input/SampleRateConverter.h"
 #include "audio_input/ChannelDownmixer.h"
 #include "platform_tools.h"
 #include "tools.h"
+
+extern "C" {
+#include <pocketsphinx.h>
+#include <sphinxbase/err.h>
+}
 
 using std::runtime_error;
 using std::unique_ptr;
@@ -128,7 +131,7 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 	// Create varArgs list
 	va_list args;
 	va_start(args, format);
-	auto _ = finally([&args](){ va_end(args); });
+	auto _ = finally([&args]() { va_end(args); });
 
 	// Format message
 	const int initialSize = 256;
@@ -174,7 +177,8 @@ map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
 
 		// Collect results into map
 		return getPhones(*recognizer.get());
-	} catch (...) {
+	}
+	catch (...) {
 		std::throw_with_nested(runtime_error("Error detecting phones via Pocketsphinx. " + errorMessage));
 	}
 }

@@ -16,16 +16,21 @@ if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 endif()
 
+# Use static run-time
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	add_compile_options(/MT$<$<CONFIG:Debug>:d>)
+endif()
+
 # Set output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 # Define flags variables for later use
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(enableWarningsFlags "-Wall;-Wextra")
 	set(disableWarningsFlags "-w")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(enableWarningsFlags "/W4")
 	set(disableWarningsFlags "/W0")
 endif()
@@ -46,13 +51,13 @@ add_library(cppFormat ${cppFormatFiles})
 target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 
 # ... sphinxbase
-include_directories(SYSTEM "lib/sphinxbase-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/sphinxbase-redefine/include" "lib/sphinxbase-5prealpha-2015-08-05/include")
 FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
 
 # ... PocketSphinx
-include_directories(SYSTEM "lib/pocketsphinx-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/pocketsphinx-redefine/include" "lib/pocketsphinx-5prealpha-2015-08-05/include")
 FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
 target_link_libraries(pocketSphinx sphinxbase)
