@@ -1,7 +1,7 @@
 #include "Shape.h"
 
 std::string shapeToString(Shape shape) {
-	char c = 'A' + static_cast<int>(shape);
+	char c = 'A' + static_cast<char>(shape);
 	return std::string(&c, 1);
 }
 
