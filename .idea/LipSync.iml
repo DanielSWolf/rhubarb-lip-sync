@@ -126,10 +126,8 @@
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/slamch.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/slapack_lite.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/util/strfuncs.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/AudioStream.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/audio_input/io_tools.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/audio_input/wave_file_writing.cpp" isTestSource="false" />
@@ -151,38 +149,64 @@
       <sourceFolder url="file://$MODULE_DIR$/src/Shape.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tools.cmake" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file://C:/MinGW/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include-fixed" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include/objc" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include/ssp" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/x86_64-w64-mingw32/include" />
           <root url="file://$MODULE_DIR$/../../lib/boost_1_59_0" />
           <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx-5prealpha-2015-08-05/include" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/include" />
+          <root url="file://$MODULE_DIR$/src" />
         </CLASSES>
         <SOURCES>
-          <root url="file://C:/MinGW/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include-fixed" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include/objc" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/lib/gcc/x86_64-w64-mingw32/5.2.0/include/ssp" />
+          <root url="file://C:/Program Files/mingw-w64/x86_64-5.2.0-posix-seh-rt_v4-rev1/mingw64/x86_64-w64-mingw32/include" />
           <root url="file://$MODULE_DIR$/../../lib/boost_1_59_0" />
           <root url="file://$MODULE_DIR$/lib/cppformat" />
           <root url="file://$MODULE_DIR$/lib/pocketsphinx-5prealpha-2015-08-05/include" />
           <root url="file://$MODULE_DIR$/lib/sphinxbase-5prealpha-2015-08-05/include" />
+          <root url="file://$MODULE_DIR$/src" />
         </SOURCES>
         <excluded>
           <root url="file://$MODULE_DIR$/lib/cppformat/format.cc" />
+          <root url="file://$MODULE_DIR$/lib/cppformat/posix.h" />
           <root url="file://$MODULE_DIR$/lib/cppformat/posix.cc" />
           <root url="file://$MODULE_DIR$/lib/cppformat/format.h" />
-          <root url="file://$MODULE_DIR$/lib/cppformat/posix.h" />
+          <root url="file://$MODULE_DIR$/src/Shape.cpp" />
+          <root url="file://$MODULE_DIR$/src/phone_extraction.cpp" />
+          <root url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.h" />
+          <root url="file://$MODULE_DIR$/src/Shape.h" />
+          <root url="file://$MODULE_DIR$/src/phone_extraction.h" />
+          <root url="file://$MODULE_DIR$/src/platform_tools.cpp" />
+          <root url="file://$MODULE_DIR$/src/tools.cpp" />
+          <root url="file://$MODULE_DIR$/src/centiseconds.cpp" />
+          <root url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.h" />
+          <root url="file://$MODULE_DIR$/src/audio_input/wave_file_writing.h" />
+          <root url="file://$MODULE_DIR$/src/Phone.h" />
+          <root url="file://$MODULE_DIR$/src/platform_tools.h" />
+          <root url="file://$MODULE_DIR$/src/audio_input/WaveFileReader.cpp" />
+          <root url="file://$MODULE_DIR$/src/Phone.cpp" />
+          <root url="file://$MODULE_DIR$/src/main.cpp" />
+          <root url="file://$MODULE_DIR$/src/tools.h" />
+          <root url="file://$MODULE_DIR$/src/mouth_animation.h" />
+          <root url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.cpp" />
+          <root url="file://$MODULE_DIR$/src/audio_input/wave_file_writing.cpp" />
+          <root url="file://$MODULE_DIR$/src/audio_input/ChannelDownmixer.h" />
+          <root url="file://$MODULE_DIR$/src/centiseconds.h" />
+          <root url="file://$MODULE_DIR$/src/audio_input/SampleRateConverter.cpp" />
+          <root url="file://$MODULE_DIR$/src/mouth_animation.cpp" />
         </excluded>
       </library>
     </orderEntry>
