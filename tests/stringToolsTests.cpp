@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "string_tools.h"
+#include "stringTools.h"
 
 using namespace testing;
 

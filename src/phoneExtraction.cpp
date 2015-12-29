@@ -1,10 +1,10 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "phone_extraction.h"
-#include "audio_input/SampleRateConverter.h"
-#include "audio_input/ChannelDownmixer.h"
-#include "platform_tools.h"
+#include "phoneExtraction.h"
+#include "audioInput/SampleRateConverter.h"
+#include "audioInput/ChannelDownmixer.h"
+#include "platformTools.h"
 #include "tools.h"
 
 extern "C" {

@@ -1,6 +1,6 @@
 #include <fstream>
-#include "wave_file_writing.h"
-#include "io_tools.h"
+#include "waveFileWriting.h"
+#include "ioTools.h"
 
 using namespace little_endian;
 

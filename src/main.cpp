@@ -3,11 +3,11 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <format.h>
 #include <tclap/CmdLine.h>
-#include "audio_input/WaveFileReader.h"
-#include "phone_extraction.h"
-#include "mouth_animation.h"
-#include "platform_tools.h"
-#include "app_info.h"
+#include "audioInput/WaveFileReader.h"
+#include "phoneExtraction.h"
+#include "mouthAnimation.h"
+#include "platformTools.h"
+#include "appInfo.h"
 
 using std::exception;
 using std::string;

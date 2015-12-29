@@ -1,4 +1,4 @@
-#include "mouth_animation.h"
+#include "mouthAnimation.h"
 #include <boost/utility.hpp>
 
 using std::map;

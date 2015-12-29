@@ -1,4 +1,4 @@
-#include "string_tools.h"
+#include "stringTools.h"
 #include <boost/algorithm/string/trim.hpp>
 
 using std::string;

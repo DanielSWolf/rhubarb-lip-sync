@@ -84,22 +84,22 @@ set_target_properties(gtest_main PROPERTIES FOLDER lib)
 
 # Define executable
 include_directories("src" "src/audio_input")
-configure_file(src/app_info.cpp.in src/app_info.cpp ESCAPE_QUOTES)
+configure_file(src/appInfo.cpp.in src/appInfo.cpp ESCAPE_QUOTES)
 set(SOURCE_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/src/app_info.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/src/appInfo.cpp
 	src/main.cpp
 	src/Phone.cpp
 	src/Shape.cpp
 	src/centiseconds.cpp
-	src/mouth_animation.cpp
-	src/phone_extraction.cpp
-	src/platform_tools.cpp
+	src/mouthAnimation.cpp
+	src/phoneExtraction.cpp
+	src/platformTools.cpp
 	src/tools.cpp
-	src/audio_input/ChannelDownmixer.cpp
-	src/audio_input/SampleRateConverter.cpp
-	src/audio_input/WaveFileReader.cpp
-	src/audio_input/wave_file_writing.cpp
-	src/string_tools.cpp
+	src/audioInput/ChannelDownmixer.cpp
+	src/audioInput/SampleRateConverter.cpp
+	src/audioInput/WaveFileReader.cpp
+	src/audioInput/waveFileWriting.cpp
+	src/stringTools.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
@@ -108,8 +108,8 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 # Define test project
 #include_directories("${gtest_SOURCE_DIR}/include")
 set(TEST_FILES
-	tests/string_tools_tests.cpp
-	src/string_tools.cpp
+	tests/stringToolsTests.cpp
+	src/stringTools.cpp
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)

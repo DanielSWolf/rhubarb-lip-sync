@@ -3,7 +3,7 @@
 #include <boost/predef.h>
 #include <format.h>
 
-#include "platform_tools.h"
+#include "platformTools.h"
 
 using boost::filesystem::path;
 
