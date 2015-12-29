@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -n (--name)
+             Value 'mike' does not meet constraint: homer|marge|bart|lisa|maggie
+
+Brief USAGE: 
+   ../examples/test6  -n <homer|marge|bart|lisa|maggie> [--] [--version]
+                      [-h] <1|2|3>
+
+For complete USAGE and HELP type: 
+   ../examples/test6 --help
+

@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.3)
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
 
-project("Rhubarb Lip Sync")
+set(appName "Rhubarb Lip Sync")
+set(appVersion "0.1.0-alpha")
+
+project(${appName})
 
 # Enable C++14
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -69,9 +72,14 @@ target_link_libraries(pocketSphinx sphinxbase)
 target_compile_options(pocketSphinx PRIVATE ${disableWarningsFlags})
 set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 
+# ... TCLAP
+include_directories(SYSTEM "lib/tclap-1.2.1/include")
+
 # Define executable
 include_directories("src" "src/audio_input")
+configure_file(src/app_info.cpp.in src/app_info.cpp ESCAPE_QUOTES)
 set(SOURCE_FILES
+	${CMAKE_CURRENT_BINARY_DIR}/src/app_info.cpp
 	src/main.cpp
 	src/Phone.cpp
 	src/Shape.cpp

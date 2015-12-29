@@ -2,10 +2,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <format.h>
+#include <tclap/CmdLine.h>
 #include "audio_input/WaveFileReader.h"
 #include "phone_extraction.h"
 #include "mouth_animation.h"
 #include "platform_tools.h"
+#include "app_info.h"
 
 using std::exception;
 using std::string;
@@ -68,14 +70,17 @@ ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones
 
 int main(int argc, char *argv[]) {
 	try {
-		// Get sound file name
-		if (argc != 2) {
-			throw std::runtime_error("Invalid command line arguments. Call with sound file name as sole argument.");
-		}
-		string soundFileName = argv[1];
+	// Define command-line parameters
+	const char argumentValueSeparator = ' ';
+	TCLAP::CmdLine cmd(appName, argumentValueSeparator, appVersion);
+	cmd.setExceptionHandling(false);
+	TCLAP::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
+
+		// Parse command line
+		cmd.parse(argc, argv);
 
 		// Create audio streams
-		unique_ptr<AudioStream> audioStream = createAudioStream(soundFileName);
+		unique_ptr<AudioStream> audioStream = createAudioStream(inputFileName.getValue());
 
 		// Detect phones
 		map<centiseconds, Phone> phones = detectPhones(std::move(audioStream));
@@ -84,10 +89,13 @@ int main(int argc, char *argv[]) {
 		map<centiseconds, Shape> shapes = animate(phones);
 
 		// Print XML
-		boost::property_tree::ptree xmlTree = createXmlTree(soundFileName, phones, shapes);
+		ptree xmlTree = createXmlTree(inputFileName.getValue(), phones, shapes);
 		boost::property_tree::write_xml(std::cout, xmlTree, boost::property_tree::xml_writer_settings<string>(' ', 2));
 
 		return 0;
+	} catch (const TCLAP::ArgException& e) {
+		std::cerr << "Invalid command-line arguments regarding `" << e.argId() << "`. " << e.error();
+		return 1;
 	} catch (const exception& e) {
 		std::cerr << "An error occurred. " << getMessage(e);
 		return 1;

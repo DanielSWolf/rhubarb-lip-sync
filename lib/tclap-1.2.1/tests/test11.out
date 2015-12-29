@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -i (--intTest)
+             Argument already set!
+
+Brief USAGE: 
+   ../examples/test2  [-f <float>] -i <int> -s <string> [-A] [-C] [-B] [--]
+                      [--version] [-h] <string> <string> ...
+
+For complete USAGE and HELP type: 
+   ../examples/test2 --help
+

@@ -1,0 +1,26 @@
+
+USAGE: 
+
+   ../examples/test1  [-r] -n <string> [--] [--version] [-h]
+
+
+Where: 
+
+   -r,  --reverse
+     Print name backwards
+
+   -n <string>,  --name <string>
+     (required)  Name to print
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+
+   Command description message
+

@@ -1,0 +1,45 @@
+
+USAGE: 
+
+   ../examples/test2  [-f <float>] -i <int> -s <string> [-A] [-C] [-B] [--]
+                      [--version] [-h] <string> <string> ...
+
+
+Where: 
+
+   -f <float>,  --floatTest <float>
+     float test
+
+   -i <int>,  --intTest <int>
+     (required)  integer test
+
+   -s <string>,  --stringTest <string>
+     (required)  string test
+
+   -A,  --existTestA
+     tests for the existence of A
+
+   -C,  --existTestC
+     tests for the existence of C
+
+   -B,  --existTestB
+     tests for the existence of B
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   <string>
+     (required)  unlabeld test
+
+   <string>  (accepted multiple times)
+     file names
+
+
+   this is a message
+

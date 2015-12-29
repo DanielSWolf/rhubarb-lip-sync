@@ -1,0 +1,43 @@
+
+USAGE: 
+
+   ../examples/test8  [-f=<float>] ...  [-i=<int>] ...  -s=<string> [-B]
+                      [--] [--version] [-h] <string> <string>
+                      <fileNameString> ...
+
+
+Where: 
+
+   -f=<float>,  --floatTest=<float>  (accepted multiple times)
+     multi float test
+
+   -i=<int>,  --intTest=<int>  (accepted multiple times)
+     multi int test
+
+   -s=<string>,  --stringTest=<string>
+     (required)  string test
+
+   -B,  --existTestB
+     exist Test B
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   <string>
+     (required)  unlabeled test one
+
+   <string>
+     (required)  unlabeled test two
+
+   <fileNameString>  (accepted multiple times)
+     file names
+
+
+   this is a message
+

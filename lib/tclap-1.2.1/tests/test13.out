@@ -1,0 +1,7 @@
+[-i] 0  9
+[-i] 1  8
+[  ] 0  bart
+for string we got : bill
+for ulabeled one we got : homer
+for ulabeled two we got : marge
+for bool B we got : 1
