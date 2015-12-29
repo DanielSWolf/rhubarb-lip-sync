@@ -75,6 +75,13 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 # ... TCLAP
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
+# ... Google Test
+add_subdirectory("lib/googletest")
+set_target_properties(gmock PROPERTIES FOLDER lib)
+set_target_properties(gmock_main PROPERTIES FOLDER lib)
+set_target_properties(gtest PROPERTIES FOLDER lib)
+set_target_properties(gtest_main PROPERTIES FOLDER lib)
+
 # Define executable
 include_directories("src" "src/audio_input")
 configure_file(src/app_info.cpp.in src/app_info.cpp ESCAPE_QUOTES)
@@ -96,6 +103,12 @@ set(SOURCE_FILES
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
+
+# Define test project
+#include_directories("${gtest_SOURCE_DIR}/include")
+set(TEST_FILES "")
+add_executable(runTests ${TEST_FILES})
+target_link_libraries(runTests gtest gmock gmock_main)
 
 # Copy resource files
 include(tools.cmake)
