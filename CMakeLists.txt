@@ -35,6 +35,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(disableWarningsFlags "/W0")
 endif()
 
+# Enable project folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Define libraries
 
 # ... Boost
@@ -49,12 +52,14 @@ include_directories(SYSTEM "lib/cppformat")
 FILE(GLOB cppFormatFiles "lib/cppformat/*.cc")
 add_library(cppFormat ${cppFormatFiles})
 target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
+set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
 include_directories(SYSTEM "lib/sphinxbase-redefine/include" "lib/sphinxbase-5prealpha-2015-08-05/include")
 FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
+set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
 include_directories(SYSTEM "lib/pocketsphinx-redefine/include" "lib/pocketsphinx-5prealpha-2015-08-05/include")
@@ -62,6 +67,7 @@ FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocket
 add_library(pocketSphinx ${pocketSphinxFiles})
 target_link_libraries(pocketSphinx sphinxbase)
 target_compile_options(pocketSphinx PRIVATE ${disableWarningsFlags})
+set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 
 # Define executable
 include_directories("src" "src/audio_input")
