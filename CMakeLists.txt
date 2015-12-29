@@ -99,6 +99,7 @@ set(SOURCE_FILES
 	src/audio_input/SampleRateConverter.cpp
 	src/audio_input/WaveFileReader.cpp
 	src/audio_input/wave_file_writing.cpp
+	src/string_tools.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
@@ -106,7 +107,10 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
 #include_directories("${gtest_SOURCE_DIR}/include")
-set(TEST_FILES "")
+set(TEST_FILES
+	tests/string_tools_tests.cpp
+	src/string_tools.cpp
+)
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
 
