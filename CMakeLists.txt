@@ -100,6 +100,8 @@ set(SOURCE_FILES
 	src/audioInput/WaveFileReader.cpp
 	src/audioInput/waveFileWriting.cpp
 	src/stringTools.cpp
+	src/NiceCmdLineOutput.cpp
+	src/TablePrinter.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)

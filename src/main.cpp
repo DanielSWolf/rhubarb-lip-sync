@@ -8,6 +8,7 @@
 #include "mouthAnimation.h"
 #include "platformTools.h"
 #include "appInfo.h"
+#include "NiceCmdLineOutput.h"
 
 using std::exception;
 using std::string;
@@ -69,13 +70,14 @@ ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones
 }
 
 int main(int argc, char *argv[]) {
-	try {
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
 	TCLAP::CmdLine cmd(appName, argumentValueSeparator, appVersion);
 	cmd.setExceptionHandling(false);
+	cmd.setOutput(new NiceCmdLineOutput());
 	TCLAP::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
+	try {
 		// Parse command line
 		cmd.parse(argc, argv);
 
@@ -93,10 +95,15 @@ int main(int argc, char *argv[]) {
 		boost::property_tree::write_xml(std::cout, xmlTree, boost::property_tree::xml_writer_settings<string>(' ', 2));
 
 		return 0;
-	} catch (const TCLAP::ArgException& e) {
-		std::cerr << "Invalid command-line arguments regarding `" << e.argId() << "`. " << e.error();
+	} catch (TCLAP::ArgException& e) {
+		// Error parsing command-line args.
+		cmd.getOutput()->failure(cmd, e);
 		return 1;
+	} catch (TCLAP::ExitException& e) {
+		// A built-in TCLAP command (like --help) has finished. Exit application.
+		return 0;
 	} catch (const exception& e) {
+		// Generic error
 		std::cerr << "An error occurred. " << getMessage(e);
 		return 1;
 	}
