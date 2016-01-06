@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_IOTOOLS_H
-#define LIPSYNC_IOTOOLS_H
+#pragma once
 
 #include <fstream>
 
@@ -40,5 +39,3 @@ namespace little_endian {
 	}
 
 }
-
-#endif //LIPSYNC_IOTOOLS_H

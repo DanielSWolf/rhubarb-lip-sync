@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_TOOLS_H
-#define LIPSYNC_TOOLS_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -35,5 +34,3 @@ final_act<F> finally(const F &f) noexcept { return final_act<F>(f); }
 
 template <class F>
 final_act<F> finally(F &&f) noexcept { return final_act<F>(std::forward<F>(f)); }
-
-#endif //LIPSYNC_TOOLS_H

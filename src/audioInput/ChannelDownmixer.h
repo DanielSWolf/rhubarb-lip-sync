@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_CHANNELDOWNMIXER_H
-#define LIPSYNC_CHANNELDOWNMIXER_H
+#pragma once
 
 #include "AudioStream.h"
 #include <memory>
@@ -17,5 +16,3 @@ private:
 	std::unique_ptr<AudioStream> inputStream;
 	int inputChannelCount;
 };
-
-#endif //LIPSYNC_CHANNELDOWNMIXER_H

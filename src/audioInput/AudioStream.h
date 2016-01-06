@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_AUDIOSTREAM_H
-#define LIPSYNC_AUDIOSTREAM_H
+#pragma once
 
 class AudioStream {
 public:
@@ -8,5 +7,3 @@ public:
 	virtual int getChannelCount() = 0;
 	virtual bool getNextSample(float &sample) = 0;
 };
-
-#endif //LIPSYNC_AUDIOSTREAM_H

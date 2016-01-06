@@ -1,5 +1,4 @@
-#ifndef RHUBARB_LIP_SYNC_NICECMDLINEOUTPUT_H
-#define RHUBARB_LIP_SYNC_NICECMDLINEOUTPUT_H
+#pragma once
 
 #include <tclap/StdOutput.h>
 
@@ -15,5 +14,3 @@ private:
 	// Writes a longer usage message with long and short args, providing descriptions
 	void printLongUsage(TCLAP::CmdLineInterface& cli, std::ostream& outStream) const;
 };
-
-#endif //RHUBARB_LIP_SYNC_NICECMDLINEOUTPUT_H

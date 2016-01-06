@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_SAMPLERATECONVERTER_H
-#define LIPSYNC_SAMPLERATECONVERTER_H
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -30,5 +29,3 @@ private:
 	float mean(double start, double end);
 	float getInputSample(int sampleIndex);
 };
-
-#endif //LIPSYNC_SAMPLERATECONVERTER_H

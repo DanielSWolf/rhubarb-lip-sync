@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_PHONE_EXTRACTION_H
-#define LIPSYNC_PHONE_EXTRACTION_H
+#pragma once
 
 #include <map>
 #include <chrono>
@@ -10,5 +9,3 @@
 #include "centiseconds.h"
 
 std::map<centiseconds, Phone> detectPhones(std::unique_ptr<AudioStream> audioStream);
-
-#endif //LIPSYNC_PHONE_EXTRACTION_H

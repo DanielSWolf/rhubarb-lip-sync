@@ -1,5 +1,4 @@
-#ifndef RHUBARB_LIP_SYNC_TABLEPRINTER_H
-#define RHUBARB_LIP_SYNC_TABLEPRINTER_H
+#pragma once
 
 
 #include <initializer_list>
@@ -15,5 +14,3 @@ private:
 	const std::vector<int> columnWidths;
 	const int columnSpacing;
 };
-
-#endif //RHUBARB_LIP_SYNC_TABLEPRINTER_H

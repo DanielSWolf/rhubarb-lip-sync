@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_SHAPE_H
-#define LIPSYNC_SHAPE_H
+#pragma once
 
 #include <string>
 
@@ -21,5 +20,3 @@ enum class Shape {
 std::string shapeToString(Shape shape);
 
 std::ostream& operator <<(std::ostream& stream, const Shape shape);
-
-#endif //LIPSYNC_SHAPE_H

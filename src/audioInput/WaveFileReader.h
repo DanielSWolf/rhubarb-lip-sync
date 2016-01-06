@@ -1,5 +1,4 @@
-#ifndef LIPSYNC_WAVFILEREADER_H
-#define LIPSYNC_WAVFILEREADER_H
+#pragma once
 
 #include <string>
 #include <cstdint>
@@ -31,5 +30,3 @@ private:
 	int channelCount;
 	int remainingSamples;
 };
-
-#endif //LIPSYNC_WAVFILEREADER_H
