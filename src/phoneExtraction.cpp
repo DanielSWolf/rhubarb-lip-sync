@@ -18,6 +18,7 @@ using std::shared_ptr;
 using std::string;
 using std::map;
 using boost::filesystem::path;
+using std::function;
 
 unique_ptr<AudioStream> to16kHzMono(unique_ptr<AudioStream> stream) {
 	// Downmix, if required
@@ -75,7 +76,7 @@ int16_t floatSampleToInt16(float sample) {
 	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
 }
 
-void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recognizer) {
+void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recognizer, function<void(double)> reportProgress) {
 	// Start recognition
 	int error = ps_start_utt(&recognizer);
 	if (error) throw runtime_error("Error starting utterance processing.");
@@ -85,6 +86,7 @@ void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recogni
 	const int capacity = 1600; // 0.1 second capacity
 	buffer.reserve(capacity);
 	int sampleCount = 0;
+	reportProgress(0);
 	do {
 		// Read to buffer
 		buffer.clear();
@@ -99,6 +101,7 @@ void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recogni
 		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data.");
 
 		sampleCount += buffer.size();
+		reportProgress(static_cast<double>(sampleCount) / audioStream16kHzMono.getFrameCount());
 	} while (buffer.size());
 	error = ps_end_utt(&recognizer);
 	if (error) throw runtime_error("Error ending utterance processing.");
@@ -153,7 +156,7 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 	*errorString += message;
 }
 
-map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
+map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream, function<void(double)> reportProgress) {
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
@@ -173,7 +176,7 @@ map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream) {
 		audioStream = to16kHzMono(std::move(audioStream));
 
 		// Process data
-		processAudioStream(*audioStream.get(), *recognizer.get());
+		processAudioStream(*audioStream.get(), *recognizer.get(), reportProgress);
 
 		// Collect results into map
 		return getPhones(*recognizer.get());

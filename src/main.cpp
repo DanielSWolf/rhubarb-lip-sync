@@ -6,9 +6,9 @@
 #include "audioInput/WaveFileReader.h"
 #include "phoneExtraction.h"
 #include "mouthAnimation.h"
-#include "platformTools.h"
 #include "appInfo.h"
 #include "NiceCmdLineOutput.h"
+#include "ProgressBar.h"
 
 using std::exception;
 using std::string;
@@ -81,14 +81,26 @@ int main(int argc, char *argv[]) {
 		// Parse command line
 		cmd.parse(argc, argv);
 
-		// Create audio streams
-		unique_ptr<AudioStream> audioStream = createAudioStream(inputFileName.getValue());
-
 		// Detect phones
-		map<centiseconds, Phone> phones = detectPhones(std::move(audioStream));
+		const int columnWidth = 30;
+		std::cerr << std::left;
+		std::cerr << std::setw(columnWidth) << "Analyzing input file";
+		unique_ptr<AudioStream> audioStream = createAudioStream(inputFileName.getValue());
+		map<centiseconds, Phone> phones;
+		{
+			ProgressBar progressBar;
+			phones = detectPhones(
+				std::move(audioStream),
+				[&progressBar](double progress) { progressBar.reportProgress(progress); });
+		}
+		std::cerr << "Done" << std::endl;
 
 		// Generate mouth shapes
+		std::cerr << std::setw(columnWidth) << "Generating mouth shapes";
 		map<centiseconds, Shape> shapes = animate(phones);
+		std::cerr << "Done" << std::endl;
+
+		std::cerr << std::endl;
 
 		// Print XML
 		ptree xmlTree = createXmlTree(inputFileName.getValue(), phones, shapes);
@@ -99,7 +111,7 @@ int main(int argc, char *argv[]) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
 		return 1;
-	} catch (TCLAP::ExitException& e) {
+	} catch (TCLAP::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
 		return 0;
 	} catch (const exception& e) {
