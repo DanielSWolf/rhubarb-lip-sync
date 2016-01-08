@@ -176,7 +176,7 @@ map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream, funct
 
 	try {
 		// Create PocketSphinx configuration
-		path sphinxModelDirectory(getBinDirectory().parent_path() / "res/sphinx");
+		path sphinxModelDirectory(getBinDirectory() / "res/sphinx");
 		auto config = createConfig(sphinxModelDirectory);
 
 		// Create phone recognizer

@@ -7,7 +7,7 @@ function(copy_after_build sourceGlob relativeTargetDirectory)
 		get_filename_component(fileName "${sourcePath}" NAME)
 		
 		# Set `targetPath`
-		set(targetPath "${CMAKE_BINARY_DIR}/${relativeTargetDirectory}/${fileName}")
+		set(targetPath "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}")
 		
 		add_custom_command(TARGET rhubarb POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "${targetPath}"
