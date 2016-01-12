@@ -57,14 +57,14 @@ target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
-include_directories(SYSTEM "lib/sphinxbase-redefine/include" "lib/sphinxbase-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/sphinxbase-5prealpha-2015-08-05/include")
 FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
 set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
-include_directories(SYSTEM "lib/pocketsphinx-redefine/include" "lib/pocketsphinx-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/pocketsphinx-5prealpha-2015-08-05/include")
 FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
 target_link_libraries(pocketSphinx sphinxbase)
