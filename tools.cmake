@@ -1,4 +1,4 @@
-function(copy_after_build sourceGlob relativeTargetDirectory)
+function(copy_and_install sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
 	file(GLOB sourcePaths "${sourceGlob}")
 	
@@ -6,12 +6,16 @@ function(copy_after_build sourceGlob relativeTargetDirectory)
 		# Set `fileName`
 		get_filename_component(fileName "${sourcePath}" NAME)
 		
-		# Set `targetPath`
-		set(targetPath "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}")
-		
+		# Copy file during build
 		add_custom_command(TARGET rhubarb POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "${targetPath}"
+			COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
 			COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
+		)
+
+		# Install file
+		install(
+			FILES "${sourcePath}"
+			DESTINATION "${relativeTargetDirectory}"
 		)
 	endforeach()
 endfunction()

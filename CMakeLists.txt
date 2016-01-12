@@ -4,7 +4,11 @@ cmake_minimum_required(VERSION 3.3)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
 
 set(appName "Rhubarb Lip Sync")
-set(appVersion "0.1.0-alpha")
+set(appVersionMajor 0)
+set(appVersionMinor 1)
+set(appVersionPatch 0)
+set(appVersionSuffix -alpha)
+set(appVersion "${appVersionMajor}.${appVersionMinor}.${appVersionPatch}${appVersionSuffix}")
 
 project(${appName})
 
@@ -112,8 +116,28 @@ set(TEST_FILES
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
 
-# Copy resource files
+set(CPACK_PACKAGE_NAME ${appName})
+string(REPLACE " " "-" CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
+set(CPACK_PACKAGE_VERSION_MAJOR ${appVersionMajor})
+set(CPACK_PACKAGE_VERSION_MINOR ${appVersionMinor})
+set(CPACK_PACKAGE_VERSION_PATCH ${appVersionPatch})
+set(CPACK_PACKAGE_VERSION ${appVersion})
+set(CPACK_GENERATOR ZIP)
+
+# Copy resource files at build time; install them at package time
 include(tools.cmake)
 set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-5prealpha-2015-08-05/model")
-copy_after_build("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx")
-copy_after_build("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic_model")
+copy_and_install("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx")
+copy_and_install("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic_model")
+
+install(
+	TARGETS rhubarb
+	RUNTIME
+	DESTINATION .
+)
+install(
+	FILES README.md LICENSE.md
+	DESTINATION .
+)
+
+include(CPack)
