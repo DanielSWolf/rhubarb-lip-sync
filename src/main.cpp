@@ -85,12 +85,11 @@ int main(int argc, char *argv[]) {
 		const int columnWidth = 30;
 		std::cerr << std::left;
 		std::cerr << std::setw(columnWidth) << "Analyzing input file";
-		unique_ptr<AudioStream> audioStream = createAudioStream(inputFileName.getValue());
 		map<centiseconds, Phone> phones;
 		{
 			ProgressBar progressBar;
 			phones = detectPhones(
-				std::move(audioStream),
+				[&inputFileName]() { return createAudioStream(inputFileName.getValue()); },
 				[&progressBar](double progress) { progressBar.reportProgress(progress); });
 		}
 		std::cerr << "Done" << std::endl;

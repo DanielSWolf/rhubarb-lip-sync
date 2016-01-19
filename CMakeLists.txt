@@ -64,7 +64,7 @@ target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
 set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
-include_directories(SYSTEM "lib/pocketsphinx-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/pocketsphinx-5prealpha-2015-08-05/include" "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx")
 FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
 target_link_libraries(pocketSphinx sphinxbase)
@@ -130,8 +130,8 @@ set(CPACK_GENERATOR ZIP)
 # Copy resource files at build time; install them at package time
 include(tools.cmake)
 set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-5prealpha-2015-08-05/model")
-copy_and_install("${modelDir}/en-us/en-us-phone.lm.bin" "res/sphinx")
-copy_and_install("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic_model")
+copy_and_install("${modelDir}/en-us/*" "res/sphinx")
+copy_and_install("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic-model")
 
 install(
 	TARGETS rhubarb

@@ -6,16 +6,21 @@
 #include "audioInput/ChannelDownmixer.h"
 #include "platformTools.h"
 #include "tools.h"
+#include <format.h>
 
 extern "C" {
 #include <pocketsphinx.h>
 #include <sphinxbase/err.h>
+#include <ps_alignment.h>
+#include <state_align_search.h>
+#include <pocketsphinx_internal.h>
 }
 
 using std::runtime_error;
 using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
+using std::vector;
 using std::map;
 using boost::filesystem::path;
 using std::function;
@@ -42,17 +47,11 @@ lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 		cmd_ln_init(
 			nullptr, ps_args(), true,
 			// Set acoustic model
-			"-hmm", (sphinxModelDirectory / "acoustic_model").string().c_str(),
-			// Set phonetic language model
-			"-allphone", (sphinxModelDirectory / "en-us-phone.lm.bin").string().c_str(),
-			"-allphone_ci", "yes",
-			// The following settings are taken from http://cmusphinx.sourceforge.net/wiki/phonemerecognition
-			// Set beam width applied to every frame in Viterbi search
-			"-beam", "1e-20",
-			// Set beam width applied to phone transitions
-			"-pbeam", "1e-20",
-			// Set language model probability weight
-			"-lw", "2.0",
+			"-hmm", (sphinxModelDirectory / "acoustic-model").string().c_str(),
+			// Set language model
+			"-lm", (sphinxModelDirectory / "en-us.lm.bin").string().c_str(),
+			// Set pronounciation dictionary
+			"-dict", (sphinxModelDirectory / "cmudict-en-us.dict").string().c_str(),
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
@@ -60,7 +59,7 @@ lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 	return config;
 }
 
-lambda_unique_ptr<ps_decoder_t> createPhoneRecognizer(cmd_ln_t& config) {
+lambda_unique_ptr<ps_decoder_t> createSpeechRecognizer(cmd_ln_t& config) {
 	lambda_unique_ptr<ps_decoder_t> recognizer(
 		ps_init(&config),
 		[](ps_decoder_t* recognizer) { ps_free(recognizer); });
@@ -76,13 +75,9 @@ int16_t floatSampleToInt16(float sample) {
 	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
 }
 
-void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recognizer, function<void(double)> reportProgress) {
-	// Start recognition
-	int error = ps_start_utt(&recognizer);
-	if (error) throw runtime_error("Error starting utterance processing.");
-
+void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const vector<int16_t>&)> processBuffer, function<void(double)> reportProgress) {
 	// Process entire sound file
-	std::vector<int16_t> buffer;
+	vector<int16_t> buffer;
 	const int capacity = 1600; // 0.1 second capacity
 	buffer.reserve(capacity);
 	int sampleCount = 0;
@@ -106,37 +101,13 @@ void processAudioStream(AudioStream& audioStream16kHzMono, ps_decoder_t& recogni
 			buffer.push_back(sample);
 		}
 
-		// Analyze buffer
-		int searchedFrameCount = ps_process_raw(&recognizer, buffer.data(), buffer.size(), false, false);
-		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data.");
+		// Process buffer
+		processBuffer(buffer);
 
 		sampleCount += buffer.size();
 		reportProgress(static_cast<double>(sampleCount) / audioStream16kHzMono.getFrameCount());
 	} while (buffer.size());
-	error = ps_end_utt(&recognizer);
-	if (error) throw runtime_error("Error ending utterance processing.");
-
 }
-
-map<centiseconds, Phone> getPhones(ps_decoder_t& recognizer) {
-	map<centiseconds, Phone> result;
-	ps_seg_t *segmentationIter;
-	result[centiseconds(0)] = Phone::None;
-	int32 score;
-	int endFrame;
-	for (segmentationIter = ps_seg_iter(&recognizer, &score); segmentationIter; segmentationIter = ps_seg_next(segmentationIter)) {
-		// Get phone
-		char const *phone = ps_seg_word(segmentationIter);
-
-		// Get timing
-		int startFrame;
-		ps_seg_frames(segmentationIter, &startFrame, &endFrame);
-
-		result[centiseconds(startFrame)] = stringToPhone(phone);
-		result[centiseconds(endFrame + 1)] = Phone::None;
-	}
-	return result;
-};
 
 void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* format, ...) {
 	if (errorLevel < ERR_WARN) return;
@@ -148,7 +119,7 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 
 	// Format message
 	const int initialSize = 256;
-	std::vector<char> chars(initialSize);
+	vector<char> chars(initialSize);
 	bool success = false;
 	while (!success) {
 		int charsWritten = vsnprintf(chars.data(), chars.size(), format, args);
@@ -166,7 +137,110 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 	*errorString += message;
 }
 
-map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream, function<void(double)> reportProgress) {
+vector<s3wid_t> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, function<void(double)> reportProgress) {
+	// Convert audio stream to the exact format PocketSphinx requires
+	audioStream = to16kHzMono(std::move(audioStream));
+
+	// Start recognition
+	int error = ps_start_utt(&recognizer);
+	if (error) throw runtime_error("Error starting utterance processing for word recognition.");
+
+	// Process entire sound file
+	auto processBuffer = [&recognizer](const vector<int16_t>& buffer) {
+		int searchedFrameCount = ps_process_raw(&recognizer, buffer.data(), buffer.size(), false, false);
+		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
+	};
+	processAudioStream(*audioStream.get(), processBuffer, reportProgress);
+
+	// End recognition
+	error = ps_end_utt(&recognizer);
+	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
+
+	// Collect words
+	vector<s3wid_t> result;
+	int32_t score;
+	for (ps_seg_t* it = ps_seg_iter(&recognizer, &score); it; it = ps_seg_next(it)) {
+		// Get word
+		const char* word = ps_seg_word(it);
+		s3wid_t wordId = dict_wordid(recognizer.dict, word);
+
+		result.push_back(wordId);
+	}
+
+	return result;
+}
+
+map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, function<void(double)> reportProgress) {
+	// Create alignment list
+	lambda_unique_ptr<ps_alignment_t> alignment(
+		ps_alignment_init(recognizer.d2p),
+		[](ps_alignment_t* alignment) { ps_alignment_free(alignment); });
+	if (!alignment) throw runtime_error("Error creating alignment.");
+	for (s3wid_t wordId : wordIds) {
+		// Add word. Initial value for duration is ignored.
+		ps_alignment_add_word(alignment.get(), wordId, 0);
+	}
+	int error = ps_alignment_populate(alignment.get());
+	if (error) throw runtime_error("Error populating alignment struct.");
+
+	// Convert audio stream to the exact format PocketSphinx requires
+	audioStream = to16kHzMono(std::move(audioStream));
+
+	// Create search structure
+	acmod_t* acousticModel = recognizer.acmod;
+	lambda_unique_ptr<ps_search_t> search(
+		state_align_search_init("state_align", recognizer.config, acousticModel, alignment.get()),
+		[](ps_search_t* search) { ps_search_free(search); });
+	if (!search) throw runtime_error("Error creating search.");
+
+	// Start recognition
+	error = acmod_start_utt(acousticModel);
+	if (error) throw runtime_error("Error starting utterance processing for alignment.");
+
+	// Start search
+	ps_search_start(search.get());
+
+	// Process entire sound file
+	auto processBuffer = [&recognizer, &acousticModel, &search](const vector<int16_t>& buffer) {
+		const int16* nextSample = buffer.data();
+		size_t remainingSamples = buffer.size();
+		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
+			while (acousticModel->n_feat_frame > 0) {
+				ps_search_step(search.get(), acousticModel->output_frame);
+				acmod_advance(acousticModel);
+			}
+		}
+	};
+	processAudioStream(*audioStream.get(), processBuffer, reportProgress);
+
+	// End search
+	ps_search_finish(search.get());
+
+	// End recognition
+	acmod_end_utt(acousticModel);
+
+	// Extract phones with timestamps
+	char** phoneNames = recognizer.dict->mdef->ciname;
+	map<centiseconds, Phone> result;
+	result[centiseconds(0)] = Phone::None;
+	for (ps_alignment_iter_t* it = ps_alignment_phones(alignment.get()); it; it = ps_alignment_iter_next(it)) {
+		// Get phone
+		ps_alignment_entry_t* phoneEntry = ps_alignment_iter_get(it);
+		s3cipid_t phoneId = phoneEntry->id.pid.cipid;
+		char* phoneName = phoneNames[phoneId];
+
+		// Get timing
+		int startFrame = phoneEntry->start;
+		int duration = phoneEntry->duration;
+
+		// Add map entries
+		result[centiseconds(startFrame)] = stringToPhone(phoneName);
+		result[centiseconds(startFrame + duration)] = Phone::None;
+	}
+	return result;
+}
+
+map<centiseconds, Phone> detectPhones(std::function<std::unique_ptr<AudioStream>(void)> createAudioStream, function<void(double)> reportProgress) {
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
@@ -179,19 +253,17 @@ map<centiseconds, Phone> detectPhones(unique_ptr<AudioStream> audioStream, funct
 		path sphinxModelDirectory(getBinDirectory() / "res/sphinx");
 		auto config = createConfig(sphinxModelDirectory);
 
-		// Create phone recognizer
-		auto recognizer = createPhoneRecognizer(*config.get());
+		// Create speech recognizer
+		auto recognizer = createSpeechRecognizer(*config.get());
 
-		// Convert audio stream to the exact format PocketSphinx requires
-		audioStream = to16kHzMono(std::move(audioStream));
+		// Recognize words
+		vector<s3wid_t> wordIds = recognizeWords(createAudioStream(), *recognizer.get(), reportProgress);
 
-		// Process data
-		processAudioStream(*audioStream.get(), *recognizer.get(), reportProgress);
-
-		// Collect results into map
-		return getPhones(*recognizer.get());
+		// Align the word's phones with speech
+		map<centiseconds, Phone> result = getPhoneAlignment(wordIds, createAudioStream(), *recognizer.get(), reportProgress);
+		return result;
 	}
 	catch (...) {
-		std::throw_with_nested(runtime_error("Error detecting phones via Pocketsphinx. " + errorMessage));
+		std::throw_with_nested(runtime_error("Error performing speech recognition via Pocketsphinx. " + errorMessage));
 	}
 }
