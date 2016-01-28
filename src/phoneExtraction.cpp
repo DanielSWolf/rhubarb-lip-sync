@@ -52,6 +52,9 @@ lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 			"-lm", (sphinxModelDirectory / "en-us.lm.bin").string().c_str(),
 			// Set pronounciation dictionary
 			"-dict", (sphinxModelDirectory / "cmudict-en-us.dict").string().c_str(),
+			// Allow for long pauses in speech
+			"-vad_prespeech", "3000",
+			"-vad_postspeech", "3000",
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
