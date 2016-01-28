@@ -88,9 +88,7 @@ int main(int argc, char *argv[]) {
 		map<centiseconds, Phone> phones;
 		{
 			ProgressBar progressBar;
-			phones = detectPhones(
-				[&inputFileName]() { return createAudioStream(inputFileName.getValue()); },
-				[&progressBar](double progress) { progressBar.reportProgress(progress); });
+			phones = detectPhones([&inputFileName]() { return createAudioStream(inputFileName.getValue()); }, progressBar);
 		}
 		std::cerr << "Done" << std::endl;
 
