@@ -1,5 +1,4 @@
 #include "mouthAnimation.h"
-#include <boost/utility.hpp>
 
 using std::map;
 
@@ -12,7 +11,7 @@ Shape getShape(Phone phone) {
 			return Shape::A;
 
 		case Phone::Unknown:
-		case Phone::EH:
+		case Phone::IY:
 		case Phone::T:
 		case Phone::D:
 		case Phone::K:
@@ -28,31 +27,31 @@ Shape getShape(Phone phone) {
 		case Phone::N:
 		case Phone::NG:
 		case Phone::R:
+		case Phone::Y:
 			return Shape::B;
 
-		case Phone::IY:
+		case Phone::EH:
 		case Phone::IH:
+		case Phone::AH:
 		case Phone::EY:
-		case Phone::ER:
 		case Phone::HH:
-		case Phone::Y:
 			return Shape::C;
 
-		case Phone::UW:
-		case Phone::UH:
-		case Phone::AH:
+		case Phone::AA:
 		case Phone::AE:
 		case Phone::AY:
-		case Phone::OY:
-		case Phone::W:
+		case Phone::AW:
 			return Shape::D;
 
-		case Phone::AW:
+		case Phone::AO:
+		case Phone::UH:
+		case Phone::OW:
+		case Phone::ER:
 			return Shape::E;
 
-		case Phone::AO:
-		case Phone::AA:
-		case Phone::OW:
+		case Phone::UW:
+		case Phone::OY:
+		case Phone::W:
 			return Shape::F;
 
 		case Phone::F:
