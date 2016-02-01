@@ -52,6 +52,8 @@ lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 			"-lm", (sphinxModelDirectory / "en-us.lm.bin").string().c_str(),
 			// Set pronounciation dictionary
 			"-dict", (sphinxModelDirectory / "cmudict-en-us.dict").string().c_str(),
+			// Add noise against zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
+			"-dither", "yes",
 			// Allow for long pauses in speech
 			"-vad_prespeech", "3000",
 			"-vad_postspeech", "3000",
@@ -87,19 +89,11 @@ void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const v
 	do {
 		// Read to buffer
 		buffer.clear();
-		int16_t lastSample = INT16_MIN;
 		while (buffer.size() < capacity) {
 			// Read sample
 			float floatSample;
 			if (!audioStream16kHzMono.getNextSample(floatSample)) break;
 			int16_t sample = floatSampleToInt16(floatSample);
-
-			// Remove zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
-			if (sample == lastSample) {
-				sample += (sample < INT16_MAX) ? 1 : -1;
-			}
-			lastSample = sample;
-
 			buffer.push_back(sample);
 		}
 
