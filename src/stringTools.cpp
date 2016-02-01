@@ -6,20 +6,20 @@ using std::vector;
 
 vector<string> splitIntoLines(const string& s) {
 	vector<string> lines;
-	auto it = s.cbegin();
-	auto lineBegin = it;
-	auto end = s.cend();
+	auto p = &s[0];
+	auto lineBegin = p;
+	auto end = p + s.size();
 	// Iterate over input string
-	while (it <= end) {
+	while (p <= end) {
 		// Add a new result line when we hit a \n character or the end of the string
-		if (it == end || *it == '\n') {
-			string line(lineBegin, it);
+		if (p == end || *p == '\n') {
+			string line(lineBegin, p);
 			// Trim \r characters
 			boost::algorithm::trim_if(line, [](char c) { return c == '\r'; });
 			lines.push_back(line);
-			lineBegin = it + 1;
+			lineBegin = p + 1;
 		}
-		++it;
+		++p;
 	}
 	
 	return lines;
@@ -31,22 +31,22 @@ vector<string> wrapSingleLineString(const string& s, int lineLength) {
 	if (s.find('\n') != std::string::npos) throw std::invalid_argument("s must not contain line breaks.");
 
 	vector<string> lines;
-	auto it = s.cbegin();
-	auto lineBegin = it;
-	auto lineEnd = it;
-	auto end = s.cend();
+	auto p = &s[0];
+	auto lineBegin = p;
+	auto lineEnd = p;
+	auto end = p + s.size();
 	// Iterate over input string
-	while (it <= end) {
+	while (p <= end) {
 		// If we're at a word boundary: update safeLineEnd
-		if (it == end || *it == ' ') {
-			lineEnd = it;
+		if (p == end || *p == ' ') {
+			lineEnd = p;
 		}
 
 		// If we've hit lineLength or the end of the string: add a new result line
-		if (it == end || it - lineBegin == lineLength) {
+		if (p == end || p - lineBegin == lineLength) {
 			if (lineEnd == lineBegin) {
 				// The line contains a single word, which is too long. Split mid-word.
-				lineEnd = it;
+				lineEnd = p;
 			}
 
 			// Add trimmed line to list
@@ -55,12 +55,12 @@ vector<string> wrapSingleLineString(const string& s, int lineLength) {
 			lines.push_back(line);
 
 			// Resume after the last line, skipping spaces
-			it = lineEnd;
-			while (it != end && *it == ' ') ++it;
-			lineBegin = lineEnd = it;
+			p = lineEnd;
+			while (p != end && *p == ' ') ++p;
+			lineBegin = lineEnd = p;
 		}
 
-		++it;
+		++p;
 	}
 
 	return lines;
