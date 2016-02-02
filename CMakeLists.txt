@@ -7,7 +7,7 @@ set(appName "Rhubarb Lip Sync")
 set(appVersionMajor 0)
 set(appVersionMinor 1)
 set(appVersionPatch 0)
-set(appVersionSuffix -alpha)
+set(appVersionSuffix "")
 set(appVersion "${appVersionMajor}.${appVersionMinor}.${appVersionPatch}${appVersionSuffix}")
 
 project(${appName})
@@ -139,7 +139,7 @@ install(
 	DESTINATION .
 )
 install(
-	FILES README.md LICENSE.md
+	FILES README.md LICENSE.md VERSION.md
 	DESTINATION .
 )
 
