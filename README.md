@@ -1,12 +1,12 @@
 # Rhubarb Lip-Sync
 
-Rhubarb Lip-Sync is a command-line tool that automatically creates mouth animation from voice recordings. You can use it for characters in computer games, in animated cartoons, or in any other project that requires animating mouths based on existing recordings.
+[Rhubarb Lip-Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) is a command-line tool that automatically creates mouth animation from voice recordings. You can use it for characters in computer games, in animated cartoons, or in any other project that requires animating mouths based on existing recordings.
 
-Right now, Rhubarb Lip-Sync produces files in XML format (a special text format). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, however, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to [create an issue](https://github.com/DanielSWolf/rhubarb-lip-sync/issues) telling me what tool you're using. I might add support for a few popular animation tools in the future. 
+Right now, Rhubarb Lip-Sync produces files in XML format (a special text format). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, however, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to [create an issue](https://github.com/DanielSWolf/rhubarb-lip-sync/issues) telling me what tool you're using. I might add support for a few popular animation tools in the future.
 
-## Mouth positions
+## Mouth shapes
 
-At the moment, Rhubarb Lip-Sync uses a fixed set of eight mouth positions, named from A-H. These mouth positions are based on the six mouth shapes (A-F) originally developed at the Hanna-Barbera studios for classic shows such as Scooby-Doo and The Flintstones. 
+At the moment, Rhubarb Lip-Sync uses a fixed set of eight mouth shapes, named from A-H. These mouth shapes are based on the six mouth shapes (A-F) originally developed at the Hanna-Barbera studios for classic shows such as Scooby-Doo and The Flintstones.
 
 | Name | Image | Description |
 | ---- | ----- | ----------- |
@@ -29,7 +29,7 @@ Rhubarb Lip-Sync is a command-line tool that is currently available for Windows 
 
 ## How to use the output
 
-The output of Rhubarb Lip-Sync is an XML file containing information about the sounds in the recording and -- more importantly -- the resulting mouth positions. A (shortened) sample output looks like this:
+The output of Rhubarb Lip-Sync is an XML file containing information about the sounds in the recording and -- more importantly -- the resulting mouth shapes. A (shortened) sample output looks like this:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -58,6 +58,20 @@ The output of Rhubarb Lip-Sync is an XML file containing information about the s
 * The `info` element tells you the name of the original sound file.
 * The `phones` element contains the individual sounds found in the recording. You won't usually need them.
 * The `mouthCues` element tells you which mouth shape needs to be displayed at what time interval. The `start` and `duration` values are in seconds. There are no gaps between mouth cues, so `entry.start` + `entry.duration` = `nextEntry.start`.
+
+## Limitations
+
+Rhubarb Lip-Sync has some limitations you should be aware of.
+
+### Only English dialog
+
+Rhubarb Lip-Sync only produces good results when you give it recordings in English. You'll get best results with American English.
+
+### Fixed set of mouth shapes
+
+Right now, Rhubarb Lip-Sync uses a fixed set of eight mouth shapes, as shown above. If you want to use fewer shapes, you can apply a custom mapping in your own code.
+
+I'm planning to make the mouth animation logic more flexible (and even better-looking) in future releases.
 
 ## Tell me what you think!
 
