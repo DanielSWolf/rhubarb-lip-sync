@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 // The classic Hanna-Barbera mouth shapes A-F phus the common supplements G-H
