@@ -1,6 +1,7 @@
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/optional.hpp>
 #include <format.h>
 #include <tclap/CmdLine.h>
 #include "audioInput/WaveFileReader.h"
@@ -69,6 +70,14 @@ ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones
 	return tree;
 }
 
+// Tell TCLAP how to handle boost::optional
+namespace TCLAP {
+	template<>
+	struct ArgTraits<boost::optional<string>> {
+		typedef TCLAP::StringLike ValueCategory;
+	};
+}
+
 int main(int argc, char *argv[]) {
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
@@ -76,6 +85,7 @@ int main(int argc, char *argv[]) {
 	cmd.setExceptionHandling(false);
 	cmd.setOutput(new NiceCmdLineOutput());
 	TCLAP::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
+	TCLAP::ValueArg<boost::optional<string>> dialog("d", "dialog", "The text of the dialog.", false, boost::optional<string>(), "string", cmd);
 
 	try {
 		// Parse command line
@@ -88,7 +98,10 @@ int main(int argc, char *argv[]) {
 		map<centiseconds, Phone> phones;
 		{
 			ProgressBar progressBar;
-			phones = detectPhones([&inputFileName]() { return createAudioStream(inputFileName.getValue()); }, progressBar);
+			phones = detectPhones(
+				[&inputFileName]() { return createAudioStream(inputFileName.getValue()); },
+				dialog.getValue(),
+				progressBar);
 		}
 		std::cerr << "Done" << std::endl;
 
