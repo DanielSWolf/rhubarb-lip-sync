@@ -175,10 +175,10 @@ vector<string> extractDialogWords(string dialog) {
 	boost::algorithm::to_lower(dialog);
 
 	// Insert silences where appropriate
-	dialog = regex_replace(dialog, regex("[,;.:!?] "), " <sil> ");
+	dialog = regex_replace(dialog, regex("[,;.:!?] |-"), " <sil> ");
 
 	// Remove all undesired characters
-	dialog = regex_replace(dialog, regex("[^a-z.'\\-0-9<>]"), " ");
+	dialog = regex_replace(dialog, regex("[^a-z.'\\0-9<>]"), " ");
 
 	// Collapse whitespace
 	dialog = regex_replace(dialog, regex("\\s+"), " ");
