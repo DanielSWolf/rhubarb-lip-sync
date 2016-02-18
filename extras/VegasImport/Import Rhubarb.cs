@@ -44,11 +44,20 @@ public class EntryPoint {
 		bool showDialog = false;
 		Project project = new Project(promptSave, showDialog);
 
+		// Set frame size
+		Bitmap testImage = new Bitmap(config.OneImageFile);
+		project.Video.Width = testImage.Width;
+		project.Video.Height = testImage.Height;
+
 		// Set frame rate
 		if (config.FrameRate < 0.1 || config.FrameRate > 100) {
 			throw new Exception("Invalid frame rate.");
 		}
 		project.Video.FrameRate = config.FrameRate;
+
+		// Set other video settings
+		project.Video.FieldOrder = VideoFieldOrder.ProgressiveScan;
+		project.Video.PixelAspectRatio = 1;
 
 		// Add markers for phones
 		XmlNodeList phoneElements = xmlDocument.SelectNodes("//phone");
