@@ -19,3 +19,14 @@ index 4e76f62..a82acd6 100644
 -#endif
  
  #endif /* __POCKETSPHINX_EXPORT_H__ */
+diff --git a/lib/pocketsphinx-5prealpha-2015-08-05/model/en-us/cmudict-en-us.dict b/lib/pocketsphinx-5prealpha-2015-08-05/model/en-us/cmudict-en-us.dict
+index 16eb0c4..1d130e8 100644
+--- a/lib/pocketsphinx-5prealpha-2015-08-05/model/en-us/cmudict-en-us.dict
++++ b/lib/pocketsphinx-5prealpha-2015-08-05/model/en-us/cmudict-en-us.dict
+@@ -134520,3 +134520,6 @@ zyuganov's Z Y UW G AA N AA V Z
+ zyuganov's(2) Z UW G AA N AA V Z
+ zyuganov(2) Z UW G AA N AA V
+ zywicki Z IH W IH K IY
++poverty's P AA V ER T IY S
++foregrounded F AO R G R AW N D IH D
++pantries P AE N T R IY S
