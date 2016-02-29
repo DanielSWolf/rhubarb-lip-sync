@@ -81,6 +81,9 @@ set_target_properties(gmock_main PROPERTIES FOLDER lib)
 set_target_properties(gtest PROPERTIES FOLDER lib)
 set_target_properties(gtest_main PROPERTIES FOLDER lib)
 
+# ... GSL
+include_directories(SYSTEM "lib/gsl/include")
+
 # Define executable
 include_directories("src" "src/audio_input")
 configure_file(src/appInfo.cpp.in src/appInfo.cpp ESCAPE_QUOTES)
