@@ -9,6 +9,7 @@
 #include <format.h>
 #include <s3types.h>
 #include <regex>
+#include <gsl_util.h>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -116,7 +117,7 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 	// Create varArgs list
 	va_list args;
 	va_start(args, format);
-	auto _ = finally([&args]() { va_end(args); });
+	auto _ = gsl::finally([&args]() { va_end(args); });
 
 	// Format message
 	const int initialSize = 256;
