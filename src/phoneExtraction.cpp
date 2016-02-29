@@ -10,6 +10,7 @@
 #include <s3types.h>
 #include <regex>
 #include <gsl_util.h>
+#include <logging.h>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -111,8 +112,25 @@ void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const v
 	} while (buffer.size());
 }
 
-void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* format, ...) {
-	if (errorLevel < ERR_WARN) return;
+LogLevel ConvertSphinxErrorLevel(err_lvl_t errorLevel) {
+	switch (errorLevel) {
+	case ERR_DEBUG:
+	case ERR_INFO:
+	case ERR_INFOCONT:
+		return LogLevel::Trace;
+	case ERR_WARN:
+		return LogLevel::Warning;
+	case ERR_ERROR:
+		return LogLevel::Error;
+	case ERR_FATAL:
+		return LogLevel::Fatal;
+	default:
+		throw invalid_argument("Unknown log level.");
+	}
+}
+
+void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format, ...) {
+	UNUSED(user_data);
 
 	// Create varArgs list
 	va_list args;
@@ -133,10 +151,8 @@ void sphinxErrorCallback(void* user_data, err_lvl_t errorLevel, const char* form
 	string message(chars.data());
 	boost::algorithm::trim(message);
 
-	// Append message to error string
-	string* errorString = static_cast<string*>(user_data);
-	if (errorString->size() > 0) *errorString += "\n";
-	*errorString += message;
+	LogLevel logLevel = ConvertSphinxErrorLevel(errorLevel);
+	LOG(logLevel) << message;
 }
 
 vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
@@ -286,9 +302,8 @@ map<centiseconds, Phone> detectPhones(
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
-	// Collect all Pocketsphinx error messages in a string
-	string errorMessage;
-	err_set_callback(sphinxErrorCallback, &errorMessage);
+	// Redirect Pocketsphinx output to log
+	err_set_callback(sphinxLogCallback, nullptr);
 
 	try {
 		// Create PocketSphinx configuration
@@ -315,6 +330,6 @@ map<centiseconds, Phone> detectPhones(
 		return result;
 	}
 	catch (...) {
-		std::throw_with_nested(runtime_error("Error performing speech recognition via Pocketsphinx. " + errorMessage));
+		std::throw_with_nested(runtime_error("Error performing speech recognition via Pocketsphinx."));
 	}
 }
