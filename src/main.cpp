@@ -10,6 +10,8 @@
 #include "appInfo.h"
 #include "NiceCmdLineOutput.h"
 #include "ProgressBar.h"
+#include "logging.h"
+#include <gsl_util.h>
 
 using std::exception;
 using std::string;
@@ -79,6 +81,9 @@ namespace TCLAP {
 }
 
 int main(int argc, char *argv[]) {
+	auto logOutputController = initLogging();
+	logOutputController->pause();
+
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
 	TCLAP::CmdLine cmd(appName, argumentValueSeparator, appVersion);
@@ -88,6 +93,12 @@ int main(int argc, char *argv[]) {
 	TCLAP::ValueArg<boost::optional<string>> dialog("d", "dialog", "The text of the dialog.", false, boost::optional<string>(), "string", cmd);
 
 	try {
+		auto resumeLogging = gsl::finally([&]() {
+			std::cerr << std::endl << std::endl;
+			logOutputController->resume();
+			std::cerr << std::endl;
+		});
+
 		// Parse command line
 		cmd.parse(argc, argv);
 
@@ -120,13 +131,15 @@ int main(int argc, char *argv[]) {
 	} catch (TCLAP::ArgException& e) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
+		std::cerr << std::endl;
 		return 1;
 	} catch (TCLAP::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
+		std::cerr << std::endl;
 		return 0;
 	} catch (const exception& e) {
 		// Generic error
-		std::cerr << "An error occurred. " << getMessage(e);
+		std::cerr << "An error occurred. " << getMessage(e) << std::endl;
 		return 1;
 	}
 }

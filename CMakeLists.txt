@@ -28,13 +28,16 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options(/MT$<$<CONFIG:Debug>:d>)
 endif()
 
-# Define flags variables for later use
+# Set global flags and define flags variables for later use
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(enableWarningsFlags "-Wall;-Wextra")
 	set(disableWarningsFlags "-w")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(enableWarningsFlags "/W4")
 	set(disableWarningsFlags "/W0")
+	
+	# Boost.Log causes this warning
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4714")
 endif()
 
 # Enable project folders
@@ -46,7 +49,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost REQUIRED COMPONENTS filesystem locale system)
+find_package(Boost REQUIRED COMPONENTS filesystem locale system log date_time thread chrono)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ... C++ Format
@@ -105,6 +108,7 @@ set(SOURCE_FILES
 	src/NiceCmdLineOutput.cpp
 	src/TablePrinter.cpp
 	src/ProgressBar.cpp
+	src/logging.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
