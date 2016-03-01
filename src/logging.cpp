@@ -2,6 +2,8 @@
 #include <array>
 #include <boost/log/sinks/unlocked_frontend.hpp>
 #include <boost/log/expressions.hpp>
+#include <centiseconds.h>
+#include "tools.h"
 
 using std::string;
 using std::lock_guard;
@@ -64,3 +66,6 @@ boost::shared_ptr<PausableBackendAdapter> initLogging() {
 	return pausableAdapter;
 }
 
+void logTimedEvent(const string& eventName, centiseconds start, centiseconds end, const string& value) {
+	LOG_DEBUG << "##" << eventName << "[" << formatDuration(start) << "-" << formatDuration(end) << "]: " << value;
+}

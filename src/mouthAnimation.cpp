@@ -1,4 +1,5 @@
 #include "mouthAnimation.h"
+#include "logging.h"
 
 using std::map;
 
@@ -69,12 +70,18 @@ Shape getShape(Phone phone) {
 map<centiseconds, Shape> animate(const map<centiseconds, Phone> &phones) {
 	map<centiseconds, Shape> shapes;
 	Shape lastShape = Shape::Invalid;
-	for (auto it = phones.cbegin(); it != phones.cend(); it++) {
+	for (auto it = phones.cbegin(); it != phones.cend(); ++it) {
 		Shape shape = getShape(it->second);
 		if (shape != lastShape || next(it) == phones.cend()) {
 			shapes[it->first] = shape;
 			lastShape = shape;
 		}
 	}
+
+	for (auto it = shapes.cbegin(); it != shapes.cend(); ++it) {
+		if (next(it) == shapes.cend()) break;
+		logTimedEvent("shape", it->first, next(it)->first, shapeToString(it->second));
+	}
+
 	return shapes;
 }

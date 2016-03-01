@@ -31,6 +31,7 @@ using boost::filesystem::path;
 using std::function;
 using std::regex;
 using std::regex_replace;
+using std::chrono::duration;
 
 unique_ptr<AudioStream> to16kHzMono(unique_ptr<AudioStream> stream) {
 	// Downmix, if required
@@ -180,6 +181,10 @@ vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t&
 	for (ps_seg_t* it = ps_seg_iter(&recognizer, &score); it; it = ps_seg_next(it)) {
 		const char* word = ps_seg_word(it);
 		result.push_back(word);
+
+		int firstFrame, lastFrame;
+		ps_seg_frames(it, &firstFrame, &lastFrame);
+		logTimedEvent("word", centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
 	}
 
 	return result;
@@ -288,8 +293,12 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 		int duration = phoneEntry->duration;
 
 		// Add map entries
-		result[centiseconds(startFrame)] = stringToPhone(phoneName);
-		result[centiseconds(startFrame + duration)] = Phone::None;
+		centiseconds start(startFrame);
+		result[start] = stringToPhone(phoneName);
+		centiseconds end(startFrame + duration);
+		result[end] = Phone::None;
+
+		logTimedEvent("phone", start, end, phoneName);
 	}
 	return result;
 }

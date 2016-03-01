@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <tuple>
+#include "centiseconds.h"
 
 enum class LogLevel {
 	Trace,
@@ -56,3 +57,5 @@ private:
 };
 
 boost::shared_ptr<PausableBackendAdapter> initLogging();
+
+void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const std::string& value);

@@ -12,6 +12,7 @@
 #include "ProgressBar.h"
 #include "logging.h"
 #include <gsl_util.h>
+#include <tools.h>
 
 using std::exception;
 using std::string;
@@ -39,10 +40,6 @@ unique_ptr<AudioStream> createAudioStream(path filePath) {
 	} catch (...) {
 		std::throw_with_nested(std::runtime_error("Could not open sound file.") );
 	}
-}
-
-string formatDuration(duration<double> seconds) {
-	return fmt::format("{0:.2f}", seconds.count());
 }
 
 ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones, const map<centiseconds, Shape>& shapes) {
