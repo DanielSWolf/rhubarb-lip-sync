@@ -59,14 +59,6 @@ public class EntryPoint {
 		project.Video.FieldOrder = VideoFieldOrder.ProgressiveScan;
 		project.Video.PixelAspectRatio = 1;
 
-		// Add markers for phones
-		XmlNodeList phoneElements = xmlDocument.SelectNodes("//phone");
-		foreach (XmlElement phoneElement in phoneElements) {
-			Timecode position = GetTimecode(phoneElement.Attributes["start"]);
-			string label = phoneElement.InnerText;
-			project.Markers.Add(new Marker(position, label));
-		}
-
 		// Add video track with images
 		VideoTrack videoTrack = vegas.Project.AddVideoTrack();
 		foreach (XmlElement mouthCueElement in mouthCueElements) {
@@ -151,14 +143,18 @@ public class Config {
 	private static string ConfigFileName {
 		get {
 			string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			return Path.Combine(folder, "VegasRhubarbScriptSettings.xml");
+			return Path.Combine(folder, "ImportRhubarbSettings.xml");
 		}
 	}
 
 	public static Config Load() {
-		XmlSerializer serializer = new XmlSerializer(typeof(Config));
-		using (FileStream file = File.OpenRead(ConfigFileName)) {
-			return (Config) serializer.Deserialize(file);
+		try {
+			XmlSerializer serializer = new XmlSerializer(typeof(Config));
+			using (FileStream file = File.OpenRead(ConfigFileName)) {
+				return (Config) serializer.Deserialize(file);
+			}
+		} catch (Exception) {
+			return new Config();
 		}
 	}
 
