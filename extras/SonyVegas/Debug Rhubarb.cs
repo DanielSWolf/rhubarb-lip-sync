@@ -49,13 +49,13 @@ public class EntryPoint {
 				List<TimedEvent> filteredEvents = FilterEvents(timedEvents[eventType], visualization.Regex);
 				foreach (TimedEvent timedEvent in filteredEvents) {
 					Timecode start = Timecode.FromSeconds(timedEvent.Start);
-					Timecode end = Timecode.FromSeconds(timedEvent.End);
+					Timecode length = Timecode.FromSeconds(timedEvent.End) - start;
 					switch (visualization.VisualizationType) {
 						case VisualizationType.Marker:
 							project.Markers.Add(new Marker(start, timedEvent.Value));
 							break;
 						case VisualizationType.Region:
-							project.Regions.Add(new Region(start, end, timedEvent.Value));
+							project.Regions.Add(new Region(start, length, timedEvent.Value));
 							break;
 					}
 				}
