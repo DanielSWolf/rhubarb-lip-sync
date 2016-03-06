@@ -46,6 +46,7 @@ class PausableBackendAdapter :
 {
 public:
 	PausableBackendAdapter(boost::shared_ptr<boost::log::sinks::text_ostream_backend> backend);
+	~PausableBackendAdapter();
 	void consume(const boost::log::record_view& recordView, const std::string message);
 	void pause();
 	void resume();

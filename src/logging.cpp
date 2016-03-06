@@ -24,6 +24,10 @@ string toString(LogLevel level) {
 PausableBackendAdapter::PausableBackendAdapter(boost::shared_ptr<text_ostream_backend> backend) :
 	backend(backend) {}
 
+PausableBackendAdapter::~PausableBackendAdapter() {
+	resume();
+}
+
 void PausableBackendAdapter::consume(const record_view& recordView, const string message) {
 	lock_guard<std::mutex> lock(mutex);
 	if (isPaused) {
