@@ -100,7 +100,7 @@ set(SOURCE_FILES
 	src/phoneExtraction.cpp
 	src/platformTools.cpp
 	src/tools.cpp
-	src/audioInput/ChannelDownmixer.cpp
+	src/audioInput/AudioStream.cpp
 	src/audioInput/SampleRateConverter.cpp
 	src/audioInput/WaveFileReader.cpp
 	src/audioInput/waveFileWriting.cpp

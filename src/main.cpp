@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 		{
 			ProgressBar progressBar;
 			phones = detectPhones(
-				[&inputFileName]() { return createAudioStream(inputFileName.getValue()); },
+				createAudioStream(inputFileName.getValue()),
 				dialog.getValue(),
 				progressBar);
 		}

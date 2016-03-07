@@ -2,7 +2,6 @@
 
 #include <map>
 #include <memory>
-#include <functional>
 #include "audioInput/AudioStream.h"
 #include "Phone.h"
 #include "centiseconds.h"
@@ -10,6 +9,6 @@
 #include <boost/optional/optional.hpp>
 
 std::map<centiseconds, Phone> detectPhones(
-	std::function<std::unique_ptr<AudioStream>(void)> createAudioStream,
+	std::unique_ptr<AudioStream> audioStream,
 	boost::optional<std::string> dialog,
 	ProgressSink& progressSink);

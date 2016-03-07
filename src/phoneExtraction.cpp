@@ -3,7 +3,6 @@
 #include <boost/algorithm/string.hpp>
 #include "phoneExtraction.h"
 #include "audioInput/SampleRateConverter.h"
-#include "audioInput/ChannelDownmixer.h"
 #include "platformTools.h"
 #include "tools.h"
 #include <format.h>
@@ -33,17 +32,12 @@ using std::regex;
 using std::regex_replace;
 using std::chrono::duration;
 
-unique_ptr<AudioStream> to16kHzMono(unique_ptr<AudioStream> stream) {
-	// Downmix, if required
-	if (stream->getChannelCount() != 1) {
-		stream.reset(new ChannelDownmixer(std::move(stream)));
-	}
-
+unique_ptr<AudioStream> to16kHz(unique_ptr<AudioStream> stream) {
 	// Downsample, if required
-	if (stream->getFrameRate() < 16000) {
+	if (stream->getSampleRate() < 16000) {
 		throw invalid_argument("Audio sample rate must not be below 16kHz.");
 	}
-	if (stream->getFrameRate() != 16000) {
+	if (stream->getSampleRate() != 16000) {
 		stream.reset(new SampleRateConverter(std::move(stream), 16000));
 	}
 
@@ -88,7 +82,7 @@ int16_t floatSampleToInt16(float sample) {
 	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
 }
 
-void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const vector<int16_t>&)> processBuffer, ProgressSink& progressSink) {
+void processAudioStream(AudioStream& audioStream16kHz, function<void(const vector<int16_t>&)> processBuffer, ProgressSink& progressSink) {
 	// Process entire sound file
 	vector<int16_t> buffer;
 	const int capacity = 1600; // 0.1 second capacity
@@ -97,10 +91,9 @@ void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const v
 	do {
 		// Read to buffer
 		buffer.clear();
-		while (buffer.size() < capacity) {
+		while (buffer.size() < capacity && !audioStream16kHz.endOfStream()) {
 			// Read sample
-			float floatSample;
-			if (!audioStream16kHzMono.getNextSample(floatSample)) break;
+			float floatSample = audioStream16kHz.readSample();
 			int16_t sample = floatSampleToInt16(floatSample);
 			buffer.push_back(sample);
 		}
@@ -109,7 +102,7 @@ void processAudioStream(AudioStream& audioStream16kHzMono, function<void(const v
 		processBuffer(buffer);
 
 		sampleCount += buffer.size();
-		progressSink.reportProgress(static_cast<double>(sampleCount) / audioStream16kHzMono.getFrameCount());
+		progressSink.reportProgress(static_cast<double>(sampleCount) / audioStream16kHz.getSampleCount());
 	} while (buffer.size());
 }
 
@@ -158,7 +151,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 
 vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
 	// Convert audio stream to the exact format PocketSphinx requires
-	audioStream = to16kHzMono(std::move(audioStream));
+	audioStream = to16kHz(std::move(audioStream));
 
 	// Start recognition
 	int error = ps_start_utt(&recognizer);
@@ -243,7 +236,7 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 	if (error) throw runtime_error("Error populating alignment struct.");
 
 	// Convert audio stream to the exact format PocketSphinx requires
-	audioStream = to16kHzMono(std::move(audioStream));
+	audioStream = to16kHz(std::move(audioStream));
 
 	// Create search structure
 	acmod_t* acousticModel = recognizer.acmod;
@@ -304,7 +297,7 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 }
 
 map<centiseconds, Phone> detectPhones(
-	std::function<std::unique_ptr<AudioStream>(void)> createAudioStream,
+	unique_ptr<AudioStream> audioStream,
 	boost::optional<std::string> dialog,
 	ProgressSink& progressSink)
 {
@@ -329,13 +322,13 @@ map<centiseconds, Phone> detectPhones(
 		// Get words
 		vector<string> words = dialog
 			? extractDialogWords(*dialog)
-			: recognizeWords(createAudioStream(), *recognizer.get(), wordRecognitionProgressSink);
+			: recognizeWords(audioStream->clone(true), *recognizer.get(), wordRecognitionProgressSink);
 
 		// Look up words in dictionary
 		vector<s3wid_t> wordIds = getWordIds(words, *recognizer->dict);
 
 		// Align the word's phones with speech
-		map<centiseconds, Phone> result = getPhoneAlignment(wordIds, createAudioStream(), *recognizer.get(), alignmentProgressSink);
+		map<centiseconds, Phone> result = getPhoneAlignment(wordIds, std::move(audioStream), *recognizer.get(), alignmentProgressSink);
 		return result;
 	}
 	catch (...) {

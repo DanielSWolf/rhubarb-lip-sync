@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <fstream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include "AudioStream.h"
@@ -17,16 +14,26 @@ enum class SampleFormat {
 class WaveFileReader : public AudioStream {
 public:
 	WaveFileReader(boost::filesystem::path filePath);
-	virtual int getFrameRate() override ;
-	virtual int getFrameCount() override;
-	virtual int getChannelCount() override;
-	virtual bool getNextSample(float &sample) override;
+	WaveFileReader(const WaveFileReader& rhs, bool reset);
+	std::unique_ptr<AudioStream> clone(bool reset) override;
+	int getSampleRate() override ;
+	int getSampleCount() override;
+	int getSampleIndex() override;
+	void seek(int sampleIndex) override;
+	float readSample() override;
 
 private:
+	void openFile();
+
+private:
+	boost::filesystem::path filePath;
 	boost::filesystem::ifstream file;
+	int bytesPerSample;
 	SampleFormat sampleFormat;
 	int frameRate;
 	int frameCount;
 	int channelCount;
-	int remainingSamples;
+	int sampleCount;
+	size_t dataOffset;
+	int sampleIndex;
 };
