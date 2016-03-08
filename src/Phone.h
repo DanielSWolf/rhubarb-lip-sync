@@ -1,5 +1,7 @@
 #pragma once
 
+#include "enumTools.h"
+
 // Defines a subset of the Arpabet
 enum class Phone {
 	None,
@@ -69,8 +71,15 @@ enum class Phone {
 	W		// [w] as in [w]ay
 };
 
-Phone stringToPhone(const std::string& s);
+template<>
+const std::string& getEnumTypeName<Phone>();
 
-std::string phoneToString(Phone phone);
+template<>
+const std::vector<std::tuple<Phone, std::string>>& getEnumMembers<Phone>();
 
-std::ostream& operator <<(std::ostream& stream, const Phone phone);
+template<>
+Phone parseEnum(const std::string& s);
+
+std::ostream& operator<<(std::ostream& stream, Phone value);
+
+std::istream& operator>>(std::istream& stream, Phone& value);

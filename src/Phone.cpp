@@ -2,39 +2,78 @@
 #include "Phone.h"
 
 using std::string;
+using std::vector;
+using std::tuple;
+using std::make_tuple;
 
-template <typename L, typename R>
-boost::bimap<L, R>
-makeBimap(std::initializer_list<typename boost::bimap<L, R>::value_type> list) {
-	return boost::bimap<L, R>(list.begin(), list.end());
+template <>
+const string& getEnumTypeName<Phone>() {
+	static const string name = "Shape";
+	return name;
 }
 
-boost::bimap<string, Phone> phonesByName = makeBimap<string, Phone>({
-	{ "None", Phone::None },
-	{ "Unknown", Phone::Unknown },
-	{ "AO",	Phone::AO },	{ "AA",	Phone::AA },	{ "IY",	Phone::IY },	{ "UW",	Phone::UW },
-	{ "EH",	Phone::EH },	{ "IH",	Phone::IH },	{ "UH",	Phone::UH },	{ "AH",	Phone::AH },
-	{ "AE",	Phone::AE },	{ "EY",	Phone::EY },	{ "AY",	Phone::AY },	{ "OW",	Phone::OW },
-	{ "AW",	Phone::AW },	{ "OY",	Phone::OY },	{ "ER",	Phone::ER },	{ "P",	Phone::P },
-	{ "B",	Phone::B },		{ "T",	Phone::T },		{ "D",	Phone::D },		{ "K",	Phone::K },
-	{ "G",	Phone::G },		{ "CH",	Phone::CH },	{ "JH",	Phone::JH },	{ "F",	Phone::F },
-	{ "V",	Phone::V },		{ "TH",	Phone::TH },	{ "DH",	Phone::DH },	{ "S",	Phone::S },
-	{ "Z",	Phone::Z },		{ "SH",	Phone::SH },	{ "ZH",	Phone::ZH },	{ "HH",	Phone::HH },
-	{ "M",	Phone::M },		{ "N",	Phone::N },		{ "NG",	Phone::NG },	{ "L",	Phone::L },
-	{ "R",	Phone::R },		{ "Y",	Phone::Y },		{ "W",	Phone::W },
-});
+template <>
+const vector<tuple<Phone, string>>& getEnumMembers<Phone>() {
+	static const vector<tuple<Phone, string>> values = {
+		make_tuple(Phone::None,		"None"),
+		make_tuple(Phone::Unknown,	"Unknown"),
+		make_tuple(Phone::AO,		"AO"),
+		make_tuple(Phone::AA,		"AA"),
+		make_tuple(Phone::IY,		"IY"),
+		make_tuple(Phone::UW,		"UW"),
+		make_tuple(Phone::EH,		"EH"),
+		make_tuple(Phone::IH,		"IH"),
+		make_tuple(Phone::UH,		"UH"),
+		make_tuple(Phone::AH,		"AH"),
+		make_tuple(Phone::AE,		"AE"),
+		make_tuple(Phone::EY,		"EY"),
+		make_tuple(Phone::AY,		"AY"),
+		make_tuple(Phone::OW,		"OW"),
+		make_tuple(Phone::AW,		"AW"),
+		make_tuple(Phone::OY,		"OY"),
+		make_tuple(Phone::ER,		"ER"),
+		make_tuple(Phone::P,		"P"),
+		make_tuple(Phone::B,		"B"),
+		make_tuple(Phone::T,		"T"),
+		make_tuple(Phone::D,		"D"),
+		make_tuple(Phone::K,		"K"),
+		make_tuple(Phone::G,		"G"),
+		make_tuple(Phone::CH,		"CH"),
+		make_tuple(Phone::JH,		"JH"),
+		make_tuple(Phone::F,		"F"),
+		make_tuple(Phone::V,		"V"),
+		make_tuple(Phone::TH,		"TH"),
+		make_tuple(Phone::DH,		"DH"),
+		make_tuple(Phone::S,		"S"),
+		make_tuple(Phone::Z,		"Z"),
+		make_tuple(Phone::SH,		"SH"),
+		make_tuple(Phone::ZH,		"ZH"),
+		make_tuple(Phone::HH,		"HH"),
+		make_tuple(Phone::M,		"M"),
+		make_tuple(Phone::N,		"N"),
+		make_tuple(Phone::NG,		"NG"),
+		make_tuple(Phone::L,		"L"),
+		make_tuple(Phone::R,		"R"),
+		make_tuple(Phone::Y,		"Y"),
+		make_tuple(Phone::W,		"W")
+	};
+	return values;
+}
 
-Phone stringToPhone(const string& s) {
+template<>
+Phone parseEnum(const string& s) {
 	if (s == "SIL") return Phone::None;
-	auto it = phonesByName.left.find(s);
-	return (it != phonesByName.left.end()) ? it->second : Phone::Unknown;
+	Phone result;
+	return tryParseEnum(s, result) ? result : Phone::Unknown;
 }
 
-string phoneToString(Phone phone) {
-	auto it = phonesByName.right.find(phone);
-	return (it != phonesByName.right.end()) ? it->second : phoneToString(Phone::Unknown);
+std::ostream& operator<<(std::ostream& stream, Phone value) {
+	return stream << enumToString(value);
 }
 
-std::ostream &operator<<(std::ostream &stream, const Phone phone) {
-	return stream << phoneToString(phone);
+std::istream& operator>>(std::istream& stream, Phone& value) {
+	string name;
+	stream >> name;
+	value = parseEnum<Phone>(name);
+	return stream;
 }

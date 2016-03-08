@@ -96,6 +96,7 @@ set(SOURCE_FILES
 	src/Phone.cpp
 	src/Shape.cpp
 	src/centiseconds.cpp
+	src/enumTools.cpp
 	src/mouthAnimation.cpp
 	src/phoneExtraction.cpp
 	src/platformTools.cpp

@@ -287,7 +287,7 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 
 		// Add map entries
 		centiseconds start(startFrame);
-		result[start] = stringToPhone(phoneName);
+		result[start] = parseEnum<Phone>(phoneName);
 		centiseconds end(startFrame + duration);
 		result[end] = Phone::None;
 

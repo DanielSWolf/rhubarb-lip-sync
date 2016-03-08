@@ -80,7 +80,7 @@ map<centiseconds, Shape> animate(const map<centiseconds, Phone> &phones) {
 
 	for (auto it = shapes.cbegin(); it != shapes.cend(); ++it) {
 		if (next(it) == shapes.cend()) break;
-		logTimedEvent("shape", it->first, next(it)->first, shapeToString(it->second));
+		logTimedEvent("shape", it->first, next(it)->first, enumToString(it->second));
 	}
 
 	return shapes;

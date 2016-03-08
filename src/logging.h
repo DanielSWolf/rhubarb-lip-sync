@@ -9,6 +9,7 @@
 #include <mutex>
 #include <tuple>
 #include "centiseconds.h"
+#include "enumTools.h"
 
 enum class LogLevel {
 	Trace,
@@ -20,12 +21,15 @@ enum class LogLevel {
 	EndSentinel
 };
 
-std::string toString(LogLevel level);
+template<>
+const std::string& getEnumTypeName<LogLevel>();
 
-template<typename CharT, typename TraitsT>
-std::basic_ostream<CharT, TraitsT>& operator<< (std::basic_ostream<CharT, TraitsT>& stream, LogLevel level) {
-	return stream << toString(level);
-}
+template<>
+const std::vector<std::tuple<LogLevel, std::string>>& getEnumMembers<LogLevel>();
+
+std::ostream& operator<<(std::ostream& stream, LogLevel value);
+
+std::istream& operator>>(std::istream& stream, LogLevel& value);
 
 using LoggerType = boost::log::sources::severity_logger_mt<LogLevel>;
 

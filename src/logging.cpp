@@ -1,5 +1,4 @@
 #include "logging.h"
-#include <array>
 #include <boost/log/sinks/unlocked_frontend.hpp>
 #include <boost/log/expressions.hpp>
 #include <centiseconds.h>
@@ -10,15 +9,40 @@ using std::lock_guard;
 using boost::log::sinks::text_ostream_backend;
 using boost::log::record_view;
 using boost::log::sinks::unlocked_sink;
+using std::vector;
+using std::tuple;
+using std::make_tuple;
 
 namespace expr = boost::log::expressions;
 
-string toString(LogLevel level) {
-	constexpr size_t levelCount = static_cast<size_t>(LogLevel::EndSentinel);
-	static const std::array<const string, levelCount> strings = {
-		"Trace", "Debug", "Info", "Warning", "Error", "Fatal"
+template <>
+const string& getEnumTypeName<LogLevel>() {
+	static const string name = "LogLevel";
+	return name;
+}
+
+template <>
+const vector<tuple<LogLevel, string>>& getEnumMembers<LogLevel>() {
+	static const vector<tuple<LogLevel, string>> values = {
+		make_tuple(LogLevel::Trace,		"Trace"),
+		make_tuple(LogLevel::Debug,		"Debug"),
+		make_tuple(LogLevel::Info,		"Info"),
+		make_tuple(LogLevel::Warning,	"Warning"),
+		make_tuple(LogLevel::Error,		"Error"),
+		make_tuple(LogLevel::Fatal,		"Fatal")
 	};
-	return strings.at(static_cast<size_t>(level));
+	return values;
+}
+
+std::ostream& operator<<(std::ostream& stream, LogLevel value) {
+	return stream << enumToString(value);
+}
+
+std::istream& operator>>(std::istream& stream, LogLevel& value) {
+	string name;
+	stream >> name;
+	value = parseEnum<LogLevel>(name);
+	return stream;
 }
 
 PausableBackendAdapter::PausableBackendAdapter(boost::shared_ptr<text_ostream_backend> backend) :
