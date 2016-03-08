@@ -9,6 +9,7 @@
 #include <mutex>
 #include <tuple>
 #include "centiseconds.h"
+#include <boost/filesystem.hpp>
 #include "enumTools.h"
 
 enum class LogLevel {
@@ -33,7 +34,7 @@ std::istream& operator>>(std::istream& stream, LogLevel& value);
 
 using LoggerType = boost::log::sources::severity_logger_mt<LogLevel>;
 
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(globalLogger, LoggerType)
+BOOST_LOG_GLOBAL_LOGGER(globalLogger, LoggerType)
 
 #define LOG(level) \
 	BOOST_LOG_STREAM_WITH_PARAMS(globalLogger::get(), (::boost::log::keywords::severity = level))
@@ -61,6 +62,8 @@ private:
 	bool isPaused = false;
 };
 
-boost::shared_ptr<PausableBackendAdapter> initLogging();
+boost::shared_ptr<PausableBackendAdapter> addPausableStderrSink(LogLevel minLogLevel);
+
+void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLevel);
 
 void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const std::string& value);

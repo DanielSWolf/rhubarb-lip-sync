@@ -16,12 +16,15 @@
 
 using std::exception;
 using std::string;
+using std::vector;
 using std::unique_ptr;
 using std::map;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 using boost::filesystem::path;
 using boost::property_tree::ptree;
+
+namespace tclap = TCLAP;
 
 string getMessage(const exception& e) {
 	string result(e.what());
@@ -69,35 +72,44 @@ ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones
 	return tree;
 }
 
-// Tell TCLAP how to handle boost::optional
+// Tell TCLAP how to handle our types
 namespace TCLAP {
 	template<>
-	struct ArgTraits<boost::optional<string>> {
-		typedef TCLAP::StringLike ValueCategory;
+	struct ArgTraits<LogLevel> {
+		typedef ValueLike ValueCategory;
 	};
 }
 
 int main(int argc, char *argv[]) {
-	auto logOutputController = initLogging();
-	logOutputController->pause();
+	auto pausableStderrSink = addPausableStderrSink(LogLevel::Warning);
+	pausableStderrSink->pause();
 
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
-	TCLAP::CmdLine cmd(appName, argumentValueSeparator, appVersion);
+	tclap::CmdLine cmd(appName, argumentValueSeparator, appVersion);
 	cmd.setExceptionHandling(false);
 	cmd.setOutput(new NiceCmdLineOutput());
-	TCLAP::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
-	TCLAP::ValueArg<boost::optional<string>> dialog("d", "dialog", "The text of the dialog.", false, boost::optional<string>(), "string", cmd);
+	auto logLevels = vector<LogLevel>(getEnumValues<LogLevel>());
+	tclap::ValuesConstraint<LogLevel> logLevelConstraint(logLevels);
+	tclap::ValueArg<LogLevel> logLevel("", "logLevel", "The minimum log level to log", false, LogLevel::Debug, &logLevelConstraint, cmd);
+	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
+	tclap::ValueArg<string> dialog("d", "dialog", "The text of the dialog.", false, string(), "string", cmd);
+	tclap::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
 	try {
 		auto resumeLogging = gsl::finally([&]() {
 			std::cerr << std::endl << std::endl;
-			logOutputController->resume();
+			pausableStderrSink->resume();
 			std::cerr << std::endl;
 		});
 
 		// Parse command line
 		cmd.parse(argc, argv);
+
+		// Set up log file
+		if (logFileName.isSet()) {
+			addFileSink(path(logFileName.getValue()), logLevel.getValue());
+		}
 
 		// Detect phones
 		const int columnWidth = 30;
@@ -108,7 +120,7 @@ int main(int argc, char *argv[]) {
 			ProgressBar progressBar;
 			phones = detectPhones(
 				createAudioStream(inputFileName.getValue()),
-				dialog.getValue(),
+				dialog.isSet() ? dialog.getValue() : boost::optional<string>(),
 				progressBar);
 		}
 		std::cerr << "Done" << std::endl;
@@ -125,12 +137,12 @@ int main(int argc, char *argv[]) {
 		boost::property_tree::write_xml(std::cout, xmlTree, boost::property_tree::xml_writer_settings<string>(' ', 2));
 
 		return 0;
-	} catch (TCLAP::ArgException& e) {
+	} catch (tclap::ArgException& e) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
 		std::cerr << std::endl;
 		return 1;
-	} catch (TCLAP::ExitException&) {
+	} catch (tclap::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
 		std::cerr << std::endl;
 		return 0;

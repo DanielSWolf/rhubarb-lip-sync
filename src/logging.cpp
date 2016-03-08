@@ -1,6 +1,12 @@
 #include "logging.h"
 #include <boost/log/sinks/unlocked_frontend.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/keywords/file_name.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+// ReSharper disable once CppUnusedIncludeDirective
+#include <boost/log/support/date_time.hpp>
 #include <centiseconds.h>
 #include "tools.h"
 
@@ -14,6 +20,9 @@ using std::tuple;
 using std::make_tuple;
 
 namespace expr = boost::log::expressions;
+namespace keywords = boost::log::keywords;
+namespace sinks = boost::log::sinks;
+namespace attr = boost::log::attributes;
 
 template <>
 const string& getEnumTypeName<LogLevel>() {
@@ -75,7 +84,17 @@ void PausableBackendAdapter::resume() {
 	buffer.clear();
 }
 
-boost::shared_ptr<PausableBackendAdapter> initLogging() {
+BOOST_LOG_GLOBAL_LOGGER_INIT(globalLogger, LoggerType) {
+	LoggerType logger;
+
+	logger.add_attribute("TimeStamp", attr::local_clock());
+
+	return logger;
+}
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", LogLevel)
+
+boost::shared_ptr<PausableBackendAdapter> addPausableStderrSink(LogLevel minLogLevel) {
 	// Create logging backend that logs to stderr
 	auto streamBackend = boost::make_shared<text_ostream_backend>();
 	streamBackend->add_stream(boost::shared_ptr<std::ostream>(&std::cerr, [](std::ostream*) {}));
@@ -86,12 +105,22 @@ boost::shared_ptr<PausableBackendAdapter> initLogging() {
 
 	// Create a sink that feeds into the adapter
 	auto sink = boost::make_shared<unlocked_sink<PausableBackendAdapter>>(pausableAdapter);
-
-	// Set output formatting
-	sink->set_formatter(expr::stream << "[" << expr::attr<LogLevel>("Severity") << "] " << expr::smessage);
-
+	sink->set_formatter(expr::stream << "[" << severity << "] " << expr::smessage);
+	sink->set_filter(severity >= minLogLevel);
 	boost::log::core::get()->add_sink(sink);
+
 	return pausableAdapter;
+}
+
+void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLevel) {
+	auto textFileBackend = boost::make_shared<sinks::text_file_backend>(
+		keywords::file_name = logFilePath.string());
+	auto sink = boost::make_shared<sinks::synchronous_sink<sinks::text_file_backend>>(textFileBackend);
+	sink->set_formatter(expr::stream
+		<< "[" << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S")
+		<< "] [" << severity << "] " << expr::smessage);
+	sink->set_filter(severity >= minLogLevel);
+	boost::log::core::get()->add_sink(sink);
 }
 
 void logTimedEvent(const string& eventName, centiseconds start, centiseconds end, const string& value) {
