@@ -2,7 +2,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include "phoneExtraction.h"
-#include "audioInput/SampleRateConverter.h"
+#include "audio/SampleRateConverter.h"
 #include "platformTools.h"
 #include "tools.h"
 #include <format.h>

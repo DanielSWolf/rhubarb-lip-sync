@@ -4,7 +4,7 @@
 #include <boost/optional.hpp>
 #include <format.h>
 #include <tclap/CmdLine.h>
-#include "audioInput/WaveFileReader.h"
+#include "audio/WaveFileReader.h"
 #include "phoneExtraction.h"
 #include "mouthAnimation.h"
 #include "appInfo.h"

@@ -2,7 +2,7 @@
 
 #include <map>
 #include <memory>
-#include "audioInput/AudioStream.h"
+#include "audio/AudioStream.h"
 #include "Phone.h"
 #include "centiseconds.h"
 #include "progressBar.h"

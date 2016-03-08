@@ -100,10 +100,10 @@ set(SOURCE_FILES
 	src/phoneExtraction.cpp
 	src/platformTools.cpp
 	src/tools.cpp
-	src/audioInput/AudioStream.cpp
-	src/audioInput/SampleRateConverter.cpp
-	src/audioInput/WaveFileReader.cpp
-	src/audioInput/waveFileWriting.cpp
+	src/audio/AudioStream.cpp
+	src/audio/SampleRateConverter.cpp
+	src/audio/WaveFileReader.cpp
+	src/audio/waveFileWriting.cpp
 	src/stringTools.cpp
 	src/NiceCmdLineOutput.cpp
 	src/TablePrinter.cpp
