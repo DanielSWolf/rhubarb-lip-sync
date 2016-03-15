@@ -102,7 +102,9 @@ set(SOURCE_FILES
 	src/platformTools.cpp
 	src/tools.cpp
 	src/audio/AudioStream.cpp
+	src/audio/DCOffset.cpp
 	src/audio/SampleRateConverter.cpp
+	src/audio/UnboundedStream.cpp
 	src/audio/WaveFileReader.cpp
 	src/audio/waveFileWriting.cpp
 	src/stringTools.cpp

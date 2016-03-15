@@ -2,25 +2,29 @@
 #include "SampleRateConverter.h"
 #include <stdexcept>
 #include <algorithm>
+#include <format.h>
 
-using std::runtime_error;
+using std::invalid_argument;
 
-SampleRateConverter::SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputFrameRate) :
+SampleRateConverter::SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputSampleRate) :
 	inputStream(std::move(inputStream)),
-	downscalingFactor(static_cast<double>(this->inputStream->getSampleRate()) / outputFrameRate),
-	outputFrameRate(outputFrameRate),
-	outputFrameCount(std::lround(this->inputStream->getSampleCount() / downscalingFactor)),
+	downscalingFactor(static_cast<double>(this->inputStream->getSampleRate()) / outputSampleRate),
+	outputSampleRate(outputSampleRate),
+	outputSampleCount(std::lround(this->inputStream->getSampleCount() / downscalingFactor)),
 	lastInputSample(0),
 	lastInputSampleIndex(-1),
 	nextOutputSampleIndex(0)
 {
-	if (this->inputStream->getSampleRate() < outputFrameRate) {
-		throw runtime_error("Upsampling not supported.");
+	if (outputSampleRate <= 0) {
+		throw invalid_argument("Sample rate must be positive.");
+	}
+	if (this->inputStream->getSampleRate() < outputSampleRate) {
+		throw invalid_argument(fmt::format("Upsampling not supported. Audio sample rate must not be below {}Hz.", outputSampleRate));
 	}
 }
 
 SampleRateConverter::SampleRateConverter(const SampleRateConverter& rhs, bool reset) :
-	SampleRateConverter(rhs.inputStream->clone(reset), outputFrameRate)
+	SampleRateConverter(rhs.inputStream->clone(reset), rhs.outputSampleRate)
 {
 	nextOutputSampleIndex = reset ? 0 : rhs.nextOutputSampleIndex;
 }
@@ -30,11 +34,11 @@ std::unique_ptr<AudioStream> SampleRateConverter::clone(bool reset) {
 }
 
 int SampleRateConverter::getSampleRate() {
-	return outputFrameRate;
+	return outputSampleRate;
 }
 
 int SampleRateConverter::getSampleCount() {
-	return outputFrameCount;
+	return outputSampleCount;
 }
 
 int SampleRateConverter::getSampleIndex() {
@@ -42,13 +46,13 @@ int SampleRateConverter::getSampleIndex() {
 }
 
 void SampleRateConverter::seek(int sampleIndex) {
-	if (sampleIndex < 0 || sampleIndex >= outputFrameCount) throw std::invalid_argument("sampleIndex out of range.");
+	if (sampleIndex < 0 || sampleIndex >= outputSampleCount) throw std::invalid_argument("sampleIndex out of range.");
 
 	nextOutputSampleIndex = sampleIndex;
 }
 
 float SampleRateConverter::readSample() {
-	if (nextOutputSampleIndex >= outputFrameCount) throw std::out_of_range("End of stream.");
+	if (nextOutputSampleIndex >= outputSampleCount) throw std::out_of_range("End of stream.");
 
 	double inputStart = nextOutputSampleIndex * downscalingFactor;
 	double inputEnd = (nextOutputSampleIndex + 1) * downscalingFactor;
@@ -91,4 +95,11 @@ float SampleRateConverter::getInputSample(int sampleIndex) {
 	lastInputSample = inputStream->readSample();
 	lastInputSampleIndex = sampleIndex;
 	return lastInputSample;
+}
+
+std::unique_ptr<AudioStream> convertSampleRate(std::unique_ptr<AudioStream> audioStream, int sampleRate) {
+	if (sampleRate == audioStream->getSampleRate()) {
+		return audioStream;
+	}
+	return std::make_unique<SampleRateConverter>(std::move(audioStream), sampleRate);
 }

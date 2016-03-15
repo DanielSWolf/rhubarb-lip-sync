@@ -5,7 +5,7 @@
 
 class SampleRateConverter : public AudioStream {
 public:
-	SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputFrameRate);
+	SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputSampleRate);
 	SampleRateConverter(const SampleRateConverter& rhs, bool reset);
 	std::unique_ptr<AudioStream> clone(bool reset) override;
 	int getSampleRate() override;
@@ -15,10 +15,10 @@ public:
 	float readSample() override;
 private:
 	std::unique_ptr<AudioStream> inputStream;
-	double downscalingFactor;					// input frame rate / output frame rate
+	double downscalingFactor;					// input sample rate / output sample rate
 
-	int outputFrameRate;
-	int outputFrameCount;
+	int outputSampleRate;
+	int outputSampleCount;
 
 	float lastInputSample;
 	int lastInputSampleIndex;
@@ -28,3 +28,5 @@ private:
 	float mean(double start, double end);
 	float getInputSample(int sampleIndex);
 };
+
+std::unique_ptr<AudioStream> convertSampleRate(std::unique_ptr<AudioStream> audioStream, int sampleRate);

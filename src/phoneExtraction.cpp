@@ -10,6 +10,7 @@
 #include <regex>
 #include <gsl_util.h>
 #include <logging.h>
+#include <audio/DCOffset.h>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -32,17 +33,7 @@ using std::regex;
 using std::regex_replace;
 using std::chrono::duration;
 
-unique_ptr<AudioStream> to16kHz(unique_ptr<AudioStream> stream) {
-	// Downsample, if required
-	if (stream->getSampleRate() < 16000) {
-		throw invalid_argument("Audio sample rate must not be below 16kHz.");
-	}
-	if (stream->getSampleRate() != 16000) {
-		stream.reset(new SampleRateConverter(std::move(stream), 16000));
-	}
-
-	return stream;
-}
+constexpr int sphinxSampleRate = 16000;
 
 lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 	lambda_unique_ptr<cmd_ln_t> config(
@@ -151,7 +142,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 
 vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
 	// Convert audio stream to the exact format PocketSphinx requires
-	audioStream = to16kHz(std::move(audioStream));
+	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
 
 	// Start recognition
 	int error = ps_start_utt(&recognizer);
@@ -236,7 +227,7 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 	if (error) throw runtime_error("Error populating alignment struct.");
 
 	// Convert audio stream to the exact format PocketSphinx requires
-	audioStream = to16kHz(std::move(audioStream));
+	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
 
 	// Create search structure
 	acmod_t* acousticModel = recognizer.acmod;
@@ -306,6 +297,9 @@ map<centiseconds, Phone> detectPhones(
 
 	// Redirect Pocketsphinx output to log
 	err_set_callback(sphinxLogCallback, nullptr);
+
+	// Make sure audio stream has no DC offset
+	audioStream = removeDCOffset(std::move(audioStream));
 
 	try {
 		// Create PocketSphinx configuration
