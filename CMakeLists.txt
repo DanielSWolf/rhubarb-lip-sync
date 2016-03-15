@@ -110,6 +110,7 @@ set(SOURCE_FILES
 	src/audio/DCOffset.cpp
 	src/audio/SampleRateConverter.cpp
 	src/audio/UnboundedStream.cpp
+	src/audio/voiceActivityDetection.cpp
 	src/audio/WaveFileReader.cpp
 	src/audio/waveFileWriting.cpp
 	src/stringTools.cpp
@@ -117,6 +118,8 @@ set(SOURCE_FILES
 	src/TablePrinter.cpp
 	src/ProgressBar.cpp
 	src/logging.cpp
+	src/Timed.cpp
+	src/TimeSegment.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
