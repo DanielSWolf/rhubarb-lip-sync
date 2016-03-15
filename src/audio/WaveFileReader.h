@@ -34,6 +34,6 @@ private:
 	int frameCount;
 	int channelCount;
 	int sampleCount;
-	size_t dataOffset;
+	std::streampos dataOffset;
 	int sampleIndex;
 };

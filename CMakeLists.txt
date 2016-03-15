@@ -36,8 +36,13 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(enableWarningsFlags "/W4")
 	set(disableWarningsFlags "/W0")
 	
-	# Boost.Log causes this warning
+	# Disable warning C4714: function '...' marked as __forceinline not inlined
+	# This is caused by Boost.Log
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4714")
+	
+	# Disable warning C4456: declaration of '...' hides previous local declaration
+	# I'm doing that on purpose.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
 endif()
 
 # Enable project folders

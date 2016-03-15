@@ -153,7 +153,7 @@ int WaveFileReader::getSampleIndex() {
 void WaveFileReader::seek(int sampleIndex) {
 	if (sampleIndex < 0 || sampleIndex >= sampleCount) throw std::invalid_argument("sampleIndex out of range.");
 
-	file.seekg(dataOffset + sampleIndex * channelCount * bytesPerSample);
+	file.seekg(dataOffset + static_cast<std::streamoff>(sampleIndex * channelCount * bytesPerSample));
 	this->sampleIndex = sampleIndex;
 }
 
