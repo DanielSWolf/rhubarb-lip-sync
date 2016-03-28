@@ -1,9 +1,9 @@
 #pragma once
 #include "centiseconds.h"
 
-class TimeSegment {
+class TimeRange {
 public:
-	TimeSegment(centiseconds start, centiseconds end);
+	TimeRange(centiseconds start, centiseconds end);
 	centiseconds getStart() const;
 	centiseconds getEnd() const;
 	centiseconds getLength() const;

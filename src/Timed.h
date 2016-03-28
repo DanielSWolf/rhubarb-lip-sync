@@ -1,12 +1,12 @@
 #pragma once
 
-#include <TimeSegment.h>
+#include <TimeRange.h>
 
 template<typename TValue>
-class Timed : public TimeSegment {
+class Timed : public TimeRange {
 public:
 	Timed(centiseconds start, centiseconds end, TValue value) :
-		TimeSegment(start, end),
+		TimeRange(start, end),
 		value(value)
 	{}
 

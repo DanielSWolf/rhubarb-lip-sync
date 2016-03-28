@@ -119,7 +119,7 @@ set(SOURCE_FILES
 	src/ProgressBar.cpp
 	src/logging.cpp
 	src/Timed.cpp
-	src/TimeSegment.cpp
+	src/TimeRange.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
