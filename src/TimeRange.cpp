@@ -1,21 +1,45 @@
 #include "TimeRange.h"
 #include <stdexcept>
+#include <ostream>
 
-TimeRange::TimeRange(centiseconds start, centiseconds end) :
+using time_type = TimeRange::time_type;
+
+TimeRange::TimeRange(time_type start, time_type end) :
 	start(start),
 	end(end)
 {
-	if (start > end) throw std::invalid_argument("start must not be less than end.");
+	if (start > end) throw std::invalid_argument("Start must not be less than end.");
 }
 
-centiseconds TimeRange::getStart() const {
+time_type TimeRange::getStart() const {
 	return start;
 }
 
-centiseconds TimeRange::getEnd() const {
+time_type TimeRange::getEnd() const {
 	return end;
 }
 
-centiseconds TimeRange::getLength() const {
+time_type TimeRange::getLength() const {
 	return end - start;
+}
+
+void TimeRange::resize(const TimeRange& newRange) {
+	start = newRange.start;
+	end = newRange.end;
+}
+
+void TimeRange::resize(time_type start, time_type end) {
+	resize(TimeRange(start, end));
+}
+
+bool TimeRange::operator==(const TimeRange& rhs) const {
+	return start == rhs.start && end == rhs.end;
+}
+
+bool TimeRange::operator!=(const TimeRange& rhs) const {
+	return !operator==(rhs);
+}
+
+std::ostream& operator<<(std::ostream& stream, const TimeRange& timeRange) {
+	return stream << "TimeRange(" << timeRange.getStart() << ", " << timeRange.getEnd() << ")";
 }

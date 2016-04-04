@@ -120,6 +120,7 @@ set(SOURCE_FILES
 	src/logging.cpp
 	src/Timed.cpp
 	src/TimeRange.cpp
+	src/Timeline.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
@@ -129,7 +130,11 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 #include_directories("${gtest_SOURCE_DIR}/include")
 set(TEST_FILES
 	tests/stringToolsTests.cpp
+	tests/TimelineTests.cpp
 	src/stringTools.cpp
+	src/Timeline.cpp
+	src/TimeRange.cpp
+	src/centiseconds.cpp
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
