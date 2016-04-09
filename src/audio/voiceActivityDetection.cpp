@@ -17,7 +17,7 @@ float getRMS(AudioStream& audioStream, int maxSampleCount = numeric_limits<int>:
 	return sampleCount > 0 ? static_cast<float>(std::sqrt(sum / sampleCount)) : 0.0f;
 }
 
-vector<TimeRange> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
+Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
 	// Make sure audio stream has no DC offset
 	audioStream = removeDCOffset(std::move(audioStream));
 
@@ -26,30 +26,30 @@ vector<TimeRange> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) 
 	constexpr int sampleRate = 2 * maxFrequency;
 	audioStream = convertSampleRate(std::move(audioStream), sampleRate);
 
-	float rms = getRMS(*audioStream->clone(true));
-	float cutoff = rms / 50;
-	centiseconds maxGap(10);
-
-	vector<TimeRange> result;
-	optional<centiseconds> segmentStart, segmentEnd;
-	for (centiseconds time = centiseconds(0); !audioStream->endOfStream(); ++time) {
-		float currentPower = getRMS(*audioStream, sampleRate / 100);
-		bool active = currentPower > cutoff;
+	// Detect activity
+	const float rms = getRMS(*audioStream->clone(true));
+	const float cutoff = rms / 50;
+	Timeline<bool> activity(audioStream->getTruncatedRange());
+	for (centiseconds time = centiseconds::zero(); !audioStream->endOfStream(); ++time) {
+		float currentRMS = getRMS(*audioStream, sampleRate / 100);
+		bool active = currentRMS > cutoff;
 		if (active) {
-			if (!segmentStart) {
-				segmentStart = time;
-			}
-			segmentEnd = time + centiseconds(1);
-		} else if (segmentEnd && time > segmentEnd.value() + maxGap) {
-			result.push_back(TimeRange(segmentStart.value(), segmentEnd.value()));
-			logTimedEvent("utterance", segmentStart.value(), segmentEnd.value(), "");
-			segmentStart.reset();
-			segmentEnd.reset();
+			activity[time] = true;
 		}
 	}
-	if (segmentEnd) {
-		result.push_back(TimeRange(segmentStart.value(), segmentEnd.value()));
+
+	// Fill small gaps in activity
+	const centiseconds maxGap(10);
+	for (const auto& element : Timeline<bool>(activity)) {
+		if (!element.getValue() && element.getLength() <= maxGap) {
+			activity.set(static_cast<TimeRange>(element), true);
+		}
 	}
 
-	return result;
+	// Log
+	for (const auto& element : activity) {
+		logTimedEvent("utterance", static_cast<TimeRange>(element), std::string());
+	}
+
+	return activity;
 }

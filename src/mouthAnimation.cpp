@@ -67,20 +67,12 @@ Shape getShape(Phone phone) {
 	}
 }
 
-map<centiseconds, Shape> animate(const map<centiseconds, Phone> &phones) {
-	map<centiseconds, Shape> shapes;
-	Shape lastShape = Shape::Invalid;
-	for (auto it = phones.cbegin(); it != phones.cend(); ++it) {
-		Shape shape = getShape(it->second);
-		if (shape != lastShape || next(it) == phones.cend()) {
-			shapes[it->first] = shape;
-			lastShape = shape;
-		}
-	}
-
-	for (auto it = shapes.cbegin(); it != shapes.cend(); ++it) {
-		if (next(it) == shapes.cend()) break;
-		logTimedEvent("shape", it->first, next(it)->first, enumToString(it->second));
+Timeline<Shape> animate(const Timeline<Phone> &phones) {
+	Timeline<Shape> shapes(phones.getRange());
+	for (auto& timedPhone : phones) {
+		Timed<Shape> timedShape(static_cast<TimeRange>(timedPhone), getShape(timedPhone.getValue()));
+		shapes.set(timedShape);
+		logTimedEvent("shape", timedShape);
 	}
 
 	return shapes;

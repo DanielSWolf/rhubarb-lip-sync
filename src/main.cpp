@@ -13,6 +13,7 @@
 #include "logging.h"
 #include <gsl_util.h>
 #include <tools.h>
+#include <Timeline.h>
 
 using std::exception;
 using std::string;
@@ -39,34 +40,30 @@ string getMessage(const exception& e) {
 
 unique_ptr<AudioStream> createAudioStream(path filePath) {
 	try {
-		return unique_ptr<AudioStream>(new WaveFileReader(filePath));
+		return std::make_unique<WaveFileReader>(filePath);
 	} catch (...) {
 		std::throw_with_nested(std::runtime_error("Could not open sound file.") );
 	}
 }
 
-ptree createXmlTree(const path& filePath, const map<centiseconds, Phone>& phones, const map<centiseconds, Shape>& shapes) {
+ptree createXmlTree(const path& filePath, const Timeline<Phone>& phones, const Timeline<Shape>& shapes) {
 	ptree tree;
 
 	// Add sound file path
 	tree.add("rhubarbResult.info.soundFile", filePath.string());
 
 	// Add phones
-	for (auto it = phones.cbegin(), itNext = ++phones.cbegin(); itNext != phones.cend(); ++it, ++itNext) {
-		auto pair = *it;
-		auto nextPair = *itNext;
-		ptree& phoneElement = tree.add("rhubarbResult.phones.phone", pair.second);
-		phoneElement.add("<xmlattr>.start", formatDuration(pair.first));
-		phoneElement.add("<xmlattr>.duration", formatDuration(nextPair.first - pair.first));
+	for (auto& timedPhone : phones) {
+		ptree& phoneElement = tree.add("rhubarbResult.phones.phone", timedPhone.getValue());
+		phoneElement.add("<xmlattr>.start", formatDuration(timedPhone.getStart()));
+		phoneElement.add("<xmlattr>.duration", formatDuration(timedPhone.getLength()));
 	}
 
 	// Add mouth cues
-	for (auto it = shapes.cbegin(), itNext = ++shapes.cbegin(); itNext != shapes.cend(); ++it, ++itNext) {
-		auto pair = *it;
-		auto nextPair = *itNext;
-		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", pair.second);
-		mouthCueElement.add("<xmlattr>.start", formatDuration(pair.first));
-		mouthCueElement.add("<xmlattr>.duration", formatDuration(nextPair.first - pair.first));
+	for (auto& timedShape : shapes) {
+		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", timedShape.getValue());
+		mouthCueElement.add("<xmlattr>.start", formatDuration(timedShape.getStart()));
+		mouthCueElement.add("<xmlattr>.duration", formatDuration(timedShape.getLength()));
 	}
 
 	return tree;
@@ -115,7 +112,7 @@ int main(int argc, char *argv[]) {
 		const int columnWidth = 30;
 		std::cerr << std::left;
 		std::cerr << std::setw(columnWidth) << "Analyzing input file";
-		map<centiseconds, Phone> phones;
+		Timeline<Phone> phones{};
 		{
 			ProgressBar progressBar;
 			phones = detectPhones(
@@ -127,7 +124,7 @@ int main(int argc, char *argv[]) {
 
 		// Generate mouth shapes
 		std::cerr << std::setw(columnWidth) << "Generating mouth shapes";
-		map<centiseconds, Shape> shapes = animate(phones);
+		Timeline<Shape> shapes = animate(phones);
 		std::cerr << "Done" << std::endl;
 
 		std::cerr << std::endl;

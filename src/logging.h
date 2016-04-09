@@ -10,7 +10,9 @@
 #include <tuple>
 #include "centiseconds.h"
 #include <boost/filesystem.hpp>
+#include "tools.h"
 #include "enumTools.h"
+#include "Timed.h"
 
 enum class LogLevel {
 	Trace,
@@ -66,4 +68,19 @@ boost::shared_ptr<PausableBackendAdapter> addPausableStderrSink(LogLevel minLogL
 
 void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLevel);
 
-void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const std::string& value);
+template<typename TValue>
+void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
+	LOG_DEBUG
+		<< "##" << eventName << "[" << formatDuration(timedValue.getStart()) << "-" << formatDuration(timedValue.getEnd()) << "]: "
+		<< timedValue.getValue();
+}
+
+template<typename TValue>
+void logTimedEvent(const std::string& eventName, const TimeRange& timeRange, const TValue& value) {
+	logTimedEvent(eventName, Timed<TValue>(timeRange, value));
+}
+
+template<typename TValue>
+void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const TValue& value) {
+	logTimedEvent(eventName, Timed<TValue>(start, end, value));
+}

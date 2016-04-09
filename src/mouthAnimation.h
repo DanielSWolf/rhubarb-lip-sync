@@ -1,8 +1,7 @@
 #pragma once
 
-#include <map>
 #include "Phone.h"
-#include "centiseconds.h"
 #include "Shape.h"
+#include "Timeline.h"
 
-std::map<centiseconds, Shape> animate(const std::map<centiseconds, Phone>& phones);
+Timeline<Shape> animate(const Timeline<Phone>& phones);

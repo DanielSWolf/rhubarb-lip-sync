@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "TimeRange.h"
 
 // A mono stream of floating-point samples.
 class AudioStream {
@@ -9,6 +10,7 @@ public:
 	virtual std::unique_ptr<AudioStream> clone(bool reset) = 0;
 	virtual int getSampleRate() = 0;
 	virtual int getSampleCount() = 0;
+	TimeRange getTruncatedRange();
 	virtual int getSampleIndex() = 0;
 	virtual void seek(int sampleIndex) = 0;
 	bool endOfStream();

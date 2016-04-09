@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
-#include <TimeRange.h>
 #include <memory>
 #include "AudioStream.h"
+#include <Timeline.h>
 
-std::vector<TimeRange> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream);
+Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream);

@@ -7,8 +7,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 // ReSharper disable once CppUnusedIncludeDirective
 #include <boost/log/support/date_time.hpp>
-#include <centiseconds.h>
-#include "tools.h"
+#include <Timed.h>
 
 using std::string;
 using std::lock_guard;
@@ -121,8 +120,4 @@ void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLeve
 		<< "] [" << severity << "] " << expr::smessage);
 	sink->set_filter(severity >= minLogLevel);
 	boost::log::core::get()->add_sink(sink);
-}
-
-void logTimedEvent(const string& eventName, centiseconds start, centiseconds end, const string& value) {
-	LOG_DEBUG << "##" << eventName << "[" << formatDuration(start) << "-" << formatDuration(end) << "]: " << value;
 }

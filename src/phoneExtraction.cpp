@@ -11,6 +11,7 @@
 #include <gsl_util.h>
 #include <logging.h>
 #include <audio/DCOffset.h>
+#include <Timeline.h>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -213,7 +214,7 @@ vector<s3wid_t> getWordIds(const vector<string>& words, dict_t& dictionary) {
 	return result;
 }
 
-map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
+Timeline<Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
 	// Create alignment list
 	lambda_unique_ptr<ps_alignment_t> alignment(
 		ps_alignment_init(recognizer.d2p),
@@ -264,30 +265,25 @@ map<centiseconds, Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, uniqu
 
 	// Extract phones with timestamps
 	char** phoneNames = recognizer.dict->mdef->ciname;
-	map<centiseconds, Phone> result;
-	result[centiseconds(0)] = Phone::None;
+	Timeline<Phone> result(audioStream->getTruncatedRange());
 	for (ps_alignment_iter_t* it = ps_alignment_phones(alignment.get()); it; it = ps_alignment_iter_next(it)) {
 		// Get phone
 		ps_alignment_entry_t* phoneEntry = ps_alignment_iter_get(it);
 		s3cipid_t phoneId = phoneEntry->id.pid.cipid;
 		char* phoneName = phoneNames[phoneId];
 
-		// Get timing
-		int startFrame = phoneEntry->start;
-		int duration = phoneEntry->duration;
+		// Add entry
+		centiseconds start(phoneEntry->start);
+		centiseconds duration(phoneEntry->duration);
+		Timed<Phone> timedPhone(start, start + duration, parseEnum<Phone>(phoneName));
+		result.set(timedPhone);
 
-		// Add map entries
-		centiseconds start(startFrame);
-		result[start] = parseEnum<Phone>(phoneName);
-		centiseconds end(startFrame + duration);
-		result[end] = Phone::None;
-
-		logTimedEvent("phone", start, end, phoneName);
+		logTimedEvent("phone", timedPhone);
 	}
 	return result;
 }
 
-map<centiseconds, Phone> detectPhones(
+Timeline<Phone> detectPhones(
 	unique_ptr<AudioStream> audioStream,
 	boost::optional<std::string> dialog,
 	ProgressSink& progressSink)
@@ -322,7 +318,7 @@ map<centiseconds, Phone> detectPhones(
 		vector<s3wid_t> wordIds = getWordIds(words, *recognizer->dict);
 
 		// Align the word's phones with speech
-		map<centiseconds, Phone> result = getPhoneAlignment(wordIds, std::move(audioStream), *recognizer.get(), alignmentProgressSink);
+		Timeline<Phone> result = getPhoneAlignment(wordIds, std::move(audioStream), *recognizer.get(), alignmentProgressSink);
 		return result;
 	}
 	catch (...) {

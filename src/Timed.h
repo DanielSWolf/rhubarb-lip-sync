@@ -6,12 +6,12 @@
 template<typename TValue>
 class Timed : public TimeRange {
 public:
-	Timed(time_type start, time_type end, TValue value) :
+	Timed(time_type start, time_type end, const TValue& value) :
 		TimeRange(start, end),
 		value(value)
 	{}
 
-	Timed(TimeRange timeRange, TValue value) :
+	Timed(const TimeRange& timeRange, const TValue& value) :
 		TimeRange(timeRange),
 		value(value)
 	{}
