@@ -63,7 +63,7 @@ public class EntryPoint {
 		VideoTrack videoTrack = vegas.Project.AddVideoTrack();
 		foreach (XmlElement mouthCueElement in mouthCueElements) {
 			Timecode start = GetTimecode(mouthCueElement.Attributes["start"]);
-			Timecode length = GetTimecode(mouthCueElement.Attributes["duration"]);
+			Timecode length = GetTimecode(mouthCueElement.Attributes["end"]) - start;
 			VideoEvent videoEvent = videoTrack.AddVideoEvent(start, length);
 			Media imageMedia = new Media(imageFileNames[mouthCueElement.InnerText]);
 			videoEvent.AddTake(imageMedia.GetVideoStreamByIndex(0));

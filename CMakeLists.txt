@@ -121,6 +121,7 @@ set(SOURCE_FILES
 	src/Timed.cpp
 	src/TimeRange.cpp
 	src/Timeline.cpp
+	src/Exporter.cpp
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
