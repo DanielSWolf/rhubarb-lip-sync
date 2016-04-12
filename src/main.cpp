@@ -42,7 +42,7 @@ unique_ptr<AudioStream> createAudioStream(path filePath) {
 	try {
 		return std::make_unique<WaveFileReader>(filePath);
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error("Could not open sound file.") );
+		std::throw_with_nested(std::runtime_error(fmt::format("Could not open sound file {0}.", filePath)));
 	}
 }
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	} catch (const exception& e) {
 		// Generic error
-		std::cerr << "An error occurred. " << getMessage(e) << std::endl;
+		std::cerr << "An error occurred.\n" << getMessage(e) << std::endl;
 		return 1;
 	}
 }

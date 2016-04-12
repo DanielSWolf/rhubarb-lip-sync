@@ -1,6 +1,8 @@
 #include <format.h>
+#include <string.h>
 #include "WaveFileReader.h"
 #include "ioTools.h"
+#include <array>
 
 using std::runtime_error;
 using fmt::format;
@@ -31,7 +33,19 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 {
 	openFile();
 
+	file.seekg(0, std::ios_base::end);
+	std::streamoff fileSize = file.tellg();
+	file.seekg(0);
+
+	auto remaining = [&](size_t byteCount) {
+		std::streamoff filePosition = file.tellg();
+		return byteCount <= fileSize - filePosition;
+	};
+
 	// Read header
+	if (!remaining(10)) {
+		throw runtime_error("WAVE file is corrupt. Header not found.");
+	}
 	uint32_t rootChunkId = read<uint32_t>(file);
 	if (rootChunkId != fourcc('R', 'I', 'F', 'F')) {
 		throw runtime_error("Unknown file format. Only WAVE files are supported.");
@@ -45,7 +59,7 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 	// Read chunks until we reach the data chunk
 	bool reachedDataChunk = false;
 	bytesPerSample = 0;
-	do {
+	while (!reachedDataChunk && remaining(8)) {
 		uint32_t chunkId = read<uint32_t>(file);
 		int chunkSize = read<uint32_t>(file);
 		switch (chunkId) {
@@ -110,7 +124,12 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 			break;
 		}
 		}
-	} while (!reachedDataChunk);
+	}
+
+	if (!reachedDataChunk) {
+		dataOffset = file.tellg();
+		sampleCount = frameCount = 0;
+	}
 }
 
 WaveFileReader::WaveFileReader(const WaveFileReader& rhs, bool reset) :
@@ -134,8 +153,23 @@ std::unique_ptr<AudioStream> WaveFileReader::clone(bool reset) {
 }
 
 void WaveFileReader::openFile() {
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	file.open(filePath, std::ios::binary);
+	try {
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		file.open(filePath, std::ios::binary);
+
+		// Error messages on stream exceptions are mostly useless.
+		// Read some dummy data so that we can throw a decent exception in case the file is missing, locked, etc.
+		file.seekg(0, std::ios_base::end);
+		if (file.tellg()) {
+			file.seekg(0);
+			file.get();
+			file.seekg(0);
+		}
+	} catch (const std::ifstream::failure&) {
+		std::array<char, 256> message;
+		strerror_s(message.data(), message.size(), errno);
+		throw runtime_error(message.data());
+	}
 }
 
 int WaveFileReader::getSampleRate() {
