@@ -50,20 +50,22 @@ ptree createXmlTree(const path& filePath, const Timeline<Phone>& phones, const T
 	ptree tree;
 
 	// Add sound file path
-	tree.add("rhubarbResult.info.soundFile", filePath.string());
+	tree.put("rhubarbResult.info.soundFile", filePath.string());
 
 	// Add phones
+	tree.put("rhubarbResult.phones", "");
 	for (auto& timedPhone : phones) {
 		ptree& phoneElement = tree.add("rhubarbResult.phones.phone", timedPhone.getValue());
-		phoneElement.add("<xmlattr>.start", formatDuration(timedPhone.getStart()));
-		phoneElement.add("<xmlattr>.duration", formatDuration(timedPhone.getLength()));
+		phoneElement.put("<xmlattr>.start", formatDuration(timedPhone.getStart()));
+		phoneElement.put("<xmlattr>.duration", formatDuration(timedPhone.getLength()));
 	}
 
 	// Add mouth cues
+	tree.put("rhubarbResult.mouthCues", "");
 	for (auto& timedShape : shapes) {
 		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", timedShape.getValue());
-		mouthCueElement.add("<xmlattr>.start", formatDuration(timedShape.getStart()));
-		mouthCueElement.add("<xmlattr>.duration", formatDuration(timedShape.getLength()));
+		mouthCueElement.put("<xmlattr>.start", formatDuration(timedShape.getStart()));
+		mouthCueElement.put("<xmlattr>.duration", formatDuration(timedShape.getLength()));
 	}
 
 	return tree;

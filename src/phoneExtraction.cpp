@@ -288,6 +288,11 @@ Timeline<Phone> detectPhones(
 	boost::optional<std::string> dialog,
 	ProgressSink& progressSink)
 {
+	// Pocketsphinx doesn't like empty input
+	if (audioStream->getTruncatedRange().getLength() == centiseconds::zero()) {
+		return Timeline<Phone>{};
+	}
+
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
