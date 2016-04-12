@@ -37,7 +37,7 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 	std::streamoff fileSize = file.tellg();
 	file.seekg(0);
 
-	auto remaining = [&](size_t byteCount) {
+	auto remaining = [&](int byteCount) {
 		std::streamoff filePosition = file.tellg();
 		return byteCount <= fileSize - filePosition;
 	};

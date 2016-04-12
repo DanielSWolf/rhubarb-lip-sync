@@ -1,5 +1,6 @@
 #include "DCOffset.h"
 #include <gsl_util.h>
+#include <cmath>
 
 DCOffset::DCOffset(std::unique_ptr<AudioStream> inputStream, float offset) :
 	inputStream(std::move(inputStream)),

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <ostream>
 
 typedef std::chrono::duration<int, std::centi> centiseconds;
 
