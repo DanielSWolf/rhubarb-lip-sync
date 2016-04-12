@@ -25,8 +25,10 @@ vector<string> splitIntoLines(const string& s) {
 	return lines;
 }
 
-vector<string> wrapSingleLineString(const string& s, int lineLength) {
+vector<string> wrapSingleLineString(const string& s, int lineLength, int hangingIndent) {
 	if (lineLength <= 0) throw std::invalid_argument("lineLength must be > 0.");
+	if (hangingIndent < 0) throw std::invalid_argument("hangingIndent must be >= 0.");
+	if (hangingIndent >= lineLength) throw std::invalid_argument("hangingIndent must be < lineLength.");
 	if (s.find('\t') != std::string::npos) throw std::invalid_argument("s must not contain tabs.");
 	if (s.find('\n') != std::string::npos) throw std::invalid_argument("s must not contain line breaks.");
 
@@ -37,13 +39,14 @@ vector<string> wrapSingleLineString(const string& s, int lineLength) {
 	auto end = p + s.size();
 	// Iterate over input string
 	while (p <= end) {
-		// If we're at a word boundary: update safeLineEnd
-		if (p == end || *p == ' ') {
+		// If we're at a word boundary: update lineEnd
+		if (p == end || *p == ' ' || *p == '|') {
 			lineEnd = p;
 		}
 
 		// If we've hit lineLength or the end of the string: add a new result line
-		if (p == end || p - lineBegin == lineLength) {
+		int currentIndent = lines.empty() ? 0 : hangingIndent;
+		if (p == end || p - lineBegin == lineLength - currentIndent) {
 			if (lineEnd == lineBegin) {
 				// The line contains a single word, which is too long. Split mid-word.
 				lineEnd = p;
@@ -52,7 +55,7 @@ vector<string> wrapSingleLineString(const string& s, int lineLength) {
 			// Add trimmed line to list
 			string line(lineBegin, lineEnd);
 			boost::algorithm::trim_right(line);
-			lines.push_back(line);
+			lines.push_back(string(currentIndent, ' ') + line);
 
 			// Resume after the last line, skipping spaces
 			p = lineEnd;
@@ -66,10 +69,10 @@ vector<string> wrapSingleLineString(const string& s, int lineLength) {
 	return lines;
 }
 
-vector<string> wrapString(const string& s, int lineLength) {
+vector<string> wrapString(const string& s, int lineLength, int hangingIndent) {
 	vector<string> lines;
 	for (string paragraph : splitIntoLines(s)) {
-		auto paragraphLines = wrapSingleLineString(paragraph, lineLength);
+		auto paragraphLines = wrapSingleLineString(paragraph, lineLength, hangingIndent);
 		copy(paragraphLines.cbegin(), paragraphLines.cend(), back_inserter(lines));
 	}
 

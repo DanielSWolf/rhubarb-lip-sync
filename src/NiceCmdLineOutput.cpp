@@ -68,10 +68,6 @@ void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& out
 	outStream << shortUsage << endl;
 }
 
-string wrapLongID(const string& s) {
-	return std::regex_replace(s, std::regex(",  "), ",\n");
-}
-
 void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outStream) const {
 	TablePrinter tablePrinter(&outStream, { 20, 56 });
 
@@ -83,7 +79,7 @@ void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outS
 			if (arg != xorArgGroup[0])
 				outStream << "-- or --" << endl;
 
-			tablePrinter.printRow({ wrapLongID(arg->longID()), arg->getDescription() });
+			tablePrinter.printRow({ arg->longID(), arg->getDescription() });
 		}
 		outStream << endl;
 	}
@@ -93,6 +89,6 @@ void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outS
 	for (auto arg : argList) {
 		if (xorHandler.contains(arg)) continue;
 
-		tablePrinter.printRow({ wrapLongID(arg->longID()), arg->getDescription() });
+		tablePrinter.printRow({ arg->longID(), arg->getDescription() });
 	}
 }

@@ -33,7 +33,7 @@ void TablePrinter::printRow(initializer_list<string> columns) const {
 	{
 		int columnIndex = 0;
 		for (const string& column : columns) {
-			vector<string> lines = wrapString(column, columnWidths[columnIndex]);
+			vector<string> lines = wrapString(column, columnWidths[columnIndex], 2);
 			if (lines.size() > lineCount) lineCount = lines.size();
 			strings[columnIndex] = move(lines);
 
