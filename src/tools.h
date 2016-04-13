@@ -10,3 +10,5 @@ template<typename T>
 using lambda_unique_ptr = std::unique_ptr<T, std::function<void(T*)>>;
 
 std::string formatDuration(std::chrono::duration<double> seconds);
+
+std::string formatTime(time_t time, const std::string& format);

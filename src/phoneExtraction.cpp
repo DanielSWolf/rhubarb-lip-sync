@@ -98,18 +98,18 @@ void processAudioStream(AudioStream& audioStream16kHz, function<void(const vecto
 	} while (buffer.size());
 }
 
-LogLevel ConvertSphinxErrorLevel(err_lvl_t errorLevel) {
+logging::Level ConvertSphinxErrorLevel(err_lvl_t errorLevel) {
 	switch (errorLevel) {
 	case ERR_DEBUG:
 	case ERR_INFO:
 	case ERR_INFOCONT:
-		return LogLevel::Trace;
+		return logging::Level::Trace;
 	case ERR_WARN:
-		return LogLevel::Warning;
+		return logging::Level::Warn;
 	case ERR_ERROR:
-		return LogLevel::Error;
+		return logging::Level::Error;
 	case ERR_FATAL:
-		return LogLevel::Fatal;
+		return logging::Level::Fatal;
 	default:
 		throw invalid_argument("Unknown log level.");
 	}
@@ -137,8 +137,8 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	string message(chars.data());
 	boost::algorithm::trim(message);
 
-	LogLevel logLevel = ConvertSphinxErrorLevel(errorLevel);
-	LOG(logLevel) << message;
+	logging::Level logLevel = ConvertSphinxErrorLevel(errorLevel);
+	logging::log(logLevel, message);
 }
 
 vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
@@ -169,7 +169,7 @@ vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t&
 
 		int firstFrame, lastFrame;
 		ps_seg_frames(it, &firstFrame, &lastFrame);
-		logTimedEvent("word", centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
+		logging::logTimedEvent("word", centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
 	}
 
 	return result;
@@ -278,7 +278,7 @@ Timeline<Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, unique_ptr<Aud
 		Timed<Phone> timedPhone(start, start + duration, parseEnum<Phone>(phoneName));
 		result.set(timedPhone);
 
-		logTimedEvent("phone", timedPhone);
+		logging::logTimedEvent("phone", timedPhone);
 	}
 	return result;
 }

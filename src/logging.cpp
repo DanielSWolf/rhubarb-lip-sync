@@ -1,123 +1,131 @@
 #include "logging.h"
-#include <boost/log/sinks/unlocked_frontend.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/sinks/sync_frontend.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/keywords/file_name.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-// ReSharper disable once CppUnusedIncludeDirective
-#include <boost/log/support/date_time.hpp>
-#include <Timed.h>
+#include <tools.h>
+#include <iostream>
 
+using namespace logging;
 using std::string;
-using std::lock_guard;
-using boost::log::sinks::text_ostream_backend;
-using boost::log::record_view;
-using boost::log::sinks::unlocked_sink;
 using std::vector;
 using std::tuple;
 using std::make_tuple;
-
-namespace expr = boost::log::expressions;
-namespace keywords = boost::log::keywords;
-namespace sinks = boost::log::sinks;
-namespace attr = boost::log::attributes;
+using std::shared_ptr;
+using std::lock_guard;
 
 template <>
-const string& getEnumTypeName<LogLevel>() {
+const string& getEnumTypeName<Level>() {
 	static const string name = "LogLevel";
 	return name;
 }
 
 template <>
-const vector<tuple<LogLevel, string>>& getEnumMembers<LogLevel>() {
-	static const vector<tuple<LogLevel, string>> values = {
-		make_tuple(LogLevel::Trace,		"Trace"),
-		make_tuple(LogLevel::Debug,		"Debug"),
-		make_tuple(LogLevel::Info,		"Info"),
-		make_tuple(LogLevel::Warning,	"Warning"),
-		make_tuple(LogLevel::Error,		"Error"),
-		make_tuple(LogLevel::Fatal,		"Fatal")
+const vector<tuple<Level, string>>& getEnumMembers<Level>() {
+	static const vector<tuple<Level, string>> values = {
+		make_tuple(Level::Trace,	"Trace"),
+		make_tuple(Level::Debug,	"Debug"),
+		make_tuple(Level::Info,		"Info"),
+		make_tuple(Level::Warn,		"Warn"),
+		make_tuple(Level::Error,	"Error"),
+		make_tuple(Level::Fatal,	"Fatal")
 	};
 	return values;
 }
 
-std::ostream& operator<<(std::ostream& stream, LogLevel value) {
+std::ostream& operator<<(std::ostream& stream, Level value) {
 	return stream << enumToString(value);
 }
 
-std::istream& operator>>(std::istream& stream, LogLevel& value) {
+std::istream& operator>>(std::istream& stream, Level& value) {
 	string name;
 	stream >> name;
-	value = parseEnum<LogLevel>(name);
+	value = parseEnum<Level>(name);
 	return stream;
 }
 
-PausableBackendAdapter::PausableBackendAdapter(boost::shared_ptr<text_ostream_backend> backend) :
-	backend(backend) {}
-
-PausableBackendAdapter::~PausableBackendAdapter() {
-	resume();
+Entry::Entry(Level level, const string& message) :
+	level(level),
+	message(message)
+{
+	time(&timestamp);
 }
 
-void PausableBackendAdapter::consume(const record_view& recordView, const string message) {
-	lock_guard<std::mutex> lock(mutex);
-	if (isPaused) {
-		buffer.push_back(std::make_tuple(recordView, message));
-	} else {
-		backend->consume(recordView, message);
+string SimpleConsoleFormatter::format(const Entry& entry) {
+	return fmt::format("[{0}] {1}", entry.level, entry.message);
+}
+
+string SimpleFileFormatter::format(const Entry& entry) {
+	return fmt::format("[{0}] {1}", formatTime(entry.timestamp, "%F %H:%M:%S"), consoleFormatter.format(entry));
+}
+
+LevelFilter::LevelFilter(shared_ptr<Sink> innerSink, Level minLevel) :
+	innerSink(innerSink),
+	minLevel(minLevel)
+{}
+
+void LevelFilter::receive(const Entry& entry) {
+	if (entry.level >= minLevel) {
+		innerSink->receive(entry);
 	}
 }
 
-void PausableBackendAdapter::pause() {
-	lock_guard<std::mutex> lock(mutex);
-	isPaused = true;
+StreamSink::StreamSink(shared_ptr<std::ostream> stream, shared_ptr<Formatter> formatter) :
+	stream(stream),
+	formatter(formatter)
+{}
+
+void StreamSink::receive(const Entry& entry) {
+	string line = formatter->format(entry);
+	*stream << line << std::endl;
 }
 
-void PausableBackendAdapter::resume() {
+StdErrSink::StdErrSink(shared_ptr<Formatter> formatter) :
+	StreamSink(std::shared_ptr<std::ostream>(&std::cerr, [](void*){}), formatter)
+{}
+
+PausableSink::PausableSink(shared_ptr<Sink> innerSink) :
+	innerSink(innerSink)
+{}
+
+void PausableSink::receive(const Entry& entry) {
+	lock_guard<std::mutex> lock(mutex);
+	if (isPaused) {
+		buffer.push_back(entry);
+	} else {
+		innerSink->receive(entry);
+	}
+}
+
+void PausableSink::pause() {
+	lock_guard<std::mutex> lock(mutex);
+	isPaused = true;
+
+}
+
+void PausableSink::resume() {
 	lock_guard<std::mutex> lock(mutex);
 	isPaused = false;
-	for (const auto& tuple : buffer) {
-		backend->consume(std::get<record_view>(tuple), std::get<string>(tuple));
+	for (const Entry& entry : buffer) {
+		innerSink->receive(entry);
 	}
 	buffer.clear();
 }
 
-BOOST_LOG_GLOBAL_LOGGER_INIT(globalLogger, LoggerType) {
-	LoggerType logger;
-
-	logger.add_attribute("TimeStamp", attr::local_clock());
-
-	return logger;
+std::mutex& getLogMutex() {
+	static std::mutex mutex;
+	return mutex;
 }
 
-BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", LogLevel)
-
-boost::shared_ptr<PausableBackendAdapter> addPausableStderrSink(LogLevel minLogLevel) {
-	// Create logging backend that logs to stderr
-	auto streamBackend = boost::make_shared<text_ostream_backend>();
-	streamBackend->add_stream(boost::shared_ptr<std::ostream>(&std::cerr, [](std::ostream*) {}));
-	streamBackend->auto_flush(true);
-
-	// Create an adapter that allows us to pause, buffer, and resume log output
-	auto pausableAdapter = boost::make_shared<PausableBackendAdapter>(streamBackend);
-
-	// Create a sink that feeds into the adapter
-	auto sink = boost::make_shared<unlocked_sink<PausableBackendAdapter>>(pausableAdapter);
-	sink->set_formatter(expr::stream << "[" << severity << "] " << expr::smessage);
-	sink->set_filter(severity >= minLogLevel);
-	boost::log::core::get()->add_sink(sink);
-
-	return pausableAdapter;
+vector<shared_ptr<Sink>>& getSinks() {
+	static vector<shared_ptr<Sink>> sinks;
+	return sinks;
 }
 
-void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLevel) {
-	auto textFileBackend = boost::make_shared<sinks::text_file_backend>(
-		keywords::file_name = logFilePath.string());
-	auto sink = boost::make_shared<sinks::synchronous_sink<sinks::text_file_backend>>(textFileBackend);
-	sink->set_formatter(expr::stream
-		<< "[" << expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S")
-		<< "] [" << severity << "] " << expr::smessage);
-	sink->set_filter(severity >= minLogLevel);
-	boost::log::core::get()->add_sink(sink);
+void logging::addSink(shared_ptr<Sink> sink) {
+	lock_guard<std::mutex> lock(getLogMutex());
+	getSinks().push_back(sink);
+}
+
+void logging::log(Level level, const string& message) {
+	lock_guard<std::mutex> lock(getLogMutex());
+	for (auto& sink : getSinks()) {
+		sink->receive(Entry(level, message));
+	}
 }

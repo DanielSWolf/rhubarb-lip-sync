@@ -36,10 +36,6 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(enableWarningsFlags "/W4")
 	set(disableWarningsFlags "/W0")
 	
-	# Disable warning C4714: function '...' marked as __forceinline not inlined
-	# This is caused by Boost.Log
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4714")
-	
 	# Disable warning C4456: declaration of '...' hides previous local declaration
 	# I'm doing that on purpose.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
@@ -54,7 +50,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost REQUIRED COMPONENTS filesystem locale system log date_time thread chrono)
+find_package(Boost REQUIRED COMPONENTS filesystem locale system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ... C++ Format

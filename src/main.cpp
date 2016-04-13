@@ -18,6 +18,8 @@ using std::string;
 using std::vector;
 using std::unique_ptr;
 using std::make_unique;
+using std::shared_ptr;
+using std::make_shared;
 using std::map;
 using std::chrono::duration;
 using std::chrono::duration_cast;
@@ -47,7 +49,7 @@ unique_ptr<AudioStream> createAudioStream(path filePath) {
 // Tell TCLAP how to handle our types
 namespace TCLAP {
 	template<>
-	struct ArgTraits<LogLevel> {
+	struct ArgTraits<logging::Level> {
 		typedef ValueLike ValueCategory;
 	};
 	template<>
@@ -56,8 +58,25 @@ namespace TCLAP {
 	};
 }
 
+shared_ptr<logging::PausableSink> addPausableStdErrSink(logging::Level minLevel) {
+	auto stdErrSink = make_shared<logging::StdErrSink>(make_shared<logging::SimpleConsoleFormatter>());
+	auto pausableSink = make_shared<logging::PausableSink>(stdErrSink);
+	auto levelFilter = make_shared<logging::LevelFilter>(pausableSink, minLevel);
+	logging::addSink(levelFilter);
+	return pausableSink;
+}
+
+void addFileSink(path path, logging::Level minLevel) {
+	auto file = make_shared<boost::filesystem::ofstream>();
+	file->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	file->open(path);
+	auto FileSink = make_shared<logging::StreamSink>(file, make_shared<logging::SimpleFileFormatter>());
+	auto levelFilter = make_shared<logging::LevelFilter>(FileSink, minLevel);
+	logging::addSink(levelFilter);
+}
+
 int main(int argc, char *argv[]) {
-	auto pausableStderrSink = addPausableStderrSink(LogLevel::Warning);
+	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
 
 	// Define command-line parameters
@@ -65,9 +84,9 @@ int main(int argc, char *argv[]) {
 	tclap::CmdLine cmd(appName, argumentValueSeparator, appVersion);
 	cmd.setExceptionHandling(false);
 	cmd.setOutput(new NiceCmdLineOutput());
-	auto logLevels = vector<LogLevel>(getEnumValues<LogLevel>());
-	tclap::ValuesConstraint<LogLevel> logLevelConstraint(logLevels);
-	tclap::ValueArg<LogLevel> logLevel("", "logLevel", "The minimum log level to log", false, LogLevel::Debug, &logLevelConstraint, cmd);
+	auto logLevels = vector<logging::Level>(getEnumValues<logging::Level>());
+	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
+	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
 	tclap::ValueArg<string> dialog("d", "dialog", "The text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(getEnumValues<ExportFormat>());

@@ -48,7 +48,7 @@ Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
 
 	// Log
 	for (const auto& element : activity) {
-		logTimedEvent("utterance", static_cast<TimeRange>(element), std::string());
+		logging::logTimedEvent("utterance", static_cast<TimeRange>(element), std::string());
 	}
 
 	return activity;

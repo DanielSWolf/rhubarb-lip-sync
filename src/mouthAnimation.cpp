@@ -72,7 +72,7 @@ Timeline<Shape> animate(const Timeline<Phone> &phones) {
 	for (auto& timedPhone : phones) {
 		Timed<Shape> timedShape(static_cast<TimeRange>(timedPhone), getShape(timedPhone.getValue()));
 		shapes.set(timedShape);
-		logTimedEvent("shape", timedShape);
+		logging::logTimedEvent("shape", timedShape);
 	}
 
 	return shapes;

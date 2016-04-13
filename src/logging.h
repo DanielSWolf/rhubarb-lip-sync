@@ -1,86 +1,145 @@
 #pragma once
 
-#include <boost/log/common.hpp>
-#include <boost/log/sinks/basic_sink_backend.hpp>
-#include <boost/log/sinks/frontend_requirements.hpp>
-#include <boost/log/sinks/text_ostream_backend.hpp>
 #include <string>
 #include <vector>
 #include <mutex>
 #include <tuple>
-#include "centiseconds.h"
-#include <boost/filesystem.hpp>
-#include "tools.h"
 #include "enumTools.h"
+#include "tools.h"
 #include "Timed.h"
 
-enum class LogLevel {
-	Trace,
-	Debug,
-	Info,
-	Warning,
-	Error,
-	Fatal,
-	EndSentinel
-};
+namespace logging {
 
-template<>
-const std::string& getEnumTypeName<LogLevel>();
+	enum class Level {
+		Trace,
+		Debug,
+		Info,
+		Warn,
+		Error,
+		Fatal,
+		EndSentinel
+	};
 
-template<>
-const std::vector<std::tuple<LogLevel, std::string>>& getEnumMembers<LogLevel>();
-
-std::ostream& operator<<(std::ostream& stream, LogLevel value);
-
-std::istream& operator>>(std::istream& stream, LogLevel& value);
-
-using LoggerType = boost::log::sources::severity_logger_mt<LogLevel>;
-
-BOOST_LOG_GLOBAL_LOGGER(globalLogger, LoggerType)
-
-#define LOG(level) \
-	BOOST_LOG_STREAM_WITH_PARAMS(globalLogger::get(), (::boost::log::keywords::severity = level))
-
-#define LOG_TRACE LOG(LogLevel::Trace)
-#define LOG_DEBUG LOG(LogLevel::Debug)
-#define LOG_INFO LOG(LogLevel::Info)
-#define LOG_WARNING LOG(LogLevel::Warning)
-#define LOG_ERROR LOG(LogLevel::Error)
-#define LOG_FATAL LOG(LogLevel::Fatal)
-
-class PausableBackendAdapter :
-	public boost::log::sinks::basic_formatted_sink_backend<char, boost::log::sinks::concurrent_feeding>
-{
-public:
-	PausableBackendAdapter(boost::shared_ptr<boost::log::sinks::text_ostream_backend> backend);
-	~PausableBackendAdapter();
-	void consume(const boost::log::record_view& recordView, const std::string message);
-	void pause();
-	void resume();
-private:
-	boost::shared_ptr<boost::log::sinks::text_ostream_backend> backend;
-	std::vector<std::tuple<boost::log::record_view, std::string>> buffer;
-	std::mutex mutex;
-	bool isPaused = false;
-};
-
-boost::shared_ptr<PausableBackendAdapter> addPausableStderrSink(LogLevel minLogLevel);
-
-void addFileSink(const boost::filesystem::path& logFilePath, LogLevel minLogLevel);
-
-template<typename TValue>
-void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
-	LOG_DEBUG
-		<< "##" << eventName << "[" << formatDuration(timedValue.getStart()) << "-" << formatDuration(timedValue.getEnd()) << "]: "
-		<< timedValue.getValue();
 }
 
-template<typename TValue>
-void logTimedEvent(const std::string& eventName, const TimeRange& timeRange, const TValue& value) {
-	logTimedEvent(eventName, Timed<TValue>(timeRange, value));
-}
+template<>
+const std::string& getEnumTypeName<logging::Level>();
 
-template<typename TValue>
-void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const TValue& value) {
-	logTimedEvent(eventName, Timed<TValue>(start, end, value));
+template<>
+const std::vector<std::tuple<logging::Level, std::string>>& getEnumMembers<logging::Level>();
+
+std::ostream& operator<<(std::ostream& stream, logging::Level value);
+
+std::istream& operator>>(std::istream& stream, logging::Level& value);
+
+namespace logging {
+
+	struct Entry {
+		Entry(Level level, const std::string& message);
+
+		time_t timestamp;
+		Level level;
+		std::string message;
+	};
+
+	class Formatter {
+	public:
+		virtual ~Formatter() = default;
+		virtual std::string format(const Entry& entry) = 0;
+	};
+
+	class SimpleConsoleFormatter : public Formatter {
+	public:
+		std::string format(const Entry& entry) override;
+	};
+
+	class SimpleFileFormatter : public Formatter {
+	public:
+		std::string format(const Entry& entry) override;
+	private:
+		SimpleConsoleFormatter consoleFormatter;
+	};
+
+	class Sink {
+	public:
+		virtual ~Sink() = default;
+		virtual void receive(const Entry& entry) = 0;
+	};
+
+	class LevelFilter : public Sink {
+	public:
+		LevelFilter(std::shared_ptr<Sink> innerSink, Level minLevel);
+		void receive(const Entry& entry) override;
+	private:
+		std::shared_ptr<Sink> innerSink;
+		Level minLevel;
+	};
+
+	class StreamSink : public Sink {
+	public:
+		StreamSink(std::shared_ptr<std::ostream> stream, std::shared_ptr<Formatter> formatter);
+		void receive(const Entry& entry) override;
+	private:
+		std::shared_ptr<std::ostream> stream;
+		std::shared_ptr<Formatter> formatter;
+	};
+
+	class StdErrSink : public StreamSink {
+	public:
+		explicit StdErrSink(std::shared_ptr<Formatter> formatter);
+	};
+
+	class PausableSink : public Sink {
+	public:
+		explicit PausableSink(std::shared_ptr<Sink> innerSink);
+		void receive(const Entry& entry) override;
+		void pause();
+		void resume();
+	private:
+		std::shared_ptr<Sink> innerSink;
+		std::vector<Entry> buffer;
+		std::mutex mutex;
+		bool isPaused = false;
+	};
+
+	void addSink(std::shared_ptr<Sink> sink);
+
+	void log(Level level, const std::string& message);
+
+	template <typename... Args>
+	void logFormat(Level level, fmt::CStringRef format, const Args&... args) {
+		log(level, fmt::format(format, args...));
+	}
+
+#define LOG_WITH_LEVEL(levelName, levelEnum) \
+	inline void levelName(const std::string& message) { \
+		log(Level::levelEnum, message); \
+	} \
+	template <typename... Args> \
+	void levelName ## Format(fmt::CStringRef format, const Args&... args) { \
+		logFormat(Level::levelEnum, format, args...); \
+	}
+
+	LOG_WITH_LEVEL(trace, Trace)
+	LOG_WITH_LEVEL(debug, Debug)
+	LOG_WITH_LEVEL(info, Info)
+	LOG_WITH_LEVEL(warn, Warn)
+	LOG_WITH_LEVEL(error, Error)
+	LOG_WITH_LEVEL(fatal, Fatal)
+
+	template<typename TValue>
+	void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
+		debugFormat("##{0} [{1}-{2}]: {3}",
+			eventName, formatDuration(timedValue.getStart()), formatDuration(timedValue.getEnd()), timedValue.getValue());
+	}
+
+	template<typename TValue>
+	void logTimedEvent(const std::string& eventName, const TimeRange& timeRange, const TValue& value) {
+		logTimedEvent(eventName, Timed<TValue>(timeRange, value));
+	}
+
+	template<typename TValue>
+	void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const TValue& value) {
+		logTimedEvent(eventName, Timed<TValue>(start, end, value));
+	}
 }
