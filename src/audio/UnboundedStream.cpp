@@ -3,7 +3,7 @@
 using boost::optional;
 
 UnboundedStream::UnboundedStream(std::unique_ptr<AudioStream> inputStream) :
-	innerStream(std::move(innerStream)),
+	innerStream(std::move(inputStream)),
 	sampleIndex(innerStream->getSampleIndex()),
 	firstSample(inputStream->getSampleCount() ? optional<float>() : 0.0f),
 	lastSample(inputStream->getSampleCount() ? optional<float>() : 0.0f)
