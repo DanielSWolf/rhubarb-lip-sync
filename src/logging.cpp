@@ -5,39 +5,35 @@
 using namespace logging;
 using std::string;
 using std::vector;
-using std::tuple;
-using std::make_tuple;
 using std::shared_ptr;
 using std::lock_guard;
 
-template <>
-const string& getEnumTypeName<Level>() {
-	static const string name = "LogLevel";
-	return name;
+LevelConverter& LevelConverter::get() {
+	static LevelConverter converter;
+	return converter;
 }
 
-template <>
-const vector<tuple<Level, string>>& getEnumMembers<Level>() {
-	static const vector<tuple<Level, string>> values = {
-		make_tuple(Level::Trace,	"Trace"),
-		make_tuple(Level::Debug,	"Debug"),
-		make_tuple(Level::Info,		"Info"),
-		make_tuple(Level::Warn,		"Warn"),
-		make_tuple(Level::Error,	"Error"),
-		make_tuple(Level::Fatal,	"Fatal")
+string LevelConverter::getTypeName() {
+	return "Level";
+}
+
+EnumConverter<Level>::member_data LevelConverter::getMemberData() {
+	return member_data {
+		{ Level::Trace,		"Trace" },
+		{ Level::Debug,		"Debug" },
+		{ Level::Info,		"Info" },
+		{ Level::Warn,		"Warn" },
+		{ Level::Error,		"Error" },
+		{ Level::Fatal,		"Fatal" }
 	};
-	return values;
 }
 
-std::ostream& operator<<(std::ostream& stream, Level value) {
-	return stream << enumToString(value);
+std::ostream& logging::operator<<(std::ostream& stream, Level value) {
+	return LevelConverter::get().write(stream, value);
 }
 
-std::istream& operator>>(std::istream& stream, Level& value) {
-	string name;
-	stream >> name;
-	value = parseEnum<Level>(name);
-	return stream;
+std::istream& logging::operator>>(std::istream& stream, Level& value) {
+	return LevelConverter::get().read(stream, value);
 }
 
 Entry::Entry(Level level, const string& message) :
@@ -77,7 +73,7 @@ void StreamSink::receive(const Entry& entry) {
 }
 
 StdErrSink::StdErrSink(shared_ptr<Formatter> formatter) :
-	StreamSink(std::shared_ptr<std::ostream>(&std::cerr, [](void*){}), formatter)
+	StreamSink(std::shared_ptr<std::ostream>(&std::cerr, [](void*) {}), formatter)
 {}
 
 PausableSink::PausableSink(shared_ptr<Sink> innerSink) :

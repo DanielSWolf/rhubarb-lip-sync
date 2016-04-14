@@ -11,11 +11,13 @@ enum class ExportFormat {
 	JSON
 };
 
-template<>
-const std::string& getEnumTypeName<ExportFormat>();
-
-template<>
-const std::vector<std::tuple<ExportFormat, std::string>>& getEnumMembers<ExportFormat>();
+class ExportFormatConverter : public EnumConverter<ExportFormat> {
+public:
+	static ExportFormatConverter& get();
+protected:
+	std::string getTypeName() override;
+	member_data getMemberData() override;
+};
 
 std::ostream& operator<<(std::ostream& stream, ExportFormat value);
 

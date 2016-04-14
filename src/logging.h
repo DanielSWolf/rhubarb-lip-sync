@@ -3,10 +3,9 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include <tuple>
-#include "enumTools.h"
 #include "tools.h"
 #include "Timed.h"
+#include "EnumConverter.h"
 
 namespace logging {
 
@@ -20,19 +19,17 @@ namespace logging {
 		EndSentinel
 	};
 
-}
+	class LevelConverter : public EnumConverter<Level> {
+	public:
+		static LevelConverter& get();
+	protected:
+		std::string getTypeName() override;
+		member_data getMemberData() override;
+	};
 
-template<>
-const std::string& getEnumTypeName<logging::Level>();
+	std::ostream& operator<<(std::ostream& stream, Level value);
 
-template<>
-const std::vector<std::tuple<logging::Level, std::string>>& getEnumMembers<logging::Level>();
-
-std::ostream& operator<<(std::ostream& stream, logging::Level value);
-
-std::istream& operator>>(std::istream& stream, logging::Level& value);
-
-namespace logging {
+	std::istream& operator>>(std::istream& stream, Level& value);
 
 	struct Entry {
 		Entry(Level level, const std::string& message);

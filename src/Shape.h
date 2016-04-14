@@ -1,8 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
-#include "enumTools.h"
+#include "EnumConverter.h"
 
 // The classic Hanna-Barbera mouth shapes A-F phus the common supplements G-H
 // For reference, see http://sunewatts.dk/lipsync/lipsync/article_02.php
@@ -19,11 +18,13 @@ enum class Shape {
 	H	// L
 };
 
-template<>
-const std::string& getEnumTypeName<Shape>();
-
-template<>
-const std::vector<std::tuple<Shape, std::string>>& getEnumMembers<Shape>();
+class ShapeConverter : public EnumConverter<Shape> {
+public:
+	static ShapeConverter& get();
+protected:
+	std::string getTypeName() override;
+	member_data getMemberData() override;
+};
 
 std::ostream& operator<<(std::ostream& stream, Shape value);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "enumTools.h"
+#include "EnumConverter.h"
 
 // Defines a subset of the Arpabet
 enum class Phone {
@@ -71,14 +71,15 @@ enum class Phone {
 	W		// [w] as in [w]ay
 };
 
-template<>
-const std::string& getEnumTypeName<Phone>();
-
-template<>
-const std::vector<std::tuple<Phone, std::string>>& getEnumMembers<Phone>();
-
-template<>
-Phone parseEnum(const std::string& s);
+class PhoneConverter : public EnumConverter<Phone> {
+public:
+	static PhoneConverter& get();
+protected:
+	std::string getTypeName() override;
+	member_data getMemberData() override;
+public:
+	boost::optional<Phone> tryParse(const std::string& s) override;
+};
 
 std::ostream& operator<<(std::ostream& stream, Phone value);
 

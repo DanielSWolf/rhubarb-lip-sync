@@ -1,41 +1,35 @@
 #include "Exporter.h"
 #include <logging.h>
-#include <vector>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <tools.h>
 
 using std::string;
 using boost::property_tree::ptree;
-using std::vector;
-using std::tuple;
-using std::make_tuple;
 
-template <>
-const string& getEnumTypeName<ExportFormat>() {
-	static const string name = "ExportFormat";
-	return name;
+ExportFormatConverter& ExportFormatConverter::get() {
+	static ExportFormatConverter converter;
+	return converter;
 }
 
-template <>
-const vector<tuple<ExportFormat, string>>& getEnumMembers<ExportFormat>() {
-	static const vector<tuple<ExportFormat, string>> values = {
-		make_tuple(ExportFormat::TSV,		"TSV"),
-		make_tuple(ExportFormat::XML,		"XML"),
-		make_tuple(ExportFormat::JSON,		"JSON")
+string ExportFormatConverter::getTypeName() {
+	return "ExportFormat";
+}
+
+EnumConverter<ExportFormat>::member_data ExportFormatConverter::getMemberData() {
+	return member_data{
+		{ ExportFormat::TSV,		"TSV" },
+		{ ExportFormat::XML,		"XML" },
+		{ ExportFormat::JSON,		"JSON" }
 	};
-	return values;
 }
 
 std::ostream& operator<<(std::ostream& stream, ExportFormat value) {
-	return stream << enumToString(value);
+	return ExportFormatConverter::get().write(stream, value);
 }
 
 std::istream& operator>>(std::istream& stream, ExportFormat& value) {
-	string name;
-	stream >> name;
-	value = parseEnum<ExportFormat>(name);
-	return stream;
+	return ExportFormatConverter::get().read(stream, value);
 }
 
 // Makes sure there is at least one mouth shape

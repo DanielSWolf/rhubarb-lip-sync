@@ -275,7 +275,7 @@ Timeline<Phone> getPhoneAlignment(const vector<s3wid_t>& wordIds, unique_ptr<Aud
 		// Add entry
 		centiseconds start(phoneEntry->start);
 		centiseconds duration(phoneEntry->duration);
-		Timed<Phone> timedPhone(start, start + duration, parseEnum<Phone>(phoneName));
+		Timed<Phone> timedPhone(start, start + duration, PhoneConverter::get().parse(phoneName));
 		result.set(timedPhone);
 
 		logging::logTimedEvent("phone", timedPhone);
