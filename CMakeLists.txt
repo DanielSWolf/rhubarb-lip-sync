@@ -94,30 +94,30 @@ configure_file(src/appInfo.cpp.in src/appInfo.cpp ESCAPE_QUOTES)
 set(SOURCE_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/src/appInfo.cpp
 	src/main.cpp
-	src/Phone.cpp
-	src/Shape.cpp
-	src/centiseconds.cpp
-	src/enumTools.cpp
-	src/mouthAnimation.cpp
-	src/phoneExtraction.cpp
-	src/platformTools.cpp
-	src/tools.cpp
-	src/audio/AudioStream.cpp
-	src/audio/DCOffset.cpp
-	src/audio/SampleRateConverter.cpp
-	src/audio/UnboundedStream.cpp
-	src/audio/voiceActivityDetection.cpp
-	src/audio/WaveFileReader.cpp
-	src/audio/waveFileWriting.cpp
-	src/stringTools.cpp
-	src/NiceCmdLineOutput.cpp
-	src/TablePrinter.cpp
-	src/ProgressBar.cpp
-	src/logging.cpp
-	src/Timed.cpp
-	src/TimeRange.cpp
-	src/Timeline.cpp
-	src/Exporter.cpp
+	src/Phone.cpp src/Phone.h
+	src/Shape.cpp src/Shape.h
+	src/centiseconds.cpp src/centiseconds.h
+	src/enumTools.h
+	src/mouthAnimation.cpp src/mouthAnimation.h
+	src/phoneExtraction.cpp src/phoneExtraction.h
+	src/platformTools.cpp src/platformTools.h
+	src/tools.cpp src/tools.h
+	src/audio/AudioStream.cpp src/audio/AudioStream.h
+	src/audio/DCOffset.cpp src/audio/DCOffset.h
+	src/audio/SampleRateConverter.cpp src/audio/SampleRateConverter.h
+	src/audio/UnboundedStream.cpp src/audio/UnboundedStream.h
+	src/audio/voiceActivityDetection.cpp src/audio/voiceActivityDetection.h
+	src/audio/WaveFileReader.cpp src/audio/WaveFileReader.h
+	src/audio/waveFileWriting.cpp src/audio/waveFileWriting.h
+	src/stringTools.cpp src/stringTools.h
+	src/NiceCmdLineOutput.cpp src/NiceCmdLineOutput.h
+	src/TablePrinter.cpp src/TablePrinter.h
+	src/ProgressBar.cpp src/ProgressBar.h
+	src/logging.cpp src/logging.h
+	src/Timed.h
+	src/TimeRange.cpp src/TimeRange.h
+	src/Timeline.h
+	src/Exporter.cpp src/Exporter.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
@@ -128,10 +128,10 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 set(TEST_FILES
 	tests/stringToolsTests.cpp
 	tests/TimelineTests.cpp
-	src/stringTools.cpp
-	src/Timeline.cpp
-	src/TimeRange.cpp
-	src/centiseconds.cpp
+	src/stringTools.cpp src/stringTools.h
+	src/Timeline.h
+	src/TimeRange.cpp src/TimeRange.h
+	src/centiseconds.cpp src/centiseconds.h
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
