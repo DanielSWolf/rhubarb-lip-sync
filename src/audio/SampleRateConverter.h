@@ -7,10 +7,10 @@ class SampleRateConverter : public AudioStream {
 public:
 	SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputSampleRate);
 	SampleRateConverter(const SampleRateConverter& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) override;
-	int getSampleRate() override;
-	int getSampleCount() override;
-	int getSampleIndex() override;
+	std::unique_ptr<AudioStream> clone(bool reset) const override;
+	int getSampleRate() const override;
+	int getSampleCount() const override;
+	int getSampleIndex() const override;
 	void seek(int sampleIndex) override;
 	float readSample() override;
 private:

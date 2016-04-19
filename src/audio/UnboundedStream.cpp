@@ -16,19 +16,19 @@ UnboundedStream::UnboundedStream(const UnboundedStream& rhs, bool reset) :
 	lastSample(rhs.lastSample)
 {}
 
-std::unique_ptr<AudioStream> UnboundedStream::clone(bool reset) {
+std::unique_ptr<AudioStream> UnboundedStream::clone(bool reset) const {
 	return std::make_unique<UnboundedStream>(*this, reset);
 }
 
-int UnboundedStream::getSampleRate() {
+int UnboundedStream::getSampleRate() const {
 	return innerStream->getSampleRate();
 }
 
-int UnboundedStream::getSampleCount() {
+int UnboundedStream::getSampleCount() const {
 	return innerStream->getSampleCount();
 }
 
-int UnboundedStream::getSampleIndex() {
+int UnboundedStream::getSampleIndex() const {
 	return sampleIndex;
 }
 

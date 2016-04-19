@@ -7,12 +7,12 @@
 class AudioStream {
 public:
 	virtual ~AudioStream() {}
-	virtual std::unique_ptr<AudioStream> clone(bool reset) = 0;
-	virtual int getSampleRate() = 0;
-	virtual int getSampleCount() = 0;
-	TimeRange getTruncatedRange();
-	virtual int getSampleIndex() = 0;
+	virtual std::unique_ptr<AudioStream> clone(bool reset) const = 0;
+	virtual int getSampleRate() const = 0;
+	virtual int getSampleCount() const = 0;
+	TimeRange getTruncatedRange() const;
+	virtual int getSampleIndex() const = 0;
 	virtual void seek(int sampleIndex) = 0;
-	bool endOfStream();
+	bool endOfStream() const;
 	virtual float readSample() = 0;
 };

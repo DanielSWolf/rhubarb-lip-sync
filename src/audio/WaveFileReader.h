@@ -15,10 +15,10 @@ class WaveFileReader : public AudioStream {
 public:
 	WaveFileReader(boost::filesystem::path filePath);
 	WaveFileReader(const WaveFileReader& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) override;
-	int getSampleRate() override ;
-	int getSampleCount() override;
-	int getSampleIndex() override;
+	std::unique_ptr<AudioStream> clone(bool reset) const override;
+	int getSampleRate() const override ;
+	int getSampleCount() const override;
+	int getSampleIndex() const override;
 	void seek(int sampleIndex) override;
 	float readSample() override;
 

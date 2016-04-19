@@ -8,10 +8,10 @@ class UnboundedStream : public AudioStream {
 public:
 	UnboundedStream(std::unique_ptr<AudioStream> inputStream);
 	UnboundedStream(const UnboundedStream& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) override;
-	int getSampleRate() override;
-	int getSampleCount() override;
-	int getSampleIndex() override;
+	std::unique_ptr<AudioStream> clone(bool reset) const override;
+	int getSampleRate() const override;
+	int getSampleCount() const override;
+	int getSampleIndex() const override;
 	void seek(int sampleIndex) override;
 	float readSample() override;
 

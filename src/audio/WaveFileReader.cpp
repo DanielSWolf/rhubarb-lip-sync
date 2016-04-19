@@ -148,7 +148,7 @@ WaveFileReader::WaveFileReader(const WaveFileReader& rhs, bool reset) :
 	seek(reset ? 0 : rhs.sampleIndex);
 }
 
-std::unique_ptr<AudioStream> WaveFileReader::clone(bool reset) {
+std::unique_ptr<AudioStream> WaveFileReader::clone(bool reset) const {
 	return std::make_unique<WaveFileReader>(*this, reset);
 }
 
@@ -170,15 +170,15 @@ void WaveFileReader::openFile() {
 	}
 }
 
-int WaveFileReader::getSampleRate() {
+int WaveFileReader::getSampleRate() const {
 	return frameRate;
 }
 
-int WaveFileReader::getSampleCount() {
+int WaveFileReader::getSampleCount() const {
 	return frameCount;
 }
 
-int WaveFileReader::getSampleIndex() {
+int WaveFileReader::getSampleIndex() const {
 	return sampleIndex;
 }
 

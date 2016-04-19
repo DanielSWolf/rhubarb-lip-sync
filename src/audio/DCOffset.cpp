@@ -14,19 +14,19 @@ DCOffset::DCOffset(const DCOffset& rhs, bool reset) :
 	factor(rhs.factor)
 {}
 
-std::unique_ptr<AudioStream> DCOffset::clone(bool reset) {
+std::unique_ptr<AudioStream> DCOffset::clone(bool reset) const {
 	return std::make_unique<DCOffset>(*this, reset);
 }
 
-int DCOffset::getSampleRate() {
+int DCOffset::getSampleRate() const {
 	return inputStream->getSampleRate();
 }
 
-int DCOffset::getSampleCount() {
+int DCOffset::getSampleCount() const {
 	return inputStream->getSampleCount();
 }
 
-int DCOffset::getSampleIndex() {
+int DCOffset::getSampleIndex() const {
 	return inputStream->getSampleIndex();
 }
 

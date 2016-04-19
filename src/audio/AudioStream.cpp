@@ -1,9 +1,9 @@
 #include "AudioStream.h"
 
-TimeRange AudioStream::getTruncatedRange() {
+TimeRange AudioStream::getTruncatedRange() const {
 	return TimeRange(centiseconds::zero(), centiseconds(100 * getSampleCount() / getSampleRate()));
 }
 
-bool AudioStream::endOfStream() {
+bool AudioStream::endOfStream() const {
 	return getSampleIndex() >= getSampleCount();
 }

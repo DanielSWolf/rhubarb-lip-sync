@@ -29,19 +29,19 @@ SampleRateConverter::SampleRateConverter(const SampleRateConverter& rhs, bool re
 	nextOutputSampleIndex = reset ? 0 : rhs.nextOutputSampleIndex;
 }
 
-std::unique_ptr<AudioStream> SampleRateConverter::clone(bool reset) {
+std::unique_ptr<AudioStream> SampleRateConverter::clone(bool reset) const {
 	return std::make_unique<SampleRateConverter>(*this, reset);
 }
 
-int SampleRateConverter::getSampleRate() {
+int SampleRateConverter::getSampleRate() const {
 	return outputSampleRate;
 }
 
-int SampleRateConverter::getSampleCount() {
+int SampleRateConverter::getSampleCount() const {
 	return outputSampleCount;
 }
 
-int SampleRateConverter::getSampleIndex() {
+int SampleRateConverter::getSampleIndex() const {
 	return nextOutputSampleIndex;
 }
 
