@@ -126,7 +126,7 @@ namespace logging {
 
 	template<typename TValue>
 	void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
-		debugFormat("##{0} [{1}-{2}]: {3}",
+		debugFormat("##{0}[{1}-{2}]: {3}",
 			eventName, formatDuration(timedValue.getStart()), formatDuration(timedValue.getEnd()), timedValue.getValue());
 	}
 
