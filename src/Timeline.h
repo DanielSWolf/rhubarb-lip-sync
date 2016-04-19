@@ -191,6 +191,18 @@ public:
 		return reference(*this, time);
 	}
 
+	void shift(time_type offset) {
+		if (offset == time_type::zero()) return;
+
+		range.shift(offset);
+		set_type newElements;
+		for (Timed<T> element : elements) {
+			element.shift(offset);
+			newElements.insert(element);
+		}
+		elements = std::move(newElements);
+	}
+
 	Timeline(const Timeline&) = default;
 	Timeline(Timeline&&) = default;
 	Timeline& operator=(const Timeline&) = default;

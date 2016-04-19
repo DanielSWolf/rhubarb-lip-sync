@@ -18,6 +18,9 @@ public:
 
 	void resize(const TimeRange& newRange);
 	void resize(time_type start, time_type end);
+	void shift(time_type offset);
+	void grow(time_type value);
+	void shrink(time_type value);
 
 	bool operator==(const TimeRange& rhs) const;
 	bool operator!=(const TimeRange& rhs) const;

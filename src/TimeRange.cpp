@@ -32,6 +32,20 @@ void TimeRange::resize(time_type start, time_type end) {
 	resize(TimeRange(start, end));
 }
 
+void TimeRange::shift(time_type offset) {
+	start += offset;
+	end += offset;
+}
+
+void TimeRange::grow(time_type value) {
+	start -= value;
+	end += value;
+}
+
+void TimeRange::shrink(time_type value) {
+	grow(-value);
+}
+
 bool TimeRange::operator==(const TimeRange& rhs) const {
 	return start == rhs.start && end == rhs.end;
 }
