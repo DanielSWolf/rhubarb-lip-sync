@@ -103,6 +103,7 @@ set(SOURCE_FILES
 	src/platformTools.cpp src/platformTools.h
 	src/tools.cpp src/tools.h
 	src/audio/AudioStream.cpp src/audio/AudioStream.h
+	src/audio/AudioStreamSegment.cpp src/audio/AudioStreamSegment.h
 	src/audio/DCOffset.cpp src/audio/DCOffset.h
 	src/audio/SampleRateConverter.cpp src/audio/SampleRateConverter.h
 	src/audio/UnboundedStream.cpp src/audio/UnboundedStream.h
