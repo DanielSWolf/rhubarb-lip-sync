@@ -5,7 +5,6 @@ using std::map;
 
 Shape getShape(Phone phone) {
 	switch (phone) {
-		case Phone::None:
 		case Phone::P:
 		case Phone::B:
 		case Phone::M:
@@ -67,11 +66,14 @@ Shape getShape(Phone phone) {
 	}
 }
 
-Timeline<Shape> animate(const Timeline<Phone> &phones) {
-	Timeline<Shape> shapes(phones.getRange());
-	for (auto& timedPhone : phones) {
-		Timed<Shape> timedShape(static_cast<TimeRange>(timedPhone), getShape(timedPhone.getValue()));
+ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
+	ContinuousTimeline<Shape> shapes(phones.getRange(), Shape::A);
+	for (const auto& timedPhone : phones) {
+		Timed<Shape> timedShape(timedPhone.getTimeRange(), getShape(timedPhone.getValue()));
 		shapes.set(timedShape);
+	}
+
+	for (const auto& timedShape : shapes) {
 		logging::logTimedEvent("shape", timedShape);
 	}
 

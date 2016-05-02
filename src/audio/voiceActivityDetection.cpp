@@ -3,6 +3,7 @@
 #include <audio/SampleRateConverter.h>
 #include <boost/optional/optional.hpp>
 #include <logging.h>
+#include <pairs.h>
 
 using std::numeric_limits;
 using std::vector;
@@ -17,7 +18,7 @@ float getRMS(AudioStream& audioStream, int maxSampleCount = numeric_limits<int>:
 	return sampleCount > 0 ? static_cast<float>(std::sqrt(sum / sampleCount)) : 0.0f;
 }
 
-Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
+BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
 	// Make sure audio stream has no DC offset
 	audioStream = removeDCOffset(std::move(audioStream));
 
@@ -29,26 +30,32 @@ Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
 	// Detect activity
 	const float rms = getRMS(*audioStream->clone(true));
 	const float cutoff = rms / 50;
-	Timeline<bool> activity(audioStream->getTruncatedRange());
+	BoundedTimeline<void> activity(audioStream->getTruncatedRange());
 	for (centiseconds time = centiseconds::zero(); !audioStream->endOfStream(); ++time) {
 		float currentRMS = getRMS(*audioStream, sampleRate / 100);
 		bool active = currentRMS > cutoff;
 		if (active) {
-			activity[time] = true;
+			activity.set(time, time + centiseconds(1));
 		}
 	}
 
+	// Pad each activity to prevent cropping
+	const centiseconds padding(3);
+	for (const auto& element : BoundedTimeline<void>(activity)) {
+		activity.set(element.getStart() - padding, element.getEnd() + padding);
+	}
+
 	// Fill small gaps in activity
-	const centiseconds maxGap(10);
-	for (const auto& element : Timeline<bool>(activity)) {
-		if (!element.getValue() && element.getLength() <= maxGap) {
-			activity.set(static_cast<TimeRange>(element), true);
+	const centiseconds maxGap(5);
+	for (const auto& pair : getPairs(activity)) {
+		if (pair.second.getStart() - pair.first.getEnd() <= maxGap) {
+			activity.set(pair.first.getEnd(), pair.second.getStart());
 		}
 	}
 
 	// Log
-	for (const auto& element : activity) {
-		logging::logTimedEvent("utterance", static_cast<TimeRange>(element), std::string());
+	for (const auto& utterance : activity) {
+		logging::logTimedEvent("utterance", utterance.getTimeRange(), std::string());
 	}
 
 	return activity;

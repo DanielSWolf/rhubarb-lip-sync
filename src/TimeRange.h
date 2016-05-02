@@ -5,6 +5,8 @@ class TimeRange {
 public:
 	using time_type = centiseconds;
 
+	static TimeRange zero();
+
 	TimeRange(time_type start, time_type end);
 	TimeRange(const TimeRange&) = default;
 	TimeRange(TimeRange&&) = default;
@@ -15,6 +17,7 @@ public:
 	time_type getStart() const;
 	time_type getEnd() const;
 	time_type getLength() const;
+	bool empty() const;
 
 	void resize(const TimeRange& newRange);
 	void resize(time_type start, time_type end);

@@ -118,6 +118,8 @@ set(SOURCE_FILES
 	src/Timed.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/Timeline.h
+	src/BoundedTimeline.h
+	src/ContinuousTimeline.h
 	src/pairs.h
 	src/Exporter.cpp src/Exporter.h
 )
@@ -130,6 +132,8 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 set(TEST_FILES
 	tests/stringToolsTests.cpp
 	tests/TimelineTests.cpp
+	tests/BoundedTimelineTests.cpp
+	tests/ContinuousTimelineTests.cpp
 	tests/pairsTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h

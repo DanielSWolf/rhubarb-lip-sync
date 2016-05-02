@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
 #include "AudioStream.h"
-#include <Timeline.h>
+#include <BoundedTimeline.h>
 
-Timeline<bool> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream);
+BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream);

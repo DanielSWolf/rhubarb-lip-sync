@@ -5,9 +5,9 @@
 #include "Phone.h"
 #include "progressBar.h"
 #include <boost/optional/optional.hpp>
-#include "Timeline.h"
+#include "BoundedTimeline.h"
 
-Timeline<Phone> detectPhones(
+BoundedTimeline<Phone> detectPhones(
 	std::unique_ptr<AudioStream> audioStream,
 	boost::optional<std::string> dialog,
 	ProgressSink& progressSink);

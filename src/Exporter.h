@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Shape.h>
-#include <Timeline.h>
+#include "ContinuousTimeline.h"
 #include <boost/filesystem/path.hpp>
 #include <iostream>
 
@@ -26,20 +26,20 @@ std::istream& operator>>(std::istream& stream, ExportFormat& value);
 class Exporter {
 public:
 	virtual ~Exporter() {}
-	virtual void exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) = 0;
+	virtual void exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) = 0;
 };
 
 class TSVExporter : public Exporter {
 public:
-	void exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) override;
+	void exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) override;
 };
 
 class XMLExporter : public Exporter {
 public:
-	void exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) override;
+	void exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) override;
 };
 
 class JSONExporter : public Exporter {
 public:
-	void exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) override;
+	void exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) override;
 };

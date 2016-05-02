@@ -10,8 +10,8 @@
 #include "ProgressBar.h"
 #include "logging.h"
 #include <gsl_util.h>
-#include "Timeline.h"
 #include "Exporter.h"
+#include "ContinuousTimeline.h"
 
 using std::exception;
 using std::string;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 		const int columnWidth = 30;
 		std::cerr << std::left;
 		std::cerr << std::setw(columnWidth) << "Analyzing input file";
-		Timeline<Phone> phones{};
+		BoundedTimeline<Phone> phones(TimeRange::zero());
 		{
 			ProgressBar progressBar;
 			phones = detectPhones(
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 
 		// Generate mouth shapes
 		std::cerr << std::setw(columnWidth) << "Generating mouth shapes";
-		Timeline<Shape> shapes = animate(phones);
+		ContinuousTimeline<Shape> shapes = animate(phones);
 		std::cerr << "Done" << std::endl;
 
 		std::cerr << std::endl;

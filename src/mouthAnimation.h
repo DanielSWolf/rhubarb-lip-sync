@@ -2,6 +2,6 @@
 
 #include "Phone.h"
 #include "Shape.h"
-#include "Timeline.h"
+#include "ContinuousTimeline.h"
 
-Timeline<Shape> animate(const Timeline<Phone>& phones);
+ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone>& phones);

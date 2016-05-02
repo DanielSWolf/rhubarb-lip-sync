@@ -2,6 +2,7 @@
 #include "Phone.h"
 
 using std::string;
+using boost::optional;
 
 PhoneConverter& PhoneConverter::get() {
 	static PhoneConverter converter;
@@ -14,7 +15,6 @@ string PhoneConverter::getTypeName() {
 
 EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 	return member_data{
-		{ Phone::None,		"None" },
 		{ Phone::Unknown,	"Unknown" },
 		{ Phone::AO,		"AO" },
 		{ Phone::AA,		"AA" },
@@ -58,8 +58,7 @@ EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 	};
 }
 
-boost::optional<Phone> PhoneConverter::tryParse(const string& s) {
-	if (s == "SIL") return Phone::None;
+optional<Phone> PhoneConverter::tryParse(const string& s) {
 	auto result = EnumConverter<Phone>::tryParse(s);
 	return result ? result : Phone::Unknown;
 }

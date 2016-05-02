@@ -4,7 +4,6 @@
 
 // Defines a subset of the Arpabet
 enum class Phone {
-	None,
 	Unknown,
 
 	/////////

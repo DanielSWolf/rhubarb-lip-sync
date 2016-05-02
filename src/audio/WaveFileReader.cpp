@@ -2,7 +2,6 @@
 #include <string.h>
 #include "WaveFileReader.h"
 #include "ioTools.h"
-#include <array>
 
 using std::runtime_error;
 using fmt::format;

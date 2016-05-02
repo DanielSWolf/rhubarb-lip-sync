@@ -4,6 +4,11 @@
 
 using time_type = TimeRange::time_type;
 
+TimeRange TimeRange::zero() {
+	static TimeRange zero(time_type::zero(), time_type::zero());
+	return zero;
+}
+
 TimeRange::TimeRange(time_type start, time_type end) :
 	start(start),
 	end(end)
@@ -21,6 +26,10 @@ time_type TimeRange::getEnd() const {
 
 time_type TimeRange::getLength() const {
 	return end - start;
+}
+
+bool TimeRange::empty() const {
+	return start == end;
 }
 
 void TimeRange::resize(const TimeRange& newRange) {

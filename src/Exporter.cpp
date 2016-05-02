@@ -1,5 +1,4 @@
 #include "Exporter.h"
-#include <logging.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <tools.h>
@@ -43,7 +42,7 @@ std::vector<Timed<Shape>> dummyShapeIfEmpty(const Timeline<Shape>& shapes) {
 	return result;
 }
 
-void TSVExporter::exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) {
+void TSVExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	UNUSED(inputFilePath);
 
 	// Output shapes with start times
@@ -55,7 +54,7 @@ void TSVExporter::exportShapes(const boost::filesystem::path& inputFilePath, con
 	outputStream << formatDuration(shapes.getRange().getEnd()) << "\t" << Shape::A << "\n";
 }
 
-void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) {
+void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	ptree tree;
 
 	// Add metadata
@@ -94,7 +93,7 @@ string escapeJSONString(const string& s) {
 	return result;
 }
 
-void JSONExporter::exportShapes(const boost::filesystem::path& inputFilePath, const Timeline<Shape>& shapes, std::ostream& outputStream) {
+void JSONExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	// Export as JSON.
 	// I'm not using a library because the code is short enough without one and it lets me control the formatting.
 	outputStream << "{\n";
