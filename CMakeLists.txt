@@ -118,6 +118,7 @@ set(SOURCE_FILES
 	src/Timed.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/Timeline.h
+	src/pairs.h
 	src/Exporter.cpp src/Exporter.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
@@ -129,10 +130,12 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 set(TEST_FILES
 	tests/stringToolsTests.cpp
 	tests/TimelineTests.cpp
+	tests/pairsTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/centiseconds.cpp src/centiseconds.h
+	src/pairs.h
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
