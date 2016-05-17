@@ -88,7 +88,6 @@ int main(int argc, char *argv[]) {
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
 	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
-	tclap::ValueArg<string> dialog("d", "dialog", "The text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
 	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::TSV, &exportFormatConstraint, cmd);
@@ -118,7 +117,6 @@ int main(int argc, char *argv[]) {
 			ProgressBar progressBar;
 			phones = detectPhones(
 				createAudioStream(inputFileName.getValue()),
-				dialog.isSet() ? dialog.getValue() : boost::optional<string>(),
 				progressBar);
 		}
 		std::cerr << "Done" << std::endl;

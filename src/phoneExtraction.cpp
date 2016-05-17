@@ -292,7 +292,6 @@ BoundedTimeline<Phone> getPhoneAlignment(
 
 BoundedTimeline<Phone> detectPhones(
 	unique_ptr<AudioStream> audioStream,
-	boost::optional<std::string> dialog,
 	ProgressSink& progressSink)
 {
 	// Pocketsphinx doesn't like empty input
@@ -319,13 +318,11 @@ BoundedTimeline<Phone> detectPhones(
 		auto recognizer = createSpeechRecognizer(*config.get());
 
 		ProgressMerger progressMerger(progressSink);
-		ProgressSink& wordRecognitionProgressSink = progressMerger.addSink(dialog ? 0.0 : 1.0);
+		ProgressSink& wordRecognitionProgressSink = progressMerger.addSink(1.0);
 		ProgressSink& alignmentProgressSink = progressMerger.addSink(0.5);
 
 		// Get words
-		vector<string> words = dialog
-			? extractDialogWords(*dialog)
-			: recognizeWords(audioStream->clone(true), *recognizer.get(), wordRecognitionProgressSink);
+		vector<string> words = recognizeWords(audioStream->clone(true), *recognizer.get(), wordRecognitionProgressSink);
 
 		// Look up words in dictionary
 		vector<s3wid_t> wordIds = getWordIds(words, *recognizer->dict);
