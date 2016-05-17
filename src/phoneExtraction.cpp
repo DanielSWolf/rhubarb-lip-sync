@@ -133,7 +133,8 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 		success = charsWritten < static_cast<int>(chars.size());
 		if (!success) chars.resize(chars.size() * 2);
 	}
-	string message(chars.data());
+	regex waste("^(DEBUG|INFO|INFOCONT|WARN|ERROR|FATAL): ");
+	string message = regex_replace(chars.data(), waste, "", std::regex_constants::format_first_only);
 	boost::algorithm::trim(message);
 
 	logging::Level logLevel = ConvertSphinxErrorLevel(errorLevel);
