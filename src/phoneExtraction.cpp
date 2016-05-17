@@ -12,6 +12,8 @@
 #include <logging.h>
 #include <audio/DCOffset.h>
 #include <Timeline.h>
+#include <audio/voiceActivityDetection.h>
+#include <audio/AudioStreamSegment.h>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -48,9 +50,6 @@ lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
 			"-dict", (sphinxModelDirectory / "cmudict-en-us.dict").string().c_str(),
 			// Add noise against zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
 			"-dither", "yes",
-			// Allow for long pauses in speech
-			"-vad_prespeech", "3000",
-			"-vad_postspeech", "3000",
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
@@ -141,9 +140,12 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
+BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
 	// Convert audio stream to the exact format PocketSphinx requires
 	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
+
+	// Restart timing at 0
+	ps_start_stream(&recognizer);
 
 	// Start recognition
 	int error = ps_start_utt(&recognizer);
@@ -161,15 +163,13 @@ vector<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t&
 	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
 
 	// Collect words
-	vector<string> result;
+	BoundedTimeline<string> result(audioStream->getTruncatedRange());
 	int32_t score;
 	for (ps_seg_t* it = ps_seg_iter(&recognizer, &score); it; it = ps_seg_next(it)) {
 		const char* word = ps_seg_word(it);
-		result.push_back(word);
-
 		int firstFrame, lastFrame;
 		ps_seg_frames(it, &firstFrame, &lastFrame);
-		logging::logTimedEvent("word", centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
+		result.set(centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
 	}
 
 	return result;
@@ -204,14 +204,10 @@ vector<string> extractDialogWords(string dialog) {
 	return result;
 }
 
-vector<s3wid_t> getWordIds(const vector<string>& words, dict_t& dictionary) {
-	vector<s3wid_t> result;
-	for (const string& word : words) {
-		s3wid_t wordId = dict_wordid(&dictionary, word.c_str());
-		if (wordId == BAD_S3WID) throw invalid_argument(fmt::format("Unknown word '{}'.", word));
-		result.push_back(wordId);
-	}
-	return result;
+s3wid_t getWordId(const string& word, dict_t& dictionary) {
+	s3wid_t wordId = dict_wordid(&dictionary, word.c_str());
+	if (wordId == BAD_S3WID) throw invalid_argument(fmt::format("Unknown word '{}'.", word));
+	return wordId;
 }
 
 BoundedTimeline<Phone> getPhoneAlignment(
@@ -284,8 +280,6 @@ BoundedTimeline<Phone> getPhoneAlignment(
 		centiseconds duration(phoneEntry->duration);
 		Timed<Phone> timedPhone(start, start + duration, PhoneConverter::get().parse(phoneName));
 		result.set(timedPhone);
-
-		logging::logTimedEvent("phone", timedPhone);
 	}
 	return result;
 }
@@ -317,18 +311,55 @@ BoundedTimeline<Phone> detectPhones(
 		// Create speech recognizer
 		auto recognizer = createSpeechRecognizer(*config.get());
 
-		ProgressMerger progressMerger(progressSink);
-		ProgressSink& wordRecognitionProgressSink = progressMerger.addSink(1.0);
-		ProgressSink& alignmentProgressSink = progressMerger.addSink(0.5);
+		// Split audio into utterances
+		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true));
 
-		// Get words
-		vector<string> words = recognizeWords(audioStream->clone(true), *recognizer.get(), wordRecognitionProgressSink);
+		// For progress reporting: weigh utterances by length
+		ProgressMerger dialogProgressMerger(progressSink);
+		vector<ProgressSink*> utteranceProgressSinks;
+		for (const auto& timedUtterance : utterances) {
+			utteranceProgressSinks.push_back(&dialogProgressMerger.addSink(timedUtterance.getTimeRange().getLength().count()));
+		}
+		auto utteranceProgressSinkIt = utteranceProgressSinks.begin();
 
-		// Look up words in dictionary
-		vector<s3wid_t> wordIds = getWordIds(words, *recognizer->dict);
+		BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
+		for (const auto& timedUtterance : utterances) {
+			ProgressMerger utteranceProgressMerger(**utteranceProgressSinkIt++);
+			ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
+			ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
 
-		// Align the word's phones with speech
-		BoundedTimeline<Phone> result = getPhoneAlignment(wordIds, std::move(audioStream), *recognizer.get(), alignmentProgressSink);
+			const TimeRange timeRange = timedUtterance.getTimeRange();
+			logging::logTimedEvent("utterance", timeRange, string(""));
+
+			auto streamSegment = createSegment(audioStream->clone(true), timeRange);
+
+			// Get words
+			BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), *recognizer.get(), wordRecognitionProgressSink);
+			for (Timed<string> timedWord : words) {
+				timedWord.getTimeRange().shift(timedUtterance.getStart());
+				logging::logTimedEvent("word", timedWord);
+			}
+			
+			// Look up words in dictionary
+			vector<s3wid_t> wordIds;
+			for (const auto& timedWord : words) {
+				wordIds.push_back(getWordId(timedWord.getValue(), *recognizer->dict));
+			}
+			if (wordIds.empty()) continue;
+
+			// Align the words' phones with speech
+			BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *recognizer.get(), alignmentProgressSink);
+			segmentPhones.shift(timedUtterance.getStart());
+			for (const auto& timedPhone : segmentPhones) {
+				logging::logTimedEvent("phone", timedPhone);
+			}
+
+			// Fill result
+			for (const auto& timedPhone : segmentPhones) {
+				result.set(timedPhone);
+			}
+		}
+
 		return result;
 	}
 	catch (...) {

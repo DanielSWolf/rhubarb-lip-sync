@@ -29,7 +29,7 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 
 	// Detect activity
 	const float rms = getRMS(*audioStream->clone(true));
-	const float cutoff = rms / 50;
+	const float cutoff = rms / 25;
 	BoundedTimeline<void> activity(audioStream->getTruncatedRange());
 	for (centiseconds time = centiseconds::zero(); !audioStream->endOfStream(); ++time) {
 		float currentRMS = getRMS(*audioStream, sampleRate / 100);
@@ -51,11 +51,6 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 		if (pair.second.getStart() - pair.first.getEnd() <= maxGap) {
 			activity.set(pair.first.getEnd(), pair.second.getStart());
 		}
-	}
-
-	// Log
-	for (const auto& utterance : activity) {
-		logging::logTimedEvent("utterance", utterance.getTimeRange(), std::string());
 	}
 
 	return activity;
