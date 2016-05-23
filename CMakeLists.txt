@@ -91,6 +91,71 @@ set_target_properties(gtest_main PROPERTIES FOLDER lib)
 # ... GSL
 include_directories(SYSTEM "lib/gsl/include")
 
+# ... Flite
+include_directories("lib/flite-1.4/include" "lib/flite-1.4")
+set(fliteFiles
+	lib/flite-1.4/lang/cmulex/cmu_lex.c
+	lib/flite-1.4/lang/cmulex/cmu_lex_data.c
+	lib/flite-1.4/lang/cmulex/cmu_lex_entries.c
+	lib/flite-1.4/lang/cmulex/cmu_lts_model.c
+	lib/flite-1.4/lang/cmulex/cmu_lts_rules.c
+	lib/flite-1.4/lang/cmulex/cmu_postlex.c
+	lib/flite-1.4/lang/usenglish/us_aswd.c
+	lib/flite-1.4/lang/usenglish/us_dur_stats.c
+	lib/flite-1.4/lang/usenglish/us_durz_cart.c
+	lib/flite-1.4/lang/usenglish/us_expand.c
+	lib/flite-1.4/lang/usenglish/us_f0_model.c
+	lib/flite-1.4/lang/usenglish/us_f0lr.c
+	lib/flite-1.4/lang/usenglish/us_ffeatures.c
+	lib/flite-1.4/lang/usenglish/us_gpos.c
+	lib/flite-1.4/lang/usenglish/us_int_accent_cart.c
+	lib/flite-1.4/lang/usenglish/us_int_tone_cart.c
+	lib/flite-1.4/lang/usenglish/us_nums_cart.c
+	lib/flite-1.4/lang/usenglish/us_phoneset.c
+	lib/flite-1.4/lang/usenglish/us_phrasing_cart.c
+	lib/flite-1.4/lang/usenglish/us_pos_cart.c
+	lib/flite-1.4/lang/usenglish/us_text.c
+	lib/flite-1.4/lang/usenglish/usenglish.c
+	lib/flite-1.4/src/audio/au_none.c
+	lib/flite-1.4/src/audio/au_streaming.c
+	lib/flite-1.4/src/audio/audio.c
+	lib/flite-1.4/src/hrg/cst_ffeature.c
+	lib/flite-1.4/src/hrg/cst_item.c
+	lib/flite-1.4/src/hrg/cst_relation.c
+	lib/flite-1.4/src/hrg/cst_utterance.c
+	lib/flite-1.4/src/lexicon/cst_lexicon.c
+	lib/flite-1.4/src/lexicon/cst_lts.c
+	lib/flite-1.4/src/regex/cst_regex.c
+	lib/flite-1.4/src/regex/regexp.c
+	lib/flite-1.4/src/speech/cst_lpcres.c
+	lib/flite-1.4/src/speech/cst_track.c
+	lib/flite-1.4/src/speech/cst_wave.c
+	lib/flite-1.4/src/speech/cst_wave_io.c
+	lib/flite-1.4/src/speech/cst_wave_utils.c
+	lib/flite-1.4/src/speech/rateconv.c
+	lib/flite-1.4/src/stats/cst_cart.c
+	lib/flite-1.4/src/synth/cst_ffeatures.c
+	lib/flite-1.4/src/synth/cst_phoneset.c
+	lib/flite-1.4/src/synth/cst_synth.c
+	lib/flite-1.4/src/synth/cst_utt_utils.c
+	lib/flite-1.4/src/synth/cst_voice.c
+	lib/flite-1.4/src/synth/flite.c
+	lib/flite-1.4/src/utils/cst_alloc.c
+	lib/flite-1.4/src/utils/cst_endian.c
+	lib/flite-1.4/src/utils/cst_error.c
+	lib/flite-1.4/src/utils/cst_features.c
+	lib/flite-1.4/src/utils/cst_file_stdio.c
+	lib/flite-1.4/src/utils/cst_string.c
+	lib/flite-1.4/src/utils/cst_tokenstream.c
+	lib/flite-1.4/src/utils/cst_val.c
+	lib/flite-1.4/src/utils/cst_val_const.c
+	lib/flite-1.4/src/utils/cst_val_user.c
+	lib/flite-1.4/src/utils/cst_val_user.c
+)
+add_library(flite ${fliteFiles})
+target_compile_options(flite PRIVATE ${disableWarningsFlags})
+set_target_properties(flite PROPERTIES FOLDER lib)
+
 # Define executable
 include_directories("src" "src/audio_input")
 configure_file(src/appInfo.cpp.in src/appInfo.cpp ESCAPE_QUOTES)
@@ -128,7 +193,7 @@ set(SOURCE_FILES
 	src/ascii.cpp src/ascii.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
-target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
+target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
