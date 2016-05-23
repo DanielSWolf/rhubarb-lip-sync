@@ -1,0 +1,210 @@
+########################################################-*-mode:Makefile-*-
+##                                                                       ##
+##                  Language Technologies Institute                      ##
+##                     Carnegie Mellon University                        ##
+##                        Copyright (c) 1999                             ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+##                                                                       ##
+##    Common make rules included in all Makefiles                        ##
+##                                                                       ##
+###########################################################################
+
+# System type
+-include $(TOP)/config/system.mak
+
+#  Include project specific rules
+-include $(TOP)/config/project.mak
+
+## User defined configuration options
+include $(TOP)/config/config
+
+INCLUDES = -I$(TOP)/include
+ifeq ($(TARGET_OS),palmos)
+INCLUDES += -I$(TOP)/palm/include
+endif
+
+CPPFLAGS += $(LOCAL_INCLUDES) $(INCLUDES)
+CFLAGS += $(EXTRA_CC_FLAGS) $(OPT) $(DBG)
+## These'll become (target)arch dependent at some point
+TARGET_PLATFORM=$(TARGET_CPU)-$(TARGET_OS)
+HOST_PLATFORM=$(HOST_CPU)-$(HOST_OS)
+ifndef BUILDDIR
+BUILDDIR=$(TOP)/build/$(TARGET_PLATFORM)
+endif
+OBJDIR=$(BUILDDIR)/obj/$(DIRNAME)
+BINDIR=$(BUILDDIR)/bin
+ifeq ($(HOST_PLATFORM),$(TARGET_PLATFORM))
+BINDIR=$(TOP)/bin
+endif
+
+LIBDIR=$(BUILDDIR)/lib
+BUILDDIRS=$(OBJDIR) $(BINDIR) $(LIBDIR)
+
+FLITELIBS = $(BUILDDIR)/lib/libflite.a
+FLITELIBFLAGS = -L$(BUILDDIR)/lib -lflite 
+LDFLAGS += -lm $(AUDIOLIBS) $(OTHERLIBS)
+
+FULLOBJS = $(OBJS:%=$(OBJDIR)/%)
+ifdef SHFLAGS
+SOOBJS = $(OBJS:.o=.os)
+FULLSHOBJS = $(SOOBJS:%=$(OBJDIR)/%)
+ifdef LIBNAME
+ALL += $(OBJDIR)/.build_so
+endif
+endif
+ifdef LIBNAME
+ALL += $(OBJDIR)/.build_lib
+endif
+# Only do some directories when you are not cross compiling
+ifeq ($(HOST_PLATFORM),$(TARGET_PLATFORM))
+OTHER_BUILD_DIRS = $(HOST_ONLY_DIRS)
+ALL += $(HOST_ONLY_BUILDS)
+endif
+# When target is palm add the palm directory at the top level
+ifeq ($(DIRNAME),)
+ifeq ($(TARGET_OS),palmos)
+OTHER_BUILD_DIRS += palm
+endif
+endif
+
+all: $(BUILDDIRS) $(OTHER_BUILD_DIRS) $(OBJDIR)/.make_build_dirs $(ALL) nothing
+
+nothing:
+	@ echo > /dev/null
+
+$(BUILDDIRS):
+	@ mkdir -p $@ 2>/dev/null || true
+
+$(OBJDIR)/%.o : %.c
+	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.os : %.c
+	$(CC) $(SHFLAGS) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/.build_lib: $(FULLOBJS)
+	@ (cd $(OBJDIR) && $(AR) cruv ../../../$(LIBDIR)/lib$(LIBNAME).a $(OBJS))
+	@ $(RANLIB) $(LIBDIR)/lib$(LIBNAME).a
+	@ touch $(OBJDIR)/.build_lib
+
+$(OBJDIR)/.build_so: $(FULLSHOBJS)
+	@ (cd $(OBJDIR) && $(AR) cruv ../../../$(LIBDIR)/lib$(LIBNAME).shared.a $(SOOBJS))
+	@ $(RANLIB) $(LIBDIR)/lib$(LIBNAME).shared.a
+	@ touch $(OBJDIR)/.build_so
+
+# Used in the lib/ directory and in building new voices
+$(LIBDIR)/%.so: $(LIBDIR)/%.shared.a
+	@ echo making $@
+	@ rm -rf shared_os && mkdir shared_os
+	@ rm -f $@ $@.${PROJECT_VERSION} $@.${PROJECT_SHLIB_VERSION} 
+	@ (cd shared_os && ar x ../$<)
+	@ (cd shared_os && $(CC) -shared -Wl,-soname,`basename $@`.${PROJECT_SHLIB_VERSION} -o ../$@.${PROJECT_VERSION} *.os)
+	@ (cd $(LIBDIR) && ln -s `basename $@.${PROJECT_VERSION}` `basename $@.${PROJECT_SHLIB_VERSION}` )
+	@ (cd $(LIBDIR) && ln -s `basename $@.${PROJECT_SHLIB_VERSION}` `basename $@` )
+	@ rm -rf shared_os
+
+$(OBJDIR)/.make_build_dirs:
+	@ echo making in $(DIRNAME) ...
+ifdef BUILD_DIRS
+	@ set -e; for i in $(BUILD_DIRS) $(OTHER_BUILD_DIRS) ; \
+	do \
+	   $(MAKE) -C $$i --no-print-directory; \
+	done
+endif
+
+clean:
+	@ echo make clean in $(DIRNAME) ...
+	@ rm -rf .build_lib .build_so *.o *.os *.a *~ $(LOCAL_CLEAN) $(OBJDIR)
+ifdef ALL_DIRS
+	@ set -e; for i in $(ALL_DIRS) ; \
+	do \
+	   $(MAKE) -C $$i --no-print-directory clean; \
+	done
+endif
+
+distclean:
+	@ echo make distclean in $(DIRNAME) ...
+ifdef ALL_DIRS
+	@ set -e; for i in $(ALL_DIRS) ; \
+	do \
+	   $(MAKE) -C $$i --no-print-directory distclean; \
+	done
+endif
+	@ rm -rf .build_lib .build_shlib make.depend \
+		*.o *.os *.a *~ $(LOCAL_CLEAN) $(DIST_CLEAN) $(OBJDIR)
+
+DEPEND=$(OBJDIR)/make.depend
+MAKE_DEPEND=$(CC) -MM $(CPPFLAGS) $(CFLAGS)
+
+depend:
+	@ echo make depend in $(DIRNAME) ...
+	@ rm -f $(DEPEND)
+	@ $(MAKE) nothing
+ifdef ALL_DIRS
+	@ set -e; for i in $(ALL_DIRS) ; \
+	do \
+	   $(MAKE) -C $$i --no-print-directory depend ; \
+	done
+endif
+
+$(DEPEND): $(SRCS) $(OBJDIR)
+	@ rm -f $(DEPEND)
+	@ for i in $(SRCS) ; \
+	  do \
+            echo "# $$i" ; \
+	    $(MAKE_DEPEND) $$i | sed -e 's,^\([^:][^:]*\):,$(OBJDIR)/\1:,'; \
+	    echo ; \
+          done > $(DEPEND)
+
+file-list:
+	@ echo making file-list in $(DIRNAME) ...
+	@ for f in $(FILES) ; \
+	do \
+	   echo $(DIRNAME)/$$f >>$(TOP)/FileList ; \
+	done 
+ifdef ALL_DIRS
+	@ for i in $(ALL_DIRS) ; \
+	do \
+	   $(MAKE) -C $$i --no-print-directory file-list; \
+	done
+endif 
+
+info:
+	@echo Project Name = $(PROJECT_NAME)
+	@echo Project Prefix = $(PROJECT_PREFIX)
+	@echo Project Version = $(PROJECT_VERSION)
+	@echo Project Date = $(PROJECT_DATE)
+	@echo Project State = $(PROJECT_STATE)
+	@echo
+	@echo Configuration Variables
+	@echo none at present
+
+# If there are sources in this directory, load in the dependencies
+ifdef SRCS
+-include $(DEPEND)
+endif

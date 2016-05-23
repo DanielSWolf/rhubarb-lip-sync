@@ -1,0 +1,30 @@
+// FliteCMUKalDiphone.idl : IDL source for FliteCMUKalDiphone.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (FliteCMUKalDiphone.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "sapiddk.idl";
+
+[
+	uuid(1033E526-D2C0-4A02-8FD2-24185FC4D9A7),
+	version(1.0),
+	helpstring("FliteCMUKalDiphone 1.0 Type Library")
+]
+library FLITECMUKALDIPHONELib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(72CEF72B-809E-4CB4-A63C-ADC7938CFD5B),
+		helpstring("FliteCMUKalDiphoneObj Class")
+	]
+	coclass FliteCMUKalDiphoneObj
+	{
+		[default] interface ISpTTSEngine;
+		interface ISpObjectWithToken;
+	};
+};

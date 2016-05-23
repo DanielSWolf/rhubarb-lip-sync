@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fliteDll", "fliteDll.vcproj", "{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmu_us_rms", "lang\cmu_us_rms\cmu_us_rms.vcproj", "{596A15AB-57B8-4EC2-BEC5-C34689D7ED5C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2} = {FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmu_dari_male0", "lang\cmu_dari_male0\cmu_dari_male0.vcproj", "{2AA75D28-C2B0-442D-BDE6-6A612597F897}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2} = {FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmu_pashto_transtac_male1", "lang\cmu_pashto_transtac_male1\cmu_pashto_transtac_male1.vcproj", "{318A1257-0E9F-406A-A9E9-B019ABAE017D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}.Debug|Win32.Build.0 = Debug|Win32
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}.Release|Win32.ActiveCfg = Release|Win32
+		{FAEFFFEB-D98F-4641-A0CF-04E31C8F90F2}.Release|Win32.Build.0 = Release|Win32
+		{596A15AB-57B8-4EC2-BEC5-C34689D7ED5C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{596A15AB-57B8-4EC2-BEC5-C34689D7ED5C}.Debug|Win32.Build.0 = Debug|Win32
+		{596A15AB-57B8-4EC2-BEC5-C34689D7ED5C}.Release|Win32.ActiveCfg = Release|Win32
+		{596A15AB-57B8-4EC2-BEC5-C34689D7ED5C}.Release|Win32.Build.0 = Release|Win32
+		{2AA75D28-C2B0-442D-BDE6-6A612597F897}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2AA75D28-C2B0-442D-BDE6-6A612597F897}.Debug|Win32.Build.0 = Debug|Win32
+		{2AA75D28-C2B0-442D-BDE6-6A612597F897}.Release|Win32.ActiveCfg = Release|Win32
+		{2AA75D28-C2B0-442D-BDE6-6A612597F897}.Release|Win32.Build.0 = Release|Win32
+		{318A1257-0E9F-406A-A9E9-B019ABAE017D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{318A1257-0E9F-406A-A9E9-B019ABAE017D}.Debug|Win32.Build.0 = Debug|Win32
+		{318A1257-0E9F-406A-A9E9-B019ABAE017D}.Release|Win32.ActiveCfg = Release|Win32
+		{318A1257-0E9F-406A-A9E9-B019ABAE017D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

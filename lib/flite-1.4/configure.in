@@ -1,0 +1,366 @@
+dnl########################################################################
+dnl                                                                      ##
+dnl                 Language Technologies Institute                      ##
+dnl                    Carnegie Mellon University                        ##
+dnl                     Copyright (c) 1999-2008                          ##
+dnl                       All Rights Reserved.                           ##
+dnl                                                                      ##
+dnl Permission is hereby granted, free of charge, to use and distribute  ##
+dnl this software and its documentation without restriction, including   ##
+dnl without limitation the rights to use, copy, modify, merge, publish,  ##
+dnl distribute, sublicense, and/or sell copies of this work, and to      ##
+dnl permit persons to whom this work is furnished to do so, subject to   ##
+dnl the following conditions:                                            ##
+dnl  1. The code must retain the above copyright notice, this list of    ##
+dnl     conditions and the following disclaimer.                         ##
+dnl  2. Any modifications must be clearly marked as such.                ##
+dnl  3. Original authors' names are not deleted.                         ##
+dnl  4. The authors' names are not used to endorse or promote products   ##
+dnl     derived from this software without specific prior written        ##
+dnl     permission.                                                      ##
+dnl                                                                      ##
+dnl CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+dnl DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+dnl ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+dnl SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+dnl FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+dnl WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+dnl AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+dnl ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+dnl THIS SOFTWARE.                                                       ##
+dnl                                                                      ##
+dnl########################################################################
+AC_INIT(include/flite.h)
+
+AC_CANONICAL_SYSTEM
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_CHECK_TOOL(AR, ar)
+AC_C_BIGENDIAN
+
+if test "x$GCC" = "xyes"; then
+	CFLAGS="$CFLAGS -Wall"
+fi
+AC_ARG_ENABLE( shared, 
+               [  --disable-shared     without shared library support],
+	       [case "${enableval}" in
+                 yes) shared=true ;;
+                 no) shared=false ;;
+                 *) AC_MSG_ERROR(bad value ${enableval} for shared options) ;;
+                 esac],
+               [shared=false])
+
+case "$target_cpu" in
+     i386|i486|i586|i686)
+	TARGET_CPU=i386
+     ;;
+     *)
+        TARGET_CPU=$target_cpu
+     ;;
+esac     
+TARGET_OS=$target_os
+
+M68KCC=
+M68KCLAGS=
+WINDRES=
+
+case "$target_os" in
+        palmos*)
+		shared=false
+     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS"
+		# PalmOS Apps are always in M68K
+		M68KCC=/usr/m68k-palmos/bin/gcc
+		# Generic build is ARM or M68K (probably ARM though)
+                CC="/usr/$TARGET_CPU-palmos/bin/gcc"
+		if test "$target_cpu" = "arm" 
+                then
+                   CC="$CC -fPIC -march=armv4t"
+                fi
+                RANLIB=/usr/$TARGET_CPU-palmos/bin/ranlib
+                AR=/usr/$TARGET_CPU-palmos/bin/ar
+		LEXDEFS="-DCST_NO_STATIC_LEX -DCST_NO_STATIC_LTS_MODEL"
+		VOXDEFS="-DCST_NO_STATIC_VOX"
+        ;;
+dnl         wince*)
+dnl                 # For the GNUWINCE environment
+dnl                 # http://win-ce.voxware.com:28575/Development%20Tools/
+dnl 		shared=false
+dnl      	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -march=armv4 -mapcs-32 -malignment-traps -DNEWLIB -DSARM -DWIN32 -DGNUWINCE"
+dnl                 CC="/usr/local/wince/bin/arm-wince-pe-gcc"
+dnl                 RANLIB=/usr/local/wince/bin/arm-wince-pe-ranlib
+dnl                 AR=/usr/local/wince/bin/arm-wince-pe-ar
+dnl         ;;
+        wince*)
+                # For the CEGCC environment (mingw32ce)
+                # http://cegcc.sourceforge.net/
+		shared=false
+                # cegcc
+     	        # CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_CE -DNEWLIB -DSARM -DWIN32 -DGNUWINCE"
+                # CC="/opt/cegcc/bin/arm-cegcc-gcc"
+                # RANLIB="/opt/cegcc/bin/arm-cegcc-ranlib"
+                # AR="/opt/cegcc/bin/arm-cegcc-ar"
+                # mingw32ce
+     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_CE -DSARM -DWIN32"
+                if test -f "/opt/mingw32ce/bin/arm-mingw32ce-gcc" 
+                then
+                    MINGW32CEPREF="/opt/mingw32ce/bin/arm-mingw32ce-"
+                else
+                    MINGW32CEPREF="/opt/mingw32ce/bin/arm-wince-mingw32ce-"
+                fi
+                CC="${MINGW32CEPREF}gcc"
+                RANLIB="${MINGW32CEPREF}ranlib"
+                AR="${MINGW32CEPREF}ar"
+                SIZE="${MINGW32CEPREF}size"
+                STRIP="${MINGW32CEPREF}strip"
+                WINDRES="${MINGW32CEPREF}windres"
+                DLLTOOL="${MINGW32CEPREF}dlltool"
+                DLLWRAP="${MINGW32CEPREF}dllwrap"
+                NM="${MINGW32CEPREF}nm"
+        ;;
+        mingw*)
+                # For the Windows under mingw32 environment
+                # http://www.mingw.org
+		shared=false
+     	        CFLAGS="$CFLAGS -DCST_NO_SOCKETS -DUNDER_WINDOWS -DWIN32 -shared"
+                MINGWPREF="i386-mingw32-"
+                CC="${MINGWPREF}gcc"
+                RANLIB="${MINGWPREF}ranlib"
+                AR="${MINGWPREF}ar"
+                WINDRES="${MINGWPREF}windres"
+                DLLTOOL="${MINGWPREF}dlltool"
+                DLLWRAP="${MINGWPREF}dllwrap"
+                NM="${MINGWPREF}nm"
+        ;;
+        uclinux*)
+                LDFLAGS="$LDFLAGS -Wl,-elf2flt"
+        ;;
+	darwin*)
+		CFLAGS="$CFLAGS -no-cpp-precomp"
+	;;
+esac
+
+AC_SUBST(TARGET_OS)
+AC_SUBST(TARGET_CPU)
+AC_SUBST(M68KCC)
+AC_SUBST(WINDRES)
+AC_SUBST(SIZE)
+AC_SUBST(STRIP)
+AC_SUBST(DLLTOOL)
+AC_SUBST(DLLWRAP)
+AC_SUBST(NM)
+AC_SUBST(LEXDEFS)
+AC_SUBST(VOXDEFS)
+
+case "$host_cpu" in
+     i386|i486|i586|i686)
+	HOST_CPU=i386
+     ;;
+     *)
+        HOST_CPU=$host_cpu
+     ;;
+esac     
+HOST_OS=$host_os
+
+AC_SUBST(HOST_OS)
+AC_SUBST(HOST_CPU)
+
+SHFLAGS=
+OTHERLIBS=
+if test "$shared" = true; then
+   case "$target_os" in
+	linux*|k*bsd*-gnu|gnu*)
+		SHFLAGS="-fPIC"
+        ;;
+	solaris*)
+		SHFLAGS="-fPIC"
+		OTHERLIBS="-lsocket -ldl"
+        ;;
+	*)
+	;;
+   esac
+fi
+case "$target_os" in
+     wince*)
+        # cegcc
+        #OTHERLIBS="-lc -lgcc -lwinsock -lcoredll"
+        # mingw32ce
+        OTHERLIBS=
+     ;;
+     *)
+     ;;
+esac
+
+AC_SUBST(OTHERLIBS)
+AC_SUBST(SHFLAGS)
+
+AC_ARG_ENABLE( sockets, 
+               [  --disable-sockets     without socket support],
+	       [case "${enableval}" in
+                 yes) sockets=true ;;
+                 no) sockets=false ;;
+                 *) AC_MSG_ERROR(bad value ${enableval} for sockets options) ;;
+                 esac],
+               [sockets=true])
+if test "$sockets" = false; then
+   AC_DEFINE(CST_NO_SOCKETS)
+fi
+
+dnl
+dnl Does this compiler support initialization of unions
+dnl
+AC_TRY_COMPILE([#include <stdio.h>],
+               [ struct a { union { float b; int c; } d; };
+                 const struct a e = { .d={ .b=3.14 } }; ],
+               [unioninit=yes],
+               [unioninit=no])
+if test "$unioninit" = no; then
+   AC_DEFINE(NO_UNION_INITIALIZATION)
+fi
+
+dnl
+dnl Does this platform support mmap(2)
+dnl Note we don't use AC_FUNC_MMAP because we really only care whether
+dnl read-only mappings work.
+dnl
+AC_CHECK_FUNC(mmap,MMAPTYPE=posix)
+
+dnl AC_CHECK_FUNC doesn't seem to work for Win32 API calls...
+if test "x$MMAPTYPE" = x; then
+   case "$target_os" in
+	cygwin*|mingw*)
+		MMAPTYPE=win32
+	;;
+ 	*)
+		MMAPTYPE=none
+	;;
+   esac
+fi
+AC_SUBST(MMAPTYPE)
+
+dnl stdio type, palmos/wince are different
+if test "$target_os" = "palmos"
+then
+    STDIOTYPE=palmos
+else
+   if test "$target_os" = "wince"
+   then
+      STDIOTYPE=wince
+   else
+      STDIOTYPE=stdio
+   fi
+fi
+AC_SUBST(STDIOTYPE)
+
+dnl
+dnl determine audio type or use none if none supported on this platform
+dnl
+AUDIODRIVER=none
+AC_CHECK_HEADER(sys/soundcard.h,
+              [AUDIODRIVER="oss"
+               AUDIODEFS=-DCST_AUDIO_LINUX])
+AC_CHECK_HEADER(machine/soundcard.h,
+              [AUDIODRIVER="oss"
+               AUDIODEFS=-DCST_AUDIO_FREEBSD])
+AC_CHECK_HEADER(sys/audioio.h,
+              [AUDIODRIVER="sun"
+               AUDIODEFS=-DCST_AUDIO_SUNOS])
+# Seems the alsa code I have breaks on earlier versions
+# I'm not sure what the threshold version is, but made this depend on
+# the one I know -- you can still specific --with-audio=alsa
+AC_TRY_COMPILE([#include <alsa/version.h>],
+               [int j=
+                #if SND_LIB_SUBMINOR >= 11
+                3;
+                #endif],
+              [AUDIODRIVER="alsa"
+	       AUDIODEFS=-DCST_AUDIO_ALSA
+               AUDIOLIBS=-lasound])
+AC_CHECK_HEADER(mmsystem.h,
+	      [AUDIODRIVER="wince"
+	       AUDIODEFS=-DCST_AUDIO_WINCE
+	       AUDIOLIBS=-lwinmm])
+
+dnl I don't care what you ask for, for wince you get wince
+case "$target_os" in
+     wince*)
+        AUDIODRIVER="wince"
+        AUDIODEFS=-DCST_AUDIO_WINCE
+        AUDIOLIBS=
+     ;;
+     mingw*)
+        AUDIODRIVER="none"
+        AUDIODEFS=-DCST_AUDIO_NONE
+        AUDIOLIBS=
+     ;;
+     *)
+     ;;
+esac
+
+dnl
+dnl allow the user to override the one detected above
+dnl
+AC_ARG_WITH( audio,
+	[  --with-audio          with specific audio support (none linux freebsd etc) ],
+        AUDIODRIVER=$with_audio )
+
+if test "x$AUDIODEFS" = x; then
+    case "$AUDIODRIVER" in
+	linux|oss)
+	    AUDIODRIVER=oss
+	    AUDIODEFS=-DCST_AUDIO_LINUX
+	    ;;
+	alsa)
+            AUDIODRIVER="alsa"
+	    AUDIODEFS=-DCST_AUDIO_ALSA
+            AUDIOLIBS=-lasound
+	    ;;
+	*bsd)
+	    AUDIODRIVER=oss
+	    AUDIODEFS=-DCST_AUDIO_FREEBSD
+	    ;;
+	qnx)
+	    AUDIODRIVER=alsa
+	    AUDIODEFS=-DCST_AUDIO_QNX
+	    ;;
+	none)
+	    AUDIODEFS=-DCST_AUDIO_NONE
+	    ;;
+    esac
+fi
+AC_SUBST(AUDIODRIVER)
+AC_SUBST(AUDIODEFS)
+AC_SUBST(AUDIOLIBS)
+
+dnl
+dnl language/lexicon/voice parameters 
+dnl
+AC_ARG_WITH( lang, [  --with-lang           with language ],
+        FL_LANG=$with_lang )
+if test "x$with_lang" = "x"; then
+        FL_LANG="usenglish"
+fi
+AC_SUBST(FL_LANG)
+
+AC_ARG_WITH( vox, [  --with-vox            with vox ],
+        FL_VOX=$with_vox )
+if test "x$with_vox" = "x"; then
+        FL_VOX="cmu_us_kal"
+fi
+AC_SUBST(FL_VOX)
+
+AC_ARG_WITH( lex, [  --with-lex            with lexicon ],
+        FL_LEX=$with_lex )
+if test "x$with_lex" = "x"; then
+        FL_LEX="cmulex"
+fi
+AC_SUBST(FL_LEX)
+AC_SUBST(EXEEXT)
+
+FL_LANGVOX="default"
+AC_ARG_WITH( langvox,
+	[  --with-langvox          with subsets of lang, lex and voices ],
+        FL_LANGVOX=$with_langvox )
+AC_SUBST(FL_LANGVOX)
+
+AC_OUTPUT(config/config config/system.mak)

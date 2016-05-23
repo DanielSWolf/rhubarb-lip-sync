@@ -1,0 +1,116 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "FliteCMUKalDiphone"=.\FliteCMUKalDiphone\FliteCMUKalDiphone.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name cmulex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name usenglish
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cmu_us_kal
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FliteTTSEngineObj
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "FliteTTSEngineObj"=.\FliteTTSEngineObj\FliteTTSEngineObj.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name flite
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "cmu_us_kal"=.\cmu_us_kal\cmu_us_kal.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cmulex"=.\cmulex\cmulex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "flite"=.\flite\flite.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "register_vox"=.\FLITECMUKALDIPHONE\register_vox\register_vox.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "usenglish"=.\usenglish\usenglish.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

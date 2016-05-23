@@ -1,0 +1,6 @@
+Flite is a small, fast run-time synthesis engine, designed for
+embedded systems and servers.  Flite was developed by Alan W Black and
+Kevin Lenzo at Carnegie Mellon University, in Pittsburgh.  The
+city with TTS at its heart.
+
+

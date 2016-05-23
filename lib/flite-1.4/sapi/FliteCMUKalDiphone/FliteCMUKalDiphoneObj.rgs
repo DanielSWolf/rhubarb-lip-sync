@@ -1,0 +1,25 @@
+HKCR
+{
+	FliteCMUKalDiphone.FliteCMUKalDiphoneObj.1 = s 'FliteCMUKalDiphoneObj Class'
+	{
+		CLSID = s '{72CEF72B-809E-4CB4-A63C-ADC7938CFD5B}'
+	}
+	FliteCMUKalDiphone.FliteCMUKalDiphoneObj = s 'FliteCMUKalDiphoneObj Class'
+	{
+		CLSID = s '{72CEF72B-809E-4CB4-A63C-ADC7938CFD5B}'
+		CurVer = s 'FliteCMUKalDiphone.FliteCMUKalDiphoneObj.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {72CEF72B-809E-4CB4-A63C-ADC7938CFD5B} = s 'FliteCMUKalDiphoneObj Class'
+		{
+			ProgID = s 'FliteCMUKalDiphone.FliteCMUKalDiphoneObj.1'
+			VersionIndependentProgID = s 'FliteCMUKalDiphone.FliteCMUKalDiphoneObj'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{1033E526-D2C0-4A02-8FD2-24185FC4D9A7}'
+		}
+	}
+}

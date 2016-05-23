@@ -1,0 +1,365 @@
+#!/bin/sh
+###########################################################################
+##                                                                       ##
+##                  Language Technologies Institute                      ##
+##                     Carnegie Mellon University                        ##
+##                      Copyright (c) 2002-2009                          ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+##                                                                       ##
+##  Build a flite voice from a festvox voice                             ##
+##                                                                       ##
+##  C files are built into flite/                                        ##
+##                                                                       ##
+###########################################################################
+
+FIND_STS=$FLITEDIR/bin/find_sts
+FESTIVAL=$ESTDIR/../festival/bin/festival
+
+if [ "$PROMPTFILE" = "" ]
+then
+   if [ $# = 2 ]
+   then
+      export PROMPTFILE=$2
+   else
+      export PROMPTFILE=etc/txt.done.data
+   fi
+fi
+
+HEAPSIZE=20000000
+
+. ./etc/voice.defs
+
+if [ $# = 0 ]
+then
+   if [ "$FV_TYPE" = "clunits" ]
+   then
+      $0 lpc
+      $0 sts
+      $0 mcep
+      $0 clunits
+   elif [ "$FV_TYPE" = "ldom" ]
+   then
+      $0 lpc
+      $0 sts
+      $0 mcep
+      $0 clunits
+   elif [ "$FV_TYPE" = "diphone" ]
+   then
+      $0 lpc
+      $0 sts
+      $0 diphone
+   elif [ "$FV_TYPE" = "cg" ]
+   then
+      $0 cg
+   else
+      echo $0 unsupported voicetype $FV_TYPE
+   fi   
+   exit 0
+fi
+
+# Build lpc coefficients
+if [ "$1" = "lpc" ]
+then
+   echo "Finding LPC coefficients"
+
+   ./bin/make_lpc $PROMPTFILE
+
+   echo "Finding LPC min, max and range"
+   # make lpc.params file
+   cat $PROMPTFILE |
+   awk '{print $2}' |
+   while read i
+   do
+      $ESTDIR/bin/ch_track -otype est_ascii lpc/$i.lpc | 
+      sed '1,/EST_Header_End/d'
+   done |
+   awk 'BEGIN {min=0; max=0;}
+        {for (i=4; i<=NF; i++)
+        {
+            if ($i < min) min = $i;
+            if ($i > max) max = $i;
+        }
+     } 
+     END {printf("LPC_MIN=%f\n",min);
+          printf("LPC_MAX=%f\n",max);
+          printf("LPC_RANGE=%f\n",max-min);
+         }' >lpc/lpc.params
+
+   exit 0
+fi
+
+# build sts files
+if [ "$1" = "sts" ]
+then
+   echo "Finding STS files"
+   if [ ! -d sts ]
+   then
+      mkdir sts
+   fi
+   . ./lpc/lpc.params
+
+   cat $PROMPTFILE |
+   awk '{print $2}' |
+   while read i
+   do
+      fname=$i
+      echo $fname STS
+      $FIND_STS $LPC_MIN $LPC_RANGE lpc/$fname.lpc wav/$fname.wav sts/$fname.sts
+   done
+
+   exit 0
+fi
+
+# build mcep (params)
+if [ "$1" = "mcep" ]
+then
+   echo "Finding MCEP min max and range"
+   cat $PROMPTFILE |
+   awk '{print $2}' |
+   while read i
+   do
+      $ESTDIR/bin/ch_track -otype est_ascii mcep/$i.mcep |
+      sed '1,/EST_Header_End/d'
+   done |
+   awk 'BEGIN {min=0; max=0;}
+        {for (i=4; i<=NF; i++)
+        {
+            if ($i < min) min = $i;
+            if ($i > max) max = $i;
+        }
+     } 
+     END {printf("(set! mcep_min %f)\n",min);
+          printf("(set! mcep_max %f)\n",max);
+          printf("(set! mcep_range %f)\n",max-min);
+         }' >mcep/mcep.params.scm
+   exit 0
+fi
+
+if [ "$1" = "cg" ]  # clustergen
+then
+   # For smaller (and quicker) voices you can build with a reduced order
+   # this seems to be ok for values down to 13 
+   RORDER=0  
+   if [ $# = 2 ]
+   then
+      RORDER=$2
+   fi
+   echo cg_convert: finding parameter ranges
+   $ESTDIR/bin/ch_track -otype est_ascii festival/trees/${FV_VOICENAME}_mcep*.params |
+   sed '1,/EST_Header_End/d' |
+   awk 'BEGIN {nc=0;}
+        {if (nc == 0) nc = NF;
+        if (NF == nc )
+        {
+           for (i=3; i<=NF; i++)
+           {
+               if ((NR == 1) || ($i < min[i])) min[i] = $i;
+               if ((NR == 1) || ($i > max[i])) max[i] = $i;
+           }
+           nc = NF;
+        }
+     } 
+     END {for (i=3; i<=nc; i++)
+          {
+             printf("( %f %f )\n",min[i],max[i]-min[i]);
+          }
+         }' >festival/trees/${FV_VOICENAME}_min_range.scm
+   cat etc/f0.params |
+   sed 's/=/ /' |
+   head -2 |
+   awk '{printf("(set! %s %s)\n",$1,$2)}' >flite/f0_params.scm
+
+   $FESTIVAL --heap $HEAPSIZE -b \
+         '(set! cg_reduced_order '$RORDER')' \
+          flite/f0_params.scm \
+          $FLITEDIR/tools/make_cg.scm \
+          $FLITEDIR/tools/make_cart.scm \
+          $FLITEDIR/tools/make_vallist.scm \
+         '(cg_convert 
+                   "'$FV_VOICENAME'"
+                   "."
+                   "flite/")'
+
+   echo "flite_build cg complete.  You can compile the generated voice by"
+   echo "   cd flite; make"
+
+   exit 0
+fi
+
+if [ "$1" = "clunits" ]  # clunits or ldom 
+then
+   echo "Building clunits/ldom index"
+   sed '1,/EST_Header_End/d' festival/clunits/$FV_VOICENAME.catalogue |
+   awk 'BEGIN {p="CLUNIT_NONE";}
+        {if ((NR > 1) && (t != "0_0"))
+        {
+            n = split(t,bits,"_");
+            unit_type = substr(t,1,length(t)-(length(bits[n])+1));
+            unit_occur = bits[n];
+            if ((t == "0_0") || (f != $2) || ($1 == "0_0"))
+               printf("%s-%05d -- ( %s %s %s )\n",unit_type,unit_occur,line,p,"CLUNIT_NONE");
+            else
+               printf("%s-%05d -- ( %s %s unit_%s )\n",unit_type,unit_occur, line,p,$1);
+         }
+         line = $0;
+         if ((t == "0_0") || (f != $2))
+            p = "CLUNIT_NONE";
+         else
+             p=sprintf("unit_%s",t);
+         t=$1;
+         f=$2;
+        } 
+        END { if (t != "0_0")
+              {
+                n = split(t,bits,"_");
+                unit_type = substr(t,1,length(t)-(length(bits[n])+1));
+                unit_occur = bits[n];
+                printf("%s-%05d -- ( %s %s %s )\n", unit_type,unit_occur,line,p,"CLUNIT_NONE");
+              } }' |
+        cat >festival/clunits/$FV_VOICENAME.scm
+        cat festival/clunits/$FV_VOICENAME.scm |
+        $FLITEDIR/bin/flite_sort |
+        sed 's/^.* -- //'  >festival/clunits/$FV_VOICENAME.unitordered.scm
+        cat festival/clunits/$FV_VOICENAME.scm |
+        sed 's/^.* -- //'  >festival/clunits/$FV_VOICENAME.fileordered.scm
+
+   rm -f flite/$FV_VOICENAME"_lpc"*
+   rm -f flite/$FV_VOICENAME"_mcep"*
+   $FESTIVAL --heap $HEAPSIZE -b $FLITEDIR/tools/make_clunits.scm \
+          $FLITEDIR/tools/make_cart.scm \
+          $FLITEDIR/tools/make_vallist.scm \
+          mcep/mcep.params.scm \
+         '(clunits_convert "'$FV_VOICENAME'"
+                   "festival/clunits/'$FV_VOICENAME'.fileordered.scm"
+                   "festival/clunits/'$FV_VOICENAME'.unitordered.scm"
+                   "festival/trees/'$FV_VOICENAME'.tree"
+                   "."
+                   "flite/")'
+
+   echo "flite_build complete.  You can compile the generated voice by"
+   echo "   cd flite; make"
+   exit 0
+fi
+
+if [ "$1" = "diphone" ]
+then
+   echo "Building diphone index"
+   # Not a good way to do this, to take the most recent
+   idxfile=`ls -t dic/*.est | head -1`
+   echo "Using "$idxfile
+   sed '1,/EST_Header_End/d' $idxfile |
+   awk '{printf("%s ( %s )\n",$1,$0)}' |
+   $FLITEDIR/bin/flite_sort |
+   sed 's/^.* (/(/' >dic/diphidx.scm
+   $FESTIVAL --heap $HEAPSIZE -b $FLITEDIR/tools/make_didb2.scm \
+     '(diphtoC "dic/diphidx.scm" "'$FV_VOICENAME'" "sts" "flite")'
+
+   echo "flite_build complete.  You can compile the generated voice by"
+   echo "   cd flite; make"
+   exit 0
+fi
+
+# build index file
+if [ "$1" = "idx" ]
+then
+   HEAPSIZE=10000000
+   if [ "$FV_TYPE" != "diphone" ]  # clunits or ldom 
+   then
+      echo "Building clunits/ldom index"
+      sed '1,/EST_Header_End/d' festival/clunits/$FV_VOICENAME.catalogue |
+      awk 'BEGIN {p="CLUNIT_NONE";}
+           {if ((NR > 1) && (t != "0_0"))
+           {
+               n = split(t,bits,"_");
+               unit_type = substr(t,1,length(t)-(length(bits[n])+1));
+               unit_occur = bits[n];
+               if ((t == "0_0") || (f != $2) || ($1 == "0_0"))
+                  printf("%s_%05d -- ( %s %s %s )\n",unit_type,unit_occur,line,p,"CLUNIT_NONE");
+               else
+                  printf("%s_%05d -- ( %s %s unit_%s )\n",unit_type,unit_occur, line,p,$1);
+            }
+            line = $0;
+   	    if ((t == "0_0") || (f != $2))
+                p = "CLUNIT_NONE";
+            else
+                p=sprintf("unit_%s",t);
+            t=$1;
+            f=$2;
+           } 
+           END { if (t != "0_0")
+                 {
+                   n = split(t,bits,"_");
+                   unit_type = substr(t,1,length(t)-(length(bits[n])+1));
+                   unit_occur = bits[n];
+                   printf("%s_%05d -- ( %s %s %s )\n", unit_type,unit_occur,line,p,"CLUNIT_NONE");
+                 } }' |
+           cat >festival/clunits/$FV_VOICENAME.scm
+           cat festival/clunits/$FV_VOICENAME.scm |
+	   $FLITEDIR/bin/flite_sort |
+           sed 's/^.* -- //'  >festival/clunits/$FV_VOICENAME.unitordered.scm
+           cat festival/clunits/$FV_VOICENAME.scm |
+           sed 's/^.* -- //'  >festival/clunits/$FV_VOICENAME.fileordered.scm
+
+      rm -f flite/$FV_VOICENAME"_lpc"*
+      rm -f flite/$FV_VOICENAME"_mcep"*
+      $FESTIVAL --heap $HEAPSIZE -b $FLITEDIR/tools/make_clunits.scm \
+             $FLITEDIR/tools/make_cart.scm \
+             $FLITEDIR/tools/make_vallist.scm \
+             mcep/mcep.params.scm \
+            '(clunits_convert "'$FV_VOICENAME'"
+                      "festival/clunits/'$FV_VOICENAME'.fileordered.scm"
+                      "festival/clunits/'$FV_VOICENAME'.unitordered.scm"
+                      "festival/trees/'$FV_VOICENAME'.tree"
+                      "."
+                      "flite/")'
+   fi
+   if [ "$FV_TYPE" = "diphone" ]
+   then
+      echo "Building diphone index"
+      # Not a good way to do this, to take the most recent
+      idxfile=`ls -t dic/*.est | head -1`
+      echo "Using "$idxfile
+      sed '1,/EST_Header_End/d' $idxfile |
+      awk '{printf("%s ( %s )\n",$1,$0)}' |
+      $FLITEDIR/bin/flite_sort |
+      sed 's/^.* (/(/' >dic/diphidx.scm
+
+      $FESTIVAL --heap $HEAPSIZE -b $FLITEDIR/tools/make_didb.scm \
+      '(diphtoC "dic/diphidx.scm" "'$FV_VOICENAME'" "sts" "flite")'
+
+   fi
+
+   echo "flite_build complete.  You can compile the generated voice by"
+   echo "   cd flite; make"
+   exit 0
+fi
+
+echo build_flite unknown arguments $*
+exit 1
+

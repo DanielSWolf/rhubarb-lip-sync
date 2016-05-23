@@ -1,0 +1,162 @@
+#!/bin/sh
+#####################################################-*-mode:shell-script-*-
+##                                                                       ##
+##                                                                       ##
+##                  Language Technologies Institute                      ##
+##                     Carnegie Mellon University                        ##
+##                      Copyright (c) 2001-2008                          ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+##                                                                       ##
+##  Setup the current directory for building a FLITE voice from a        ##
+##  a festvox voice                                                      ##
+##                                                                       ##
+###########################################################################
+
+if [ ! "$ESTDIR" ]
+then
+   echo "environment variable ESTDIR is unset"
+   echo "set it to your local speech tools directory e.g."
+   echo '   bash$ export ESTDIR=/home/awb/projects/speech_tools/'
+   echo or
+   echo '   csh% setenv ESTDIR /home/awb/projects/speech_tools/'
+   exit 1
+fi
+
+if [ ! "$FLITEDIR" ]
+then
+   echo "environment variable FLITEDIR is unset"
+   echo "set it to your local festvox directory e.g."
+   echo '   bash$ export FLITEDIR=/home/awb/projects/flite/'
+   echo or
+   echo '   csh% setenv FLITEDIR /home/awb/projects/flite/'
+   exit 1
+fi
+
+if [ ! -d wav ]
+then
+   echo "I'm expecting this directory to contain a festvox voice which"
+   echo "should at least contain a wav/ directory, but haven't found one "
+   echo "Are you sure this is the right directory to build in?"
+   echo -n "Answer y/n? "
+   read answer
+   if [ "$answer" != "y" ]
+   then
+       echo "setup aborted"
+       exit -1
+   fi
+fi
+
+if [ ! -f etc/voice.defs ]
+then
+   echo "Can't find etc/voice.defs file"
+   echo "don't know what voice to convert"
+   echo "Setup for conversion of $1 to flite FAILED"
+   exit 1
+fi
+
+mkdir -p flite
+
+. ./etc/voice.defs
+
+if [ "$FV_LANG" = "us" ]
+then
+   # I showed have been more consistent
+   FV_FLITE_LANG=usenglish
+   FV_FLITE_LEX=cmu_lex
+   FV_FLITE_LEX_DIR=cmulex
+else
+   FV_FLITE_LANG=cmu_${FV_LANG}_lang
+   FV_FLITE_LEX=cmu_${FV_LANG}_lex
+   FV_FLITE_LEX_DIR=${FV_FLITE_LEX}
+fi
+
+if [ $# = 1 ]
+then
+   FV_TYPE=$1
+fi
+
+cat $FLITEDIR/tools/Makefile.flite |
+  sed 's%__FLITEDIR__%'$FLITEDIR'%' $i |
+  sed 's%__VOICETYPE__%'$FV_TYPE'%' |
+  sed 's%__FLITELANG__%'$FV_FLITE_LANG'%' |
+  sed 's%__FLITELEX__%'$FV_FLITE_LEX_DIR'%' |
+  sed 's%__VOICETYPE__%'$FV_TYPE'%' |
+  sed 's%__VOICENAME__%'$FV_VOICENAME'%' >flite/Makefile
+
+cat $FLITEDIR/tools/build_flite |
+  sed 's%__FLITEDIR__%'$FLITEDIR'%' >bin/build_flite
+chmod +x bin/build_flite
+
+if [ -f flite/$FV_VOICENAME.c ]
+then
+   echo flite/$FV_VOICENAME.c already exists
+   echo not overwriting it with a new copy
+else
+   if [ "$FV_TYPE" = "diphone" ]
+   then
+      cat $FLITEDIR/tools/VOICE_diphone.c |
+        sed 's%__NICKNAME__%'$FV_NAME'%' |
+        sed 's%__FLITELANG__%'$FV_FLITE_LANG'%' |
+        sed 's%__FLITELEX__%'$FV_FLITE_LEX'%' |
+        sed 's%__VOICENAME__%'$FV_VOICENAME'%g' >flite/$FV_VOICENAME.c
+   elif [ "$FV_TYPE" = "ldom" ]
+   then
+      cat $FLITEDIR/tools/VOICE_ldom.c |
+        sed 's%__NICKNAME__%'$FV_NAME'%' |
+        sed 's%__FLITELANG__%'$FV_FLITE_LANG'%' |
+        sed 's%__FLITELEX__%'$FV_FLITE_LEX'%' |
+        sed 's%__VOICENAME__%'$FV_VOICENAME'%g' >flite/$FV_VOICENAME.c
+   elif [ "$FV_TYPE" = "cg" ]
+   then
+      cat $FLITEDIR/tools/VOICE_cg.c |
+        sed 's%__NICKNAME__%'$FV_NAME'%' |
+        sed 's%__FLITELANG__%'$FV_FLITE_LANG'%' |
+        sed 's%__FLITELEX__%'$FV_FLITE_LEX'%' |
+        sed 's%__VOICENAME__%'$FV_VOICENAME'%g' >flite/$FV_VOICENAME.c
+   else
+      cat $FLITEDIR/tools/VOICE_clunits.c |
+        sed 's%__NICKNAME__%'$FV_NAME'%' |
+        sed 's%__FLITELANG__%'$FV_FLITE_LANG'%' |
+        sed 's%__FLITELEX__%'$FV_FLITE_LEX'%' |
+        sed 's%__VOICENAME__%'$FV_VOICENAME'%g' >flite/$FV_VOICENAME.c
+   fi
+fi
+
+cp -p $FLITEDIR/main/flite_main.c flite/flite_main.c
+
+echo "#define VOXNAME" $FV_VOICENAME >flite/voxdefs.h
+echo "#define REGISTER_VOX register_"$FV_VOICENAME >>flite/voxdefs.h
+echo "#define UNREGISTER_VOX unregister_"$FV_VOICENAME >>flite/voxdefs.h
+echo "#define VOXHUMAN \"$FV_NAME\"" >>flite/voxdefs.h
+echo "#define VOXGENDER \"unknown\"" >>flite/voxdefs.h
+echo "#define VOXVERSION 1.0" >>flite/voxdefs.h
+
+echo "Setup flite build for "$FV_VOICENAME" "$FV_TYPE" complete"
+
+exit 0

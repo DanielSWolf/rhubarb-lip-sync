@@ -1,0 +1,116 @@
+########################################################-*-mode:Makefile-*-
+##                                                                       ##
+##                  Language Technologies Institute                      ##
+##                     Carnegie Mellon University                        ##
+##                      Copyright (c) 2000-2008                          ##
+##                        All Rights Reserved.                           ##
+##                                                                       ##
+##  Permission is hereby granted, free of charge, to use and distribute  ##
+##  this software and its documentation without restriction, including   ##
+##  without limitation the rights to use, copy, modify, merge, publish,  ##
+##  distribute, sublicense, and/or sell copies of this work, and to      ##
+##  permit persons to whom this work is furnished to do so, subject to   ##
+##  the following conditions:                                            ##
+##   1. The code must retain the above copyright notice, this list of    ##
+##      conditions and the following disclaimer.                         ##
+##   2. Any modifications must be clearly marked as such.                ##
+##   3. Original authors' names are not deleted.                         ##
+##   4. The authors' names are not used to endorse or promote products   ##
+##      derived from this software without specific prior written        ##
+##      permission.                                                      ##
+##                                                                       ##
+##  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         ##
+##  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      ##
+##  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   ##
+##  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      ##
+##  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    ##
+##  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   ##
+##  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          ##
+##  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       ##
+##  THIS SOFTWARE.                                                       ##
+##                                                                       ##
+###########################################################################
+FLITEDIR=__FLITEDIR__
+TOP=$(FLITEDIR)
+DIRNAME=flite
+VOICENAME=__VOICENAME__
+VOICETYPE=__VOICETYPE__
+
+FLITE_LANG=__FLITELANG__
+FLITE_LEX=__FLITELEX__
+LOCAL_INCLUDES = -I$(TOP)/lang/$(FLITE_LANG) -I$(TOP)/lang/$(FLITE_LEX)
+LOCAL_LANGLEX_LIBS = -lflite_$(FLITE_LANG) -lflite_$(FLITE_LEX)
+LOCAL_LIBS = -L . -l$(VOICENAME) 
+H = 
+
+CSRCS = $(VOICENAME).c
+
+VOICES=$(VOICENAME)
+
+ifeq ($(VOICETYPE),diphone)
+## Diphone
+CSRCS +=$(VOICENAME)_$(VOICETYPE).c
+CSRCS +=$(VOICENAME)_lpc.c
+CSRCS +=$(VOICENAME)_res.c
+CSRCS +=$(VOICENAME)_residx.c
+else
+ifeq ($(VOICETYPE),cg)
+## Clustergen
+CSRCS += $(VOICENAME)_cg.c
+CSRCS += $(VOICENAME)_cg_f0_trees.c 
+CSRCS += $(VOICENAME)_cg_durmodel.c
+CSRCS += $(VOICENAME)_cg_phonestate.c
+# Identify which .c param files are used (static+delta/single)
+include paramfiles.mak
+ifeq ($(PARAMMODEL),multimodel)
+CSRCS += $(VOICENAME)_cg_static_mcep_trees.c $(VOICENAME)_cg_static_params.c
+CSRCS += $(VOICENAME)_cg_delta_mcep_trees.c $(VOICENAME)_cg_delta_params.c
+else
+# Single model
+CSRCS += $(VOICENAME)_cg_single_mcep_trees.c $(VOICENAME)_cg_single_params.c
+endif
+MCEPOBJS =
+LPCOBJS =
+else
+## Clunits/ldom
+CSRCS += $(VOICENAME)_clunits.c
+CSRCS += $(VOICENAME)_cltrees.c $(VOICENAME)_lpc.c $(VOICENAME)_mcep.c
+CSRCS += $(VOICENAME)_cl_durmodel.c
+MCEPSRCS = $(shell ls $(VOICENAME)_mcep_*.c)
+MCEPOBJS = $(MCEPSRCS:.c=.o)
+LPCSRCS= $(shell ls $(VOICENAME)_lpc_*.c)
+LPCOBJS = $(LPCSRCS:.c=.o)
+RESSRCS= $(shell ls $(VOICENAME)_res_*.c)
+RESOBJS = $(RESSRCS:.c=.o)
+endif
+endif
+
+OBJS = $(CSRCS:.c=.o) $(LPCOBJS) $(MCEPOBJS) $(RESOBJS) 
+
+ALL = .build_lib flite_$(VOICENAME)
+
+include $(FLITEDIR)/config/common_make_rules
+
+LIBDIR=.
+ifdef SHFLAGS
+ALL += lib$(VOICENAME).so
+endif
+
+$(VOICENAME)_lpc.o: $(VOICENAME)_lpc.c
+	$(CC) -I. -I$(FLITEDIR)/include -c -o $@ $<
+
+$(VOICENAME)_mcep.o: $(VOICENAME)_mcep.c
+	$(CC) -I. -I$(FLITEDIR)/include -c -o $@ $<
+
+flite_$(VOICENAME): flite_main.o flite_voice_list.o $(FLITELIBS) lib$(VOICENAME).a
+	$(CC) $(CFLAGS) -o $@ flite_main.o flite_voice_list.o $(LOCAL_LIBS)  $(LOCAL_LANGLEX_LIBS) $(FLITELIBFLAGS) $(LDFLAGS)
+
+.build_lib: $(OBJS)
+	@ $(AR) cruv $(LIBDIR)/lib$(VOICENAME).a $(OBJS)
+	@ $(RANLIB) $(LIBDIR)/lib$(VOICENAME).a
+	@ touch .build_lib
+
+flite_voice_list.c:
+	$(TOP)/tools/make_voice_list $(VOICES)
+
+

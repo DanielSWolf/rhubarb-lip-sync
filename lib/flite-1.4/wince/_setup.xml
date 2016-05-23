@@ -1,0 +1,52 @@
+<wap-provisioningdoc>
+<characteristic type="Install">
+<parm name="InstallPhase" value="install" />
+<parm name="SetupDLL" value="1" />
+<parm name="ProcessorType" value="2577" />
+<parm name="OSVersionMin" value="4.0" />
+<parm name="OSVersionMax" value="6.99" />
+<parm name="BuildNumberMin" value="0" />
+<parm name="BuildNumberMax" value="-536870912" />
+<parm name="AppName" value="Flowm" />
+<parm name="InstallDir" value="%CE1%\Flowm" translation="install" />
+<parm name="NumDirs" value="1" />
+<parm name="NumFiles" value="3" />
+<parm name="NumRegKeys" value="0" />
+<parm name="NumRegVals" value="0" />
+<parm name="NumShortcuts" value="1" />
+</characteristic>
+<characteristic type="%InstallDir%" translation="install">
+<characteristic type="MakeDir" />
+<characteristic type="flintro.txt" translation="install">
+<characteristic type="Extract">
+<parm name="Source" value="flintro.txt" />
+</characteristic>
+</characteristic>
+</characteristic>
+<characteristic type="%InstallDir%" translation="install">
+<characteristic type="MakeDir" />
+<characteristic type="alice.txt" translation="install">
+<characteristic type="Extract">
+<parm name="Source" value="alice.txt" />
+</characteristic>
+</characteristic>
+</characteristic>
+<characteristic type="%InstallDir%" translation="install">
+<characteristic type="MakeDir" />
+<characteristic type="flowm.exe" translation="install">
+<characteristic type="Extract">
+<parm name="Source" value="flowm.exe" />
+</characteristic>
+</characteristic>
+</characteristic>
+<characteristic type="%CE17%" translation="install">
+<characteristic type="MakeDir" />
+<characteristic type="Flowm.lnk" translation="install">
+<characteristic type="Shortcut">
+<parm name="Source" value="%InstallDir%\flowm.exe" translation="install" />
+</characteristic>
+</characteristic>
+</characteristic>
+<characteristic type="Registry">
+</characteristic>
+</wap-provisioningdoc>

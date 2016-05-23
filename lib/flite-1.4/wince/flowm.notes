@@ -1,0 +1,254 @@
+
+flowm
+   Flite on Windows Mobile
+   flite file reader development  "flown" or "flowm"
+   build up with cegcc menu example
+   type in text first
+   file selection.
+     good searching, bookmarking, replay (slower)
+   on screen word highlighting (default -- but optional)
+   wget data 
+     interpretation of xml marked up programmes/channels
+     to get data and read it (like rss)
+   skinable 
+   scriptable (through ssml)
+
+  Would be good to have voice choices
+     CG and VT if possible
+       computationally too expensive
+
+0.7
+   TODO
+*     screen off option on main screen
+*       (makes it battery efficient)
+*       http://msdn.microsoft.com/en-us/library/ms838354.aspx
+*       http://forums.microsoft.com/china/ShowPost.aspx?PostID=4273639&SiteID=15
+*     no ending on ok
+*    fast backskip causes a crash
+*    long filenames badly displayed
+*      added ES_AUTOHSCROLL to field
+*    more control in play dialog box
+*      choose voice
+*      display pronunciation/text expansion etc
+*    allow waveform saving in play
+*    BM in play text not play file
+*    normalize volume across voices (boost cg ones)
+
+     do something with silences to optimize speed
+     back/forward over restarts seems to over skip
+     keyboard accelerators (at least ctrl-q)
+     can't stop BM "1982 was ..." would take a little time
+     get rid of title bar on open/savefile box
+        tgps doesn't have the problem
+     "save" grey out if nothing to save
+     some content on the startup screen
+        logo plus play or play_file buttons
+     CAB installation (with lcab)
+        no evidence lcab works for mw yet
+        http://nedge2k.com/cab-o-matic ??
+     cut and paste from other apps
+     file position over app restarts
+         and voice selection
+     make it not look like a .net app
+     screen off after n seconds of play
+     previous files selection in file selection
+     button support (no ending on ok, stop continue etc)
+     screen rotate
+     icons rather than text on buttons
+         play/stop as one button
+         autorepeat on forward/back
+         scroll wheel (volume or forward back or faster/slower)
+     dll version (for voices too) would be good
+     progress bar
+     word highlighting at play time
+     a talking head example
+     prc files
+     Inertia based file listing 
+       Inertia based position finding in file
+
+0.6 19th
+   5.01meg with kal, awb, rms and slt
+
+   with screen off, 40 minutes of running used 6% of battery
+      (kal might be different from cg voices)
+   a benchmark in flowm so I can find out the speed of the machine
+      GetSystemTime (but no milliseconds)
+
+   if #define double float in cst_mlsa.c
+      Tilt kal 503.5  16.0 31.47
+           awb  44.3  50.0  0.89  but it *is* fast enough (sort of)
+           rms  48.9  54.0  0.91  
+      and a wee bit faster again if wifi is turned off 
+
+      Tilt kal 503.5  15.0 33.56 
+           awb  43.7  69.0  0.63
+           rms  48.3  72.0  0.68
+      2755 kal 503.5   8.0 62.93 
+           awb  43.7  52.0  0.84 1.50
+           rms  48.3  53.0  0.91 1.50
+      3635 kal 503.5  23.0 21.89
+           awb  43.7 118.0  0.37
+           rms  48.3 123.0  0.39
+      P2   kal 503.5  12.0 41.96
+           awb  43.7  68.0  0.64
+           kal  48.3  70.0  0.68
+      
+   dll version (for voices too) would be good
+   some content on the startup screen
+   - forward/back utterance
+         forward/back paragraph/chapter/file
+     quick back skips causes crash
+   - try out PowerPolicyNotify(PPN_UNATTENDEDMODE, 1); during play
+        http://channel9.msdn.com/wiki/mobiledeveloper/powerpolicynotify/
+   * do file pos as percentage
+         progress bar
+   get rid of title bar on openfile box
+   * cg voices give click at buffer change
+     good enough on 2755 (rms and awb order 13/8K)
+     * get a 641K awb voice (and others)
+       720K actually with 13 params
+   * good enough for tilt (#define double float)
+   * multi-voice version
+   * made audio_streaming_info with min_buffsize
+   file position over app restarts
+   icons rather than text on buttons
+       play/stop as one button
+   make it not look like a crude app
+   cut and paste from other apps
+   more control in play menu
+      display pronunciation/text expansion etc
+   word highlighting at play time
+   a talking head example
+   keyboard accelators
+   ok should background it not stop it
+
+0.5
+   - forward/back utterance
+         forward/back paragraph/chapter/file
+     quick back skips causes crash
+   - try out PowerPolicyNotify(PPN_UNATTENDEDMODE, 1); during play
+        http://channel9.msdn.com/wiki/mobiledeveloper/powerpolicynotify/
+   * do file pos as percentage
+   cg voices give click at buffer change
+     good enough on 2755 (rms and awb order 13/8K)
+     * get a 641K awb voice (and others)
+       720K actually with 13 params
+   * multi-voice version
+   * made audio_streaming_info with min_buffsize
+   13th January
+
+   hp2 9:54 awb 8k 2755 (black clip) 98%
+     backlight off after 2 minutes
+   10:30 fp  29500 79%
+   12:02 fp 104204 36%  (looks like nearly 3hrs on one charge)
+   12:43 fp 136282 16% 
+
+0.4
+   using threads so that stop works
+     can't share alloced memory over threads
+   add streaming synthesis
+     stop works
+   need to select position in file
+   nees to save position in file for continuation
+   pause and continue
+   stop it from going to sleep (but do screen blank)
+
+   8K awb 1139896
+   16K awb 2227760
+   could be 641K if order 18 and get rid of std in statics
+
+   Put back in the Play_thread.  With a large buffer size, it sort of
+     works (spool vs streaming)
+
+   Tested under 
+     Ipaq 3635 WinCE 3.0
+     Phraselator 2 Windows CE 4.20 (HPC?)
+        gives an error at exit time (maybe the others do too ..)
+     HP hx2755 PocketPC 2003 
+     AT&T Tilt PocketPC 6.0
+
+  4th Jan 2009
+
+0.3
+  TTS from a .txt file
+    display tokens in window as we go
+  redo the menus and forms layout
+  Still very basic though.
+  stop doesn't work bacause things don't get back to the event loop.
+  2nd Jan 2009   
+
+0.2
+  have windows, a dialog box with a play and editable text box
+  spent ages working out how to program in WinCE but seems to work now
+  1st Jan 2009
+
+0.1
+  play_wave(w) does the right thing
+     au_wince.c seems to work
+  moved to mingw32ce version 
+  added a .rc resource file and tidied up configure.in
+
+  moved to cst_file_wince.c rather than cst_file_cegcc.c (deleted)
+  fixed bugs in cst_file_wince.c
+
+  type in box and audio out
+ 
+  want flite.dll cmu_us_kal_diphone.dll usenglish.dll maybe   
+  have them loaded (so voice isn't in flowm)
+
+  Need examples/tutorial on building an app with inputs, defaults, options
+  file loading display etc.
+
+  streaming synthesis? (and call back)
+
+0.0
+  compiled flite with message box displaying number of bytes in
+  synthesized waveform.  Synthesis seems to work, WCHARs support is
+  necessary
+  cst_wchar.[ch]
+  6th June 2008
+
+-------------------------
+
+Making dlls (using dlls)
+
+  http://craigshaw.com/ (for ffmpeg)
+
+Example code
+  http://www.codeproject.com/KB/mobile/
+
+dll building
+  http://www.ibm.com/developerworks/aix/library/au-porting/index.html
+
+Books
+
+Programming Microsoft Windows CE, Second Edition (Pro-Developer) (Paperback)
+Online sample chapters
+http://www.microsoft.com/mspress/books/sampchap/5461b.aspx
+
+code samples (for eVC++)
+http://msdn.microsoft.com/en-us/library/bb158662.aspx
+
+Simple, but larger CE example in C++
+http://www.codeproject.com/KB/mobile/ce_cards.aspx
+
+join codeproject
+awbcmu
+publicpass
+
+But found good examples that are (mostly) compilable in 
+  Programming Microsoft Windows CE (Doug Boling)
+Bought second hand on Amazon for $11
+It has online examples, and a version of the book all in CHM format
+
+Its actually all online 
+http://iptvforum.cn/wince/wince-programming-ms-press2/source/prowice/ch04d.htm
+
+
+Keeping app running while in sleep model
+
+            PowerPolicyNotify(PPN_UNATTENDEDMODE, 1);
+            SystemIdleTimerReset();        // call this periodically
+            SetSystemPowerState(null, POWER_STATE_ON, POWER_FORCE); 
+
+http://forum.xda-developers.com/showthread.php?t=379366

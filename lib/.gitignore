@@ -1,0 +1,7 @@
+# Excluding 80MB worth of voice information
+/flite-1.4/lang/cmu_time_awb
+/flite-1.4/lang/cmu_us_awb
+/flite-1.4/lang/cmu_us_kal
+/flite-1.4/lang/cmu_us_kal16
+/flite-1.4/lang/cmu_us_rms
+/flite-1.4/lang/cmu_us_slt

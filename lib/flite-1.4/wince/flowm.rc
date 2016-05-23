@@ -1,0 +1,136 @@
+/**********************************************************-*-mode:C++-*-*/
+/*                                                                       */
+/*                  Language Technologies Institute                      */
+/*                     Carnegie Mellon University                        */
+/*                      Copyright (c) 2008-2009                          */
+/*                        All Rights Reserved.                           */
+/*                                                                       */
+/*  Permission is hereby granted, free of charge, to use and distribute  */
+/*  this software and its documentation without restriction, including   */
+/*  without limitation the rights to use, copy, modify, merge, publish,  */
+/*  distribute, sublicense, and/or sell copies of this work, and to      */
+/*  permit persons to whom this work is furnished to do so, subject to   */
+/*  the following conditions:                                            */
+/*   1. The code must retain the above copyright notice, this list of    */
+/*      conditions and the following disclaimer.                         */
+/*   2. Any modifications must be clearly marked as such.                */
+/*   3. Original authors' names are not deleted.                         */
+/*   4. The authors' names are not used to endorse or promote products   */
+/*      derived from this software without specific prior written        */
+/*      permission.                                                      */
+/*                                                                       */
+/*  CARNEGIE MELLON UNIVERSITY AND THE CONTRIBUTORS TO THIS WORK         */
+/*  DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING      */
+/*  ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   */
+/*  SHALL CARNEGIE MELLON UNIVERSITY NOR THE CONTRIBUTORS BE LIABLE      */
+/*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    */
+/*  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN   */
+/*  AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,          */
+/*  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF       */
+/*  THIS SOFTWARE.                                                       */
+/*                                                                       */
+/*************************************************************************/
+
+#include "windows.h"
+#include "commctrl.h"
+#include "aygshell.h"
+#include "flowm.h"
+
+#define  SHMENUBAR RCDATA
+
+FL_ICON ICON "flowm.ico"
+
+FL_TOOLBAR1 SHMENUBAR MOVEABLE PURE
+BEGIN
+FL_MAIN, 2,
+    I_IMAGENONE, FL_TOOLMENU, TBSTATE_ENABLED,
+       TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, FLS_TOOLMENUNAME, 0, 0,
+    I_IMAGENONE, FL_ABOUTMENU, TBSTATE_ENABLED,
+       TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, FLS_ABOUTMENUNAME, 0, 1
+END    
+
+FL_MAIN MENU DISCARDABLE
+BEGIN
+        POPUP "&Flowm"
+        BEGIN
+                MENUITEM        "Play File",        FL_FILE
+                MENUITEM        "Play Text",        FL_PLAY
+        END
+        POPUP "&Menu"
+        BEGIN
+                MENUITEM        "About",       FL_ABOUT
+                MENUITEM        SEPARATOR
+                MENUITEM        "Exit",        FL_EXIT
+        END
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+FLS_TOOLMENUNAME  "Flowm"
+FLS_ABOUTMENUNAME "Menu"
+END
+
+playbox DIALOG DISCARDABLE 10, 10, 132, 50
+STYLE  WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | DS_CENTER | 
+       DS_MODALFRAME 
+CAPTION "Flowm Play"
+BEGIN
+    LTEXT     "Enter Text to be Synthesized:", 01, 5, 5, 100, 12
+    EDITTEXT  FL_TEXT,                             5, 20, 120, 48, 
+                                     WS_TABSTOP | ES_MULTILINE
+    PUSHBUTTON "Play", FL_PUSHPLAY, 5, 75, 40, 12,
+                          WS_TABSTOP
+    PUSHBUTTON "BM", FL_BENCH, 50, 75, 15, 12,
+                           WS_TABSTOP
+    LTEXT     "Voice", 01, 75, 77, 20, 12
+    COMBOBOX   FL_VOXLIST, 95, 76, 30, 48,
+                           WS_TABSTOP | CBS_DROPDOWN
+    PUSHBUTTON "Save", FL_PUSHSAVE, 5, 90, 40, 12,
+                          WS_TABSTOP
+    LTEXT     "Output", 01, 58, 92, 25, 12
+    COMBOBOX   FL_RELLIST, 85, 91, 40, 48,
+                           WS_TABSTOP | CBS_DROPDOWN
+    EDITTEXT  FL_OUTPUT,                            5, 110, 120, 36, 
+                                     WS_TABSTOP | ES_MULTILINE
+END
+
+filebox DIALOG DISCARDABLE 10, 10, 132, 50
+STYLE  WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | DS_CENTER | 
+       DS_MODALFRAME 
+CAPTION "Flowm Play File"
+BEGIN
+    LTEXT     "Browse for File to be Synthesized:", 01, 5, 5, 110, 12
+    PUSHBUTTON "...", FL_PUSHSELECT, 5, 20, 15, 12,
+                           WS_TABSTOP
+    EDITTEXT  FL_FILENAME, 25, 20, 100, 12, 
+                          WS_TABSTOP | ES_MULTILINE | ES_AUTOHSCROLL
+    PUSHBUTTON "Play", FL_PUSHTTS, 5, 40, 40, 12,
+                           WS_TABSTOP
+    PUSHBUTTON " < ", FL_PUSHBACK,    45, 40, 20, 12,
+                           WS_TABSTOP
+    PUSHBUTTON " > ", FL_PUSHFORWARD, 65, 40, 20, 12,
+                           WS_TABSTOP
+    PUSHBUTTON "Stop", FL_PUSHSTOP, 85, 40, 40, 12,
+                           WS_TABSTOP
+    LTEXT     "File %", 01, 5, 60, 20, 12
+    EDITTEXT  FL_FILEPOS, 25, 59, 30, 12, 
+                           WS_TABSTOP
+    LTEXT     "Voice", 01, 75, 60, 20, 12
+    COMBOBOX   FL_VOXLIST, 95, 59, 30, 48,
+                           WS_TABSTOP | CBS_DROPDOWN
+    EDITTEXT  FL_SYNTHTEXT, 5, 73, 120, 60, 
+                           WS_TABSTOP | ES_MULTILINE
+    PUSHBUTTON "Blank", FL_SCREENOFF, 5, 135, 25, 12,
+                           WS_TABSTOP
+    PUSHBUTTON "End", FL_PUSHEND, 105, 135, 20, 12,
+                           WS_TABSTOP
+END
+
+aboutbox DIALOG DISCARDABLE 10, 10, 132, 50
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | DS_CENTER |
+      DS_MODALFRAME
+CAPTION "CMU Flite"
+BEGIN 
+    ICON  FL_ICON, 01, 5, 5, 0, 9
+    LTEXT "Flowm: CMU Flite on Windows Mobile: http://cmuflite.org", 01, 28, 5, 100, 30
+END

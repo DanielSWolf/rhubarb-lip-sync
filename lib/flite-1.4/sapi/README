@@ -1,0 +1,334 @@
+Microsoft Speech API 5.1 support for CMU Flite
+----------------------------------------------
+
+Copyright Cepstral, LLC, 2001 all rights reserved
+
+David Huggins-Daines <dhd@cepstral.com>
+December 6th, 2001
+
+About the Flite SAPI port
+-------------------------
+
+Funding for this work was provided by the Instituto de Engenharia de
+Sistemas e Computadores (Lisbon, Portugal).  The port itself was done
+by David Huggins-Daines at Cepstral, LLC (Pittsburgh, USA).
+
+This work remains Copyright Cepstral, LLC but is distributed under
+the same free software licence as CMU Flite.
+
+What's here
+-----------
+
+This directory contains a port of CMU Flite 1.1 and the included 8kHz
+diphone voice to the Win32 platform under Visual C++, as well as an
+interface library that allows Flite voices to be compiled into COM
+objects which implement the TTS engine interfaces for Microsoft's
+Speech API 5.1 (SAPI).
+
+What isn't here
+---------------
+
+There isn't a pointy-clicky tool for automatically converting voices
+to SAPI objects.  You are more than welcome to write one; it should be
+fairly straightforward to do as a Visual Studio wizard or add-in or
+whatever they call those things.
+
+Instead, the procedure for making SAPI objects is documented below.
+Feel free to ask me questions at the address above if you don't
+understand some parts of it.
+
+Some parts of the SAPI interface code are language specific, namely
+the viseme and phoneme translation code, and to some extent the text
+processing code.  These have been implemented for US English only,
+although the relevant functions are abstracted with function pointers
+so each voice is free to choose its own.  See "Language-Specific
+Functions" below for more information.
+
+Building and testing the example voice
+--------------------------------------
+
+In order to build the Flite SAPI code and example diphone voice, you
+will need a copy of Visual C++ 6.0 or later, as well as the full SDK
+for SAPI 5.1.  If you have the Microsoft Platform SDK, you will need
+to make sure to install the Internet Explorer SDK as well, as it
+contains some IDL files that are required in order to build COM
+objects with the Platform SDK.
+
+Before you build anything, you will need to set up Visual C++ to find
+the SAPI header and IDL files.  To do this, select "Options" from the
+"Tools" menu.  In the resulting dialog box, switch to the
+"Directories" tab.  Now, add the "include" and "IDL" directories from
+your SAPI SDK installation to the list.  If you performed a default
+installation of the SAPI SDK on the C: drive, they will be:
+
+  C:\Program Files\Microsoft Speech SDK 5.1\Include
+  C:\Program Files\Microsoft Speech SDK 5.1\IDL
+
+Make sure the build type is set to "Win32 - Debug" in Visual C++.  Set
+the active project to "FliteCMUKalDiphone".  Select "Build
+FliteCMUKalDiphone.dll" from the "Build" menu.  This will build all of
+the other libraries before building the SAPI object.
+
+The first time you use the voice, you will need to register it with
+Windows.  To do this, build the "register_vox" project and execute
+register_vox.exe (you can find it in the
+FliteCMUKalDiphone\register_vox\Debug subdirectory, or you can simply
+run it from within Visual C++).
+
+Although, normally, Visual C++ should automatically register the
+FliteCMUKalDiphone object as a COM server, in some cases you may have
+to do it manually.  This can be done by running 'regsvr32
+FliteCMUKalDiphone.dll' on the command-line from the build directory
+(sapi\FliteCMUKalDiphone\Debug).
+
+Now you can test the voice by running the SAPI "TTSApp" example
+program, or any of the other examples included with the SAPI SDK.
+
+How to SAPI-enable your own Flite voices
+----------------------------------------
+
+First, you'll obviously need to build your voice under Visual C++.
+This is relatively straightforward.  It's probably best to build it as
+a static library.  You'll need to make sure that it can find the Flite
+header files as well as the ones for your language and lexicon, which
+probably means adding their paths in the "Preprocessor" category of
+the "C/C++" tab of the Project Settings dialog box.
+
+One thing to be aware of is that the Microsoft linker will probably
+break if you have very large voice data files as C code.  To work
+around this problem, you can change "Debug Info" from "Program
+Database for Edit and Continue" to "Program Database" in the "General"
+category of the "C/C++" tab in the Project Settings dialog box.
+
+Since there is no support for dynamically discovering and loading
+voices in Flite, each SAPI voice links to its own instance of the
+engine.  This also simplifies the distribution and installation of
+voices considerably.
+
+The common code used to implement the SAPI interface is in the
+FliteTTSEngineObj library.  Your voice should create a subclass of
+CFliteTTSEngineObj.  In the minimal case, you only need to provide a
+constructor that sets the 'regfunc' and 'unregfunc' members of the
+base class to the registration and unregistration functions defined in
+your Flite voice.
+
+To set up the voice object, create a new Visual C++ project, using the
+project type "ATL COM AppWizard".  For "Server Type", choose "Dynamic
+Link Library (DLL)".
+
+Now you must create a definition for the voice object.  To do this,
+switch to "ClassView" in the sidebar, right-click on the project name,
+and choose "New ATL Object...".  Then, from the selection box, choose
+"Simple Object".
+
+In the "Names" tab of the next dialog box ("ATL Object Wizard
+Properties"), choose whatever names you like for your class.  In the
+"Attributes" tab, select "Both" in the "Threading Model" section, and
+"Custom" in the "Interface" section.
+
+Next, you need to edit the IDL file to import and use the relevant
+SAPI interfaces.  You should be able to find this file in the "Source
+Files" section of your new project in the "FileView" tab in the
+sidebar.  If your project name was "FooVoice", the IDL file will be
+called "FooVoice.idl".  In order to import the SAPI interfaces, you
+should add the following line to the list of 'import' statements at
+the top of the file:
+
+  import "sapiddk.idl";
+
+In order for Visual C++ to find this import, you will have to add the
+SAPI IDL directory it to the Tools->Options dialog box as detailed
+above (do not add it to the Project Settings, because MIDL.EXE is
+broken and will not accept it.)
+
+Just underneath the list of import statements, Visual C++ will have
+created a bogus interface definition for your object, which will look
+like this (the UUID and interface name will be different, of course):
+
+	[
+		object,
+		uuid(51284204-38B4-48C4-B65E-4FDAF6476D13),
+	
+		helpstring("IFooVoiceObj Interface"),
+		pointer_default(unique)
+	]
+	interface IFooVoiceObj : IUnknown
+	{
+	};
+
+You should delete this section.  Then, you should change the list of
+interfaces in the 'coclass' section to use the SAPI TTS Engine
+interfaces.  It should look like this (replace "FooVoiceObj" with the
+name of your voice object):
+
+	coclass FooVoiceObj
+	{
+		[default] interface ISpTTSEngine;
+		interface ISpObjectWithToken;
+	};
+
+Now you will need to edit the source code for your voice object.  As
+noted above, in the minimal case, you will simply need to include
+"voxdefs.h" from your voice library, inherit from CFliteTTSEngineObj,
+provide declarations for REGISTER_VOX and UNREGISTER_VOX, and
+initialize the pointers to them in a constructor.
+
+To do this, open the header file for your voice object.  It can be
+found in the "Header Files" section for your project in the "FileView"
+tab in the sidebar.  If your voice object name (as entered in the
+"Names" tab in the "ATL Object Wizard Properties" dialog box above)
+was "FooVoiceObj", then this file will be called
+"FooVoiceObj.h".
+
+First, add these declarations underneath the #include statements at
+the top of the file:
+
+  #include "FliteTTSEngineObj.h"
+  #include "flite_sapi_usenglish.h"
+  extern "C" {
+  #include "voxdefs.h"
+  cst_voice *REGISTER_VOX(const char *voxdir);
+  void UNREGISTER_VOX(cst_voice *vox);
+  };
+
+You will need to either put the full path to voxdefs.h in the #include
+statement, or add the directory containing your voice's source code to
+the list of extra include directories in the "Preprocessor" category
+of the "C/C++" tab of the Project Settings dialog box.  You may also
+need to do the same for "FliteTTSEngineObj.h" (if you create your
+voice within the "flite_sapi" workspace included here, you can enter
+"..\FliteTTSEngineObj" here).
+
+Next, you must adjust the inheritance list for your voice's class.
+Remove the following lines marked with '-' and add the line marked
+with '+':
+
+-	public CComObjectRootEx<CComMultiThreadModel>,
+	public CComCoClass<CFooVoiceObj, &CLSID_FooVoiceObj>,
+-	public IFooVoiceObj
++	public CFliteTTSEngineObj
+
+You must also change the COM interface map to contain the SAPI
+interfaces, by making the following changes (as above, remove the
+lines marked with '-' and add those marked with '+'):
+
+  BEGIN_COM_MAP(CFooVoiceObj)
+-  	COM_INTERFACE_ENTRY(IFooVoiceObj)
++  	COM_INTERFACE_ENTRY(ISpTTSEngine)
++  	COM_INTERFACE_ENTRY(ISpObjectWithToken)
+  END_COM_MAP()
+
+Finally, add code to the constructor to set the 'regfunc' and
+'unregfunc' members, and the language-specific functions, if you have
+them, by adding the lines marked with '+':
+
+  public:
+	  CFooVoiceObject() {
++		regfunc = REGISTER_VOX;
++		unregfunc = UNREGISTER_VOX;
++		phonemefunc = flite_sapi_usenglish_phoneme;
++		visemefunc = flite_sapi_usenglish_viseme;
++		featurefunc = flite_sapi_usenglish_feature;
++		pronouncefunc = flite_sapi_usenglish_pronounce;
+	  }
+
+Before you build the SAPI object, you will need to add the voice
+library and the Flite libraries (flite.lib, plus the libraries for the
+lexicon and language model, which are cmulex.lib and usenglish.lib for
+US English) to the list of extra libraries (in the "Input" section of
+the "Linker" tab of the Project Settings dialog box in Visual C++).
+You also need to include "winmm.lib" here as it is required by the
+Flite library. You'll also need to make sure that Visual C++ can find
+the Flite libraries - you can either set their projects up as
+dependencies of your SAPI object's project, or you can add a list of
+relative paths to their build directories in the Project Settings.
+
+Registering and testing your new SAPI voice object
+--------------------------------------------------
+
+Now that you've built your voice as a SAPI component, you must
+register it with the system so that it can be found and used by
+programs using the SAPI interface.  Predictably, this involves
+twiddling bits in the Windows Registry.
+
+Source code and a Visual C++ project is provided (in register-vox.cpp)
+for a small command-line program which performs the necessary
+operations for the CMU diphone voice.  To use it for another voice,
+you will need to make the modifications noted by /* CHANGEME */
+comments in the source code.
+
+To test your SAPI voice, use the TTSApp program included with the SAPI
+SDK.  You may find it helpful to build the debugging version of TTSApp
+from source code and specify it as the executable to run when
+debugging for your SAPI object's project.  This will allow you to set
+breakpoints in your code and get proper backtraces and so forth.
+
+Language-specific functions
+---------------------------
+
+The language-specific functions for US English are contained in the
+files flite_sapi_usenglish.c and flite_sapi_usenglish.h.  The SAPI
+object is set up to use them by initializing four function pointers
+which are members of class CFliteTTSEngineObj:
+
+  int (*phonemefunc)(cst_item *s);
+
+This function takes a cst_item representing a single phone (usually a
+member of the "Segment" relation) and returns the appropriate SAPI
+phone ID for it.
+
+  int (*visemefunc)(cst_item *s);
+
+This function takes a cst_item representing a single phone and returns
+the appropriate SAPI viseme ID for it.  The SAPI visemes are
+potentially language independent, though they are expressed in the
+documentation in terms of US English phonemes.  A more general
+description of them is included below.
+
+SP_VISEME_0	silence
+SP_VISEME_1	low mid/front unrounded vowels (ae, ah, ax)
+SP_VISEME_2	low back unrounded vowels (aa)
+SP_VISEME_3	low/mid-low back rounded vowels (ao)
+SP_VISEME_4	mid front unrounded vowels (eh, ey)
+SP_VISEME_5	English mid rhotic vowel (er)
+SP_VISEME_6	high front unrounded vowels and glides (ih, iy, y)
+SP_VISEME_7	high back rounded vowels and glides (uw, w)
+SP_VISEME_8	rounded-to-rounded rising diphthongs (ow)
+SP_VISEME_9	unrounded-to-rounded rising diphthongs (aw)
+SP_VISEME_10	rounded-to-unrounded rising diphthongs (oy)
+SP_VISEME_11	unrounded-to-unrounded rising diphthongs (ay)
+SP_VISEME_12	English glottal fricative (hh)
+SP_VISEME_13	English retroflex approximant (r)
+SP_VISEME_14	English lateral approximant (l)
+SP_VISEME_15	grooved alveolar/dental fricatives (s, z)
+SP_VISEME_16	palatal fricatives and affricates (sh, zh, ch, jh)
+SP_VISEME_17	interdental fricatives (th, dh)
+SP_VISEME_18	labiodental fricatives (f, v)
+SP_VISEME_19	alveolar/dental occlusives (d, t, n)
+SP_VISEME_20	velar occlusives (k, g, ng)
+SP_VISEME_21	bilabial occlusives (p, b, m)
+
+When adapting them to your phoneset, remember that the position of the
+lips and teeth as viewed from the front is more important than the
+place or manner of articulation /per se/.
+
+Also, while the US English code implements this using a table lookup,
+it may be more appropriate to determine them algorithmically from the
+feature values used in your phoneset.
+
+  int (*featurefunc)(cst_item *s);
+
+This function returns a bitmask used by SAPI to indicate placement of
+stress or emphasis (see the pages on the SPEVENTENUM and SPVFEATURE
+enumerations in the SAPI documentation for more information on this).
+If you use "stressed" and "accented" as the feature names for these
+things in your language code, you can just copy
+flite_sapi_usenglish_feature().
+
+  cst_val *(*pronounce_func)(SPPHONEID *spids);
+
+This function takes a zero-terminated array of SAPI phone identifiers
+and converts it to a list of cst_val containing the phone names as
+used by Flite as strings.  You will probably want to simply copy
+flite_sapi_usenglish_pronounce(), changing the tables it uses to look
+up phone names.

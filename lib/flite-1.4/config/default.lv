@@ -1,0 +1,8 @@
+#
+#  The base languages, lexicons and voices
+LEXES = cmulex
+LANGS = usenglish
+VOXES = cmu_us_kal cmu_time_awb cmu_us_kal16 \
+        cmu_us_awb cmu_us_rms cmu_us_slt
+EXTRABINS = $(BINDIR)/flite_time$(EXEEXT)
+

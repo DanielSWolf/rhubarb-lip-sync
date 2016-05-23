@@ -1,0 +1,66 @@
+
+The initial development of flite was primarily done by awb while
+travelling, perhaps the name is doubly appropriate as a substantial
+amount of the coding was done over 30,000ft).  During most of that
+time awb was funded by the Language Technonologies Institute at
+Carnegie Mellon University.
+
+Kevin A. Lenzo was involved in the design, conversion techniques and
+representions for the voice distributed with flite (as well as being
+the actual voice itself).
+
+Other contributions are:
+
+Henry Spencer
+   For the regex code
+University of Edinburgh
+   for releasing Festival for free, making a companion runtime synthesizer
+   a practical project, much of the design of flite relies on the 
+   architecture decisions made in the Festival Speech Synthesis Systems and
+   the Edinburgh Speech Tools.
+   The duration cart tree and intonation (accent and F0) models were
+   derived from the models in the Festival distribution. which in turn
+   were trained from the Boston University FM Radio Data Corpus.
+Carnegie Mellon University
+   The included lexicon is derived from CMULEX and the letter to sound
+   rules are constructed using the Lenzo and Black techniques for
+   building LTS decision graphs.
+Nagoya Institute of Technology
+   The mlsa code derives from HTS (following a long chain)
+Tomoki Toda
+   The mlsa and mlpg support came view Tomoki's support for voice convertion
+   in FestVox which in turn (some of which) comes from NITECH's HTS.
+Marcela Charfuelan (DFKI)
+   For the mixed-excitation techniques.  These origianlly came from NITECH
+   but we understood the technqiues from Marcela's Open Mary Java code and
+   implemented them in our optimized version of MLSA.
+David Huggins-Daines (dhd@cepstral.com) 
+   much of the clunits code, porting to multiple platforms, substantial
+   code tidy up and configure/autoconf guidance.
+Cepstral, LLC (http://cepstral.com)
+   For supporting DHD to spend time on flite and passing back the important
+   early fixes and enhancements including SAPI support (funded by FCT)
+Willie Walker <william.walker@sun.com> and the rest of the Sun Speech Group
+   lots of low level bugs (and fixes).
+Portuguese Foundation for Science and Technology (FCT) Praxis XXI program
+   The SAPI interface provided by Cepstral, LLC was partially funded by
+   the above program.
+Craig Reese: IDA/Supercomputing Research Center
+Joe Campbell: Department of Defense
+   who wrote the ulaw conversion routines in src/speech/cst_wave_utils.c
+Mario Lang:
+   causing the support of shared libraries to happen
+Eric House (fixin@peak.org)
+   who provided examples of how to do 68K Call Backs for system functions
+Greg Parker gparker@sealiesoftware.com
+   peal, the binding glue and shared library foo for getting the arm 
+   version doing something reasonable under PalmOS
+Lukas Loehrer <loehrerl@gmx.net> Feb 2006
+   alsa support (default if available)
+Brian Langner
+   redid the Visual Studio support
+
+
+
+
+

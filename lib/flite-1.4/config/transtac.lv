@@ -1,0 +1,9 @@
+#
+#  The base languages, lexicons and voices
+LEXES = cmulex cmu_dari_lex cmu_pashto_lex
+LANGS = usenglish cmu_dari_lang cmu_pashto_lang
+VOXES = cmu_us_rms cmu_dari_male0
+VOXES = cmu_us_kal cmu_us_rms cmu_dari_male0 cmu_pashto_transtac_male1
+EXTRABINS = 
+
+
