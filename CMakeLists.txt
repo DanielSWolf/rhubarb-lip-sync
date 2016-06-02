@@ -191,6 +191,7 @@ set(SOURCE_FILES
 	src/pairs.h
 	src/Exporter.cpp src/Exporter.h
 	src/ascii.cpp src/ascii.h
+	src/tokenization.cpp src/tokenization.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite)
@@ -205,15 +206,17 @@ set(TEST_FILES
 	tests/ContinuousTimelineTests.cpp
 	tests/pairsTests.cpp
 	tests/asciiTests.cpp
+	tests/tokenizationTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/centiseconds.cpp src/centiseconds.h
 	src/pairs.h
 	src/ascii.cpp src/ascii.h
+	src/tokenization.cpp src/tokenization.h
 )
 add_executable(runTests ${TEST_FILES})
-target_link_libraries(runTests gtest gmock gmock_main)
+target_link_libraries(runTests gtest gmock gmock_main flite)
 
 set(CPACK_PACKAGE_NAME ${appName})
 string(REPLACE " " "-" CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
