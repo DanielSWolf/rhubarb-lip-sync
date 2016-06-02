@@ -39,6 +39,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# Disable warning C4456: declaration of '...' hides previous local declaration
 	# I'm doing that on purpose.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
+	
+	# Assume UTF-8 encoding for source files and encode string constants in UTF-8
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 endif()
 
 # Enable project folders
@@ -122,6 +125,7 @@ set(SOURCE_FILES
 	src/ContinuousTimeline.h
 	src/pairs.h
 	src/Exporter.cpp src/Exporter.h
+	src/ascii.cpp src/ascii.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx)
@@ -135,11 +139,13 @@ set(TEST_FILES
 	tests/BoundedTimelineTests.cpp
 	tests/ContinuousTimelineTests.cpp
 	tests/pairsTests.cpp
+	tests/asciiTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/centiseconds.cpp src/centiseconds.h
 	src/pairs.h
+	src/ascii.cpp src/ascii.h
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main)
