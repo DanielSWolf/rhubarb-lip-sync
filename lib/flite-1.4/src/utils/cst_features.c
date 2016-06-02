@@ -258,7 +258,7 @@ int feat_copy_into(const cst_features *from,cst_features *to)
     return i;
 }
 
-int feat_print(cst_file fd,const cst_features *f)
+int flite_feat_print(cst_file fd,const cst_features *f)
 {
     cst_featvalpair *p;
     

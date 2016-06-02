@@ -152,7 +152,7 @@ static cst_utterance *ssml_apply_tag(const char *tag,
                                      cst_features *word_feats)
 {
     printf("SSML TAG %s\n",tag);
-    feat_print(stdout,attributes);
+    flite_feat_print(stdout,attributes);
     printf("...\n");
 
     /* do stuff */
