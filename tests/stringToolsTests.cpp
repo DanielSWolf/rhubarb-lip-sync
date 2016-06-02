@@ -1,7 +1,8 @@
-#include <gmock/gmock.h>
+﻿#include <gmock/gmock.h>
 #include "stringTools.h"
 
 using namespace testing;
+using std::string;
 
 // splitIntoLines
 
@@ -71,3 +72,11 @@ TEST(wrapString, basic) {
 	EXPECT_THAT(wrapString("\n\nLine no 3\n\nLine no 4\n", 8), ElementsAre("", "", "Line no", "3", "", "Line no", "4", ""));
 }
 
+// toASCII
+
+TEST(toASCII, string) {
+	EXPECT_EQ(
+		"A naive man called  was having pina colada and creme brulee.",
+		toASCII(U"A naïve man called 晨 was having piña colada and crème brûlée."));
+	EXPECT_EQ(string(""), toASCII(U""));
+}

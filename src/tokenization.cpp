@@ -1,6 +1,6 @@
 #include "tokenization.h"
 #include "tools.h"
-#include "ascii.h"
+#include "stringTools.h"
 #include <regex>
 
 extern "C" {

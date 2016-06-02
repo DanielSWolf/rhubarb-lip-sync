@@ -190,7 +190,6 @@ set(SOURCE_FILES
 	src/ContinuousTimeline.h
 	src/pairs.h
 	src/Exporter.cpp src/Exporter.h
-	src/ascii.cpp src/ascii.h
 	src/tokenization.cpp src/tokenization.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
@@ -205,14 +204,12 @@ set(TEST_FILES
 	tests/BoundedTimelineTests.cpp
 	tests/ContinuousTimelineTests.cpp
 	tests/pairsTests.cpp
-	tests/asciiTests.cpp
 	tests/tokenizationTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/centiseconds.cpp src/centiseconds.h
 	src/pairs.h
-	src/ascii.cpp src/ascii.h
 	src/tokenization.cpp src/tokenization.h
 )
 add_executable(runTests ${TEST_FILES})
