@@ -2,6 +2,7 @@
 #include <boost/algorithm/string/trim.hpp>
 
 using std::string;
+using std::wstring;
 using std::u32string;
 using std::vector;
 using boost::optional;
@@ -79,6 +80,14 @@ vector<string> wrapString(const string& s, int lineLength, int hangingIndent) {
 	}
 
 	return lines;
+}
+
+wstring latin1ToWide(const string& s) {
+	wstring result;
+	for (unsigned char c : s) {
+		result.append(1, c);
+	}
+	return result;
 }
 
 optional<char> toASCII(char32_t ch) {

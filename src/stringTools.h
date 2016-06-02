@@ -10,6 +10,8 @@ std::vector<std::string> wrapSingleLineString(const std::string& s, int lineLeng
 
 std::vector<std::string> wrapString(const std::string& s, int lineLength, int hangingIndent = 0);
 
+std::wstring latin1ToWide(const std::string& s);
+
 boost::optional<char> toASCII(char32_t ch);
 
 std::string toASCII(const std::u32string& s);

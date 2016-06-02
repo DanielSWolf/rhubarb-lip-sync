@@ -3,6 +3,7 @@
 
 using namespace testing;
 using std::string;
+using std::wstring;
 
 // splitIntoLines
 
@@ -70,6 +71,14 @@ TEST(wrapSingleLineString, errorHandling) {
 
 TEST(wrapString, basic) {
 	EXPECT_THAT(wrapString("\n\nLine no 3\n\nLine no 4\n", 8), ElementsAre("", "", "Line no", "3", "", "Line no", "4", ""));
+}
+
+// latin1ToWide
+
+TEST(latin1ToWide, basic) {
+	string pangramLatin1 = "D\350s No\353l o\371 un z\351phyr ha\357 me v\352t de gla\347ons w\374rmiens, je d\356ne d'exquis r\364tis de boeuf au kir \340 l'a\377 d'\342ge m\373r & c\346tera!";
+	wstring pangramWide = L"Dès Noël où un zéphyr haï me vêt de glaçons würmiens, je dîne d'exquis rôtis de boeuf au kir à l'aÿ d'âge mûr & cætera!";
+	EXPECT_EQ(pangramWide, latin1ToWide(pangramLatin1));
 }
 
 // toASCII
