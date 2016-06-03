@@ -8,4 +8,5 @@
 
 BoundedTimeline<Phone> detectPhones(
 	std::unique_ptr<AudioStream> audioStream,
+	boost::optional<std::u32string> dialog,
 	ProgressSink& progressSink);

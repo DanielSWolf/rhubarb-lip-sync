@@ -12,9 +12,12 @@
 #include <gsl_util.h>
 #include "Exporter.h"
 #include "ContinuousTimeline.h"
+#include <boost/filesystem/operations.hpp>
+#include "stringTools.h"
 
 using std::exception;
 using std::string;
+using std::u32string;
 using std::vector;
 using std::unique_ptr;
 using std::make_unique;
@@ -75,6 +78,25 @@ void addFileSink(path path, logging::Level minLevel) {
 	logging::addSink(levelFilter);
 }
 
+u32string readTextFile(path filePath) {
+	if (!exists(filePath)) {
+		throw std::invalid_argument(fmt::format("File {} does not exist.", filePath));
+	}
+	try {
+		boost::filesystem::ifstream file;
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		file.open(filePath);
+		string utf8Text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		try {
+			return utf8ToUtf32(utf8Text);
+		} catch (...) {
+			std::throw_with_nested(std::runtime_error(fmt::format("File encoding is not ASCII or UTF-8.", filePath)));
+		}
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(fmt::format("Error reading file {0}.", filePath)));
+	}
+}
+
 int main(int argc, char *argv[]) {
 	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
@@ -88,6 +110,7 @@ int main(int argc, char *argv[]) {
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
 	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
+	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
 	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::TSV, &exportFormatConstraint, cmd);
@@ -117,6 +140,7 @@ int main(int argc, char *argv[]) {
 			ProgressBar progressBar;
 			phones = detectPhones(
 				createAudioStream(inputFileName.getValue()),
+				dialogFile.isSet() ? readTextFile(path(dialogFile.getValue())) : boost::optional<u32string>(),
 				progressBar);
 		}
 		std::cerr << "Done" << std::endl;

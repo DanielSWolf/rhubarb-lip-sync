@@ -2,10 +2,14 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/predef.h>
 #include <format.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "platformTools.h"
 
 using boost::filesystem::path;
+using std::string;
 
 constexpr int InitialBufferSize = 256;
 
@@ -128,4 +132,11 @@ path getBinPath() {
 
 path getBinDirectory() {
 	return getBinPath().parent_path();
+}
+
+path getTempFilePath() {
+	path tempDirectory = boost::filesystem::temp_directory_path();
+	static auto generateUuid = boost::uuids::random_generator();
+	string fileName = to_string(generateUuid());
+	return tempDirectory / fileName;
 }

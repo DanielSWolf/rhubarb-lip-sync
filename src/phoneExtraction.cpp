@@ -1,6 +1,5 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
 #include "phoneExtraction.h"
 #include "audio/SampleRateConverter.h"
 #include "platformTools.h"
@@ -14,6 +13,9 @@
 #include <Timeline.h>
 #include <audio/voiceActivityDetection.h>
 #include <audio/AudioStreamSegment.h>
+#include "languageModels.h"
+#include "tokenization.h"
+#include "g2p.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -35,33 +37,34 @@ using std::function;
 using std::regex;
 using std::regex_replace;
 using std::chrono::duration;
+using boost::optional;
+using std::u32string;
 
 constexpr int sphinxSampleRate = 16000;
 
-lambda_unique_ptr<cmd_ln_t> createConfig(path sphinxModelDirectory) {
+const path& getSphinxModelDirectory() {
+	static path sphinxModelDirectory(getBinDirectory() / "res/sphinx");
+	return sphinxModelDirectory;
+}
+
+lambda_unique_ptr<ps_decoder_t> createDecoder() {
 	lambda_unique_ptr<cmd_ln_t> config(
 		cmd_ln_init(
 			nullptr, ps_args(), true,
 			// Set acoustic model
-			"-hmm", (sphinxModelDirectory / "acoustic-model").string().c_str(),
-			// Set language model
-			"-lm", (sphinxModelDirectory / "en-us.lm.bin").string().c_str(),
-			// Set pronounciation dictionary
-			"-dict", (sphinxModelDirectory / "cmudict-en-us.dict").string().c_str(),
+			"-hmm", (getSphinxModelDirectory() / "acoustic-model").string().c_str(),
+			// Set pronunciation dictionary
+			"-dict", (getSphinxModelDirectory() / "cmudict-en-us.dict").string().c_str(),
 			// Add noise against zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
 			"-dither", "yes",
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
 
-	return config;
-}
-
-lambda_unique_ptr<ps_decoder_t> createSpeechRecognizer(cmd_ln_t& config) {
 	lambda_unique_ptr<ps_decoder_t> recognizer(
-		ps_init(&config),
+		ps_init(config.get()),
 		[](ps_decoder_t* recognizer) { ps_free(recognizer); });
-	if (!recognizer) throw runtime_error("Error creating speech recognizer.");
+	if (!recognizer) throw runtime_error("Error creating speech decoder.");
 
 	return recognizer;
 }
@@ -141,67 +144,38 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& recognizer, ProgressSink& progressSink) {
+BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& decoder, ProgressSink& progressSink) {
 	// Convert audio stream to the exact format PocketSphinx requires
 	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
 
 	// Restart timing at 0
-	ps_start_stream(&recognizer);
+	ps_start_stream(&decoder);
 
 	// Start recognition
-	int error = ps_start_utt(&recognizer);
+	int error = ps_start_utt(&decoder);
 	if (error) throw runtime_error("Error starting utterance processing for word recognition.");
 
 	// Process entire sound file
-	auto processBuffer = [&recognizer](const vector<int16_t>& buffer) {
-		int searchedFrameCount = ps_process_raw(&recognizer, buffer.data(), buffer.size(), false, false);
+	auto processBuffer = [&decoder](const vector<int16_t>& buffer) {
+		int searchedFrameCount = ps_process_raw(&decoder, buffer.data(), buffer.size(), false, false);
 		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
 	};
 	processAudioStream(*audioStream.get(), processBuffer, progressSink);
 
 	// End recognition
-	error = ps_end_utt(&recognizer);
+	error = ps_end_utt(&decoder);
 	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
 
 	// Collect words
 	BoundedTimeline<string> result(audioStream->getTruncatedRange());
 	int32_t score;
-	for (ps_seg_t* it = ps_seg_iter(&recognizer, &score); it; it = ps_seg_next(it)) {
+	for (ps_seg_t* it = ps_seg_iter(&decoder, &score); it; it = ps_seg_next(it)) {
 		const char* word = ps_seg_word(it);
 		int firstFrame, lastFrame;
 		ps_seg_frames(it, &firstFrame, &lastFrame);
 		result.set(centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
 	}
 
-	return result;
-}
-
-// Splits dialog into words, doing minimal preprocessing.
-// A robust solution should use TTS logic to cope with numbers, abbreviations, unknown words etc.
-vector<string> extractDialogWords(string dialog) {
-	// Convert to lower case
-	boost::algorithm::to_lower(dialog);
-
-	// Insert silences where appropriate
-	dialog = regex_replace(dialog, regex("[,;.:!?] |-"), " <sil> ");
-
-	// Remove all undesired characters
-	dialog = regex_replace(dialog, regex("[^a-z.'\\0-9<>]"), " ");
-
-	// Collapse whitespace
-	dialog = regex_replace(dialog, regex("\\s+"), " ");
-
-	// Trim
-	boost::algorithm::trim(dialog);
-
-	// Ugly hack: Remove trailing period
-	if (boost::algorithm::ends_with(dialog, ".")) {
-		dialog.pop_back();
-	}
-
-	// Split into words
-	vector<string> result;
-	boost::algorithm::split(result, dialog, boost::is_space());
 	return result;
 }
 
@@ -214,12 +188,12 @@ s3wid_t getWordId(const string& word, dict_t& dictionary) {
 BoundedTimeline<Phone> getPhoneAlignment(
 	const vector<s3wid_t>& wordIds,
 	unique_ptr<AudioStream> audioStream,
-	ps_decoder_t& recognizer,
+	ps_decoder_t& decoder,
 	ProgressSink& progressSink)
 {
 	// Create alignment list
 	lambda_unique_ptr<ps_alignment_t> alignment(
-		ps_alignment_init(recognizer.d2p),
+		ps_alignment_init(decoder.d2p),
 		[](ps_alignment_t* alignment) { ps_alignment_free(alignment); });
 	if (!alignment) throw runtime_error("Error creating alignment.");
 	for (s3wid_t wordId : wordIds) {
@@ -233,9 +207,9 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
 
 	// Create search structure
-	acmod_t* acousticModel = recognizer.acmod;
+	acmod_t* acousticModel = decoder.acmod;
 	lambda_unique_ptr<ps_search_t> search(
-		state_align_search_init("state_align", recognizer.config, acousticModel, alignment.get()),
+		state_align_search_init("state_align", decoder.config, acousticModel, alignment.get()),
 		[](ps_search_t* search) { ps_search_free(search); });
 	if (!search) throw runtime_error("Error creating search.");
 
@@ -247,7 +221,7 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	ps_search_start(search.get());
 
 	// Process entire sound file
-	auto processBuffer = [&recognizer, &acousticModel, &search](const vector<int16_t>& buffer) {
+	auto processBuffer = [&decoder, &acousticModel, &search](const vector<int16_t>& buffer) {
 		const int16* nextSample = buffer.data();
 		size_t remainingSamples = buffer.size();
 		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
@@ -266,7 +240,7 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	acmod_end_utt(acousticModel);
 
 	// Extract phones with timestamps
-	char** phoneNames = recognizer.dict->mdef->ciname;
+	char** phoneNames = decoder.dict->mdef->ciname;
 	BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
 	for (ps_alignment_iter_t* it = ps_alignment_phones(alignment.get()); it; it = ps_alignment_iter_next(it)) {
 		// Get phone
@@ -285,8 +259,28 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	return result;
 }
 
+void addMissingDictionaryWords(const vector<string>& words, ps_decoder_t& decoder) {
+	map<string, string> missingPronunciations;
+	for (const string& word : words) {
+		if (dict_wordid(decoder.dict, word.c_str()) == BAD_S3WID) {
+			string pronunciation;
+			for (Phone phone : wordToPhones(word)) {
+				if (pronunciation.length() > 0) pronunciation += " ";
+				pronunciation += PhoneConverter::get().toString(phone);
+			}
+			missingPronunciations[word] = pronunciation;
+		}
+	}
+	for (auto it = missingPronunciations.begin(); it != missingPronunciations.end(); ++it) {
+		bool isLast = it == --missingPronunciations.end();
+		logging::infoFormat("Unknown word '{}'. Guessing pronunciation '{}'.", it->first, it->second);
+		ps_add_word(&decoder, it->first.c_str(), it->second.c_str(), isLast);
+	}
+}
+
 BoundedTimeline<Phone> detectPhones(
 	unique_ptr<AudioStream> audioStream,
+	optional<u32string> dialog,
 	ProgressSink& progressSink)
 {
 	// Pocketsphinx doesn't like empty input
@@ -305,13 +299,6 @@ BoundedTimeline<Phone> detectPhones(
 	audioStream = removeDCOffset(std::move(audioStream));
 
 	try {
-		// Create PocketSphinx configuration
-		path sphinxModelDirectory(getBinDirectory() / "res/sphinx");
-		auto config = createConfig(sphinxModelDirectory);
-
-		// Create speech recognizer
-		auto recognizer = createSpeechRecognizer(*config.get());
-
 		// Split audio into utterances
 		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true));
 
@@ -322,6 +309,29 @@ BoundedTimeline<Phone> detectPhones(
 			utteranceProgressSinks.push_back(&dialogProgressMerger.addSink(timedUtterance.getTimeRange().getLength().count()));
 		}
 		auto utteranceProgressSinkIt = utteranceProgressSinks.begin();
+
+		// Create speech recognizer
+		auto decoder = createDecoder();
+
+		// Set language model
+		lambda_unique_ptr<ngram_model_t> languageModel;
+		if (dialog) {
+			// Create dialog-specific language model
+			vector<string> words = tokenizeText(*dialog);
+			words.insert(words.begin(), "<s>");
+			words.push_back("</s>");
+			languageModel = createLanguageModel(words, *decoder->lmath);
+
+			// Add any dialog-specific words to the dictionary
+			addMissingDictionaryWords(words, *decoder);
+		} else {
+			path modelPath = getSphinxModelDirectory() / "en-us.lm.bin";
+			languageModel = lambda_unique_ptr<ngram_model_t>(
+				ngram_model_read(decoder->config, modelPath.string().c_str(), NGRAM_AUTO, decoder->lmath),
+				[](ngram_model_t* lm) { ngram_model_free(lm); });
+		}
+		ps_set_lm(decoder.get(), "lm", languageModel.get());
+		ps_set_search(decoder.get(), "lm");
 
 		BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
 		for (const auto& timedUtterance : utterances) {
@@ -335,7 +345,7 @@ BoundedTimeline<Phone> detectPhones(
 			auto streamSegment = createSegment(audioStream->clone(true), timeRange);
 
 			// Get words
-			BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), *recognizer.get(), wordRecognitionProgressSink);
+			BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), *decoder.get(), wordRecognitionProgressSink);
 			for (Timed<string> timedWord : words) {
 				timedWord.getTimeRange().shift(timedUtterance.getStart());
 				logging::logTimedEvent("word", timedWord);
@@ -344,12 +354,12 @@ BoundedTimeline<Phone> detectPhones(
 			// Look up words in dictionary
 			vector<s3wid_t> wordIds;
 			for (const auto& timedWord : words) {
-				wordIds.push_back(getWordId(timedWord.getValue(), *recognizer->dict));
+				wordIds.push_back(getWordId(timedWord.getValue(), *decoder->dict));
 			}
 			if (wordIds.empty()) continue;
 
 			// Align the words' phones with speech
-			BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *recognizer.get(), alignmentProgressSink);
+			BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *decoder.get(), alignmentProgressSink);
 			segmentPhones.shift(timedUtterance.getStart());
 			for (const auto& timedPhone : segmentPhones) {
 				logging::logTimedEvent("phone", timedPhone);

@@ -64,7 +64,7 @@ target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
-include_directories(SYSTEM "lib/sphinxbase-5prealpha-2015-08-05/include")
+include_directories(SYSTEM "lib/sphinxbase-5prealpha-2015-08-05/include" "lib/sphinxbase-5prealpha-2015-08-05/src")
 FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
@@ -192,6 +192,8 @@ set(SOURCE_FILES
 	src/Exporter.cpp src/Exporter.h
 	src/tokenization.cpp src/tokenization.h
 	src/g2p.cpp src/g2p.h
+	src/languageModels.cpp src/languageModels.h
+	src/tupleHash.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite)
