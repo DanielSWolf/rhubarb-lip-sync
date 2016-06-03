@@ -170,7 +170,7 @@ ua/ü@/_
 ue/u/_
 ui/u/_
 ôw/ö/_#
-=* those pesky final syllabics
+* those pesky final syllabics
 V/@/VC(V)_l#
 ê/@/VC(C)_n#
 î/@/VC(C)_n#
