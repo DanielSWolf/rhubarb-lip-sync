@@ -120,7 +120,7 @@ private:
 	TimeRange timeRange;
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& stream, const Timed<void>& timedValue) {
+template<>
+inline std::ostream& operator<<(std::ostream& stream, const Timed<void>& timedValue) {
 	return stream << "Timed<void>(" << timedValue.getTimeRange().getStart() << ", " << timedValue.getTimeRange().getEnd() << ")";
 }
