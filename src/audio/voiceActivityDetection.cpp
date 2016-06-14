@@ -37,7 +37,7 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	audioStream = removeDCOffset(std::move(audioStream));
 
 	// Resample to remove noise
-	constexpr int maxFrequency = 1000;
+	constexpr int maxFrequency = 4000;
 	constexpr int sampleRate = 2 * maxFrequency;
 	audioStream = convertSampleRate(std::move(audioStream), sampleRate);
 
