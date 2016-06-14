@@ -28,7 +28,7 @@ enum class Codec {
 WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 	filePath(filePath),
 	file(),
-	sampleIndex(0)
+	frameIndex(0)
 {
 	openFile();
 
@@ -113,7 +113,7 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 		case fourcc('d', 'a', 't', 'a'): {
 			reachedDataChunk = true;
 			dataOffset = file.tellg();
-			sampleCount = chunkSize / bytesPerSample;
+			int sampleCount = chunkSize / bytesPerSample;
 			frameCount = sampleCount / channelCount;
 			break;
 		}
@@ -127,7 +127,7 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 
 	if (!reachedDataChunk) {
 		dataOffset = file.tellg();
-		sampleCount = frameCount = 0;
+		frameCount = 0;
 	}
 }
 
@@ -139,12 +139,11 @@ WaveFileReader::WaveFileReader(const WaveFileReader& rhs, bool reset) :
 	frameRate(rhs.frameRate),
 	frameCount(rhs.frameCount),
 	channelCount(rhs.channelCount),
-	sampleCount(rhs.sampleCount),
 	dataOffset(rhs.dataOffset),
-	sampleIndex(-1)
+	frameIndex(-1)
 {
 	openFile();
-	seek(reset ? 0 : rhs.sampleIndex);
+	seek(reset ? 0 : rhs.frameIndex);
 }
 
 std::unique_ptr<AudioStream> WaveFileReader::clone(bool reset) const {
@@ -178,19 +177,19 @@ int64_t WaveFileReader::getSampleCount() const {
 }
 
 int64_t WaveFileReader::getSampleIndex() const {
-	return sampleIndex;
+	return frameIndex;
 }
 
-void WaveFileReader::seek(int64_t sampleIndex) {
-	if (sampleIndex < 0 || sampleIndex > sampleCount) throw std::invalid_argument("sampleIndex out of range.");
+void WaveFileReader::seek(int64_t frameIndex) {
+	if (frameIndex < 0 || frameIndex > frameCount) throw std::invalid_argument("frameIndex out of range.");
 
-	file.seekg(dataOffset + static_cast<std::streamoff>(sampleIndex * channelCount * bytesPerSample));
-	this->sampleIndex = sampleIndex;
+	file.seekg(dataOffset + static_cast<std::streamoff>(frameIndex * channelCount * bytesPerSample));
+	this->frameIndex = frameIndex;
 }
 
 float WaveFileReader::readSample() {
-	if (sampleIndex + channelCount > sampleCount) throw std::out_of_range("End of stream.");
-	sampleIndex += channelCount;
+	if (frameIndex + channelCount > frameCount) throw std::out_of_range("End of stream.");
+	++frameIndex;
 
 	float sum = 0;
 	for (int channelIndex = 0; channelIndex < channelCount; channelIndex++) {
