@@ -29,15 +29,15 @@ int AudioStreamSegment::getSampleRate() const {
 	return audioStream->getSampleRate();
 }
 
-int AudioStreamSegment::getSampleCount() const {
+int64_t AudioStreamSegment::getSampleCount() const {
 	return sampleCount;
 }
 
-int AudioStreamSegment::getSampleIndex() const {
+int64_t AudioStreamSegment::getSampleIndex() const {
 	return audioStream->getSampleIndex() - sampleOffset;
 }
 
-void AudioStreamSegment::seek(int sampleIndex) {
+void AudioStreamSegment::seek(int64_t sampleIndex) {
 	audioStream->seek(sampleIndex + sampleOffset);
 }
 

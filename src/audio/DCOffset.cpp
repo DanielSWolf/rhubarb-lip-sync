@@ -22,15 +22,15 @@ int DCOffset::getSampleRate() const {
 	return inputStream->getSampleRate();
 }
 
-int DCOffset::getSampleCount() const {
+int64_t DCOffset::getSampleCount() const {
 	return inputStream->getSampleCount();
 }
 
-int DCOffset::getSampleIndex() const {
+int64_t DCOffset::getSampleIndex() const {
 	return inputStream->getSampleIndex();
 }
 
-void DCOffset::seek(int sampleIndex) {
+void DCOffset::seek(int64_t sampleIndex) {
 	inputStream->seek(sampleIndex);
 }
 
@@ -53,11 +53,11 @@ float getDCOffset(AudioStream& audioStream) {
 		fadingMeanSampleCount = 1 * sampleRate;
 	} else {
 		// Short audio file. Average over the entire length.
-		flatMeanSampleCount = audioStream.getSampleCount();
+		flatMeanSampleCount = static_cast<int>(audioStream.getSampleCount());
 		fadingMeanSampleCount = 0;
 	}
 
-	int originalSampleIndex = audioStream.getSampleIndex();
+	int64_t originalSampleIndex = audioStream.getSampleIndex();
 	audioStream.seek(0);
 	auto restorePosition = gsl::finally([&]() { audioStream.seek(originalSampleIndex); });
 

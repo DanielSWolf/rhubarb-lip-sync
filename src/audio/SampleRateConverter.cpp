@@ -37,15 +37,15 @@ int SampleRateConverter::getSampleRate() const {
 	return outputSampleRate;
 }
 
-int SampleRateConverter::getSampleCount() const {
+int64_t SampleRateConverter::getSampleCount() const {
 	return outputSampleCount;
 }
 
-int SampleRateConverter::getSampleIndex() const {
+int64_t SampleRateConverter::getSampleIndex() const {
 	return nextOutputSampleIndex;
 }
 
-void SampleRateConverter::seek(int sampleIndex) {
+void SampleRateConverter::seek(int64_t sampleIndex) {
 	if (sampleIndex < 0 || sampleIndex >= outputSampleCount) throw std::invalid_argument("sampleIndex out of range.");
 
 	nextOutputSampleIndex = sampleIndex;
@@ -66,12 +66,12 @@ float SampleRateConverter::mean(double inputStart, double inputEnd) {
 	double sum = 0;
 
 	// ... first sample (weight <= 1)
-	int startIndex = static_cast<int>(inputStart);
+	int64_t startIndex = static_cast<int64_t>(inputStart);
 	sum += getInputSample(startIndex) * ((startIndex + 1) - inputStart);
 
 	// ... middle samples (weight 1 each)
-	int endIndex = static_cast<int>(inputEnd);
-	for (int index = startIndex + 1; index < endIndex; index++) {
+	int64_t endIndex = static_cast<int64_t>(inputEnd);
+	for (int64_t index = startIndex + 1; index < endIndex; ++index) {
 		sum += getInputSample(index);
 	}
 
@@ -81,7 +81,7 @@ float SampleRateConverter::mean(double inputStart, double inputEnd) {
 	return static_cast<float>(sum / (inputEnd - inputStart));
 }
 
-float SampleRateConverter::getInputSample(int sampleIndex) {
+float SampleRateConverter::getInputSample(int64_t sampleIndex) {
 	sampleIndex = std::min(sampleIndex, inputStream->getSampleCount() - 1);
 	if (sampleIndex < 0) return 0.0f;
 

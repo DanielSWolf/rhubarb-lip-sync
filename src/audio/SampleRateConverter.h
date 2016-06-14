@@ -9,24 +9,24 @@ public:
 	SampleRateConverter(const SampleRateConverter& rhs, bool reset);
 	std::unique_ptr<AudioStream> clone(bool reset) const override;
 	int getSampleRate() const override;
-	int getSampleCount() const override;
-	int getSampleIndex() const override;
-	void seek(int sampleIndex) override;
+	int64_t getSampleCount() const override;
+	int64_t getSampleIndex() const override;
+	void seek(int64_t sampleIndex) override;
 	float readSample() override;
 private:
 	std::unique_ptr<AudioStream> inputStream;
 	double downscalingFactor;					// input sample rate / output sample rate
 
 	int outputSampleRate;
-	int outputSampleCount;
+	int64_t outputSampleCount;
 
 	float lastInputSample;
-	int lastInputSampleIndex;
+	int64_t lastInputSampleIndex;
 
-	int nextOutputSampleIndex;
+	int64_t nextOutputSampleIndex;
 
 	float mean(double start, double end);
-	float getInputSample(int sampleIndex);
+	float getInputSample(int64_t sampleIndex);
 };
 
 std::unique_ptr<AudioStream> convertSampleRate(std::unique_ptr<AudioStream> audioStream, int sampleRate);

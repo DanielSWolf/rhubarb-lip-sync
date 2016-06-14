@@ -10,9 +10,9 @@ public:
 	DCOffset(const DCOffset& rhs, bool reset);
 	std::unique_ptr<AudioStream> clone(bool reset) const override;
 	int getSampleRate() const override;
-	int getSampleCount() const override;
-	int getSampleIndex() const override;
-	void seek(int sampleIndex) override;
+	int64_t getSampleCount() const override;
+	int64_t getSampleIndex() const override;
+	void seek(int64_t sampleIndex) override;
 	float readSample() override;
 
 private:

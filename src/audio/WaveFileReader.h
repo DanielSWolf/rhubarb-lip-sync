@@ -17,9 +17,9 @@ public:
 	WaveFileReader(const WaveFileReader& rhs, bool reset);
 	std::unique_ptr<AudioStream> clone(bool reset) const override;
 	int getSampleRate() const override ;
-	int getSampleCount() const override;
-	int getSampleIndex() const override;
-	void seek(int sampleIndex) override;
+	int64_t getSampleCount() const override;
+	int64_t getSampleIndex() const override;
+	void seek(int64_t sampleIndex) override;
 	float readSample() override;
 
 private:
@@ -31,9 +31,9 @@ private:
 	int bytesPerSample;
 	SampleFormat sampleFormat;
 	int frameRate;
-	int frameCount;
+	int64_t frameCount;
 	int channelCount;
-	int sampleCount;
+	int64_t sampleCount;
 	std::streampos dataOffset;
-	int sampleIndex;
+	int64_t sampleIndex;
 };

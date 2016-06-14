@@ -24,15 +24,15 @@ int UnboundedStream::getSampleRate() const {
 	return innerStream->getSampleRate();
 }
 
-int UnboundedStream::getSampleCount() const {
+int64_t UnboundedStream::getSampleCount() const {
 	return innerStream->getSampleCount();
 }
 
-int UnboundedStream::getSampleIndex() const {
+int64_t UnboundedStream::getSampleIndex() const {
 	return sampleIndex;
 }
 
-void UnboundedStream::seek(int sampleIndex) {
+void UnboundedStream::seek(int64_t sampleIndex) {
 	this->sampleIndex = sampleIndex;
 }
 
