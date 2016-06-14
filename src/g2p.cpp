@@ -1,6 +1,7 @@
 ﻿#include <g2p.h>
 #include <regex>
 #include "stringTools.h"
+#include "logging.h"
 
 using std::vector;
 using std::wstring;
@@ -89,7 +90,13 @@ vector<Phone> wordToPhones(const std::string& word) {
 
 	vector<Phone> result;
 	for (wchar_t c : wideWord) {
-		result.push_back(charToPhone(c));
+		Phone phone = charToPhone(c);
+		if (phone == Phone::Unknown) {
+			logging::errorFormat("G2P error determining pronunciation for '{}': Character '{}' is not a recognized phone shorthand.",
+				word, static_cast<char>(c));
+		} else {
+			result.push_back(phone);
+		}
 	}
 	return result;
 }

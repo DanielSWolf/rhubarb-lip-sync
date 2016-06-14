@@ -14,6 +14,7 @@
 #include "ContinuousTimeline.h"
 #include <boost/filesystem/operations.hpp>
 #include "stringTools.h"
+#include <boost/range/adaptor/transformed.hpp>
 
 using std::exception;
 using std::string;
@@ -27,6 +28,7 @@ using std::map;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 using boost::filesystem::path;
+using boost::adaptors::transformed;
 
 namespace tclap = TCLAP;
 
@@ -131,6 +133,9 @@ int main(int argc, char *argv[]) {
 			addFileSink(path(logFileName.getValue()), logLevel.getValue());
 		}
 
+		logging::infoFormat("Application startup. Command line: {}", join(
+			vector<char*>(argv, argv + argc) | transformed([](char* arg) { return fmt::format("\"{}\"", arg); }), " "));
+
 		// Detect phones
 		const int columnWidth = 30;
 		std::cerr << std::left;
@@ -168,20 +173,25 @@ int main(int argc, char *argv[]) {
 			throw std::runtime_error("Unknown export format.");
 		}
 		exporter->exportShapes(path(inputFileName.getValue()), shapes, std::cout);
+		logging::info("Exiting application normally.");
 
 		return 0;
 	} catch (tclap::ArgException& e) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
 		std::cerr << std::endl;
+		logging::error("Invalid command line. Exiting application with error code.");
 		return 1;
 	} catch (tclap::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
 		std::cerr << std::endl;
+		logging::info("Exiting application after help-like command.");
 		return 0;
 	} catch (const exception& e) {
 		// Generic error
-		std::cerr << "An error occurred.\n" << getMessage(e) << std::endl;
+		string message = getMessage(e);
+		std::cerr << "An error occurred.\n" << message << std::endl;
+		logging::errorFormat("Exiting application with error: {}", message);
 		return 1;
 	}
 }

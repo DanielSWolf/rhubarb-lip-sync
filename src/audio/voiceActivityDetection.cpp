@@ -4,10 +4,13 @@
 #include <boost/optional/optional.hpp>
 #include <logging.h>
 #include <pairs.h>
+#include <boost/range/adaptor/transformed.hpp>
 
 using std::numeric_limits;
 using std::vector;
 using boost::optional;
+using boost::adaptors::transformed;
+using fmt::format;
 
 float getRMS(AudioStream& audioStream, int maxSampleCount = numeric_limits<int>::max()) {
 	double sum = 0;
@@ -52,6 +55,9 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 			activity.set(pair.first.getEnd(), pair.second.getStart());
 		}
 	}
+
+	logging::debugFormat("Found {} sections of voice activity: {}", activity.size(),
+		join(activity | transformed([](const Timed<void>& t) { return format("{0}-{1}", t.getStart(), t.getEnd()); }), ", "));
 
 	return activity;
 }

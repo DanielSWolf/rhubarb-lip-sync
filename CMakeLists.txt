@@ -217,6 +217,8 @@ set(TEST_FILES
 	src/Phone.cpp src/Phone.h
 	src/tokenization.cpp src/tokenization.h
 	src/g2p.cpp src/g2p.h
+	src/logging.cpp src/logging.h
+	src/tools.cpp src/tools.h
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main flite cppFormat)

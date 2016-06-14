@@ -334,6 +334,7 @@ BoundedTimeline<Phone> detectPhones(
 		ps_set_search(decoder.get(), "lm");
 
 		BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
+		logging::debug("Speech recognition -- start");
 		for (const auto& timedUtterance : utterances) {
 			ProgressMerger utteranceProgressMerger(**utteranceProgressSinkIt++);
 			ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
@@ -370,6 +371,7 @@ BoundedTimeline<Phone> detectPhones(
 				result.set(timedPhone);
 			}
 		}
+		logging::debug("Speech recognition -- end");
 
 		return result;
 	}
