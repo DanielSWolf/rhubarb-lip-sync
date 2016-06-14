@@ -5,6 +5,7 @@
 #include <logging.h>
 #include <pairs.h>
 #include <boost/range/adaptor/transformed.hpp>
+#include <stringTools.h>
 
 using std::numeric_limits;
 using std::vector;
@@ -13,7 +14,7 @@ using boost::adaptors::transformed;
 using fmt::format;
 
 float getRMS(AudioStream& audioStream, int maxSampleCount = numeric_limits<int>::max()) {
-	double sum = 0;
+	double sum = 0; // Use double to prevent rounding errors with large number of summands
 	int sampleCount;
 	for (sampleCount = 0; sampleCount < maxSampleCount && !audioStream.endOfStream(); sampleCount++) {
 		sum += std::pow(static_cast<double>(audioStream.readSample()), 2);
@@ -21,7 +22,17 @@ float getRMS(AudioStream& audioStream, int maxSampleCount = numeric_limits<int>:
 	return sampleCount > 0 ? static_cast<float>(std::sqrt(sum / sampleCount)) : 0.0f;
 }
 
-BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream) {
+float getRMS(const vector<float>& rmsSegments) {
+	if (rmsSegments.empty()) return 0;
+
+	double sum = 0; // Use double to prevent rounding errors with large number of summands
+	for (float rmsSegment : rmsSegments) {
+		sum += rmsSegment;
+	}
+	return static_cast<float>(std::sqrt(sum / rmsSegments.size()));
+}
+
+BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStream, ProgressSink& progressSink) {
 	// Make sure audio stream has no DC offset
 	audioStream = removeDCOffset(std::move(audioStream));
 
@@ -30,12 +41,25 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	constexpr int sampleRate = 2 * maxFrequency;
 	audioStream = convertSampleRate(std::move(audioStream), sampleRate);
 
+	// Collect RMS data
+	vector<float> rmsSegments;
+	logging::debug("RMS calculation -- start");
+	int64_t centisecondCount = (audioStream->getSampleCount() - audioStream->getSampleIndex()) / 100;
+	for (int cs = 0; cs < centisecondCount; ++cs) {
+		rmsSegments.push_back(getRMS(*audioStream, sampleRate / 100));
+		progressSink.reportProgress(static_cast<double>(cs) / centisecondCount);
+	}
+	logging::debug("RMS calculation -- end");
+
+	const float rms = getRMS(rmsSegments);
+	logging::debugFormat("RMS value: {0:.5f}", rms);
+
 	// Detect activity
-	const float rms = getRMS(*audioStream->clone(true));
 	const float cutoff = rms / 25;
+	logging::debugFormat("RMS cutoff for voice activity detection: {0:.5f}", cutoff);
 	BoundedTimeline<void> activity(audioStream->getTruncatedRange());
-	for (centiseconds time = centiseconds::zero(); !audioStream->endOfStream(); ++time) {
-		float currentRMS = getRMS(*audioStream, sampleRate / 100);
+	for (centiseconds time = centiseconds::zero(); static_cast<size_t>(time.count()) < rmsSegments.size(); ++time) {
+		float currentRMS = rmsSegments[time.count()];
 		bool active = currentRMS > cutoff;
 		if (active) {
 			activity.set(time, time + centiseconds(1));

@@ -77,7 +77,7 @@ int16_t floatSampleToInt16(float sample) {
 }
 
 void processAudioStream(AudioStream& audioStream16kHz, function<void(const vector<int16_t>&)> processBuffer, ProgressSink& progressSink) {
-	// Process entire sound file
+	// Process entire sound stream
 	vector<int16_t> buffer;
 	const int capacity = 1600; // 0.1 second capacity
 	buffer.reserve(capacity);
@@ -155,7 +155,7 @@ BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_d
 	int error = ps_start_utt(&decoder);
 	if (error) throw runtime_error("Error starting utterance processing for word recognition.");
 
-	// Process entire sound file
+	// Process entire sound stream
 	auto processBuffer = [&decoder](const vector<int16_t>& buffer) {
 		int searchedFrameCount = ps_process_raw(&decoder, buffer.data(), buffer.size(), false, false);
 		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
@@ -220,8 +220,8 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	// Start search
 	ps_search_start(search.get());
 
-	// Process entire sound file
-	auto processBuffer = [&decoder, &acousticModel, &search](const vector<int16_t>& buffer) {
+	// Process entire sound stream
+	auto processBuffer = [&](const vector<int16_t>& buffer) {
 		const int16* nextSample = buffer.data();
 		size_t remainingSamples = buffer.size();
 		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
@@ -283,12 +283,6 @@ BoundedTimeline<Phone> detectPhones(
 	optional<u32string> dialog,
 	ProgressSink& progressSink)
 {
-	// Pocketsphinx doesn't like empty input
-	TimeRange audioRange = audioStream->getTruncatedRange();
-	if (audioRange.empty()) {
-		return BoundedTimeline<Phone>(audioRange);
-	}
-
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
@@ -298,12 +292,15 @@ BoundedTimeline<Phone> detectPhones(
 	// Make sure audio stream has no DC offset
 	audioStream = removeDCOffset(std::move(audioStream));
 
+	ProgressMerger totalProgressMerger(progressSink);
+	ProgressSink& voiceActivationProgressSink = totalProgressMerger.addSink(1.0);
+	ProgressSink& dialogProgressSink = totalProgressMerger.addSink(15);
+
 	try {
 		// Split audio into utterances
-		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true));
-
+		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true), voiceActivationProgressSink);
 		// For progress reporting: weigh utterances by length
-		ProgressMerger dialogProgressMerger(progressSink);
+		ProgressMerger dialogProgressMerger(dialogProgressSink);
 		vector<ProgressSink*> utteranceProgressSinks;
 		for (const auto& timedUtterance : utterances) {
 			utteranceProgressSinks.push_back(&dialogProgressMerger.addSink(timedUtterance.getTimeRange().getLength().count()));
