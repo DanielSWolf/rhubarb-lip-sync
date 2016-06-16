@@ -4,11 +4,11 @@
 
 template<typename T>
 class BoundedTimeline : public Timeline<T> {
-	using Timeline<T>::time_type;
+	using typename Timeline<T>::time_type;
 	using Timeline<T>::equals;
 
 public:
-	using Timeline<T>::iterator;
+	using typename Timeline<T>::iterator;
 	using Timeline<T>::end;
 
 	explicit BoundedTimeline(TimeRange range) :

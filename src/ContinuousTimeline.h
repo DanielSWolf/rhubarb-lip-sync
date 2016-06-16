@@ -7,7 +7,7 @@ class ContinuousTimeline : public BoundedTimeline<T> {
 
 public:
 	ContinuousTimeline(TimeRange range, T defaultValue) :
-		BoundedTimeline(range),
+		BoundedTimeline<T>(range),
 		defaultValue(defaultValue)
 	{
 		// Virtual function call in constructor. Derived constructors shouldn't call this one!
@@ -28,10 +28,10 @@ public:
 		ContinuousTimeline(range, defaultValue, initializerList.begin(), initializerList.end())
 	{}
 
-	using BoundedTimeline<T>::clear;
+    using BoundedTimeline<T>::clear;
 
 	void clear(const TimeRange& range) override {
-		set(Timed<T>(range, defaultValue));
+		BoundedTimeline<T>::set(Timed<T>(range, defaultValue));
 	}
 
 private:

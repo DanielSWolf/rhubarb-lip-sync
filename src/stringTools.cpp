@@ -109,10 +109,13 @@ string toASCII(const u32string& s) {
 }
 
 u32string utf8ToUtf32(const string& s) {
-	// Visual Studio 2015 has a bug regarding char32_t:
-	// https://connect.microsoft.com/VisualStudio/feedback/details/1403302/unresolved-external-when-using-codecvt-utf8
-	// Once VS2016 is out, we can use char32_t instead of uint32_t as type arguments and get rid of the outer conversion.
-
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+	// Workaround for Visual Studio 2015
+	// See https://connect.microsoft.com/VisualStudio/feedback/details/1403302/unresolved-external-when-using-codecvt-utf8
 	std::wstring_convert<std::codecvt_utf8<uint32_t>, uint32_t> convert;
 	return u32string(reinterpret_cast<const char32_t*>(convert.from_bytes(s).c_str()));
+#else
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
+	return convert.from_bytes(s);
+#endif
 }
