@@ -64,18 +64,20 @@ target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
-include_directories(SYSTEM "lib/sphinxbase-5prealpha-2015-08-05/include" "lib/sphinxbase-5prealpha-2015-08-05/src")
-FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-5prealpha-2015-08-05/src/libsphinxbase/*.c")
+include_directories(SYSTEM "lib/sphinxbase-rev13216/include" "lib/sphinxbase-rev13216/src" "lib/sphinx_config")
+FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-rev13216/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
+target_compile_definitions(sphinxbase PUBLIC __SPHINXBASE_EXPORT_H__=1 SPHINXBASE_EXPORT=) # Compile as static lib
 set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
-include_directories(SYSTEM "lib/pocketsphinx-5prealpha-2015-08-05/include" "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx")
-FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-5prealpha-2015-08-05/src/libpocketsphinx/*.c")
+include_directories(SYSTEM "lib/pocketsphinx-rev13216/include" "lib/pocketsphinx-rev13216/src/libpocketsphinx")
+FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-rev13216/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
 target_link_libraries(pocketSphinx sphinxbase)
 target_compile_options(pocketSphinx PRIVATE ${disableWarningsFlags})
+target_compile_definitions(pocketSphinx PUBLIC __POCKETSPHINX_EXPORT_H__=1 POCKETSPHINX_EXPORT=) # Compile as static lib
 set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 
 # ... TCLAP
@@ -236,7 +238,7 @@ set(CPACK_GENERATOR ZIP)
 
 # Copy resource files at build time; install them at package time
 include(tools.cmake)
-set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-5prealpha-2015-08-05/model")
+set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-rev13216/model")
 copy_and_install("${modelDir}/en-us/*" "res/sphinx")
 copy_and_install("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic-model")
 

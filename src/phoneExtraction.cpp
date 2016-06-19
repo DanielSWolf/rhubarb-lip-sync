@@ -168,8 +168,7 @@ BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_d
 
 	// Collect words
 	BoundedTimeline<string> result(audioStream->getTruncatedRange());
-	int32_t score;
-	for (ps_seg_t* it = ps_seg_iter(&decoder, &score); it; it = ps_seg_next(it)) {
+	for (ps_seg_t* it = ps_seg_iter(&decoder); it; it = ps_seg_next(it)) {
 		const char* word = ps_seg_word(it);
 		int firstFrame, lastFrame;
 		ps_seg_frames(it, &firstFrame, &lastFrame);
