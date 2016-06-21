@@ -1,0 +1,24 @@
+{
+  "owners": [
+    "kjellander"
+  ],
+  "comments": [
+    "GN + Ninja builder."
+  ],
+  "xcode version": "7.0",
+  "GYP_DEFINES": {
+    "chromium_ios_signing": "0",
+    "target_arch": "arm64"
+  },
+  "gn_args": [
+    "ios_enable_code_signing=false",
+    "target_cpu=\"arm\"",
+    "target_os=\"ios\""
+  ],
+  "mb_type": "gn",
+  "compiler": "ninja",
+  "configuration": "Release",
+  "sdk": "iphoneos9.0",
+  "tests": [
+  ]
+}

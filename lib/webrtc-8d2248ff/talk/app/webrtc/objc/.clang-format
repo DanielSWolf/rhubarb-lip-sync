@@ -1,0 +1,10 @@
+BasedOnStyle: Chromium
+ColumnLimit: 100
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+DerivePointerAlignment: false
+PointerAlignment: Right
+SpacesBeforeTrailingComments: 1
+ObjCBlockIndentWidth: 2
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true

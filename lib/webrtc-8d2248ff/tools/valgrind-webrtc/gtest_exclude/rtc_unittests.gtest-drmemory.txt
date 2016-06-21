@@ -1,0 +1,12 @@
+# Fails on Dr Memory Full.
+# https://code.google.com/p/webrtc/issues/detail?id=3158
+P2PTransportChannel*.*
+PortAllocatorTest.*
+PortTest.*
+PseudoTcpTest.TestSendBothUseLargeWindowScale
+SharedExclusiveLockTest.TestSharedShared
+https://bugs.chromium.org/p/webrtc/issues/detail?id=5929
+BasicPortAllocatorTest.*
+# Fails on Dr Memory Light.
+# https://bugs.chromium.org/p/webrtc/issues/detail?id=5199
+ThreadTest.ThreeThreadsInvoke

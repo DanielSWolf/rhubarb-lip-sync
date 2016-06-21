@@ -1,0 +1,3 @@
+# Fails on Dr Memory Full.
+# https://code.google.com/p/webrtc/issues/detail?id=5943
+PingTaskTest.*

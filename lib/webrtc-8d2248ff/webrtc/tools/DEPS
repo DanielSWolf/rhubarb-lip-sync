@@ -1,0 +1,8 @@
+include_rules = [
+  "+webrtc/base",
+  "+webrtc/common_video",
+  "+webrtc/modules/audio_processing",
+  "+webrtc/system_wrappers",
+  "+webrtc/voice_engine",
+]
+

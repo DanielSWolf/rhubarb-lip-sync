@@ -1,0 +1,133 @@
+# Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
+#
+# Use of this source code is governed by a BSD-style license
+# that can be found in the LICENSE file in the root of the source
+# tree. An additional intellectual property rights grant can be found
+# in the file PATENTS.  All contributing project authors may
+# be found in the AUTHORS file in the root of the source tree.
+
+import("//build/config/arm.gni")
+import("//build/config/features.gni")
+import("//build/config/mips.gni")
+import("//build_overrides/webrtc.gni")
+
+declare_args() {
+  # Disable this to avoid building the Opus audio codec.
+  rtc_include_opus = true
+
+  # Disable to use absolute header paths for some libraries.
+  rtc_relative_path = true
+
+  # Used to specify an external Jsoncpp include path when not compiling the
+  # library that comes with WebRTC (i.e. rtc_build_json == 0).
+  rtc_jsoncpp_root = "//third_party/jsoncpp/source/include"
+
+  # Used to specify an external OpenSSL include path when not compiling the
+  # library that comes with WebRTC (i.e. rtc_build_ssl == 0).
+  rtc_ssl_root = ""
+
+  # Selects fixed-point code where possible.
+  rtc_prefer_fixed_point = false
+
+  # Enable data logging. Produces text files with data logged within engines
+  # which can be easily parsed for offline processing.
+  rtc_enable_data_logging = false
+
+  # Enables the use of protocol buffers for debug recordings.
+  rtc_enable_protobuf = true
+
+  # Disable these to not build components which can be externally provided.
+  rtc_build_expat = true
+  rtc_build_json = true
+  rtc_build_libjpeg = true
+  rtc_build_libsrtp = true
+  rtc_build_libvpx = true
+  rtc_libvpx_build_vp9 = true
+  rtc_build_libyuv = true
+  rtc_build_openmax_dl = true
+  rtc_build_opus = true
+  rtc_build_ssl = true
+  rtc_build_usrsctp = true
+
+  # Disable by default.
+  rtc_have_dbus_glib = false
+
+  # Enable to use the Mozilla internal settings.
+  build_with_mozilla = false
+
+  rtc_enable_android_opensl = false
+
+  # Link-Time Optimizations.
+  # Executes code generation at link-time instead of compile-time.
+  # https://gcc.gnu.org/wiki/LinkTimeOptimization
+  rtc_use_lto = false
+
+  rtc_include_tests = false
+  rtc_restrict_logging = true
+
+  # Enable libevent task queues on platforms that support it.
+  if (is_win || is_mac || is_ios || is_nacl) {
+    rtc_enable_libevent = false
+    rtc_build_libevent = false
+  } else {
+    rtc_enable_libevent = true
+    rtc_build_libevent = true
+  }
+
+  if (current_cpu == "arm" || current_cpu == "arm64") {
+    rtc_prefer_fixed_point = true
+  }
+
+  if (!is_ios && (current_cpu != "arm" || arm_version >= 7) &&
+      current_cpu != "mips64el") {
+    rtc_use_openmax_dl = true
+  } else {
+    rtc_use_openmax_dl = false
+  }
+
+  # Determines whether NEON code will be built.
+  rtc_build_with_neon =
+      (current_cpu == "arm" && arm_use_neon) || current_cpu == "arm64"
+
+  # Enable this to use HW H.264 encoder/decoder on iOS PeerConnections.
+  # Enabling this may break interop with Android clients that support H264.
+  rtc_use_objc_h264 = false
+
+  # Enable this to build OpenH264 encoder/FFmpeg decoder. This is supported on
+  # all platforms except Android and iOS. Because FFmpeg can be built
+  # with/without H.264 support, |ffmpeg_branding| has to separately be set to a
+  # value that includes H.264, for example "Chrome". If FFmpeg is built without
+  # H.264, compilation succeeds but |H264DecoderImpl| fails to initialize. See
+  # also: |rtc_initialize_ffmpeg|.
+  # CHECK THE OPENH264, FFMPEG AND H.264 LICENSES/PATENTS BEFORE BUILDING.
+  # http://www.openh264.org, https://www.ffmpeg.org/
+  rtc_use_h264 = proprietary_codecs && !is_android && !is_ios
+
+  # Determines whether QUIC code will be built.
+  rtc_use_quic = false
+
+  # FFmpeg must be initialized for |H264DecoderImpl| to work. This can be done
+  # by WebRTC during |H264DecoderImpl::InitDecode| or externally. FFmpeg must
+  # only be initialized once. Projects that initialize FFmpeg externally, such
+  # as Chromium, must turn this flag off so that WebRTC does not also
+  # initialize.
+  rtc_initialize_ffmpeg = !build_with_chromium
+
+  # Build sources requiring GTK. NOTICE: This is not present in Chrome OS
+  # build environments, even if available for Chromium builds.
+  rtc_use_gtk = !build_with_chromium
+}
+
+# A second declare_args block, so that declarations within it can
+# depend on the possibly overridden variables in the first
+# declare_args block.
+declare_args() {
+  # Include the iLBC audio codec?
+  rtc_include_ilbc = !(build_with_chromium || build_with_mozilla)
+}
+
+# Make it possible to provide custom locations for some libraries (move these
+# up into declare_args should we need to actually use them for the GN build).
+rtc_libvpx_dir = "//third_party/libvpx"
+rtc_libyuv_dir = "//third_party/libyuv"
+rtc_opus_dir = "//third_party/opus"

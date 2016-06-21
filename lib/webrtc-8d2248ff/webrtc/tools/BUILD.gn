@@ -1,0 +1,299 @@
+# Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
+#
+# Use of this source code is governed by a BSD-style license
+# that can be found in the LICENSE file in the root of the source
+# tree. An additional intellectual property rights grant can be found
+# in the file PATENTS.  All contributing project authors may
+# be found in the AUTHORS file in the root of the source tree.
+
+import("//testing/test.gni")
+import("../build/webrtc.gni")
+
+source_set("tools") {
+  deps = [
+    ":command_line_parser",
+  ]
+
+  if (!build_with_chromium) {
+    # TODO(kjellander): Enable these when webrtc:5970 is fixed.
+    deps += [
+      ":frame_analyzer",
+      ":rgba_to_i420_converter",
+    ]
+  }
+}
+
+source_set("command_line_parser") {
+  sources = [
+    "simple_command_line_parser.cc",
+    "simple_command_line_parser.h",
+  ]
+  deps = [
+    "../base:gtest_prod",
+  ]
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+}
+
+source_set("video_quality_analysis") {
+  sources = [
+    "frame_analyzer/video_quality_analysis.cc",
+    "frame_analyzer/video_quality_analysis.h",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  deps = [
+    "../common_video",
+  ]
+  public_deps = [
+    "../common_video",
+  ]
+}
+
+executable("frame_analyzer") {
+  sources = [
+    "frame_analyzer/frame_analyzer.cc",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  deps = [
+    ":command_line_parser",
+    ":video_quality_analysis",
+    "//build/win:default_exe_manifest",
+  ]
+}
+
+executable("psnr_ssim_analyzer") {
+  sources = [
+    "psnr_ssim_analyzer/psnr_ssim_analyzer.cc",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  deps = [
+    ":command_line_parser",
+    ":video_quality_analysis",
+    "//build/win:default_exe_manifest",
+  ]
+}
+
+executable("rgba_to_i420_converter") {
+  sources = [
+    "converter/converter.cc",
+    "converter/converter.h",
+    "converter/rgba_to_i420_converter.cc",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  deps = [
+    ":command_line_parser",
+    "../common_video",
+    "//build/win:default_exe_manifest",
+  ]
+}
+
+source_set("frame_editing_lib") {
+  sources = [
+    "frame_editing/frame_editing_lib.cc",
+    "frame_editing/frame_editing_lib.h",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  # TODO(jschuh): Bug 1348: fix this warning.
+  configs += [ "//build/config/compiler:no_size_t_to_int_warning" ]
+
+  if (is_clang) {
+    # Suppress warnings from the Chromium Clang plugin.
+    # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+    configs -= [ "//build/config/clang:find_bad_constructs" ]
+  }
+
+  deps = [
+    "../common_video",
+  ]
+}
+
+executable("frame_editor") {
+  sources = [
+    "frame_editing/frame_editing.cc",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  deps = [
+    ":command_line_parser",
+    ":frame_editing_lib",
+    "//build/win:default_exe_manifest",
+  ]
+}
+
+executable("force_mic_volume_max") {
+  sources = [
+    "force_mic_volume_max/force_mic_volume_max.cc",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+
+  if (is_clang) {
+    # Suppress warnings from the Chromium Clang plugin.
+    # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+    configs -= [ "//build/config/clang:find_bad_constructs" ]
+  }
+
+  deps = [
+    "../system_wrappers:system_wrappers_default",
+    "../voice_engine",
+    "//build/win:default_exe_manifest",
+  ]
+}
+
+source_set("agc_test_utils") {
+  testonly = true
+  sources = [
+    "agc/test_utils.cc",
+    "agc/test_utils.h",
+  ]
+
+  configs += [ "..:common_config" ]
+  public_configs = [ "..:common_inherited_config" ]
+}
+
+# Exclude tools depending on gflags since that's not available in Chromium.
+if (rtc_include_tests) {
+  executable("agc_harness") {
+    testonly = true
+    sources = [
+      "agc/agc_harness.cc",
+    ]
+
+    configs += [ "..:common_config" ]
+    public_configs = [ "..:common_inherited_config" ]
+
+    if (is_clang) {
+      # Suppress warnings from the Chromium Clang plugin.
+      # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+      configs -= [ "//build/config/clang:find_bad_constructs" ]
+    }
+
+    deps = [
+      "../system_wrappers:system_wrappers_default",
+      "../test:channel_transport",
+      "../test:test_support",
+      "../voice_engine",
+      "//build/win:default_exe_manifest",
+      "//testing/gtest",
+      "//third_party/gflags",
+    ]
+  }
+
+  executable("activity_metric") {
+    testonly = true
+    sources = [
+      "agc/activity_metric.cc",
+    ]
+
+    configs += [ "..:common_config" ]
+    public_configs = [ "..:common_inherited_config" ]
+
+    if (is_clang) {
+      # Suppress warnings from the Chromium Clang plugin.
+      # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+      configs -= [ "//build/config/clang:find_bad_constructs" ]
+    }
+
+    deps = [
+      "../modules/audio_processing",
+      "../system_wrappers:metrics_default",
+      "//build/win:default_exe_manifest",
+      "//testing/gtest",
+      "//third_party/gflags",
+    ]
+  }
+
+  executable("audio_e2e_harness") {
+    testonly = true
+    sources = [
+      "e2e_quality/audio/audio_e2e_harness.cc",
+    ]
+
+    configs += [ "..:common_config" ]
+    public_configs = [ "..:common_inherited_config" ]
+
+    if (is_clang) {
+      # Suppress warnings from the Chromium Clang plugin.
+      # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+      configs -= [ "//build/config/clang:find_bad_constructs" ]
+    }
+
+    deps = [
+      "../system_wrappers:system_wrappers_default",
+      "../test:channel_transport",
+      "../voice_engine",
+      "//build/win:default_exe_manifest",
+      "//testing/gtest",
+      "//third_party/gflags",
+    ]
+  }
+
+  test("tools_unittests") {
+    testonly = true
+
+    sources = [
+      "frame_analyzer/video_quality_analysis_unittest.cc",
+      "frame_editing/frame_editing_unittest.cc",
+      "simple_command_line_parser_unittest.cc",
+    ]
+
+    configs += [ "..:common_config" ]
+    public_configs = [ "..:common_inherited_config" ]
+
+    # TODO(jschuh): Bug 1348: fix this warning.
+    configs += [ "//build/config/compiler:no_size_t_to_int_warning" ]
+
+    if (is_clang) {
+      # Suppress warnings from the Chromium Clang plugin.
+      # See http://code.google.com/p/webrtc/issues/detail?id=163 for details.
+      configs -= [ "//build/config/clang:find_bad_constructs" ]
+    }
+
+    deps = [
+      ":command_line_parser",
+      ":frame_editing_lib",
+      ":video_quality_analysis",
+      "../test:test_support_main",
+      "//testing/gtest",
+    ]
+
+    if (is_android) {
+      deps += [ "//testing/android/native_test:native_test_support" ]
+    }
+  }
+
+  if (rtc_enable_protobuf) {
+    copy("rtp_analyzer") {
+      sources = [
+        "py_event_log_analyzer/misc.py",
+        "py_event_log_analyzer/pb_parse.py",
+        "py_event_log_analyzer/rtp_analyzer.py",
+        "py_event_log_analyzer/rtp_analyzer.sh",
+      ]
+      outputs = [
+        "$root_build_dir/{{source_file_part}}",
+      ]
+      deps = [
+        "..:rtc_event_log_proto",
+      ]
+    }
+  }
+}

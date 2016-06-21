@@ -1,0 +1,27 @@
+# Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
+#
+# Use of this source code is governed by a BSD-style license
+# that can be found in the LICENSE file in the root of the source
+# tree. An additional intellectual property rights grant can be found
+# in the file PATENTS.  All contributing project authors may
+# be found in the AUTHORS file in the root of the source tree.
+
+# This file contains overrides to GN variables that applies for the WebRTC
+# standalone build (i.e. not in Chromium).
+#
+# Every variable here needs to be present in the corresponding file in
+# build_overrides/ of Chromium.
+
+# The build_with_chromium variable is now located in build.gni (now also used
+# by BoringSSL).
+import("//build_overrides/build.gni")
+
+# Excluded in Chromium since its prerequisites don't require Pulse Audio.
+rtc_include_pulse_audio = true
+
+# Chromium uses its own IO handling, so the internal ADM is only built for
+# standalone WebRTC.
+rtc_include_internal_audio_device = true
+
+# There's no point processing WebRTC standalone tests in a Chromium build.
+rtc_include_tests = true

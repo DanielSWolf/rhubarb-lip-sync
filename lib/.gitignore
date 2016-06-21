@@ -1,7 +1,11 @@
 # Excluding 80MB worth of voice information
-/flite-1.4/lang/cmu_time_awb
-/flite-1.4/lang/cmu_us_awb
-/flite-1.4/lang/cmu_us_kal
-/flite-1.4/lang/cmu_us_kal16
-/flite-1.4/lang/cmu_us_rms
-/flite-1.4/lang/cmu_us_slt
+/flite-*/lang/cmu_time_awb
+/flite-*/lang/cmu_us_awb
+/flite-*/lang/cmu_us_kal
+/flite-*/lang/cmu_us_kal16
+/flite-*/lang/cmu_us_rms
+/flite-*/lang/cmu_us_slt
+
+# Excluding 45MB of superfluous data
+/webrtc-*/webrtc/modules
+/webrtc-*/data

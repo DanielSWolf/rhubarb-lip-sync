@@ -1,0 +1,28 @@
+# Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
+#
+# Use of this source code is governed by a BSD-style license
+# that can be found in the LICENSE file in the root of the source
+# tree. An additional intellectual property rights grant can be found
+# in the file PATENTS.  All contributing project authors may
+# be found in the AUTHORS file in the root of the source tree.
+{
+  'conditions': [
+    ['OS=="linux" or OS=="mac" or OS=="win"', {
+      'variables': {
+        'command': [
+          '<(PRODUCT_DIR)/rtc_media_unittests<(EXECUTABLE_SUFFIX)',
+        ],
+        'files': [
+          '<(PRODUCT_DIR)/rtc_media_unittests<(EXECUTABLE_SUFFIX)',
+          '<(DEPTH)/resources/media/captured-320x240-2s-48.frames',
+          '<(DEPTH)/resources/media/faces.1280x720_P420.yuv',
+          '<(DEPTH)/resources/media/faces_I420.jpg',
+          '<(DEPTH)/resources/media/faces_I422.jpg',
+          '<(DEPTH)/resources/media/faces_I444.jpg',
+          '<(DEPTH)/resources/media/faces_I411.jpg',
+          '<(DEPTH)/resources/media/faces_I400.jpg',
+        ],
+      },
+    }],
+  ],
+}

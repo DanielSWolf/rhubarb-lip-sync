@@ -1,0 +1,31 @@
+This directory contains an example Android client for https://appr.tc
+
+Prerequisites:
+- "Getting the code" on http://www.webrtc.org/native-code/android
+- Set up webrtc-related GYP variables:
+  export GYP_DEFINES="OS=android $GYP_DEFINES"
+- When targeting both desktop & android, make sure to use a different output_dir
+  value in $GYP_GENERATOR_FLAGS - for example
+  export GYP_GENERATOR_FLAGS="$GYP_GENERATOR_FLAGS output_dir=out_android"
+  or you'll likely end up with mismatched ARM & x86 output artifacts.
+  If you use an output_dir other than out/ make sure to modify the command-lines
+  below appropriately.
+- Finally, run "gclient runhooks" to generate Android-targeting .ninja files.
+
+Example of building & using the app:
+
+cd <path/to/webrtc>/src
+ninja -C out/Debug AppRTCDemo
+adb install -r out/Debug/apks/AppRTCDemo.apk
+
+In desktop chrome, navigate to https://appr.tc and note the r=<NNN> room
+this redirects to or navigate directly to https://appr.tc/r/<NNN> with
+your own room number. Launch AppRTC on the device and add same <NNN> into the room name list.
+
+You can also run application from a command line to connect to the first room in a list:
+adb shell am start -n org.appspot.apprtc/.ConnectActivity -a android.intent.action.VIEW
+This should result in the app launching on Android and connecting to the 3-dot-apprtc
+page displayed in the desktop browser.
+To run loopback test execute following command:
+adb shell am start -n org.appspot.apprtc/.ConnectActivity -a android.intent.action.VIEW --ez "org.appspot.apprtc.LOOPBACK" true
+

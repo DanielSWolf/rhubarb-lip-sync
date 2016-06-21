@@ -1,0 +1,68 @@
+This directory contains the ObjectiveC implementation of the
+webrtc::PeerConnection API.  This can be built for Mac or iOS.  This
+file describes building the API, unit test, and AppRTCDemo sample app.
+
+Prerequisites:
+- Make sure gclient is checking out tools necessary to target iOS: your
+  .gclient file should contain a line like:
+  target_os = ['ios', 'mac']
+  Make sure to re-run gclient sync after adding this to download the tools.
+
+- Set up webrtc-related $GYP_DEFINES; example shell functions that set
+  up for building for iOS-device, iOS-simulator, and Mac (resp) are:
+function wrbase() {
+  cd /path/to/webrtc/src
+}
+
+function wrios() {
+  wrbase
+  export GYP_DEFINES="$GYP_DEFINES OS=ios"
+  export GYP_GENERATOR_FLAGS="$GYP_GENERATOR_FLAGS output_dir=out_ios"
+  export GYP_CROSSCOMPILE=1
+}
+
+function wrios32() {
+  wrios
+  export GYP_DEFINES="$GYP_DEFINES target_arch=arm"
+}
+
+function wrios64() {
+  wrios
+  export GYP_DEFINES="$GYP_DEFINES target_arch=arm64"
+}
+
+function wrsim() {
+  wrbase
+  export GYP_DEFINES="$GYP_DEFINES OS=ios target_subarch=arm32 target_arch=ia32"
+  export GYP_GENERATOR_FLAGS="$GYP_GENERATOR_FLAGS output_dir=out_sim"
+  export GYP_CROSSCOMPILE=1
+}
+
+function wrmac() {
+  wrbase
+  export GYP_DEFINES="$GYP_DEFINES OS=mac target_subarch=arm64 target_arch=x64"
+  export GYP_GENERATOR_FLAGS="$GYP_GENERATOR_FLAGS output_dir=out_mac"
+}
+
+- Finally, run "webrtc/build/gyp_webrtc.py" to generate ninja files.
+
+Example of building & using the unittest & app:
+
+- To build & run the unittest (must target mac):
+  wrmac && ./webrtc/build/gyp_webrtc.py && \
+      ninja -C out_mac/Debug libjingle_peerconnection_objc_test && \
+      ./out_mac/Debug/libjingle_peerconnection_objc_test.app/Contents/MacOS/libjingle_peerconnection_objc_test
+
+- To build & launch the sample app on OSX:
+  wrmac && ./webrtc/build/gyp_webrtc.py && ninja -C out_mac/Debug AppRTCDemo && \
+      ./out_mac/Debug/AppRTCDemo.app/Contents/MacOS/AppRTCDemo
+
+- To build & launch the sample app on the iOS simulator:
+  wrsim && ./webrtc/build/gyp_webrtc.py && ninja -C out_sim/Debug iossim AppRTCDemo && \
+      ./out_sim/Debug/iossim out_sim/Debug/AppRTCDemo.app
+
+- To build & sign the sample app for an iOS device (32 bit):
+  wrios32 && ./webrtc/build/gyp_webrtc.py && ninja -C out_ios/Debug-iphoneos AppRTCDemo
+
+- To build & sign the sample app for an iOS device (64 bit):
+  wrios64 && ./webrtc/build/gyp_webrtc.py && ninja -C out_ios/Debug-iphoneos AppRTCDemo

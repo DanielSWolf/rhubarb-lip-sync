@@ -1,0 +1,19 @@
+# Times out before finishing on DrMemory Full
+# https://code.google.com/p/webrtc/issues/detail?id=3375
+WebRtcVideoChannel2BaseTest.SimulateConference
+WebRtcVideoChannel2BaseTest.TwoStreamsSendAndReceive
+WebRtcVideoChannel2BaseTest.TwoStreamsReUseFirstStream
+
+# TODO(pbos): https://code.google.com/p/webrtc/issues/detail?id=4963
+WebRtcVideoChannel2BaseTest.*
+
+# https://code.google.com/p/webrtc/issues/detail?id=3482
+WebRtcVideoMediaChannelTest.GetStats
+WebRtcVideoChannel2BaseTest.GetStats
+
+#TODO(jiayl): https://code.google.com/p/webrtc/issues/detail?id=3492
+SctpDataMediaChannelTest.*
+
+# https://code.google.com/p/webrtc/issues/detail?id=3771
+VideoAdapterTest.AdaptResolutionWide
+VideoAdapterTest.AdaptResolutionNarrow

@@ -1,0 +1,17 @@
+include_rules = [
+  "+webrtc/base",
+  "+webrtc/call",
+  "+webrtc/common_video",
+  "+webrtc/media/base",
+  "+webrtc/modules/bitrate_controller",
+  "+webrtc/modules/congestion_controller",
+  "+webrtc/modules/pacing",
+  "+webrtc/modules/remote_bitrate_estimator",
+  "+webrtc/modules/rtp_rtcp",
+  "+webrtc/modules/utility",
+  "+webrtc/modules/video_coding",
+  "+webrtc/modules/video_capture",
+  "+webrtc/modules/video_processing",
+  "+webrtc/system_wrappers",
+  "+webrtc/voice_engine",
+]
