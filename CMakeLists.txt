@@ -93,6 +93,31 @@ set_target_properties(gtest_main PROPERTIES FOLDER lib)
 # ... GSL
 include_directories(SYSTEM "lib/gsl/include")
 
+# ... WebRTC
+include_directories(SYSTEM "lib/webrtc-8d2248ff")
+set(webRTCFiles
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/cross_correlation.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/division_operations.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/downsample_fast.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/energy.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/get_scaling_square.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/min_max_operations.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/resample_48khz.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/resample_by_2_internal.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/resample_fractional.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/spl_init.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/spl_inl.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/vector_scaling_operations.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/vad/vad_core.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/vad/vad_filterbank.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/vad/vad_gmm.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/vad/vad_sp.c
+	lib/webrtc-8d2248ff/webrtc/common_audio/vad/webrtc_vad.c
+)
+add_library(webRTC ${webRTCFiles})
+target_compile_options(webRTC PRIVATE ${disableWarningsFlags})
+set_target_properties(webRTC PROPERTIES FOLDER lib)
+
 # ... Flite
 include_directories("lib/flite-1.4/include" "lib/flite-1.4")
 set(fliteFiles
@@ -180,6 +205,7 @@ set(SOURCE_FILES
 	src/audio/voiceActivityDetection.cpp src/audio/voiceActivityDetection.h
 	src/audio/WaveFileReader.cpp src/audio/WaveFileReader.h
 	src/audio/waveFileWriting.cpp src/audio/waveFileWriting.h
+	src/audio/processing.cpp src/audio/processing.h
 	src/stringTools.cpp src/stringTools.h
 	src/NiceCmdLineOutput.cpp src/NiceCmdLineOutput.h
 	src/TablePrinter.cpp src/TablePrinter.h
@@ -198,7 +224,7 @@ set(SOURCE_FILES
 	src/tupleHash.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
-target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite)
+target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project

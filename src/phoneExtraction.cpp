@@ -1,4 +1,3 @@
-#include <iostream>
 #include <boost/filesystem.hpp>
 #include "phoneExtraction.h"
 #include "audio/SampleRateConverter.h"
@@ -17,6 +16,7 @@
 #include "tokenization.h"
 #include "g2p.h"
 #include "ContinuousTimeline.h"
+#include "audio/processing.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -68,37 +68,6 @@ lambda_unique_ptr<ps_decoder_t> createDecoder() {
 	if (!recognizer) throw runtime_error("Error creating speech decoder.");
 
 	return recognizer;
-}
-
-// Converts a float in the range -1..1 to a signed 16-bit int
-int16_t floatSampleToInt16(float sample) {
-	sample = std::max(sample, -1.0f);
-	sample = std::min(sample, 1.0f);
-	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
-}
-
-void processAudioStream(AudioStream& audioStream16kHz, function<void(const vector<int16_t>&)> processBuffer, ProgressSink& progressSink) {
-	// Process entire sound stream
-	vector<int16_t> buffer;
-	const int capacity = 1600; // 0.1 second capacity
-	buffer.reserve(capacity);
-	int sampleCount = 0;
-	do {
-		// Read to buffer
-		buffer.clear();
-		while (buffer.size() < capacity && !audioStream16kHz.endOfStream()) {
-			// Read sample
-			float floatSample = audioStream16kHz.readSample();
-			int16_t sample = floatSampleToInt16(floatSample);
-			buffer.push_back(sample);
-		}
-
-		// Process buffer
-		processBuffer(buffer);
-
-		sampleCount += buffer.size();
-		progressSink.reportProgress(static_cast<double>(sampleCount) / audioStream16kHz.getSampleCount());
-	} while (buffer.size());
 }
 
 logging::Level ConvertSphinxErrorLevel(err_lvl_t errorLevel) {
@@ -161,7 +130,7 @@ BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_d
 		int searchedFrameCount = ps_process_raw(&decoder, buffer.data(), buffer.size(), false, false);
 		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
 	};
-	processAudioStream(*audioStream.get(), processBuffer, progressSink);
+	process16bitAudioStream(*audioStream.get(), processBuffer, progressSink);
 
 	// End recognition
 	error = ps_end_utt(&decoder);
@@ -235,7 +204,7 @@ optional<BoundedTimeline<Phone>> getPhoneAlignment(
 				}
 			}
 		};
-		processAudioStream(*audioStream.get(), processBuffer, progressSink);
+		process16bitAudioStream(*audioStream.get(), processBuffer, progressSink);
 
 		// End search
 		error = ps_search_finish(search.get());
@@ -302,6 +271,7 @@ BoundedTimeline<Phone> detectPhones(
 	try {
 		// Split audio into utterances
 		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true), voiceActivationProgressSink);
+
 		// For progress reporting: weigh utterances by length
 		ProgressMerger dialogProgressMerger(dialogProgressSink);
 		vector<ProgressSink*> utteranceProgressSinks;
