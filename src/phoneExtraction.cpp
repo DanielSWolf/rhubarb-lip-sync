@@ -16,6 +16,7 @@
 #include "languageModels.h"
 #include "tokenization.h"
 #include "g2p.h"
+#include "ContinuousTimeline.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -184,7 +185,7 @@ s3wid_t getWordId(const string& word, dict_t& dictionary) {
 	return wordId;
 }
 
-BoundedTimeline<Phone> getPhoneAlignment(
+optional<BoundedTimeline<Phone>> getPhoneAlignment(
 	const vector<s3wid_t>& wordIds,
 	unique_ptr<AudioStream> audioStream,
 	ps_decoder_t& decoder,
@@ -216,27 +217,30 @@ BoundedTimeline<Phone> getPhoneAlignment(
 	error = acmod_start_utt(acousticModel);
 	if (error) throw runtime_error("Error starting utterance processing for alignment.");
 
-	// Start search
-	ps_search_start(search.get());
+	{
+		// Eventually end recognition
+		auto endRecognition = gsl::finally([&]() { acmod_end_utt(acousticModel); });
 
-	// Process entire sound stream
-	auto processBuffer = [&](const vector<int16_t>& buffer) {
-		const int16* nextSample = buffer.data();
-		size_t remainingSamples = buffer.size();
-		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
-			while (acousticModel->n_feat_frame > 0) {
-				ps_search_step(search.get(), acousticModel->output_frame);
-				acmod_advance(acousticModel);
+		// Start search
+		ps_search_start(search.get());
+
+		// Process entire sound stream
+		auto processBuffer = [&](const vector<int16_t>& buffer) {
+			const int16* nextSample = buffer.data();
+			size_t remainingSamples = buffer.size();
+			while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
+				while (acousticModel->n_feat_frame > 0) {
+					ps_search_step(search.get(), acousticModel->output_frame);
+					acmod_advance(acousticModel);
+				}
 			}
-		}
-	};
-	processAudioStream(*audioStream.get(), processBuffer, progressSink);
+		};
+		processAudioStream(*audioStream.get(), processBuffer, progressSink);
 
-	// End search
-	ps_search_finish(search.get());
-
-	// End recognition
-	acmod_end_utt(acousticModel);
+		// End search
+		error = ps_search_finish(search.get());
+		if (error) return boost::none;
+	}
 
 	// Extract phones with timestamps
 	char** phoneNames = decoder.dict->mdef->ciname;
@@ -356,7 +360,8 @@ BoundedTimeline<Phone> detectPhones(
 			if (wordIds.empty()) continue;
 
 			// Align the words' phones with speech
-			BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *decoder.get(), alignmentProgressSink);
+			BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *decoder.get(), alignmentProgressSink)
+				.value_or(ContinuousTimeline<Phone>(streamSegment->getTruncatedRange(), Phone::Unknown));
 			segmentPhones.shift(timedUtterance.getStart());
 			for (const auto& timedPhone : segmentPhones) {
 				logging::logTimedEvent("phone", timedPhone);
