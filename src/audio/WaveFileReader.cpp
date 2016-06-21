@@ -188,7 +188,7 @@ void WaveFileReader::seek(int64_t frameIndex) {
 }
 
 float WaveFileReader::readSample() {
-	if (frameIndex + channelCount > frameCount) throw std::out_of_range("End of stream.");
+	if (frameIndex >= frameCount) throw std::out_of_range("End of stream.");
 	++frameIndex;
 
 	float sum = 0;
