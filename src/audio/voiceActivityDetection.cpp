@@ -6,6 +6,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <webrtc/common_audio/vad/include/webrtc_vad.h>
 #include "processing.h"
+#include <gsl_util.h>
 
 using std::vector;
 using boost::adaptors::transformed;
@@ -19,10 +20,12 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	VadInst* vadHandle = WebRtcVad_Create();
 	if (!vadHandle) throw runtime_error("Error creating WebRTC VAD handle.");
 
+	auto freeHandle = gsl::finally([&]() { WebRtcVad_Free(vadHandle); });
+
 	int error = WebRtcVad_Init(vadHandle);
 	if (error) throw runtime_error("Error initializing WebRTC VAD handle.");
 
-	const int aggressiveness = 1; // 0..3. The higher, the more is cut off.
+	const int aggressiveness = 2; // 0..3. The higher, the more is cut off.
 	error = WebRtcVad_set_mode(vadHandle, aggressiveness);
 	if (error) throw runtime_error("Error setting WebRTC VAD aggressiveness.");
 
@@ -38,8 +41,6 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	};
 	const size_t bufferCapacity = audioStream->getSampleRate() / 100;
 	process16bitAudioStream(*audioStream.get(), processBuffer, bufferCapacity, progressSink);
-
-	WebRtcVad_Free(vadHandle);
 
 	// Fill small gaps in activity
 	const centiseconds maxGap(5);
