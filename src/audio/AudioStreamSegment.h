@@ -15,7 +15,7 @@ public:
 
 private:
 	std::unique_ptr<AudioStream> audioStream;
-	int64_t sampleOffset, sampleCount;
+	const int64_t sampleOffset, sampleCount;
 };
 
 std::unique_ptr<AudioStream> createSegment(std::unique_ptr<AudioStream> audioStream, const TimeRange& range);

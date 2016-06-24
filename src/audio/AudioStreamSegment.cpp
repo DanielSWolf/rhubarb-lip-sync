@@ -2,10 +2,10 @@
 #include <stdexcept>
 
 AudioStreamSegment::AudioStreamSegment(std::unique_ptr<AudioStream> audioStream, const TimeRange& range) :
-	audioStream(std::move(audioStream))
+	audioStream(std::move(audioStream)),
+	sampleOffset(static_cast<int64_t>(range.getStart().count()) * this->audioStream->getSampleRate() / 100),
+	sampleCount(static_cast<int64_t>(range.getLength().count()) * this->audioStream->getSampleRate() / 100)
 {
-	sampleOffset = range.getStart().count() * this->audioStream->getSampleRate() / 100;
-	sampleCount = range.getLength().count() * this->audioStream->getSampleRate() / 100;
 	seek(0);
 
 	if (sampleOffset < 0 || sampleOffset + sampleCount > this->audioStream->getSampleCount()) {
