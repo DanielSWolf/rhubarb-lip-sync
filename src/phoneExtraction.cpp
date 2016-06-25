@@ -231,10 +231,14 @@ optional<BoundedTimeline<Phone>> getPhoneAlignment(
 	return result;
 }
 
+bool dictionaryContains(dict_t& dictionary, const string& word) {
+	return dict_wordid(&dictionary, word.c_str()) != BAD_S3WID;
+}
+
 void addMissingDictionaryWords(const vector<string>& words, ps_decoder_t& decoder) {
 	map<string, string> missingPronunciations;
 	for (const string& word : words) {
-		if (dict_wordid(decoder.dict, word.c_str()) == BAD_S3WID) {
+		if (!dictionaryContains(*decoder.dict, word)) {
 			string pronunciation;
 			for (Phone phone : wordToPhones(word)) {
 				if (pronunciation.length() > 0) pronunciation += " ";
@@ -287,7 +291,7 @@ BoundedTimeline<Phone> detectPhones(
 		lambda_unique_ptr<ngram_model_t> languageModel;
 		if (dialog) {
 			// Create dialog-specific language model
-			vector<string> words = tokenizeText(*dialog);
+			vector<string> words = tokenizeText(*dialog, [&](const string& word) { return dictionaryContains(*decoder->dict, word); });
 			words.insert(words.begin(), "<s>");
 			words.push_back("</s>");
 			languageModel = createLanguageModel(words, *decoder->lmath);

@@ -15,6 +15,8 @@ using std::string;
 using std::vector;
 using std::regex;
 using std::pair;
+using boost::optional;
+using std::function;
 
 lambda_unique_ptr<cst_voice> createDummyVoice() {
 	lambda_unique_ptr<cst_voice> voice(new_voice(), [](cst_voice* voice) { delete_voice(voice); });
@@ -51,7 +53,27 @@ vector<string> tokenizeViaFlite(const string& text) {
 	return result;
 }
 
-vector<string> tokenizeText(const u32string& text) {
+optional<string> findSimilarDictionaryWord(const string& word, function<bool(const string&)> dictionaryContains) {
+	for (bool addPeriod : { false, true }) {
+		for (int apostropheIndex = -1; apostropheIndex <= static_cast<int>(word.size()); ++apostropheIndex) {
+			string modified = word;
+			if (apostropheIndex != -1) {
+				modified.insert(apostropheIndex, "'");
+			}
+			if (addPeriod) {
+				modified += ".";
+			}
+
+			if (dictionaryContains(modified)) {
+				return modified;
+			}
+		}
+	}
+
+	return boost::none;
+}
+
+vector<string> tokenizeText(const u32string& text, function<bool(const string&)> dictionaryContains) {
 	vector<string> words = tokenizeViaFlite(toASCII(text));
 
 	// Join words separated by apostophes
@@ -63,7 +85,7 @@ vector<string> tokenizeText(const u32string& text) {
 	}
 
 	// Turn some symbols into words, remove the rest
-	vector<pair<regex, string>> replacements {
+	const static vector<pair<regex, string>> replacements {
 		{ regex("&"), "and" },
 		{ regex("\\*"), "times" },
 		{ regex("\\+"), "plus" },
@@ -73,12 +95,22 @@ vector<string> tokenizeText(const u32string& text) {
 	};
 	for (size_t i = 0; i < words.size(); ++i) {
 		for (const auto& replacement : replacements) {
-			words[i] = std::regex_replace(words[i], replacement.first, replacement.second);
+			words[i] = regex_replace(words[i], replacement.first, replacement.second);
 		}
 	}
 
 	// Remove empty words
 	words.erase(std::remove_if(words.begin(), words.end(), [](const string& s) { return s.empty(); }), words.end());
+
+	// Try to replace words that are not in the dictionary with similar ones that are
+	for (size_t i = 0; i < words.size(); ++i) {
+		if (!dictionaryContains(words[i])) {
+			optional<string> modifiedWord = findSimilarDictionaryWord(words[i], dictionaryContains);
+			if (modifiedWord) {
+				words[i] = *modifiedWord;
+			}
+		}
+	}
 
 	return words;
 }
