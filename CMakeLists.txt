@@ -264,9 +264,8 @@ set(CPACK_GENERATOR ZIP)
 
 # Copy resource files at build time; install them at package time
 include(tools.cmake)
-set(modelDir "${CMAKE_SOURCE_DIR}/lib/pocketsphinx-rev13216/model")
-copy_and_install("${modelDir}/en-us/*" "res/sphinx")
-copy_and_install("${modelDir}/en-us/en-us/*" "res/sphinx/acoustic-model")
+copy_and_install("${CMAKE_SOURCE_DIR}/lib/pocketsphinx-rev13216/model/en-us/*" "res/sphinx")
+copy_and_install("${CMAKE_SOURCE_DIR}/lib/cmusphinx-en-us-5.2/*" "res/sphinx/acoustic-model")
 
 install(
 	TARGETS rhubarb
