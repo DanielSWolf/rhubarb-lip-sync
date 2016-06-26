@@ -223,6 +223,7 @@ set(SOURCE_FILES
 	src/languageModels.cpp src/languageModels.h
 	src/tupleHash.h
 	src/ThreadPool.cpp src/ThreadPool.h
+	src/ObjectPool.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC)
