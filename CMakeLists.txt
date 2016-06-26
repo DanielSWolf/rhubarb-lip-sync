@@ -222,6 +222,7 @@ set(SOURCE_FILES
 	src/g2p.cpp src/g2p.h
 	src/languageModels.cpp src/languageModels.h
 	src/tupleHash.h
+	src/ThreadPool.cpp src/ThreadPool.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC)
