@@ -12,7 +12,8 @@ enum class Shape {
 	D,	// Mouth wide open (b[u]t, m[y], sh[ou]ld...)
 	E,	// h[ow]
 	F,	// Pout ([o]ff, sh[ow])
-	G	// F, V
+	G,	// F, V
+	EndSentinel
 };
 
 class ShapeConverter : public EnumConverter<Shape> {
