@@ -11,11 +11,12 @@ string formatDuration(duration<double> seconds) {
 }
 
 string formatTime(time_t time, const string& format) {
-	tm* timeInfo = localtime(&time);
+	tm timeInfo;
+	localtime_s(&timeInfo, &time);
 	std::vector<char> buffer(20);
 	bool success = false;
 	while (!success) {
-		success = strftime(buffer.data(), buffer.size(), format.c_str(), timeInfo) != 0;
+		success = strftime(buffer.data(), buffer.size(), format.c_str(), &timeInfo) != 0;
 		if (!success) buffer.resize(buffer.size() * 2);
 	}
 	return string(buffer.data());

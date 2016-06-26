@@ -164,7 +164,9 @@ void WaveFileReader::openFile() {
 			file.seekg(0);
 		}
 	} catch (const std::ifstream::failure&) {
-		throw runtime_error(strerror(errno));
+		char message[256];
+		strerror_s(message, sizeof message, errno);
+		throw runtime_error(message);
 	}
 }
 
