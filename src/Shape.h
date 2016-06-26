@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include "EnumConverter.h"
 
 // The classic Hanna-Barbera mouth shapes A-F phus the common supplements G-H
@@ -13,8 +12,7 @@ enum class Shape {
 	D,	// Mouth wide open (b[u]t, m[y], sh[ou]ld...)
 	E,	// h[ow]
 	F,	// Pout ([o]ff, sh[ow])
-	G,	// F, V
-	H	// L
+	G	// F, V
 };
 
 class ShapeConverter : public EnumConverter<Shape> {

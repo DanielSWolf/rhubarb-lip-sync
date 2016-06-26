@@ -35,6 +35,7 @@ Shape getShape(Phone phone) {
 		case Phone::AH:
 		case Phone::EY:
 		case Phone::HH:
+		case Phone::L:
 			return Shape::C;
 
 		case Phone::AA:
@@ -57,9 +58,6 @@ Shape getShape(Phone phone) {
 		case Phone::F:
 		case Phone::V:
 			return Shape::G;
-
-		case Phone::L:
-			return Shape::H;
 
 		default:
 			throw std::runtime_error("Unexpected Phone value.");
