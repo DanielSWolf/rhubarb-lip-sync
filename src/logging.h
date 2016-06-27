@@ -35,6 +35,7 @@ namespace logging {
 		Entry(Level level, const std::string& message);
 
 		time_t timestamp;
+		int threadCounter;
 		Level level;
 		std::string message;
 	};

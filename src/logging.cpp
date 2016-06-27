@@ -1,6 +1,7 @@
 #include "logging.h"
 #include <tools.h>
 #include <iostream>
+#include <atomic>
 
 using namespace logging;
 using std::string;
@@ -41,6 +42,10 @@ Entry::Entry(Level level, const string& message) :
 	message(message)
 {
 	time(&timestamp);
+
+	static std::atomic<int> lastThreadId = 0;
+	thread_local int threadCounter = ++lastThreadId;
+	this->threadCounter = threadCounter;
 }
 
 string SimpleConsoleFormatter::format(const Entry& entry) {
@@ -48,7 +53,7 @@ string SimpleConsoleFormatter::format(const Entry& entry) {
 }
 
 string SimpleFileFormatter::format(const Entry& entry) {
-	return fmt::format("[{0}] {1}", formatTime(entry.timestamp, "%F %H:%M:%S"), consoleFormatter.format(entry));
+	return fmt::format("[{0}] {1} {2}", formatTime(entry.timestamp, "%F %H:%M:%S"), entry.threadCounter, consoleFormatter.format(entry));
 }
 
 LevelFilter::LevelFilter(shared_ptr<Sink> innerSink, Level minLevel) :
@@ -121,7 +126,8 @@ void logging::addSink(shared_ptr<Sink> sink) {
 
 void logging::log(Level level, const string& message) {
 	lock_guard<std::mutex> lock(getLogMutex());
+	const Entry entry = Entry(level, message);
 	for (auto& sink : getSinks()) {
-		sink->receive(Entry(level, message));
+		sink->receive(entry);
 	}
 }
