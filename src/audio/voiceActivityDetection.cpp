@@ -80,6 +80,12 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 		}
 	}
 
+	// Pad each activity to give the recognizer some breathing room
+	const centiseconds padding(3);
+	for (const auto& element : BoundedTimeline<void>(activity)) {
+		activity.set(element.getStart() - padding, element.getEnd() + padding);
+	}
+
 	logging::debugFormat("Found {} sections of voice activity: {}", activity.size(),
 		join(activity | transformed([](const Timed<void>& t) { return format("{0}-{1}", t.getStart(), t.getEnd()); }), ", "));
 
