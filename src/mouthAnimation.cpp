@@ -25,13 +25,18 @@ AnimationResult animateDiphtong(Shape first, Shape second, centiseconds duration
 }
 
 // P, B
-AnimationResult animateBilabialStop(centiseconds duration, centiseconds leftDuration, optional<Shape> rightShape) {
+AnimationResult animateBilabialStop(centiseconds duration, centiseconds leftPhoneDuration, optional<Shape> rightShape) {
 	Shape openShape = rightShape.value_or(Shape::B);
 	if (openShape == Shape::A) {
 		openShape = Shape::B;
 	}
+
+	centiseconds closedShapeDuration = leftPhoneDuration / 2;
+	if (closedShapeDuration.count() < 4) closedShapeDuration = centiseconds(4);
+	if (closedShapeDuration.count() > 16) closedShapeDuration = centiseconds(16);
+
 	return AnimationResult{
-		{ -leftDuration / 4, centiseconds::zero(), Shape::A },
+		{ -closedShapeDuration, centiseconds::zero(), Shape::A },
 		{ centiseconds::zero(), duration, openShape }
 	};
 }
@@ -47,7 +52,7 @@ AnimationResult animateFlexibleSound(std::array<Shape, 7> mapping, centiseconds 
 	return AnimationResult{ { centiseconds::zero(), duration, shape } };
 }
 
-AnimationResult animate(optional<Phone> phone, centiseconds duration, centiseconds leftDuration, optional<Shape> rightShape) {
+AnimationResult animate(optional<Phone> phone, centiseconds duration, centiseconds leftPhoneDuration, optional<Shape> rightShape) {
 	constexpr Shape A = Shape::A;
 	constexpr Shape B = Shape::B;
 	constexpr Shape C = Shape::C;
@@ -78,7 +83,7 @@ AnimationResult animate(optional<Phone> phone, centiseconds duration, centisecon
 	case Phone::OY:			return animateDiphtong(E, B, duration);
 	case Phone::ER:			return animateFixedSound(E, duration);
 	case Phone::P:
-	case Phone::B:			return animateBilabialStop(duration, leftDuration, rightShape);
+	case Phone::B:			return animateBilabialStop(duration, leftPhoneDuration, rightShape);
 	case Phone::T:
 	case Phone::D:
 	case Phone::K:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
@@ -96,8 +101,8 @@ AnimationResult animate(optional<Phone> phone, centiseconds duration, centisecon
 	case Phone::HH:			return animateFlexibleSound({ B, B, C, D, E, F, B }, duration, rightShape);
 	case Phone::M:			return animateFixedSound(A, duration);
 	case Phone::N:			return animateFlexibleSound({ B, B, C, C, C, F, B }, duration, rightShape);
-	case Phone::NG:
-	case Phone::L:			return animateFlexibleSound({ B, B, C, D, E, F, B }, duration, rightShape);
+	case Phone::NG:			return animateFlexibleSound({ B, B, C, D, E, F, B }, duration, rightShape);
+	case Phone::L:			return animateFlexibleSound({ C, C, C, D, E, F, C }, duration, rightShape);
 	case Phone::R:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
 	case Phone::Y:			return animateFixedSound(B, duration);
 	case Phone::W:			return animateFixedSound(F, duration);
@@ -122,10 +127,11 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		// Animate one phone
 		optional<Phone> phone = it->getValue();
 		centiseconds duration = it->getTimeRange().getLength();
-		centiseconds leftDuration = std::next(it) != continuousPhones.rend()
+		bool hasLeftPhone = std::next(it) != continuousPhones.rend() && std::next(it)->getEnd() == it->getStart();
+		centiseconds leftPhoneDuration = hasLeftPhone
 			? std::next(it)->getTimeRange().getLength()
 			: centiseconds::zero();
-		Timeline<Shape> result = animate(phone, duration, leftDuration, lastShape);
+		Timeline<Shape> result = animate(phone, duration, leftPhoneDuration, lastShape);
 
 		// Result timing is relative to phone. Make absolute.
 		result.shift(it->getStart());
