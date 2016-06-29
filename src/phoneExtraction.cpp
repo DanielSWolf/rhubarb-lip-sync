@@ -42,6 +42,7 @@ using std::regex_replace;
 using std::chrono::duration;
 using boost::optional;
 using std::u32string;
+using std::chrono::duration_cast;
 
 constexpr int sphinxSampleRate = 16000;
 
@@ -134,7 +135,7 @@ s3wid_t getWordId(const string& word, dict_t& dictionary) {
 	return wordId;
 }
 
-optional<BoundedTimeline<Phone>> getPhoneAlignment(
+optional<Timeline<Phone>> getPhoneAlignment(
 	const vector<s3wid_t>& wordIds,
 	unique_ptr<AudioStream> audioStream,
 	ps_decoder_t& decoder,
@@ -193,7 +194,7 @@ optional<BoundedTimeline<Phone>> getPhoneAlignment(
 
 	// Extract phones with timestamps
 	char** phoneNames = decoder.dict->mdef->ciname;
-	BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
+	Timeline<Phone> result;
 	for (ps_alignment_iter_t* it = ps_alignment_phones(alignment.get()); it; it = ps_alignment_iter_next(it)) {
 		// Get phone
 		ps_alignment_entry_t* phoneEntry = ps_alignment_iter_get(it);
@@ -276,82 +277,128 @@ lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
 	return decoder;
 }
 
+Timeline<Phone> utteranceToPhones(
+	AudioStream& audioStream,
+	TimeRange utterance,
+	ps_decoder_t& decoder,
+	ProgressSink& utteranceProgressSink)
+{
+	ProgressMerger utteranceProgressMerger(utteranceProgressSink);
+	ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
+	ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
+
+	auto streamSegment = createSegment(audioStream.clone(true), utterance);
+
+	// Get words
+	BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), decoder, wordRecognitionProgressSink);
+	for (Timed<string> timedWord : words) {
+		timedWord.getTimeRange().shift(utterance.getStart());
+		logging::logTimedEvent("word", timedWord);
+	}
+
+	// Look up words in dictionary
+	vector<s3wid_t> wordIds;
+	for (const auto& timedWord : words) {
+		wordIds.push_back(getWordId(timedWord.getValue(), *decoder.dict));
+	}
+	if (wordIds.empty()) return Timeline<Phone>();
+
+	// Align the words' phones with speech
+	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), decoder, alignmentProgressSink)
+		.value_or(ContinuousTimeline<Phone>(streamSegment->getTruncatedRange(), Phone::Unknown));
+	segmentPhones.shift(utterance.getStart());
+	for (const auto& timedPhone : segmentPhones) {
+		logging::logTimedEvent("phone", timedPhone);
+	}
+
+	return segmentPhones;
+}
+
 BoundedTimeline<Phone> detectPhones(
 	unique_ptr<AudioStream> audioStream,
 	optional<u32string> dialog,
 	ProgressSink& progressSink)
 {
+	ProgressMerger totalProgressMerger(progressSink);
+	ProgressSink& voiceActivationProgressSink = totalProgressMerger.addSink(1.0);
+	ProgressSink& dialogProgressSink = totalProgressMerger.addSink(15);
+
+	// Make sure audio stream has no DC offset
+	audioStream = removeDCOffset(std::move(audioStream));
+
+	// Split audio into utterances
+	BoundedTimeline<void> utterances;
+	try {
+		utterances = detectVoiceActivity(audioStream->clone(true), voiceActivationProgressSink);
+	}
+	catch (...) {
+		std::throw_with_nested(runtime_error("Error detecting segments of speech."));
+	}
+
 	// Discard Pocketsphinx output
 	err_set_logfp(nullptr);
 
 	// Redirect Pocketsphinx output to log
 	err_set_callback(sphinxLogCallback, nullptr);
 
-	// Make sure audio stream has no DC offset
-	audioStream = removeDCOffset(std::move(audioStream));
+	// Prepare pool of decoders
+	std::stack<lambda_unique_ptr<ps_decoder_t>> decoderPool;
+	std::mutex decoderPoolMutex;
+	auto getDecoder = [&] {
+		std::lock_guard<std::mutex> lock(decoderPoolMutex);
+		if (decoderPool.empty()) {
+			decoderPool.push(createDecoder(dialog));
+		}
+		auto decoder = std::move(decoderPool.top());
+		decoderPool.pop();
+		return std::move(decoder);
+	};
+	auto returnDecoder = [&](lambda_unique_ptr<ps_decoder_t> decoder) {
+		std::lock_guard<std::mutex> lock(decoderPoolMutex);
+		decoderPool.push(std::move(decoder));
+	};
 
-	ProgressMerger totalProgressMerger(progressSink);
-	ProgressSink& voiceActivationProgressSink = totalProgressMerger.addSink(1.0);
-	ProgressSink& dialogProgressSink = totalProgressMerger.addSink(15);
+	BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
+	std::mutex resultMutex, audioStreamMutex;
+	auto processUtterance = [&](Timed<void> timedUtterance, ProgressSink& utteranceProgressSink) {
+		logging::logTimedEvent("utterance", timedUtterance.getTimeRange(), string(""));
 
+		// Detect phones for utterance
+		auto decoder = getDecoder();
+		std::unique_ptr<AudioStream> audioStreamCopy;
+		{
+			std::lock_guard<std::mutex> lock(audioStreamMutex);
+			audioStreamCopy = audioStream->clone(true);
+		}
+		Timeline<Phone> phones =
+			utteranceToPhones(*audioStreamCopy, timedUtterance.getTimeRange(), *decoder, utteranceProgressSink);
+		returnDecoder(std::move(decoder));
+
+		// Copy phones to result timeline
+		std::lock_guard<std::mutex> lock(resultMutex);
+		for (const auto& timedPhone : phones) {
+			result.set(timedPhone);
+		}
+	};
+
+	auto getUtteranceProgressWeight = [](const Timed<void> timedUtterance) {
+		return timedUtterance.getTimeRange().getLength().count();
+	};
+
+	// Perform speech recognition
 	try {
-		// Split audio into utterances
-		BoundedTimeline<void> utterances = detectVoiceActivity(audioStream->clone(true), voiceActivationProgressSink);
-
-		// For progress reporting: weigh utterances by length
-		ProgressMerger dialogProgressMerger(dialogProgressSink);
-		vector<ProgressSink*> utteranceProgressSinks;
-		for (const auto& timedUtterance : utterances) {
-			utteranceProgressSinks.push_back(&dialogProgressMerger.addSink(timedUtterance.getTimeRange().getLength().count()));
-		}
-		auto utteranceProgressSinkIt = utteranceProgressSinks.begin();
-
-		BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
-		std::mutex resultMutex;
+		// Determine how many parallel threads to use
+		int threadCount = std::min({
+			// Don't use more threads than there are CPU cores
+			ThreadPool::getRecommendedThreadCount(),
+			// Don't use more threads than there are utterances to be processed
+			static_cast<int>(utterances.size()),
+			// Don't waste time creating additional threads (and decoders!) if the recording is short
+			static_cast<int>(duration_cast<std::chrono::seconds>(audioStream->getTruncatedRange().getLength()).count() / 10)
+		});
+		ThreadPool threadPool(threadCount);
 		logging::debug("Speech recognition -- start");
-		ObjectPool<ps_decoder_t> decoderPool([&dialog] { return createDecoder(dialog).release(); });
-		ThreadPool threadPool;
-		for (const auto& timedUtterance : utterances) {
-			threadPool.addJob([&] {
-				auto decoder = decoderPool.acquire();
-				ProgressMerger utteranceProgressMerger(**utteranceProgressSinkIt++);
-				ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
-				ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
-
-				const TimeRange timeRange = timedUtterance.getTimeRange();
-				logging::logTimedEvent("utterance", timeRange, string(""));
-
-				auto streamSegment = createSegment(audioStream->clone(true), timeRange);
-
-				// Get words
-				BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), *decoder.get(), wordRecognitionProgressSink);
-				for (Timed<string> timedWord : words) {
-					timedWord.getTimeRange().shift(timedUtterance.getStart());
-					logging::logTimedEvent("word", timedWord);
-				}
-			
-				// Look up words in dictionary
-				vector<s3wid_t> wordIds;
-				for (const auto& timedWord : words) {
-					wordIds.push_back(getWordId(timedWord.getValue(), *decoder->dict));
-				}
-				if (wordIds.empty()) return;
-
-				// Align the words' phones with speech
-				BoundedTimeline<Phone> segmentPhones = getPhoneAlignment(wordIds, std::move(streamSegment), *decoder.get(), alignmentProgressSink)
-					.value_or(ContinuousTimeline<Phone>(streamSegment->getTruncatedRange(), Phone::Unknown));
-				segmentPhones.shift(timedUtterance.getStart());
-				for (const auto& timedPhone : segmentPhones) {
-					logging::logTimedEvent("phone", timedPhone);
-				}
-
-				// Fill result
-				std::lock_guard<std::mutex> lock(resultMutex);
-				for (const auto& timedPhone : segmentPhones) {
-					result.set(timedPhone);
-				}
-			});
-		}
+		threadPool.schedule(utterances, processUtterance, dialogProgressSink, getUtteranceProgressWeight);
 		threadPool.waitAll();
 		logging::debug("Speech recognition -- end");
 

@@ -52,8 +52,9 @@ public:
 	using reverse_iterator = typename set_type::reverse_iterator;
 	using size_type = size_t;
 	using value_type = Timed<T>;
+	using reference = const value_type&;
 
-	class reference {
+	class ReferenceWrapper {
 	public:
 		operator boost::optional<const T&>() const {
 			auto optional = timeline.get(time);
@@ -71,7 +72,7 @@ public:
 			return optional->getValue();
 		}
 
-		reference& operator=(boost::optional<const T&> value) {
+		ReferenceWrapper& operator=(boost::optional<const T&> value) {
 			if (value) {
 				timeline.set(time, time + time_type(1), *value);
 			} else {
@@ -83,7 +84,7 @@ public:
 	private:
 		friend class Timeline;
 
-		reference(Timeline& timeline, time_type time) :
+		ReferenceWrapper(Timeline& timeline, time_type time) :
 			timeline(timeline),
 			time(time)
 		{}
@@ -232,13 +233,13 @@ public:
 		return set(Timed<void>(start, end));
 	}
 
-	reference operator[](time_type time) {
-		return reference(*this, time);
+	ReferenceWrapper operator[](time_type time) {
+		return ReferenceWrapper(*this, time);
 	}
 
 	// ReSharper disable once CppConstValueFunctionReturnType
-	const reference operator[](time_type time) const {
-		return reference(*this, time);
+	const ReferenceWrapper operator[](time_type time) const {
+		return ReferenceWrapper(*this, time);
 	}
 
 	virtual void shift(time_type offset) {

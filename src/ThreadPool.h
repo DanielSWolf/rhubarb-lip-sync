@@ -6,6 +6,7 @@
 #include <list>
 #include <functional>
 #include <vector>
+#include "progressBar.h"
 
 // Thread pool based on https://github.com/nbsdx/ThreadPool, which is in the public domain.
 
@@ -32,7 +33,15 @@ public:
 	// Adds a new job to the pool.
 	// If there are no queued jobs, a thread is woken up to take the job.
 	// If all threads are busy, the job is added to the end of the queue.
-	void addJob(job_t job);
+	void schedule(job_t job);
+
+	// Asynchronously runs a function for every element of a collection.
+	template<typename TCollection>
+	void schedule(
+		TCollection& collection,
+		std::function<void(typename TCollection::reference, ProgressSink&)> processElement,
+		ProgressSink& progressSink,
+		std::function<double(const typename TCollection::reference)> getElementProgressWeight = [](typename TCollection::reference) { return 1.0; });
 
 	// Blocks until all jobs have finshed executing
 	void waitAll();
@@ -57,3 +66,21 @@ private:
 	job_t getNextJob();
 };
 
+template <typename TCollection>
+void ThreadPool::schedule(
+	TCollection& collection,
+	std::function<void(typename TCollection::reference, ProgressSink&)> processElement,
+	ProgressSink& progressSink,
+	std::function<double(const typename TCollection::reference)> getElementProgressWeight)
+{
+	// Use shared pointer to keep progress merger alive throughout execution
+	auto progressMerger = std::make_shared<ProgressMerger>(progressSink);
+
+	// Schedule all elements
+	for (auto& element : collection) {
+		ProgressSink& elementProgressSink = progressMerger->addSink(getElementProgressWeight(element));
+		schedule([processElement, &element, &elementProgressSink, progressMerger /* Keep progressMerger alive! */] {
+			processElement(element, elementProgressSink);
+		});
+	}
+}

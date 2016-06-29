@@ -11,6 +11,10 @@ public:
 	using typename Timeline<T>::iterator;
 	using Timeline<T>::end;
 
+	BoundedTimeline() :
+		range(TimeRange::zero())
+	{}
+
 	explicit BoundedTimeline(TimeRange range) :
 		range(range)
 	{}

@@ -59,7 +59,7 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	for (int i = 0; i < segmentCount; ++i) {
 		TimeRange segmentRange = TimeRange(i * audioLength / segmentCount, (i + 1) * audioLength / segmentCount);
 		ProgressSink& segmentProgressSink = progressMerger.addSink(1.0);
-		threadPool.addJob([segmentRange, &audioStream, &segmentProgressSink, &activityMutex, &activity] {
+		threadPool.schedule([segmentRange, &audioStream, &segmentProgressSink, &activityMutex, &activity] {
 			std::unique_ptr<AudioStream> audioSegment = createSegment(audioStream->clone(false), segmentRange);
 			BoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
 
