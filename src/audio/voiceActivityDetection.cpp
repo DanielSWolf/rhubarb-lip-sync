@@ -14,6 +14,7 @@ using std::vector;
 using boost::adaptors::transformed;
 using fmt::format;
 using std::runtime_error;
+using std::unique_ptr;
 
 BoundedTimeline<void> webRtcDetectVoiceActivity(AudioStream& audioStream, ProgressSink& progressSink) {
 	VadInst* vadHandle = WebRtcVad_Create();
@@ -45,7 +46,18 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(AudioStream& audioStream, Progre
 		}
 		time += centiseconds(1);
 	};
-	process16bitAudioStream(audioStream, processBuffer, bufferCapacity, progressSink);
+	process16bitAudioStream(*audioStream.clone(true), processBuffer, bufferCapacity, progressSink);
+
+	// WebRTC adapts to the audio. This means results may not be correct at the very beginning.
+	// It sometimes returns false activity at the very beginning, mistaking the background noise for speech.
+	// So we delete the first recognized utterance and re-process the corresponding audio segment.
+	if (!activity.empty()) {
+		TimeRange firstActivity = activity.begin()->getTimeRange();
+		activity.clear(firstActivity);
+		unique_ptr<AudioStream> streamStart = createSegment(audioStream.clone(true), TimeRange(centiseconds::zero(), firstActivity.getEnd()));
+		time = centiseconds::zero();
+		process16bitAudioStream(*streamStart, processBuffer, bufferCapacity, progressSink);
+	}
 
 	return activity;
 }
