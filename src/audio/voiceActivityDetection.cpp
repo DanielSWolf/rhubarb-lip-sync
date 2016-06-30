@@ -31,14 +31,20 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(AudioStream& audioStream, Progre
 	// Detect activity
 	BoundedTimeline<void> activity(audioStream.getTruncatedRange());
 	centiseconds time = centiseconds::zero();
+	const size_t bufferCapacity = audioStream.getSampleRate() / 100;
 	auto processBuffer = [&](const vector<int16_t>& buffer) {
-		bool isActive = WebRtcVad_Process(vadHandle, audioStream.getSampleRate(), buffer.data(), buffer.size()) == 1;
+		// WebRTC is picky regarding buffer size
+		if (buffer.size() < bufferCapacity) return;
+
+		int result = WebRtcVad_Process(vadHandle, audioStream.getSampleRate(), buffer.data(), buffer.size()) == 1;
+		if (result == -1) throw runtime_error("Error processing audio buffer using WebRTC VAD.");
+
+		bool isActive = result != 0;
 		if (isActive) {
 			activity.set(time, time + centiseconds(1));
 		}
 		time += centiseconds(1);
 	};
-	const size_t bufferCapacity = audioStream.getSampleRate() / 100;
 	process16bitAudioStream(audioStream, processBuffer, bufferCapacity, progressSink);
 
 	return activity;
