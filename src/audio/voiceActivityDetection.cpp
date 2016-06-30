@@ -73,21 +73,21 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	ThreadPool threadPool;
 	int segmentCount = threadPool.getThreadCount();
 	centiseconds audioLength = audioStream->getTruncatedRange().getLength();
-	ProgressMerger progressMerger(progressSink);
+	vector<TimeRange> audioSegments;
 	for (int i = 0; i < segmentCount; ++i) {
 		TimeRange segmentRange = TimeRange(i * audioLength / segmentCount, (i + 1) * audioLength / segmentCount);
-		ProgressSink& segmentProgressSink = progressMerger.addSink(1.0);
-		threadPool.schedule([segmentRange, &audioStream, &segmentProgressSink, &activityMutex, &activity] {
-			std::unique_ptr<AudioStream> audioSegment = createSegment(audioStream->clone(false), segmentRange);
-			BoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
-
-			std::lock_guard<std::mutex> lock(activityMutex);
-			for (auto activityRange : activitySegment) {
-				activityRange.getTimeRange().shift(segmentRange.getStart());
-				activity.set(activityRange);
-			}
-		});
+		audioSegments.push_back(segmentRange);
 	}
+	threadPool.schedule(audioSegments, [&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
+		unique_ptr<AudioStream> audioSegment = createSegment(audioStream->clone(false), segmentRange);
+		BoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
+
+		std::lock_guard<std::mutex> lock(activityMutex);
+		for (auto activityRange : activitySegment) {
+			activityRange.getTimeRange().shift(segmentRange.getStart());
+			activity.set(activityRange);
+		}
+	}, progressSink);
 	threadPool.waitAll();
 
 	// Fill small gaps in activity
