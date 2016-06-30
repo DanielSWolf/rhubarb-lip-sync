@@ -26,6 +26,7 @@ extern "C" {
 #include <ps_alignment.h>
 #include <state_align_search.h>
 #include <pocketsphinx_internal.h>
+#include <ngram_search.h>
 }
 
 using std::runtime_error;
@@ -95,7 +96,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& decoder, ProgressSink& progressSink) {
+BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_decoder_t& decoder, bool& decoderIsStillUsable, ProgressSink& progressSink) {
 	// Convert audio stream to the exact format PocketSphinx requires
 	audioStream = convertSampleRate(std::move(audioStream), sphinxSampleRate);
 
@@ -117,8 +118,18 @@ BoundedTimeline<string> recognizeWords(unique_ptr<AudioStream> audioStream, ps_d
 	error = ps_end_utt(&decoder);
 	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
 
-	// Collect words
+	// PocketSphinx can't handle an utterance with no recognized words.
+	// As a result, the following utterance will be garbage.
+	// As a workaround, we throw away the decoder in this case.
+	// See https://sourceforge.net/p/cmusphinx/discussion/help/thread/f1dd91c5/#7529
 	BoundedTimeline<string> result(audioStream->getTruncatedRange());
+	bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
+	if (noWordsRecognized) {
+		decoderIsStillUsable = false;
+		return result;
+	}
+
+	// Collect words
 	for (ps_seg_t* it = ps_seg_iter(&decoder); it; it = ps_seg_next(it)) {
 		const char* word = ps_seg_word(it);
 		int firstFrame, lastFrame;
@@ -281,6 +292,7 @@ Timeline<Phone> utteranceToPhones(
 	AudioStream& audioStream,
 	TimeRange utterance,
 	ps_decoder_t& decoder,
+	bool& decoderIsStillUsable,
 	ProgressSink& utteranceProgressSink)
 {
 	ProgressMerger utteranceProgressMerger(utteranceProgressSink);
@@ -290,7 +302,7 @@ Timeline<Phone> utteranceToPhones(
 	auto streamSegment = createSegment(audioStream.clone(true), utterance);
 
 	// Get words
-	BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), decoder, wordRecognitionProgressSink);
+	BoundedTimeline<string> words = recognizeWords(streamSegment->clone(true), decoder, decoderIsStillUsable, wordRecognitionProgressSink);
 	for (Timed<string> timedWord : words) {
 		timedWord.getTimeRange().shift(utterance.getStart());
 		logging::logTimedEvent("word", timedWord);
@@ -359,20 +371,19 @@ BoundedTimeline<Phone> detectPhones(
 	};
 
 	BoundedTimeline<Phone> result(audioStream->getTruncatedRange());
-	std::mutex resultMutex, audioStreamMutex;
+	std::mutex resultMutex;
 	auto processUtterance = [&](Timed<void> timedUtterance, ProgressSink& utteranceProgressSink) {
 		logging::logTimedEvent("utterance", timedUtterance.getTimeRange(), string(""));
 
 		// Detect phones for utterance
 		auto decoder = getDecoder();
-		std::unique_ptr<AudioStream> audioStreamCopy;
-		{
-			std::lock_guard<std::mutex> lock(audioStreamMutex);
-			audioStreamCopy = audioStream->clone(true);
-		}
+		auto audioStreamCopy = audioStream->clone(true);
+		bool decoderIsStillUsable = true;
 		Timeline<Phone> phones =
-			utteranceToPhones(*audioStreamCopy, timedUtterance.getTimeRange(), *decoder, utteranceProgressSink);
-		returnDecoder(std::move(decoder));
+			utteranceToPhones(*audioStreamCopy, timedUtterance.getTimeRange(), *decoder, decoderIsStillUsable, utteranceProgressSink);
+		if (decoderIsStillUsable) {
+			returnDecoder(std::move(decoder));
+		}
 
 		// Copy phones to result timeline
 		std::lock_guard<std::mutex> lock(resultMutex);
