@@ -1,7 +1,7 @@
 #include "AudioStream.h"
 
 TimeRange AudioStream::getTruncatedRange() const {
-	return TimeRange(centiseconds::zero(), centiseconds(100 * getSampleCount() / getSampleRate()));
+	return TimeRange(0cs, centiseconds(100 * getSampleCount() / getSampleRate()));
 }
 
 bool AudioStream::endOfStream() const {

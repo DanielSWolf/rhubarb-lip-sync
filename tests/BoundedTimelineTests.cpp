@@ -2,22 +2,21 @@
 #include "BoundedTimeline.h"
 
 using namespace testing;
-using cs = centiseconds;
 using std::vector;
 using boost::optional;
 using std::initializer_list;
 
 TEST(BoundedTimeline, constructors_initializeState) {
-	TimeRange range(cs(-5), cs(55));
+	TimeRange range(-5cs, 55cs);
 	auto args = {
-		Timed<int>(cs(-10), cs(30), 1),
-		Timed<int>(cs(10), cs(40), 2),
-		Timed<int>(cs(50), cs(60), 3)
+		Timed<int>(-10cs, 30cs, 1),
+		Timed<int>(10cs, 40cs, 2),
+		Timed<int>(50cs, 60cs, 3)
 	};
 	auto expected = {
-		Timed<int>(cs(-5), cs(10), 1),
-		Timed<int>(cs(10), cs(40), 2),
-		Timed<int>(cs(50), cs(55), 3)
+		Timed<int>(-5cs, 10cs, 1),
+		Timed<int>(10cs, 40cs, 2),
+		Timed<int>(50cs, 55cs, 3)
 	};
 	EXPECT_THAT(
 		BoundedTimeline<int>(range, args.begin(), args.end()),
@@ -30,67 +29,67 @@ TEST(BoundedTimeline, constructors_initializeState) {
 }
 
 TEST(BoundedTimeline, empty) {
-	BoundedTimeline<int> empty(TimeRange(cs(0), cs(10)));
+	BoundedTimeline<int> empty(TimeRange(0cs, 10cs));
 	EXPECT_TRUE(empty.empty());
 	EXPECT_THAT(empty, IsEmpty());
 
-	BoundedTimeline<int> nonEmpty(TimeRange(cs(0), cs(10)), { Timed<int>(cs(1), cs(2), 1) });
+	BoundedTimeline<int> nonEmpty(TimeRange(0cs, 10cs), { Timed<int>(1cs, 2cs, 1) });
 	EXPECT_FALSE(nonEmpty.empty());
 	EXPECT_THAT(nonEmpty, Not(IsEmpty()));
 }
 
 TEST(BoundedTimeline, getRange) {
-	TimeRange range(cs(0), cs(10));
+	TimeRange range(0cs, 10cs);
 	BoundedTimeline<int> empty(range);
 	EXPECT_EQ(range, empty.getRange());
 
-	BoundedTimeline<int> nonEmpty(range, { Timed<int>(cs(1), cs(2), 1) });
+	BoundedTimeline<int> nonEmpty(range, { Timed<int>(1cs, 2cs, 1) });
 	EXPECT_EQ(range, nonEmpty.getRange());
 }
 
 TEST(BoundedTimeline, setAndClear) {
-	TimeRange range(cs(0), cs(10));
+	TimeRange range(0cs, 10cs);
 	BoundedTimeline<int> timeline(range);
 
 	// Out of range
-	timeline.set(cs(-10), cs(-1), 1);
-	timeline.set(TimeRange(cs(-5), cs(-1)), 2);
-	timeline.set(Timed<int>(cs(10), cs(15), 3));
+	timeline.set(-10cs, -1cs, 1);
+	timeline.set(TimeRange(-5cs, -1cs), 2);
+	timeline.set(Timed<int>(10cs, 15cs, 3));
 
 	// Overlapping
-	timeline.set(cs(-2), cs(5), 4);
-	timeline.set(TimeRange(cs(-1), cs(1)), 5);
-	timeline.set(Timed<int>(cs(8), cs(12), 6));
+	timeline.set(-2cs, 5cs, 4);
+	timeline.set(TimeRange(-1cs, 1cs), 5);
+	timeline.set(Timed<int>(8cs, 12cs, 6));
 
 	// Within
-	timeline.set(cs(5), cs(9), 7);
-	timeline.set(TimeRange(cs(6), cs(7)), 8);
-	timeline.set(Timed<int>(cs(7), cs(8), 9));
+	timeline.set(5cs, 9cs, 7);
+	timeline.set(TimeRange(6cs, 7cs), 8);
+	timeline.set(Timed<int>(7cs, 8cs, 9));
 
 	auto expected = {
-		Timed<int>(cs(0), cs(1), 5),
-		Timed<int>(cs(1), cs(5), 4),
-		Timed<int>(cs(5), cs(6), 7),
-		Timed<int>(cs(6), cs(7), 8),
-		Timed<int>(cs(7), cs(8), 9),
-		Timed<int>(cs(8), cs(9), 7),
-		Timed<int>(cs(9), cs(10), 6)
+		Timed<int>(0cs, 1cs, 5),
+		Timed<int>(1cs, 5cs, 4),
+		Timed<int>(5cs, 6cs, 7),
+		Timed<int>(6cs, 7cs, 8),
+		Timed<int>(7cs, 8cs, 9),
+		Timed<int>(8cs, 9cs, 7),
+		Timed<int>(9cs, 10cs, 6)
 	};
 	EXPECT_THAT(timeline, ElementsAreArray(expected));
 }
 
 TEST(BoundedTimeline, shift) {
-	BoundedTimeline<int> timeline(TimeRange(cs(0), cs(10)), { { cs(1), cs(2), 1 }, { cs(2), cs(5), 2 }, { cs(7), cs(9), 3 } });
-	BoundedTimeline<int> expected(TimeRange(cs(2), cs(12)), { { cs(3), cs(4), 1 }, { cs(4), cs(7), 2 }, { cs(9), cs(11), 3 } });
-	timeline.shift(cs(2));
+	BoundedTimeline<int> timeline(TimeRange(0cs, 10cs), { { 1cs, 2cs, 1 }, { 2cs, 5cs, 2 }, { 7cs, 9cs, 3 } });
+	BoundedTimeline<int> expected(TimeRange(2cs, 12cs), { { 3cs, 4cs, 1 }, { 4cs, 7cs, 2 }, { 9cs, 11cs, 3 } });
+	timeline.shift(2cs);
 	EXPECT_EQ(expected, timeline);
 }
 
 TEST(BoundedTimeline, equality) {
 	vector<BoundedTimeline<int>> timelines = {
-		BoundedTimeline<int>(TimeRange(cs(0), cs(10))),
-		BoundedTimeline<int>(TimeRange(cs(0), cs(10)), { { cs(1), cs(2), 1 } }),
-		BoundedTimeline<int>(TimeRange(cs(1), cs(10)), { { cs(1), cs(2), 1 } })
+		BoundedTimeline<int>(TimeRange(0cs, 10cs)),
+		BoundedTimeline<int>(TimeRange(0cs, 10cs), { { 1cs, 2cs, 1 } }),
+		BoundedTimeline<int>(TimeRange(1cs, 10cs), { { 1cs, 2cs, 1 } })
 	};
 
 	for (size_t i = 0; i < timelines.size(); ++i) {

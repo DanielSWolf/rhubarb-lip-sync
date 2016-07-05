@@ -13,13 +13,13 @@ using boost::optional;
 using AnimationResult = Timeline<Shape>;
 
 AnimationResult animateFixedSound(Shape shape, centiseconds duration) {
-	return AnimationResult{ {centiseconds::zero(), duration, shape} };
+	return AnimationResult{ {0cs, duration, shape} };
 }
 
 // Diphtong vowels
 AnimationResult animateDiphtong(Shape first, Shape second, centiseconds duration) {
 	return AnimationResult{
-		{ centiseconds::zero(), duration, first },
+		{ 0cs, duration, first },
 		{ duration / 2, duration, second }
 	};
 }
@@ -32,12 +32,12 @@ AnimationResult animateBilabialStop(centiseconds duration, centiseconds leftPhon
 	}
 
 	centiseconds closedShapeDuration = leftPhoneDuration / 2;
-	if (closedShapeDuration.count() < 4) closedShapeDuration = centiseconds(4);
-	if (closedShapeDuration.count() > 16) closedShapeDuration = centiseconds(16);
+	if (closedShapeDuration.count() < 4) closedShapeDuration = 4cs;
+	if (closedShapeDuration.count() > 16) closedShapeDuration = 16cs;
 
 	return AnimationResult{
-		{ -closedShapeDuration, centiseconds::zero(), Shape::A },
-		{ centiseconds::zero(), duration, openShape }
+		{ -closedShapeDuration, 0cs, Shape::A },
+		{ 0cs, duration, openShape }
 	};
 }
 
@@ -49,7 +49,7 @@ AnimationResult animateFlexibleSound(std::array<Shape, 7> mapping, centiseconds 
 
 	Shape right = rightShape.value_or(Shape::A);
 	Shape shape = mapping[static_cast<int>(right)];
-	return AnimationResult{ { centiseconds::zero(), duration, shape } };
+	return AnimationResult{ { 0cs, duration, shape } };
 }
 
 AnimationResult animate(optional<Phone> phone, centiseconds duration, centiseconds leftPhoneDuration, optional<Shape> rightShape) {
@@ -130,7 +130,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		bool hasLeftPhone = std::next(it) != continuousPhones.rend() && std::next(it)->getEnd() == it->getStart();
 		centiseconds leftPhoneDuration = hasLeftPhone
 			? std::next(it)->getTimeRange().getLength()
-			: centiseconds::zero();
+			: 0cs;
 		Timeline<Shape> result = animate(phone, duration, leftPhoneDuration, lastShape);
 
 		// Result timing is relative to phone. Make absolute.
