@@ -224,6 +224,7 @@ set(SOURCE_FILES
 	src/tupleHash.h
 	src/ThreadPool.cpp src/ThreadPool.h
 	src/ObjectPool.h
+	src/Lazy.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
 target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC)
@@ -239,6 +240,7 @@ set(TEST_FILES
 	tests/pairsTests.cpp
 	tests/tokenizationTests.cpp
 	tests/g2pTests.cpp
+	tests/LazyTests.cpp
 	src/stringTools.cpp src/stringTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
@@ -249,6 +251,7 @@ set(TEST_FILES
 	src/g2p.cpp src/g2p.h
 	src/logging.cpp src/logging.h
 	src/tools.cpp src/tools.h
+	src/Lazy.h
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests gtest gmock gmock_main flite cppFormat)
