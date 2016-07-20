@@ -41,6 +41,24 @@ TEST(Lazy, constUsage) {
 	EXPECT_TRUE(static_cast<bool>(lazy));
 }
 
+TEST(Lazy, copying) {
+	Lazy<Foo> a;
+	int counter = 0;
+	auto createValue = [&] { return counter++; };
+	Lazy<Foo> b(createValue);
+	a = b;
+	EXPECT_EQ(0, counter);
+	EXPECT_FALSE(static_cast<bool>(a));
+	EXPECT_FALSE(static_cast<bool>(b));
+	EXPECT_EQ(0, a->value);
+	EXPECT_EQ(1, counter);
+	EXPECT_TRUE(static_cast<bool>(a));
+	EXPECT_TRUE(static_cast<bool>(b));
+	EXPECT_EQ(0, b->value);
+	Lazy<Foo> c(createValue);
+	EXPECT_EQ(1, c->value);
+}
+
 using Expensive = Foo;
 #define member value;
 
