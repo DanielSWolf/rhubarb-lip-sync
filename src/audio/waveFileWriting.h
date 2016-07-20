@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include "AudioStream.h"
+#include "AudioClip.h"
 
-void createWaveFile(std::unique_ptr<AudioStream> inputStream, std::string fileName);
+void createWaveFile(const AudioClip& audioClip, std::string fileName);

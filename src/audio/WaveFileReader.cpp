@@ -7,6 +7,10 @@ using std::runtime_error;
 using fmt::format;
 using std::string;
 using namespace little_endian;
+using std::unique_ptr;
+using std::make_unique;
+using std::make_shared;
+using boost::filesystem::path;
 
 #define INT24_MIN (-8388608)
 #define INT24_MAX 8388607
@@ -25,12 +29,34 @@ enum class Codec {
 	Float = 0x03
 };
 
-WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
+std::ifstream openFile(path filePath) {
+	try {
+		std::ifstream file;
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		file.open(filePath.c_str(), std::ios::binary);
+
+		// Error messages on stream exceptions are mostly useless.
+		// Read some dummy data so that we can throw a decent exception in case the file is missing, locked, etc.
+		file.seekg(0, std::ios_base::end);
+		if (file.tellg()) {
+			file.seekg(0);
+			file.get();
+			file.seekg(0);
+		}
+
+		return std::move(file);
+	} catch (const std::ifstream::failure&) {
+		char message[256];
+		strerror_s(message, sizeof message, errno);
+		throw runtime_error(message);
+	}
+}
+
+WaveFileReader::WaveFileReader(path filePath) :
 	filePath(filePath),
-	file(),
-	frameIndex(0)
+	formatInfo{}
 {
-	openFile();
+	auto file = openFile(filePath);
 
 	file.seekg(0, std::ios_base::end);
 	std::streamoff fileSize = file.tellg();
@@ -57,16 +83,15 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 
 	// Read chunks until we reach the data chunk
 	bool reachedDataChunk = false;
-	bytesPerSample = 0;
 	while (!reachedDataChunk && remaining(8)) {
 		uint32_t chunkId = read<uint32_t>(file);
 		int chunkSize = read<uint32_t>(file);
 		switch (chunkId) {
 		case fourcc('f', 'm', 't', ' '): {
 			// Read relevant data
-			Codec codec = (Codec)read<uint16_t>(file);
-			channelCount = read<uint16_t>(file);
-			frameRate = read<uint32_t>(file);
+			Codec codec = static_cast<Codec>(read<uint16_t>(file));
+			formatInfo.channelCount = read<uint16_t>(file);
+			formatInfo.frameRate = read<uint32_t>(file);
 			read<uint32_t>(file); // Bytes per second
 			int frameSize = read<uint16_t>(file);
 			int bitsPerSample = read<uint16_t>(file);
@@ -75,31 +100,32 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 			file.seekg(roundToEven(chunkSize) - 16, file.cur);
 
 			// Determine sample format
+			int bytesPerSample;
 			switch (codec) {
 			case Codec::PCM:
 				// Determine sample size.
 				// According to the WAVE standard, sample sizes that are not multiples of 8 bits
 				// (e.g. 12 bits) can be treated like the next-larger byte size.
 				if (bitsPerSample == 8) {
-					sampleFormat = SampleFormat::UInt8;
+					formatInfo.sampleFormat = SampleFormat::UInt8;
 					bytesPerSample = 1;
 				} else if (bitsPerSample <= 16) {
-					sampleFormat = SampleFormat::Int16;
+					formatInfo.sampleFormat = SampleFormat::Int16;
 					bytesPerSample = 2;
 				} else if (bitsPerSample <= 24) {
-					sampleFormat = SampleFormat::Int24;
+					formatInfo.sampleFormat = SampleFormat::Int24;
 					bytesPerSample = 3;
 				} else {
 					throw runtime_error(
 						format("Unsupported sample format: {}-bit integer samples.", bitsPerSample));
 				}
-				if (bytesPerSample != frameSize / channelCount) {
+				if (bytesPerSample != frameSize / formatInfo.channelCount) {
 					throw runtime_error("Unsupported sample organization.");
 				}
 				break;
 			case Codec::Float:
 				if (bitsPerSample == 32) {
-					sampleFormat = SampleFormat::Float32;
+					formatInfo.sampleFormat = SampleFormat::Float32;
 					bytesPerSample = 4;
 				} else {
 					throw runtime_error(format("Unsupported sample format: {}-bit floating-point samples.", bitsPerSample));
@@ -108,13 +134,13 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 			default:
 				throw runtime_error("Unsupported sample format. Only uncompressed formats are supported.");
 			}
+			formatInfo.bytesPerFrame = bytesPerSample * formatInfo.channelCount;
 			break;
 		}
 		case fourcc('d', 'a', 't', 'a'): {
 			reachedDataChunk = true;
-			dataOffset = file.tellg();
-			int sampleCount = chunkSize / bytesPerSample;
-			frameCount = sampleCount / channelCount;
+			formatInfo.dataOffset = file.tellg();
+			formatInfo.frameCount = chunkSize / formatInfo.bytesPerFrame;
 			break;
 		}
 		default: {
@@ -124,75 +150,13 @@ WaveFileReader::WaveFileReader(boost::filesystem::path filePath) :
 		}
 		}
 	}
-
-	if (!reachedDataChunk) {
-		dataOffset = file.tellg();
-		frameCount = 0;
-	}
 }
 
-WaveFileReader::WaveFileReader(const WaveFileReader& rhs, bool reset) :
-	filePath(rhs.filePath),
-	file(),
-	bytesPerSample(rhs.bytesPerSample),
-	sampleFormat(rhs.sampleFormat),
-	frameRate(rhs.frameRate),
-	frameCount(rhs.frameCount),
-	channelCount(rhs.channelCount),
-	dataOffset(rhs.dataOffset),
-	frameIndex(-1)
-{
-	openFile();
-	seek(reset ? 0 : rhs.frameIndex);
+unique_ptr<AudioClip> WaveFileReader::clone() const {
+	return make_unique<WaveFileReader>(*this);
 }
 
-std::unique_ptr<AudioStream> WaveFileReader::clone(bool reset) const {
-	return std::make_unique<WaveFileReader>(*this, reset);
-}
-
-void WaveFileReader::openFile() {
-	try {
-		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		file.open(filePath, std::ios::binary);
-
-		// Error messages on stream exceptions are mostly useless.
-		// Read some dummy data so that we can throw a decent exception in case the file is missing, locked, etc.
-		file.seekg(0, std::ios_base::end);
-		if (file.tellg()) {
-			file.seekg(0);
-			file.get();
-			file.seekg(0);
-		}
-	} catch (const std::ifstream::failure&) {
-		char message[256];
-		strerror_s(message, sizeof message, errno);
-		throw runtime_error(message);
-	}
-}
-
-int WaveFileReader::getSampleRate() const {
-	return frameRate;
-}
-
-int64_t WaveFileReader::getSampleCount() const {
-	return frameCount;
-}
-
-int64_t WaveFileReader::getSampleIndex() const {
-	return frameIndex;
-}
-
-void WaveFileReader::seek(int64_t frameIndex) {
-	if (frameIndex < 0 || frameIndex > frameCount) throw std::invalid_argument("frameIndex out of range.");
-
-	file.seekg(dataOffset + static_cast<std::streamoff>(frameIndex * channelCount * bytesPerSample));
-	this->frameIndex = frameIndex;
-}
-
-float WaveFileReader::readSample() {
-	if (frameIndex >= frameCount) throw std::out_of_range("End of stream.");
-	++frameIndex;
-
+inline AudioClip::value_type readSample(std::ifstream& file, SampleFormat sampleFormat, int channelCount) {
 	float sum = 0;
 	for (int channelIndex = 0; channelIndex < channelCount; channelIndex++) {
 		switch (sampleFormat) {
@@ -220,4 +184,14 @@ float WaveFileReader::readSample() {
 	}
 
 	return sum / channelCount;
+}
+
+SampleReader WaveFileReader::createUnsafeSampleReader() const {
+	return [formatInfo = formatInfo, file = std::make_shared<std::ifstream>(openFile(filePath)), filePos = std::streampos(0)](size_type index) mutable {
+		std::streampos newFilePos = formatInfo.dataOffset + static_cast<std::streamoff>(index * formatInfo.bytesPerFrame);
+		file->seekg(newFilePos);
+		value_type result = readSample(*file, formatInfo.sampleFormat, formatInfo.channelCount);
+		filePos = newFilePos + static_cast<std::streamoff>(formatInfo.bytesPerFrame);
+		return result;
+	};
 }

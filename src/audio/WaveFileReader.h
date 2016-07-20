@@ -1,8 +1,7 @@
 #pragma once
 
 #include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include "AudioStream.h"
+#include "AudioClip.h"
 
 enum class SampleFormat {
 	UInt8,
@@ -11,28 +10,33 @@ enum class SampleFormat {
 	Float32
 };
 
-class WaveFileReader : public AudioStream {
+class WaveFileReader : public AudioClip {
 public:
 	WaveFileReader(boost::filesystem::path filePath);
-	WaveFileReader(const WaveFileReader& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) const override;
-	int getSampleRate() const override ;
-	int64_t getSampleCount() const override;
-	int64_t getSampleIndex() const override;
-	void seek(int64_t sampleIndex) override;
-	float readSample() override;
+	std::unique_ptr<AudioClip> clone() const override;
+	int getSampleRate() const override;
+	size_type size() const override;
 
 private:
-	void openFile();
+	SampleReader createUnsafeSampleReader() const override;
 
-private:
+	struct WaveFormatInfo {
+		int bytesPerFrame;
+		SampleFormat sampleFormat;
+		int frameRate;
+		int64_t frameCount;
+		int channelCount;
+		std::streampos dataOffset;
+	};
+
 	boost::filesystem::path filePath;
-	boost::filesystem::ifstream file;
-	int bytesPerSample;
-	SampleFormat sampleFormat;
-	int frameRate;
-	int64_t frameCount;
-	int channelCount;
-	std::streampos dataOffset;
-	int64_t frameIndex;
+	WaveFormatInfo formatInfo;
 };
+
+inline int WaveFileReader::getSampleRate() const {
+	return formatInfo.frameRate;
+}
+
+inline AudioClip::size_type WaveFileReader::size() const {
+	return formatInfo.frameCount;
+}

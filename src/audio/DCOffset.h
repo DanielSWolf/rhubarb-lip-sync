@@ -1,26 +1,32 @@
 #pragma once
 
-#include "AudioStream.h"
+#include "AudioClip.h"
 
-// Applies a constant DC offset to an audio stream and reduces its amplitude
+// Applies a constant DC offset to an audio clip and reduces its amplitude
 // to prevent clipping
-class DCOffset : public AudioStream {
+class DCOffset : public AudioClip {
 public:
-	DCOffset(std::unique_ptr<AudioStream> inputStream, float offset);
-	DCOffset(const DCOffset& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) const override;
+	DCOffset(std::unique_ptr<AudioClip> inputClip, float offset);
+	std::unique_ptr<AudioClip> clone() const override;
 	int getSampleRate() const override;
-	int64_t getSampleCount() const override;
-	int64_t getSampleIndex() const override;
-	void seek(int64_t sampleIndex) override;
-	float readSample() override;
-
+	size_type size() const override;
 private:
-	std::unique_ptr<AudioStream> inputStream;
+	SampleReader createUnsafeSampleReader() const override;
+
+	std::shared_ptr<AudioClip> inputClip;
 	float offset;
 	float factor;
 };
 
-std::unique_ptr<AudioStream> addDCOffset(std::unique_ptr<AudioStream> audioStream, float offset, float epsilon = 1.0f / 15000);
+inline int DCOffset::getSampleRate() const {
+	return inputClip->getSampleRate();
+}
 
-std::unique_ptr<AudioStream> removeDCOffset(std::unique_ptr<AudioStream> audioStream);
+inline AudioClip::size_type DCOffset::size() const {
+	return inputClip->size();
+}
+
+float getDCOffset(const AudioClip& audioClip);
+
+AudioEffect addDCOffset(float offset, float epsilon = 1.0f / 15000);
+AudioEffect removeDCOffset(float epsilon = 1.0f / 15000);

@@ -1,32 +1,29 @@
 #pragma once
 
 #include <memory>
-#include "AudioStream.h"
+#include "AudioClip.h"
 
-class SampleRateConverter : public AudioStream {
+class SampleRateConverter : public AudioClip {
 public:
-	SampleRateConverter(std::unique_ptr<AudioStream> inputStream, int outputSampleRate);
-	SampleRateConverter(const SampleRateConverter& rhs, bool reset);
-	std::unique_ptr<AudioStream> clone(bool reset) const override;
+	SampleRateConverter(std::unique_ptr<AudioClip> inputClip, int outputSampleRate);
+	std::unique_ptr<AudioClip> clone() const override;
 	int getSampleRate() const override;
-	int64_t getSampleCount() const override;
-	int64_t getSampleIndex() const override;
-	void seek(int64_t sampleIndex) override;
-	float readSample() override;
+	size_type size() const override;
 private:
-	std::unique_ptr<AudioStream> inputStream;
-	double downscalingFactor;					// input sample rate / output sample rate
+	SampleReader createUnsafeSampleReader() const override;
 
+	std::shared_ptr<AudioClip> inputClip;
+	double downscalingFactor; // input sample rate / output sample rate
 	int outputSampleRate;
 	int64_t outputSampleCount;
-
-	float lastInputSample;
-	int64_t lastInputSampleIndex;
-
-	int64_t nextOutputSampleIndex;
-
-	float mean(double start, double end);
-	float getInputSample(int64_t sampleIndex);
 };
 
-std::unique_ptr<AudioStream> convertSampleRate(std::unique_ptr<AudioStream> audioStream, int sampleRate);
+AudioEffect resample(int sampleRate);
+
+inline int SampleRateConverter::getSampleRate() const {
+	return outputSampleRate;
+}
+
+inline AudioClip::size_type SampleRateConverter::size() const {
+	return outputSampleCount;
+}

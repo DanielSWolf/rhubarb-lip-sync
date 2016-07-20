@@ -15,6 +15,7 @@
 #include <boost/filesystem/operations.hpp>
 #include "stringTools.h"
 #include <boost/range/adaptor/transformed.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 using std::exception;
 using std::string;
@@ -43,7 +44,7 @@ string getMessage(const exception& e) {
 	return result;
 }
 
-unique_ptr<AudioStream> createAudioStream(path filePath) {
+unique_ptr<AudioClip> createAudioClip(path filePath) {
 	try {
 		return std::make_unique<WaveFileReader>(filePath);
 	} catch (...) {
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]) {
 		{
 			ProgressBar progressBar;
 			phones = detectPhones(
-				createAudioStream(inputFileName.getValue()),
+				*createAudioClip(inputFileName.getValue()),
 				dialogFile.isSet() ? readTextFile(path(dialogFile.getValue())) : boost::optional<u32string>(),
 				progressBar);
 		}

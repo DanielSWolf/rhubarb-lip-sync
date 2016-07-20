@@ -197,11 +197,10 @@ set(SOURCE_FILES
 	src/phoneExtraction.cpp src/phoneExtraction.h
 	src/platformTools.cpp src/platformTools.h
 	src/tools.cpp src/tools.h
-	src/audio/AudioStream.cpp src/audio/AudioStream.h
-	src/audio/AudioStreamSegment.cpp src/audio/AudioStreamSegment.h
+	src/audio/AudioClip.cpp src/audio/AudioClip.h
+	src/audio/AudioSegment.cpp src/audio/AudioSegment.h
 	src/audio/DCOffset.cpp src/audio/DCOffset.h
 	src/audio/SampleRateConverter.cpp src/audio/SampleRateConverter.h
-	src/audio/UnboundedStream.cpp src/audio/UnboundedStream.h
 	src/audio/voiceActivityDetection.cpp src/audio/voiceActivityDetection.h
 	src/audio/WaveFileReader.cpp src/audio/WaveFileReader.h
 	src/audio/waveFileWriting.cpp src/audio/waveFileWriting.h

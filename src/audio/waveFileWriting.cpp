@@ -4,7 +4,7 @@
 
 using namespace little_endian;
 
-void createWaveFile(std::unique_ptr<AudioStream> inputStream, std::string fileName) {
+void createWaveFile(const AudioClip& audioClip, std::string fileName) {
 	// Open file
 	std::ofstream file;
 	file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
@@ -15,7 +15,7 @@ void createWaveFile(std::unique_ptr<AudioStream> inputStream, std::string fileNa
 	uint32_t formatChunkSize = 16;
 	uint16_t channelCount = 1;
 	uint16_t frameSize = static_cast<uint16_t>(channelCount * sizeof(float));
-	uint32_t dataChunkSize = static_cast<uint32_t>(inputStream->getSampleCount() * frameSize);
+	uint32_t dataChunkSize = static_cast<uint32_t>(audioClip.size() * frameSize);
 	uint32_t riffChunkSize = 4 + (8 + formatChunkSize) + (8 + dataChunkSize);
 	write<uint32_t>(riffChunkSize, file);
 	write<uint32_t>(fourcc('W', 'A', 'V', 'E'), file);
@@ -26,7 +26,7 @@ void createWaveFile(std::unique_ptr<AudioStream> inputStream, std::string fileNa
 	uint16_t codec = 0x03; // 32-bit float
 	write<uint16_t>(codec, file);
 	write<uint16_t>(channelCount, file);
-	uint32_t frameRate = static_cast<uint16_t>(inputStream->getSampleRate());
+	uint32_t frameRate = static_cast<uint16_t>(audioClip.getSampleRate());
 	write<uint32_t>(frameRate, file);
 	uint32_t bytesPerSecond = frameRate * frameSize;
 	write<uint32_t>(bytesPerSecond, file);
@@ -37,8 +37,7 @@ void createWaveFile(std::unique_ptr<AudioStream> inputStream, std::string fileNa
 	// Write data chunk
 	write<uint32_t>(fourcc('d', 'a', 't', 'a'), file);
 	write<uint32_t>(dataChunkSize, file);
-	while (!inputStream->endOfStream()) {
-		float sample = inputStream->readSample();
+	for (float sample : audioClip) {
 		write<float>(sample, file);
 	}
 }
