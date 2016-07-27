@@ -7,7 +7,7 @@
 #include <webrtc/common_audio/vad/include/webrtc_vad.h>
 #include "processing.h"
 #include <gsl_util.h>
-#include <ThreadPool.h>
+#include <parallel.h>
 #include "AudioStreamSegment.h"
 
 using std::vector;
@@ -70,15 +70,14 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 	std::mutex activityMutex;
 
 	// Split audio into segments and perform parallel VAD
-	ThreadPool threadPool;
-	int segmentCount = threadPool.getThreadCount();
+	int segmentCount = getProcessorCoreCount();
 	centiseconds audioLength = audioStream->getTruncatedRange().getLength();
 	vector<TimeRange> audioSegments;
 	for (int i = 0; i < segmentCount; ++i) {
 		TimeRange segmentRange = TimeRange(i * audioLength / segmentCount, (i + 1) * audioLength / segmentCount);
 		audioSegments.push_back(segmentRange);
 	}
-	threadPool.schedule(audioSegments, [&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
+	runParallel([&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
 		unique_ptr<AudioStream> audioSegment = createSegment(audioStream->clone(false), segmentRange);
 		BoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
 
@@ -87,8 +86,7 @@ BoundedTimeline<void> detectVoiceActivity(std::unique_ptr<AudioStream> audioStre
 			activityRange.getTimeRange().shift(segmentRange.getStart());
 			activity.set(activityRange);
 		}
-	}, progressSink);
-	threadPool.waitAll();
+	}, audioSegments, segmentCount, progressSink);
 
 	// Fill small gaps in activity
 	const centiseconds maxGap(5);

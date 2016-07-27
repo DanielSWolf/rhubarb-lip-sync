@@ -17,8 +17,7 @@
 #include "g2p.h"
 #include "ContinuousTimeline.h"
 #include "audio/processing.h"
-#include "ThreadPool.h"
-#include "ObjectPool.h"
+#include "parallel.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -401,16 +400,14 @@ BoundedTimeline<Phone> detectPhones(
 		// Determine how many parallel threads to use
 		int threadCount = std::min({
 			// Don't use more threads than there are CPU cores
-			ThreadPool::getRecommendedThreadCount(),
+			getProcessorCoreCount(),
 			// Don't use more threads than there are utterances to be processed
 			static_cast<int>(utterances.size()),
 			// Don't waste time creating additional threads (and decoders!) if the recording is short
 			static_cast<int>(duration_cast<std::chrono::seconds>(audioStream->getTruncatedRange().getLength()).count() / 10)
 		});
-		ThreadPool threadPool(threadCount);
 		logging::debug("Speech recognition -- start");
-		threadPool.schedule(utterances, processUtterance, dialogProgressSink, getUtteranceProgressWeight);
-		threadPool.waitAll();
+		runParallel(processUtterance, utterances, threadCount, dialogProgressSink, getUtteranceProgressWeight);
 		logging::debug("Speech recognition -- end");
 
 		return result;

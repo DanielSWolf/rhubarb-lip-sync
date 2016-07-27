@@ -222,7 +222,7 @@ set(SOURCE_FILES
 	src/g2p.cpp src/g2p.h
 	src/languageModels.cpp src/languageModels.h
 	src/tupleHash.h
-	src/ThreadPool.cpp src/ThreadPool.h
+	src/parallel.h
 	src/ObjectPool.h
 	src/Lazy.h
 )
