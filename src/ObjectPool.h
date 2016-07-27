@@ -9,7 +9,7 @@ class ObjectPool {
 public:
 	using ptr_type = std::unique_ptr<T, std::function<void(T*)>>;
 
-	ObjectPool(std::function<T*()> createObject) :
+	ObjectPool(std::function<std::unique_ptr<T>()> createObject) :
 		createObject(createObject)
 	{}
 
@@ -19,7 +19,7 @@ public:
 		std::lock_guard<std::mutex> lock(poolMutex);
 
 		if (pool.empty()) {
-			pool.push(std::unique_ptr<T>(createObject()));
+			pool.push(createObject());
 		}
 
 		ptr_type tmp(pool.top().release(), [this](T* p) {
