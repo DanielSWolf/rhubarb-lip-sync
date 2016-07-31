@@ -193,6 +193,7 @@ set(SOURCE_FILES
 	src/Shape.cpp src/Shape.h
 	src/centiseconds.cpp src/centiseconds.h
 	src/EnumConverter.h
+	src/Viseme.cpp src/Viseme.h
 	src/mouthAnimation.cpp src/mouthAnimation.h
 	src/phoneExtraction.cpp src/phoneExtraction.h
 	src/platformTools.cpp src/platformTools.h

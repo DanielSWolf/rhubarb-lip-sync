@@ -13,6 +13,8 @@ enum class Shape {
 	E,	// h[ow]
 	F,	// Pout ([o]ff, sh[ow])
 	G,	// F, V
+	H,	// L
+	X,	// Idle
 	EndSentinel
 };
 

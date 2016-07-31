@@ -2,57 +2,18 @@
 #include "logging.h"
 #include <unordered_set>
 #include <unordered_map>
-#include <array>
+#include <boost/algorithm/clamp.hpp>
+#include "Viseme.h"
 
 using std::map;
 using std::unordered_set;
 using std::unordered_map;
 using std::vector;
 using boost::optional;
+using std::chrono::duration_cast;
+using boost::algorithm::clamp;
 
-using AnimationResult = Timeline<Shape>;
-
-AnimationResult animateFixedSound(Shape shape, centiseconds duration) {
-	return AnimationResult{ {0cs, duration, shape} };
-}
-
-// Diphtong vowels
-AnimationResult animateDiphtong(Shape first, Shape second, centiseconds duration) {
-	return AnimationResult{
-		{ 0cs, duration, first },
-		{ duration / 2, duration, second }
-	};
-}
-
-// P, B
-AnimationResult animateBilabialStop(centiseconds duration, centiseconds leftPhoneDuration, optional<Shape> rightShape) {
-	Shape openShape = rightShape.value_or(Shape::B);
-	if (openShape == Shape::A) {
-		openShape = Shape::B;
-	}
-
-	centiseconds closedShapeDuration = leftPhoneDuration / 2;
-	if (closedShapeDuration.count() < 4) closedShapeDuration = 4cs;
-	if (closedShapeDuration.count() > 16) closedShapeDuration = 16cs;
-
-	return AnimationResult{
-		{ -closedShapeDuration, 0cs, Shape::A },
-		{ 0cs, duration, openShape }
-	};
-}
-
-// Sounds with no fixed mouth position.
-// Mapping specifies the shape to use for every right shape.
-AnimationResult animateFlexibleSound(std::array<Shape, 7> mapping, centiseconds duration, optional<Shape> rightShape) {
-	constexpr int mapSize = std::tuple_size<decltype(mapping)>::value;
-	static_assert(static_cast<int>(Shape::EndSentinel) == mapSize, "Shape definition has changed.");
-
-	Shape right = rightShape.value_or(Shape::A);
-	Shape shape = mapping[static_cast<int>(right)];
-	return AnimationResult{ { 0cs, duration, shape } };
-}
-
-AnimationResult animate(optional<Phone> phone, centiseconds duration, centiseconds leftPhoneDuration, optional<Shape> rightShape) {
+Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseconds previousPhoneDuration) {
 	constexpr Shape A = Shape::A;
 	constexpr Shape B = Shape::B;
 	constexpr Shape C = Shape::C;
@@ -60,94 +21,117 @@ AnimationResult animate(optional<Phone> phone, centiseconds duration, centisecon
 	constexpr Shape E = Shape::E;
 	constexpr Shape F = Shape::F;
 	constexpr Shape G = Shape::G;
+	constexpr Shape H = Shape::H;
+	constexpr Shape X = Shape::X;
 
-	if (!phone) {
-		return animateFixedSound(A, duration);
-	}
+	auto single = [&](Viseme viseme) {
+		return Timeline<Viseme>{
+			{ 0cs, duration, viseme }
+		};
+	};
+
+	auto diphtong = [&](Viseme first, Viseme second) {
+		centiseconds firstDuration = duration_cast<centiseconds>(duration * 0.6);
+		return Timeline<Viseme>{
+			{ 0cs, firstDuration, first },
+			{ firstDuration, duration, second }
+		};
+	};
+
+	auto bilabialStop = [&]() {
+		centiseconds closedDuration = clamp(previousPhoneDuration / 2, 4cs, 16cs);
+		return Timeline<Viseme>{
+			{ -closedDuration, 0cs, { A } },
+			{ 0cs, duration, {{ B, C, D, E, F }} }
+		};
+	};
+
+	if (!phone)				return single({ X });
 
 	switch (*phone) {
-	case Phone::Unknown:	return animateFixedSound(B, duration);
-	case Phone::AO:			return animateFixedSound(E, duration);
-	case Phone::AA:			return animateFixedSound(D, duration);
-	case Phone::IY:			return animateFixedSound(B, duration);
-	case Phone::UW:			return animateFixedSound(F, duration);
-	case Phone::EH:			return animateFixedSound(C, duration);
-	case Phone::IH:			return animateFixedSound(B, duration);
-	case Phone::UH:			return animateFixedSound(E, duration);
-	case Phone::AH:			return animateFixedSound(C, duration);
-	case Phone::AE:			return animateFixedSound(D, duration);
-	case Phone::EY:			return animateDiphtong(C, B, duration);
-	case Phone::AY:			return animateDiphtong(D, B, duration);
-	case Phone::OW:			return animateDiphtong(E, F, duration);
-	case Phone::AW:			return animateDiphtong(D, F, duration);
-	case Phone::OY:			return animateDiphtong(E, B, duration);
-	case Phone::ER:			return animateFixedSound(E, duration);
+	case Phone::Unknown:	return single({ B });
+	case Phone::AO:			return single({ E });
+	case Phone::AA:			return single({ D });
+	case Phone::IY:			return single({ B });
+	case Phone::UW:			return single({ F });
+	case Phone::EH:			return single({ C });
+	case Phone::IH:			return single({ B });
+	case Phone::UH:			return single({ E });
+	case Phone::AH:			return single({ C });
+	case Phone::AE:			return single({ D });
+	case Phone::EY:			return diphtong({ C }, { B });
+	case Phone::AY:			return diphtong({ D }, { B });
+	case Phone::OW:			return diphtong({ E }, { F });
+	case Phone::AW:			return diphtong({ D }, { F });
+	case Phone::OY:			return diphtong({ E }, { B });
+	case Phone::ER:			return single({ E });
 	case Phone::P:
-	case Phone::B:			return animateBilabialStop(duration, leftPhoneDuration, rightShape);
+	case Phone::B:			return bilabialStop();
 	case Phone::T:
 	case Phone::D:
-	case Phone::K:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
-	case Phone::G:			return animateFlexibleSound({ B, B, C, C, E, F, B }, duration, rightShape);
+	case Phone::K:			return single({ { B, B, B, B, F } });
+	case Phone::G:			return single({ { B, C, C, E, F } });
 	case Phone::CH:
-	case Phone::JH:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
+	case Phone::JH:			return single({ { B, B, B, B, F } });
 	case Phone::F:
-	case Phone::V:			return animateFixedSound(G, duration);
+	case Phone::V:			return single({ G });
 	case Phone::TH:
 	case Phone::DH:
 	case Phone::S:
 	case Phone::Z:
 	case Phone::SH:
-	case Phone::ZH:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
-	case Phone::HH:			return animateFlexibleSound({ B, B, C, D, E, F, B }, duration, rightShape);
-	case Phone::M:			return animateFixedSound(A, duration);
-	case Phone::N:			return animateFlexibleSound({ B, B, C, C, C, F, B }, duration, rightShape);
-	case Phone::NG:			return animateFlexibleSound({ B, B, C, D, E, F, B }, duration, rightShape);
-	case Phone::L:			return animateFlexibleSound({ C, C, C, D, E, F, C }, duration, rightShape);
-	case Phone::R:			return animateFlexibleSound({ B, B, B, B, B, F, B }, duration, rightShape);
-	case Phone::Y:			return animateFixedSound(B, duration);
-	case Phone::W:			return animateFixedSound(F, duration);
+	case Phone::ZH:			return single({ { B, B, B, B, F } });
+	case Phone::HH:			return single({ { B, C, D, E, F } });
+	case Phone::M:			return single({ A });
+	case Phone::N:			return single({ { B, C, C, C, F } });
+	case Phone::NG:			return single({ { B, C, D, E, F } });
+	case Phone::L:			return single({ { H, H, H, E, F } });
+	case Phone::R:			return single({ { B, B, B, B, F } });
+	case Phone::Y:			return single({ B });
+	case Phone::W:			return single({ F });
 	default:
 		throw std::invalid_argument("Unexpected phone.");
 	}
 }
 
 ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
-	// Convert phones to continuous timeline so that silences show up when iterating
+	// Convert phones to continuous timeline so that silences aren't skipped when iterating
 	ContinuousTimeline<optional<Phone>> continuousPhones(phones.getRange(), boost::none);
 	for (const auto& timedPhone : phones) {
 		continuousPhones.set(timedPhone.getTimeRange(), timedPhone.getValue());
 	}
 
-	ContinuousTimeline<Shape> shapes(phones.getRange(), Shape::A);
-
-	// Iterate phones in *reverse* order so we can access the right-hand result
-	optional<Shape> lastShape;
-	centiseconds cutoff = shapes.getRange().getEnd();
-	for (auto it = continuousPhones.rbegin(); it != continuousPhones.rend(); ++it) {
+	// Create timeline of visemes
+	ContinuousTimeline<Viseme> visemes(phones.getRange(), { Shape::X });
+	centiseconds previousPhoneDuration = 0cs;
+	for (const auto& timedPhone : continuousPhones) {
 		// Animate one phone
-		optional<Phone> phone = it->getValue();
-		centiseconds duration = it->getTimeRange().getLength();
-		bool hasLeftPhone = std::next(it) != continuousPhones.rend() && std::next(it)->getEnd() == it->getStart();
-		centiseconds leftPhoneDuration = hasLeftPhone
-			? std::next(it)->getTimeRange().getLength()
-			: 0cs;
-		Timeline<Shape> result = animate(phone, duration, leftPhoneDuration, lastShape);
+		optional<Phone> phone = timedPhone.getValue();
+		centiseconds duration = timedPhone.getTimeRange().getLength();
+		Timeline<Viseme> phoneVisemes = animate(phone, duration, previousPhoneDuration);
 
 		// Result timing is relative to phone. Make absolute.
-		result.shift(it->getStart());
+		phoneVisemes.shift(timedPhone.getStart());
 
-		// New shapes must not overwrite existing shapes
-		result.clear(cutoff, shapes.getRange().getEnd());
-
-		// Copy to target timeline
-		for (const auto& timedShape : result) {
-			shapes.set(timedShape);
+		// Copy to viseme timeline
+		for (const auto& timedViseme : phoneVisemes) {
+			visemes.set(timedViseme);
 		}
 
-		lastShape = result.empty() ? optional<Shape>() : result.begin()->getValue();
-		if (!result.empty()) {
-			cutoff = result.begin()->getStart();
-		}
+		previousPhoneDuration = duration;
+	}
+
+	// Create timeline of shapes.
+	// Iterate visemes in *reverse* order so we always know what shape will follow.
+	ContinuousTimeline<Shape> shapes(phones.getRange(), Shape::X);
+	Shape lastShape = Shape::X;
+	for (auto it = visemes.rbegin(); it != visemes.rend(); ++it) {
+		Viseme viseme = it->getValue();
+
+		// Convert viseme to phone
+		Shape shape = viseme.getShape(it->getTimeRange().getLength(), lastShape);
+
+		shapes.set(it->getTimeRange(), shape);
 	}
 
 	for (const auto& timedShape : shapes) {
