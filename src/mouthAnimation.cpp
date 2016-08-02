@@ -12,18 +12,20 @@ using std::vector;
 using boost::optional;
 using std::chrono::duration_cast;
 using boost::algorithm::clamp;
+using std::pair;
+using std::tuple;
+
+constexpr Shape A = Shape::A;
+constexpr Shape B = Shape::B;
+constexpr Shape C = Shape::C;
+constexpr Shape D = Shape::D;
+constexpr Shape E = Shape::E;
+constexpr Shape F = Shape::F;
+constexpr Shape G = Shape::G;
+constexpr Shape H = Shape::H;
+constexpr Shape X = Shape::X;
 
 Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseconds previousPhoneDuration) {
-	constexpr Shape A = Shape::A;
-	constexpr Shape B = Shape::B;
-	constexpr Shape C = Shape::C;
-	constexpr Shape D = Shape::D;
-	constexpr Shape E = Shape::E;
-	constexpr Shape F = Shape::F;
-	constexpr Shape G = Shape::G;
-	constexpr Shape H = Shape::H;
-	constexpr Shape X = Shape::X;
-
 	auto single = [&](Viseme viseme) {
 		return Timeline<Viseme>{
 			{ 0cs, duration, viseme }
@@ -94,6 +96,26 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	}
 }
 
+enum class TweenTiming {
+	Early,
+	Centered,
+	Late
+};
+
+optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
+	static const map<pair<Shape, Shape>, pair<Shape, TweenTiming>> lookup {
+		{ { A, D }, { C, TweenTiming::Late } },			{ { D, A },{ C, TweenTiming::Early } },
+		{ { B, D }, { C, TweenTiming::Centered } },		{ { D, B },{ C, TweenTiming::Centered } },
+		{ { G, D }, { C, TweenTiming::Late } },			{ { D, G },{ C, TweenTiming::Early } },
+		{ { X, D }, { C, TweenTiming::Early } },		{ { D, X },{ C, TweenTiming::Late } },
+		{ { C, F }, { E, TweenTiming::Centered } },		{ { F, C },{ E, TweenTiming::Centered } },
+		{ { D, F }, { E, TweenTiming::Centered } },		{ { F, D },{ E, TweenTiming::Centered } },
+		{ { H, F }, { E, TweenTiming::Late } },			{ { F, H },{ E, TweenTiming::Early } },
+	};
+	auto it = lookup.find({ first, second });
+	return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
+}
+
 ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	// Convert phones to continuous timeline so that silences aren't skipped when iterating
 	ContinuousTimeline<optional<Phone>> continuousPhones(phones.getRange(), boost::none);
@@ -102,7 +124,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	}
 
 	// Create timeline of visemes
-	ContinuousTimeline<Viseme> visemes(phones.getRange(), { Shape::X });
+	ContinuousTimeline<Viseme> visemes(phones.getRange(), { X });
 	centiseconds previousPhoneDuration = 0cs;
 	for (const auto& timedPhone : continuousPhones) {
 		// Animate one phone
@@ -123,8 +145,8 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 
 	// Create timeline of shapes.
 	// Iterate visemes in *reverse* order so we always know what shape will follow.
-	ContinuousTimeline<Shape> shapes(phones.getRange(), Shape::X);
-	Shape lastShape = Shape::X;
+	ContinuousTimeline<Shape> shapes(phones.getRange(), X);
+	Shape lastShape = X;
 	for (auto it = visemes.rbegin(); it != visemes.rend(); ++it) {
 		Viseme viseme = it->getValue();
 
@@ -132,6 +154,50 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		Shape shape = viseme.getShape(it->getTimeRange().getLength(), lastShape);
 
 		shapes.set(it->getTimeRange(), shape);
+	}
+
+	// Create inbetweens for smoother animation
+	centiseconds minTweenDuration = 4cs;
+	centiseconds maxTweenDuration = 10cs;
+	Timeline<Shape> tweens;
+	for (auto first = shapes.begin(), second = std::next(shapes.begin());
+		first != shapes.end() && second != shapes.end();
+		++first, ++second)
+	{
+		auto pair = getTween(first->getValue(), second->getValue());
+		if (!pair) continue;
+
+		Shape tweenShape;
+		TweenTiming tweenTiming;
+		std::tie(tweenShape, tweenTiming) = *pair;
+		TimeRange firstTimeRange = first->getTimeRange();
+		TimeRange secondTimeRange = second->getTimeRange();
+
+		centiseconds tweenStart, tweenDuration;
+		switch (tweenTiming) {
+		case TweenTiming::Early: {
+			tweenDuration = std::min(firstTimeRange.getLength() / 3, maxTweenDuration);
+			tweenStart = firstTimeRange.getEnd() - tweenDuration;
+			break;
+		}
+		case TweenTiming::Centered: {
+			tweenDuration = std::min({ firstTimeRange.getLength() / 3, secondTimeRange.getLength() / 3, maxTweenDuration });
+			tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
+			break;
+		}
+		case TweenTiming::Late: {
+			tweenDuration = std::min(secondTimeRange.getLength() / 3, maxTweenDuration);
+			tweenStart = secondTimeRange.getStart();
+			break;
+		}
+		}
+
+		if (tweenDuration < minTweenDuration) continue;
+
+		tweens.set(tweenStart, tweenStart + tweenDuration, tweenShape);
+	}
+	for (const auto& tween : tweens) {
+		shapes.set(tween);
 	}
 
 	for (const auto& timedShape : shapes) {
