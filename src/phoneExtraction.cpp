@@ -361,13 +361,15 @@ BoundedTimeline<Phone> detectPhones(
 	std::stack<lambda_unique_ptr<ps_decoder_t>> decoderPool;
 	std::mutex decoderPoolMutex;
 	auto getDecoder = [&] {
-		std::lock_guard<std::mutex> lock(decoderPoolMutex);
-		if (decoderPool.empty()) {
-			decoderPool.push(createDecoder(dialog));
+		{
+			std::lock_guard<std::mutex> lock(decoderPoolMutex);
+			if (!decoderPool.empty()) {
+				auto decoder = std::move(decoderPool.top());
+				decoderPool.pop();
+				return std::move(decoder);
+			}
 		}
-		auto decoder = std::move(decoderPool.top());
-		decoderPool.pop();
-		return std::move(decoder);
+		return createDecoder(dialog);
 	};
 	auto returnDecoder = [&](lambda_unique_ptr<ps_decoder_t> decoder) {
 		std::lock_guard<std::mutex> lock(decoderPoolMutex);
@@ -408,7 +410,7 @@ BoundedTimeline<Phone> detectPhones(
 			// Don't use more threads than there are utterances to be processed
 			static_cast<int>(utterances.size()),
 			// Don't waste time creating additional threads (and decoders!) if the recording is short
-			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getLength()).count() / 10)
+			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getLength()).count() / 5)
 		});
 		logging::debug("Speech recognition -- start");
 		runParallel(processUtterance, utterances, threadCount, dialogProgressSink, getUtteranceProgressWeight);
