@@ -48,7 +48,7 @@ float mean(double inputStart, double inputEnd, const SampleReader& read) {
 }
 
 SampleReader SampleRateConverter::createUnsafeSampleReader() const {
-	return[read = inputClip->createSampleReader(), downscalingFactor = downscalingFactor, size = size()](size_type index) {
+	return[read = inputClip->createSampleReader(), downscalingFactor = downscalingFactor, size = inputClip->size()](size_type index) {
 		double inputStart = index * downscalingFactor;
 		double inputEnd = std::min((index + 1) * downscalingFactor, static_cast<double>(size));
 		return mean(inputStart, inputEnd, read);
