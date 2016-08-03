@@ -135,6 +135,11 @@ BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decod
 		ps_seg_frames(it, &firstFrame, &lastFrame);
 		result.set(centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
 	}
+	if (result.size() == 2) {
+		// The two recognized words are "<s>" and "</s>", which is really nothing.
+		// This seems to trigger a similar decoder corruption.
+		decoderIsStillUsable = false;
+	}
 
 	return result;
 }
