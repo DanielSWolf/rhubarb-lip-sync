@@ -41,10 +41,12 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	};
 
 	auto bilabialStop = [&]() {
-		centiseconds closedDuration = clamp(previousPhoneDuration / 2, 4cs, 16cs);
+		centiseconds maxDuration = 12cs;
+		centiseconds leftOverlap = clamp(previousPhoneDuration / 2, 4cs, maxDuration);
+		centiseconds rightOverlap = min(duration, maxDuration - leftOverlap);
 		return Timeline<Viseme>{
-			{ -closedDuration, 0cs, { A } },
-			{ 0cs, duration, {{ B, C, D, E, F }} }
+			{ -leftOverlap, rightOverlap, { A } },
+			{ rightOverlap, duration, {{ B, C, D, E, F }} }
 		};
 	};
 
