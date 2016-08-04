@@ -4,6 +4,7 @@
 #include <chrono>
 #include <format.h>
 #include <iostream>
+#include <boost/algorithm/clamp.hpp>
 
 using std::string;
 
@@ -58,7 +59,7 @@ ProgressBar::~ProgressBar() {
 
 void ProgressBar::reportProgress(double value) {
 	// Make sure value is in [0..1] range
-	value = std::max(0.0, std::min(1.0, value));
+	value = boost::algorithm::clamp(value, 0.0, 1.0);
 
 	currentProgress = value;
 }

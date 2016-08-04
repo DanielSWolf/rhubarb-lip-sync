@@ -29,6 +29,10 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 	error = WebRtcVad_set_mode(vadHandle, aggressiveness);
 	if (error) throw runtime_error("Error setting WebRTC VAD aggressiveness.");
 
+	ProgressMerger progressMerger(progressSink);
+	ProgressSink& pass1ProgressSink = progressMerger.addSink(1.0);
+	ProgressSink& pass2ProgressSink = progressMerger.addSink(0.3);
+
 	// Detect activity
 	BoundedTimeline<void> activity(audioClip.getTruncatedRange());
 	centiseconds time = 0cs;
@@ -46,7 +50,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 		}
 		time += 1cs;
 	};
-	process16bitAudioClip(audioClip, processBuffer, bufferCapacity, progressSink);
+	process16bitAudioClip(audioClip, processBuffer, bufferCapacity, pass1ProgressSink);
 
 	// WebRTC adapts to the audio. This means results may not be correct at the very beginning.
 	// It sometimes returns false activity at the very beginning, mistaking the background noise for speech.
@@ -56,7 +60,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 		activity.clear(firstActivity);
 		unique_ptr<AudioClip> streamStart = audioClip.clone() | segment(TimeRange(0cs, firstActivity.getEnd()));
 		time = 0cs;
-		process16bitAudioClip(*streamStart, processBuffer, bufferCapacity, progressSink);
+		process16bitAudioClip(*streamStart, processBuffer, bufferCapacity, pass2ProgressSink);
 	}
 
 	return activity;

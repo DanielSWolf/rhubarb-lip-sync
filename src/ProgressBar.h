@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <atomic>
 #include <future>
 #include <functional>
@@ -12,6 +11,11 @@ class ProgressSink {
 public:
 	virtual ~ProgressSink() {}
 	virtual void reportProgress(double value) = 0;
+};
+
+class NullProgressSink : public ProgressSink {
+public:
+	void reportProgress(double) override {}
 };
 
 class ProgressForwarder : public ProgressSink {
