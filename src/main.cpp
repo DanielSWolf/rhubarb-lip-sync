@@ -101,8 +101,10 @@ u32string readTextFile(path filePath) {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef _DEBUG
 	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
+#endif
 
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
@@ -122,7 +124,9 @@ int main(int argc, char *argv[]) {
 	try {
 		auto resumeLogging = gsl::finally([&]() {
 			std::cerr << std::endl << std::endl;
+#ifdef _DEBUG
 			pausableStderrSink->resume();
+#endif
 			std::cerr << std::endl;
 		});
 
