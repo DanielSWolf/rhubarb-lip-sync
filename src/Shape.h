@@ -29,3 +29,7 @@ protected:
 std::ostream& operator<<(std::ostream& stream, Shape value);
 
 std::istream& operator>>(std::istream& stream, Shape& value);
+
+inline bool isClosed(Shape shape) {
+	return shape == Shape::A || shape == Shape::X;
+}

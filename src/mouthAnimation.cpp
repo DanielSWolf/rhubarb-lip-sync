@@ -164,6 +164,36 @@ Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
 	return tweens;
 }
 
+Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
+	Timeline<Shape> result;
+
+	// Don't close mouth for short pauses
+	for (const auto& timedShape : shapes) {
+		if (timedShape.getValue() != X) continue;
+
+		const centiseconds maxPausedOpenMouthDuration = 35cs;
+		const TimeRange timeRange = timedShape.getTimeRange();
+		if (timeRange.getLength() <= maxPausedOpenMouthDuration) {
+			result.set(timeRange, B);
+		}
+	}
+
+	// Keep mouth open into pause if it just opened
+	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& secondLast, const Timed<Shape>& last, const Timed<Shape>& pause) {
+		if (pause.getValue() != X) return;
+
+		centiseconds lastLength = last.getTimeRange().getLength();
+		const centiseconds minOpenDuration = 20cs;
+		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastLength < minOpenDuration) {
+			const centiseconds minSpillDuration = 20cs;
+			centiseconds spillDuration = std::min(minSpillDuration, pause.getTimeRange().getLength());
+			result.set(pause.getStart(), pause.getStart() + spillDuration, B);
+		}
+	});
+
+	return result;
+}
+
 ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	// Convert phones to continuous timeline so that silences aren't skipped when iterating
 	ContinuousTimeline<optional<Phone>> continuousPhones(phones.getRange(), boost::none);
@@ -202,6 +232,12 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		Shape shape = viseme.getShape(it->getTimeRange().getLength(), lastShape);
 
 		shapes.set(it->getTimeRange(), shape);
+	}
+
+	// Animate pauses
+	Timeline<Shape> pauses = animatePauses(shapes);
+	for (const auto& pause : pauses) {
+		shapes.set(pause);
 	}
 
 	// Create inbetweens for smoother animation
