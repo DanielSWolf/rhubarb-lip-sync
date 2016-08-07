@@ -61,7 +61,7 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	case Phone::EH:			return single({ C });
 	case Phone::IH:			return single({ B });
 	case Phone::UH:			return single({ E });
-	case Phone::AH:			return single({ C });
+	case Phone::AH:			return single({ { B, C, D, E, F }, 6cs, { C } }); // Heuristic: < 6cs is schwa
 	case Phone::AE:			return single({ D });
 	case Phone::EY:			return diphtong({ C }, { B });
 	case Phone::AY:			return diphtong({ D }, { B });
