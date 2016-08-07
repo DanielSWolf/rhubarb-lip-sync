@@ -278,7 +278,7 @@ install(
 	DESTINATION .
 )
 install(
-	FILES README.md LICENSE.md VERSION.md
+	FILES README.adoc LICENSE.md VERSION.md
 	DESTINATION .
 )
 
