@@ -27,15 +27,15 @@ bool VisemeOption::operator!=(const VisemeOption& rhs) const {
 }
 
 Viseme::Viseme(const VisemeOption& option) :
-	options{ { 0cs, option } }
+	options{ { 0_cs, option } }
 {}
 
 Viseme::Viseme(const VisemeOption& option1, centiseconds threshold, const VisemeOption& option2) :
-	options{ { 0cs, option1 }, { threshold, option2 } }
+	options{ { 0_cs, option1 }, { threshold, option2 } }
 {}
 
 Viseme::Viseme(const VisemeOption& option1, centiseconds threshold1, const VisemeOption& option2, centiseconds threshold2, const VisemeOption& option3) :
-	options{ { 0cs, option1 },{ threshold1, option2 }, { threshold2, option3 } }
+	options{ { 0_cs, option1 },{ threshold1, option2 }, { threshold2, option3 } }
 {}
 
 Shape Viseme::getShape(centiseconds duration, Shape context) const {

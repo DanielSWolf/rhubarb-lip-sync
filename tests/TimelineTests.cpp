@@ -11,14 +11,14 @@ using boost::none;
 
 TEST(Timeline, constructors_initializeState) {
 	auto args = {
-		Timed<int>(-10cs, 30cs, 1),
-		Timed<int>(10cs, 40cs, 2),
-		Timed<int>(50cs, 60cs, 3)
+		Timed<int>(-10_cs, 30_cs, 1),
+		Timed<int>(10_cs, 40_cs, 2),
+		Timed<int>(50_cs, 60_cs, 3)
 	};
 	auto expected = {
-		Timed<int>(-10cs, 10cs, 1),
-		Timed<int>(10cs, 40cs, 2),
-		Timed<int>(50cs, 60cs, 3)
+		Timed<int>(-10_cs, 10_cs, 1),
+		Timed<int>(10_cs, 40_cs, 2),
+		Timed<int>(50_cs, 60_cs, 3)
 	};
 	EXPECT_THAT(
 		Timeline<int>(args.begin(), args.end()),
@@ -39,11 +39,11 @@ TEST(Timeline, empty) {
 	EXPECT_TRUE(empty1.empty());
 	EXPECT_THAT(empty1, IsEmpty());
 
-	Timeline<int> empty2{ Timed<int>(1cs, 1cs, 1) };
+	Timeline<int> empty2{ Timed<int>(1_cs, 1_cs, 1) };
 	EXPECT_TRUE(empty2.empty());
 	EXPECT_THAT(empty2, IsEmpty());
 
-	Timeline<int> nonEmpty{ Timed<int>(1cs, 2cs, 1) };
+	Timeline<int> nonEmpty{ Timed<int>(1_cs, 2_cs, 1) };
 	EXPECT_FALSE(nonEmpty.empty());
 	EXPECT_THAT(nonEmpty, Not(IsEmpty()));
 }
@@ -57,39 +57,39 @@ TEST(Timeline, size) {
 	EXPECT_EQ(0, empty1.size());
 	EXPECT_THAT(empty1, SizeIs(0));
 
-	Timeline<int> empty2{ Timed<int>(1cs, 1cs, 1) };
+	Timeline<int> empty2{ Timed<int>(1_cs, 1_cs, 1) };
 	EXPECT_EQ(0, empty2.size());
 	EXPECT_THAT(empty2, SizeIs(0));
 
-	Timeline<int> size1{ Timed<int>(1cs, 10cs, 1) };
+	Timeline<int> size1{ Timed<int>(1_cs, 10_cs, 1) };
 	EXPECT_EQ(1, size1.size());
 	EXPECT_THAT(size1, SizeIs(1));
 
-	Timeline<int> size2{ Timed<int>(-10cs, 10cs, 1), Timed<int>(10cs, 11cs, 5) };
+	Timeline<int> size2{ Timed<int>(-10_cs, 10_cs, 1), Timed<int>(10_cs, 11_cs, 5) };
 	EXPECT_EQ(2, size2.size());
 	EXPECT_THAT(size2, SizeIs(2));
 }
 
 TEST(Timeline, getRange) {
 	Timeline<int> empty0;
-	EXPECT_EQ(TimeRange(0cs, 0cs), empty0.getRange());
+	EXPECT_EQ(TimeRange(0_cs, 0_cs), empty0.getRange());
 
 	Timeline<int> empty1{};
-	EXPECT_EQ(TimeRange(0cs, 0cs), empty1.getRange());
+	EXPECT_EQ(TimeRange(0_cs, 0_cs), empty1.getRange());
 
-	Timeline<int> empty2{ Timed<int>(1cs, 1cs, 1) };
-	EXPECT_EQ(TimeRange(0cs, 0cs), empty2.getRange());
+	Timeline<int> empty2{ Timed<int>(1_cs, 1_cs, 1) };
+	EXPECT_EQ(TimeRange(0_cs, 0_cs), empty2.getRange());
 
-	Timeline<int> nonEmpty1{ Timed<int>(1cs, 10cs, 1) };
-	EXPECT_EQ(TimeRange(1cs, 10cs), nonEmpty1.getRange());
+	Timeline<int> nonEmpty1{ Timed<int>(1_cs, 10_cs, 1) };
+	EXPECT_EQ(TimeRange(1_cs, 10_cs), nonEmpty1.getRange());
 
-	Timeline<int> nonEmpty2{ Timed<int>(-10cs, 5cs, 1), Timed<int>(10cs, 11cs, 5) };
-	EXPECT_EQ(TimeRange(-10cs, 11cs), nonEmpty2.getRange());
+	Timeline<int> nonEmpty2{ Timed<int>(-10_cs, 5_cs, 1), Timed<int>(10_cs, 11_cs, 5) };
+	EXPECT_EQ(TimeRange(-10_cs, 11_cs), nonEmpty2.getRange());
 }
 
 TEST(Timeline, iterators) {
-	Timeline<int> timeline{ Timed<int>(-5cs, 0cs, 10), Timed<int>(5cs, 15cs, 9) };
-	auto expected = { Timed<int>(-5cs, 0cs, 10), Timed<int>(5cs, 15cs, 9) };
+	Timeline<int> timeline{ Timed<int>(-5_cs, 0_cs, 10), Timed<int>(5_cs, 15_cs, 9) };
+	auto expected = { Timed<int>(-5_cs, 0_cs, 10), Timed<int>(5_cs, 15_cs, 9) };
 	EXPECT_THAT(timeline, ElementsAreArray(expected));
 
 	vector<Timed<int>> reversedActual;
@@ -115,9 +115,9 @@ void testFind(const Timeline<int>& timeline, FindMode findMode, const initialize
 }
 
 TEST(Timeline, find) {
-	Timed<int> a = Timed<int>(1cs, 2cs, 1);
-	Timed<int> b = Timed<int>(2cs, 5cs, 2);
-	Timed<int> c = Timed<int>(7cs, 9cs, 3);
+	Timed<int> a = Timed<int>(1_cs, 2_cs, 1);
+	Timed<int> b = Timed<int>(2_cs, 5_cs, 2);
+	Timed<int> c = Timed<int>(7_cs, 9_cs, 3);
 	Timeline<int> timeline{ a, b, c };
 
 	testFind(timeline, FindMode::SampleLeft, { nullptr, nullptr, &a, &b, &b, &b, nullptr, nullptr, &c, &c, nullptr });
@@ -127,9 +127,9 @@ TEST(Timeline, find) {
 }
 
 TEST(Timeline, get) {
-	Timed<int> a = Timed<int>(1cs, 2cs, 1);
-	Timed<int> b = Timed<int>(2cs, 5cs, 2);
-	Timed<int> c = Timed<int>(7cs, 9cs, 3);
+	Timed<int> a = Timed<int>(1_cs, 2_cs, 1);
+	Timed<int> b = Timed<int>(2_cs, 5_cs, 2);
+	Timed<int> c = Timed<int>(7_cs, 9_cs, 3);
 	Timeline<int> timeline{ a, b, c };
 
 	initializer_list<Timed<int>*> expectedResults = { nullptr, &a, &b, &b, &b, nullptr, nullptr, &c, &c, nullptr, nullptr };
@@ -148,39 +148,39 @@ TEST(Timeline, get) {
 }
 
 TEST(Timeline, clear) {
-	Timeline<int> original{ { 1cs, 2cs, 1 }, { 2cs, 5cs, 2 }, { 7cs, 9cs, 3 } };
+	Timeline<int> original{ { 1_cs, 2_cs, 1 }, { 2_cs, 5_cs, 2 }, { 7_cs, 9_cs, 3 } };
 	
 	{
 		auto timeline = original;
-		timeline.clear(-10cs, 10cs);
+		timeline.clear(-10_cs, 10_cs);
 		EXPECT_THAT(timeline, IsEmpty());
 	}
 	
 	{
 		auto timeline = original;
-		timeline.clear(1cs, 2cs);
-		Timeline<int> expected{ { 2cs, 5cs, 2 }, { 7cs, 9cs, 3 } };
+		timeline.clear(1_cs, 2_cs);
+		Timeline<int> expected{ { 2_cs, 5_cs, 2 }, { 7_cs, 9_cs, 3 } };
 		EXPECT_EQ(expected, timeline);
 	}
 	
 	{
 		auto timeline = original;
-		timeline.clear(3cs, 4cs);
-		Timeline<int> expected{ { 1cs, 2cs, 1 }, { 2cs, 3cs, 2 }, { 4cs, 5cs, 2}, { 7cs, 9cs, 3} };
+		timeline.clear(3_cs, 4_cs);
+		Timeline<int> expected{ { 1_cs, 2_cs, 1 }, { 2_cs, 3_cs, 2 }, { 4_cs, 5_cs, 2}, { 7_cs, 9_cs, 3} };
 		EXPECT_EQ(expected, timeline);
 	}
 	
 	{
 		auto timeline = original;
-		timeline.clear(6cs, 8cs);
-		Timeline<int> expected{ { 1cs, 2cs, 1 }, { 2cs, 5cs, 2 }, { 8cs, 9cs, 3 } };
+		timeline.clear(6_cs, 8_cs);
+		Timeline<int> expected{ { 1_cs, 2_cs, 1 }, { 2_cs, 5_cs, 2 }, { 8_cs, 9_cs, 3 } };
 		EXPECT_EQ(expected, timeline);
 	}
 	
 	{
 		auto timeline = original;
-		timeline.clear(8cs, 10cs);
-		Timeline<int> expected{ { 1cs, 2cs, 1 }, { 2cs, 5cs, 2 }, { 7cs, 8cs, 3 } };
+		timeline.clear(8_cs, 10_cs);
+		Timeline<int> expected{ { 1_cs, 2_cs, 1 }, { 2_cs, 5_cs, 2 }, { 7_cs, 8_cs, 3 } };
 		EXPECT_EQ(expected, timeline);
 	}
 }
@@ -189,23 +189,23 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 	Timeline<int> timeline;
 	vector<optional<int>> expectedValues(20, none);
 	auto newElements = {
-		Timed<int>(1cs, 2cs, 4),
-		Timed<int>(3cs, 6cs, 4),
-		Timed<int>(7cs, 9cs, 5),
-		Timed<int>(9cs, 10cs, 6),
-		Timed<int>(2cs, 3cs, 4),
-		Timed<int>(0cs, 1cs, 7),
-		Timed<int>(-10cs, 1cs, 8),
-		Timed<int>(-10cs, 0cs, 9),
-		Timed<int>(-10cs, -1cs, 10),
-		Timed<int>(9cs, 20cs, 11),
-		Timed<int>(10cs, 20cs, 12),
-		Timed<int>(11cs, 20cs, 13),
-		Timed<int>(4cs, 6cs, 14),
-		Timed<int>(4cs, 6cs, 15),
-		Timed<int>(8cs, 10cs, 15),
-		Timed<int>(6cs, 8cs, 15),
-		Timed<int>(6cs, 8cs, 16)
+		Timed<int>(1_cs, 2_cs, 4),
+		Timed<int>(3_cs, 6_cs, 4),
+		Timed<int>(7_cs, 9_cs, 5),
+		Timed<int>(9_cs, 10_cs, 6),
+		Timed<int>(2_cs, 3_cs, 4),
+		Timed<int>(0_cs, 1_cs, 7),
+		Timed<int>(-10_cs, 1_cs, 8),
+		Timed<int>(-10_cs, 0_cs, 9),
+		Timed<int>(-10_cs, -1_cs, 10),
+		Timed<int>(9_cs, 20_cs, 11),
+		Timed<int>(10_cs, 20_cs, 12),
+		Timed<int>(11_cs, 20_cs, 13),
+		Timed<int>(4_cs, 6_cs, 14),
+		Timed<int>(4_cs, 6_cs, 15),
+		Timed<int>(8_cs, 10_cs, 15),
+		Timed<int>(6_cs, 8_cs, 15),
+		Timed<int>(6_cs, 8_cs, 16)
 	};
 	int newElementIndex = -1;
 	for (const auto& newElement : newElements) {
@@ -214,14 +214,14 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 		set(newElement, timeline);
 
 		// Update expected value for every index
-		centiseconds elementStart = max(newElement.getStart(), 0cs);
+		centiseconds elementStart = max(newElement.getStart(), 0_cs);
 		centiseconds elementEnd = newElement.getEnd();
 		for (centiseconds t = elementStart; t < elementEnd; ++t) {
 			expectedValues[t.count()] = newElement.getValue();
 		}
 
 		// Check timeline via indexer
-		for (centiseconds t = 0cs; t < 10cs; ++t) {
+		for (centiseconds t = 0_cs; t < 10_cs; ++t) {
 			optional<const int&> actual = timeline[t];
 			EXPECT_EQ(expectedValues[t.count()], actual ? optional<int>(*actual) : none);
 		}
@@ -230,7 +230,7 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 		Timed<int> lastElement(centiseconds::min(), centiseconds::min(), std::numeric_limits<int>::min());
 		for (const auto& element : timeline) {
 			// No element shound have zero-length
-			EXPECT_LT(0cs, element.getTimeRange().getLength());
+			EXPECT_LT(0_cs, element.getTimeRange().getLength());
 
 			// No two adjacent elements should have the same value; they should have been merged
 			if (element.getStart() == lastElement.getEnd()) {
@@ -264,9 +264,9 @@ TEST(Timeline, set) {
 }
 
 TEST(Timeline, indexer_get) {
-	Timeline<int> timeline{ { 1cs, 2cs, 1 }, { 2cs, 4cs, 2 }, { 6cs, 9cs, 3 } };
+	Timeline<int> timeline{ { 1_cs, 2_cs, 1 }, { 2_cs, 4_cs, 2 }, { 6_cs, 9_cs, 3 } };
 	vector<optional<int>> expectedValues{ none, 1, 2, 2, none, none, 3, 3, 3 };
-	for (centiseconds t = 0cs; t < 9cs; ++t) {
+	for (centiseconds t = 0_cs; t < 9_cs; ++t) {
 		{
 			optional<const int&> actual = timeline[t];
 			EXPECT_EQ(expectedValues[t.count()], actual ? optional<int>(*actual) : none);
@@ -297,18 +297,18 @@ TEST(Timeline, indexer_set) {
 }
 
 TEST(Timeline, shift) {
-	Timeline<int> timeline{ { 1cs, 2cs, 1 },{ 2cs, 5cs, 2 },{ 7cs, 9cs, 3 } };
-	Timeline<int> expected{ { 3cs, 4cs, 1 },{ 4cs, 7cs, 2 },{ 9cs, 11cs, 3 } };
-	timeline.shift(2cs);
+	Timeline<int> timeline{ { 1_cs, 2_cs, 1 },{ 2_cs, 5_cs, 2 },{ 7_cs, 9_cs, 3 } };
+	Timeline<int> expected{ { 3_cs, 4_cs, 1 },{ 4_cs, 7_cs, 2 },{ 9_cs, 11_cs, 3 } };
+	timeline.shift(2_cs);
 	EXPECT_EQ(expected, timeline);
 }
 
 TEST(Timeline, equality) {
 	vector<Timeline<int>> timelines = {
 		Timeline<int>{},
-		Timeline<int>{ { 1cs, 2cs, 0 } },
-		Timeline<int>{ { 1cs, 2cs, 1 } },
-		Timeline<int>{ { -10cs, 0cs, 0 } }
+		Timeline<int>{ { 1_cs, 2_cs, 0 } },
+		Timeline<int>{ { 1_cs, 2_cs, 1 } },
+		Timeline<int>{ { -10_cs, 0_cs, 0 } }
 	};
 
 	for (size_t i = 0; i < timelines.size(); ++i) {

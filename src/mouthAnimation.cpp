@@ -28,21 +28,21 @@ constexpr Shape X = Shape::X;
 Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseconds previousPhoneDuration) {
 	auto single = [&](Viseme viseme) {
 		return Timeline<Viseme>{
-			{ 0cs, duration, viseme }
+			{ 0_cs, duration, viseme }
 		};
 	};
 
 	auto diphtong = [&](Viseme first, Viseme second) {
 		centiseconds firstDuration = duration_cast<centiseconds>(duration * 0.6);
 		return Timeline<Viseme>{
-			{ 0cs, firstDuration, first },
+			{ 0_cs, firstDuration, first },
 			{ firstDuration, duration, second }
 		};
 	};
 
 	auto bilabialStop = [&]() {
-		centiseconds maxDuration = 12cs;
-		centiseconds leftOverlap = clamp(previousPhoneDuration / 2, 4cs, maxDuration);
+		centiseconds maxDuration = 12_cs;
+		centiseconds leftOverlap = clamp(previousPhoneDuration / 2, 4_cs, maxDuration);
 		centiseconds rightOverlap = min(duration, maxDuration - leftOverlap);
 		return Timeline<Viseme>{
 			{ -leftOverlap, rightOverlap, { A } },
@@ -61,7 +61,7 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	case Phone::EH:			return single({ C });
 	case Phone::IH:			return single({ B });
 	case Phone::UH:			return single({ E });
-	case Phone::AH:			return single({ { B, C, D, E, F }, 6cs, { C } }); // Heuristic: < 6cs is schwa
+	case Phone::AH:			return single({ { B, C, D, E, F }, 6_cs, { C } }); // Heuristic: < 6_cs is schwa
 	case Phone::AE:			return single({ D });
 	case Phone::EY:			return diphtong({ C }, { B });
 	case Phone::AY:			return diphtong({ D }, { B });
@@ -119,8 +119,8 @@ optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
 }
 
 Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
-	centiseconds minTweenDuration = 4cs;
-	centiseconds maxTweenDuration = 10cs;
+	centiseconds minTweenDuration = 4_cs;
+	centiseconds maxTweenDuration = 10_cs;
 
 	Timeline<Shape> tweens;
 
@@ -171,7 +171,7 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	for (const auto& timedShape : shapes) {
 		if (timedShape.getValue() != X) continue;
 
-		const centiseconds maxPausedOpenMouthDuration = 35cs;
+		const centiseconds maxPausedOpenMouthDuration = 35_cs;
 		const TimeRange timeRange = timedShape.getTimeRange();
 		if (timeRange.getLength() <= maxPausedOpenMouthDuration) {
 			result.set(timeRange, B);
@@ -183,9 +183,9 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 		if (pause.getValue() != X) return;
 
 		centiseconds lastLength = last.getTimeRange().getLength();
-		const centiseconds minOpenDuration = 20cs;
+		const centiseconds minOpenDuration = 20_cs;
 		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastLength < minOpenDuration) {
-			const centiseconds minSpillDuration = 20cs;
+			const centiseconds minSpillDuration = 20_cs;
 			centiseconds spillDuration = std::min(minSpillDuration, pause.getTimeRange().getLength());
 			result.set(pause.getStart(), pause.getStart() + spillDuration, B);
 		}
@@ -203,7 +203,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 
 	// Create timeline of visemes
 	ContinuousTimeline<Viseme> visemes(phones.getRange(), { X });
-	centiseconds previousPhoneDuration = 0cs;
+	centiseconds previousPhoneDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
 		// Animate one phone
 		optional<Phone> phone = timedPhone.getValue();

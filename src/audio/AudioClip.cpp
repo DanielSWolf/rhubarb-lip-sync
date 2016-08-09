@@ -4,7 +4,7 @@
 using std::invalid_argument;
 
 TimeRange AudioClip::getTruncatedRange() const {
-	return TimeRange(0cs, centiseconds(100 * size() / getSampleRate()));
+	return TimeRange(0_cs, centiseconds(100 * size() / getSampleRate()));
 }
 
 class SafeSampleReader {

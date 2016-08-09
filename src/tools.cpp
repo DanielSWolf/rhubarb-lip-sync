@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "platformTools.h"
 #include <format.h>
 #include <chrono>
 #include <vector>
@@ -11,8 +12,7 @@ string formatDuration(duration<double> seconds) {
 }
 
 string formatTime(time_t time, const string& format) {
-	tm timeInfo;
-	localtime_s(&timeInfo, &time);
+	tm timeInfo = getLocalTime(time);
 	std::vector<char> buffer(20);
 	bool success = false;
 	while (!success) {

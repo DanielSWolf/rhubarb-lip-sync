@@ -35,11 +35,11 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQ
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(enableWarningsFlags "/W4")
 	set(disableWarningsFlags "/W0")
-	
+
 	# Disable warning C4456: declaration of '...' hides previous local declaration
 	# I'm doing that on purpose.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
-	
+
 	# Assume UTF-8 encoding for source files and encode string constants in UTF-8
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 endif()
@@ -116,6 +116,9 @@ set(webRTCFiles
 )
 add_library(webRTC ${webRTCFiles})
 target_compile_options(webRTC PRIVATE ${disableWarningsFlags})
+if (NOT WIN32)
+	target_compile_definitions(webRTC PRIVATE WEBRTC_POSIX)
+endif()
 set_target_properties(webRTC PROPERTIES FOLDER lib)
 
 # ... Flite
@@ -242,6 +245,7 @@ set(TEST_FILES
 	tests/g2pTests.cpp
 	tests/LazyTests.cpp
 	src/stringTools.cpp src/stringTools.h
+	src/platformTools.cpp src/platformTools.h
 	src/Timeline.h
 	src/TimeRange.cpp src/TimeRange.h
 	src/centiseconds.cpp src/centiseconds.h
@@ -254,7 +258,7 @@ set(TEST_FILES
 	src/Lazy.h
 )
 add_executable(runTests ${TEST_FILES})
-target_link_libraries(runTests gtest gmock gmock_main flite cppFormat)
+target_link_libraries(runTests ${Boost_LIBRARIES} gtest gmock gmock_main flite cppFormat)
 
 set(CPACK_PACKAGE_NAME ${appName})
 string(REPLACE " " "-" CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")

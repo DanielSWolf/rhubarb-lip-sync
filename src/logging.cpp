@@ -2,12 +2,15 @@
 #include <tools.h>
 #include <iostream>
 #include <atomic>
+#include <thread>
+#include <unordered_map>
 
 using namespace logging;
 using std::string;
 using std::vector;
 using std::shared_ptr;
 using std::lock_guard;
+using std::unordered_map;
 
 LevelConverter& LevelConverter::get() {
 	static LevelConverter converter;
@@ -37,15 +40,29 @@ std::istream& logging::operator>>(std::istream& stream, Level& value) {
 	return LevelConverter::get().read(stream, value);
 }
 
+// Returns an int representing the current thread.
+// This used to be a simple thread_local variable, but Xcode doesn't support that yet
+int getThreadCounter() {
+    using thread_id = std::thread::id;
+
+    static std::mutex counterMutex;
+    lock_guard<std::mutex> lock(counterMutex);
+    
+    static unordered_map<thread_id, int> threadCounters;
+    static int lastThreadId = 0;
+    thread_id threadId = std::this_thread::get_id();
+    if (threadCounters.find(threadId) == threadCounters.end()) {
+        threadCounters.insert({threadId, ++lastThreadId});
+    }
+    return threadCounters.find(threadId)->second;
+}
+
 Entry::Entry(Level level, const string& message) :
 	level(level),
 	message(message)
 {
 	time(&timestamp);
-
-	static std::atomic<int> lastThreadId = 0;
-	thread_local int threadCounter = ++lastThreadId;
-	this->threadCounter = threadCounter;
+	this->threadCounter = getThreadCounter();
 }
 
 string SimpleConsoleFormatter::format(const Entry& entry) {

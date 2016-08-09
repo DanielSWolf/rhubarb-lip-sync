@@ -140,3 +140,25 @@ path getTempFilePath() {
 	string fileName = to_string(generateUuid());
 	return tempDirectory / fileName;
 }
+
+std::tm getLocalTime(const time_t& time) {
+	// Xcode doesn't support localtime_s.
+	tm timeInfo;
+#if (BOOST_OS_MACOS)
+	localtime_r(&time, &timeInfo);
+#else
+	localtime_s(&timeInfo, &time);
+#endif
+	return timeInfo;
+}
+
+std::string errorNumberToString(int errorNumber) {
+	// Xcode doesn't support strerror_s.
+	char message[256];
+#if (BOOST_OS_MACOS)
+	strerror_r(errorNumber, message, sizeof message);
+#else
+	strerror_s(message, sizeof message, errorNumber);
+#endif
+	return message;
+}

@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <mutex>
+#include <string>
 
 class ProgressSink {
 public:

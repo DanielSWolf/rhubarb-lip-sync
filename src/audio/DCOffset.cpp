@@ -1,4 +1,5 @@
 #include "DCOffset.h"
+#include <cmath>
 
 using std::unique_ptr;
 using std::make_unique;

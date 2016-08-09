@@ -35,7 +35,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 
 	// Detect activity
 	BoundedTimeline<void> activity(audioClip.getTruncatedRange());
-	centiseconds time = 0cs;
+	centiseconds time = 0_cs;
 	const size_t bufferCapacity = audioClip.getSampleRate() / 100;
 	auto processBuffer = [&](const vector<int16_t>& buffer) {
 		// WebRTC is picky regarding buffer size
@@ -46,9 +46,9 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 
 		bool isActive = result != 0;
 		if (isActive) {
-			activity.set(time, time + 1cs);
+			activity.set(time, time + 1_cs);
 		}
-		time += 1cs;
+		time += 1_cs;
 	};
 	process16bitAudioClip(audioClip, processBuffer, bufferCapacity, pass1ProgressSink);
 
@@ -58,8 +58,8 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 	if (!activity.empty()) {
 		TimeRange firstActivity = activity.begin()->getTimeRange();
 		activity.clear(firstActivity);
-		unique_ptr<AudioClip> streamStart = audioClip.clone() | segment(TimeRange(0cs, firstActivity.getEnd()));
-		time = 0cs;
+		unique_ptr<AudioClip> streamStart = audioClip.clone() | segment(TimeRange(0_cs, firstActivity.getEnd()));
+		time = 0_cs;
 		process16bitAudioClip(*streamStart, processBuffer, bufferCapacity, pass2ProgressSink);
 	}
 

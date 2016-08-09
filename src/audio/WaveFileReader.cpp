@@ -2,6 +2,7 @@
 #include <string.h>
 #include "WaveFileReader.h"
 #include "ioTools.h"
+#include "platformTools.h"
 
 using std::runtime_error;
 using fmt::format;
@@ -46,9 +47,7 @@ std::ifstream openFile(path filePath) {
 
 		return std::move(file);
 	} catch (const std::ifstream::failure&) {
-		char message[256];
-		strerror_s(message, sizeof message, errno);
-		throw runtime_error(message);
+		throw runtime_error(errorNumberToString(errno));
 	}
 }
 
