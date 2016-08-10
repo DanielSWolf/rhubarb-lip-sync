@@ -230,8 +230,9 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 
 		// Convert viseme to phone
 		Shape shape = viseme.getShape(it->getTimeRange().getLength(), lastShape);
-
 		shapes.set(it->getTimeRange(), shape);
+
+		lastShape = shape;
 	}
 
 	// Animate pauses
