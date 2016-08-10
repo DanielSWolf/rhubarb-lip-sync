@@ -260,6 +260,8 @@ lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
 			"-dict", (getSphinxModelDirectory() / "cmudict-en-us.dict").string().c_str(),
 			// Add noise against zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
 			"-dither", "yes",
+			// Disable VAD -- we're doing that ourselves
+			"-remove_silence", "no",
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
