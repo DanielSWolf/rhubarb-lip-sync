@@ -58,17 +58,17 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	case Phone::AA:			return single({ D });
 	case Phone::IY:			return single({ B });
 	case Phone::UW:			return single({ F });
-	case Phone::EH:			return single({ C });
+	case Phone::EH:			return single({ { C }, 20_cs, { D } });
 	case Phone::IH:			return single({ B });
 	case Phone::UH:			return single({ E });
 	case Phone::AH:			return single({ { B, C, D, E, F }, 6_cs, { C } }); // Heuristic: < 6_cs is schwa
 	case Phone::AE:			return single({ D });
-	case Phone::EY:			return diphtong({ C }, { B });
+	case Phone::EY:			return diphtong({ { C }, 20_cs, { D } }, { B });
 	case Phone::AY:			return diphtong({ D }, { B });
 	case Phone::OW:			return diphtong({ E }, { F });
 	case Phone::AW:			return diphtong({ D }, { F });
-	case Phone::OY:			return diphtong({ E }, { B });
-	case Phone::ER:			return single({ E });
+	case Phone::OY:			return diphtong({ F }, { B });
+	case Phone::ER:			return single({ { B }, 7_cs, { E } });
 	case Phone::P:
 	case Phone::B:			return bilabialStop();
 	case Phone::T:
