@@ -359,6 +359,7 @@ Timeline<void> getUnknownSounds(const Timeline<void>& utterances, const Timeline
 BoundedTimeline<Phone> detectPhones(
 	const AudioClip& inputAudioClip,
 	optional<u32string> dialog,
+	int maxThreadCount,
 	ProgressSink& progressSink)
 {
 	ProgressMerger totalProgressMerger(progressSink);
@@ -371,7 +372,7 @@ BoundedTimeline<Phone> detectPhones(
 	// Split audio into utterances
 	BoundedTimeline<void> utterances;
 	try {
-		utterances = detectVoiceActivity(*audioClip, voiceActivationProgressSink);
+		utterances = detectVoiceActivity(*audioClip, maxThreadCount, voiceActivationProgressSink);
 	}
 	catch (...) {
 		std::throw_with_nested(runtime_error("Error detecting segments of speech."));
@@ -437,8 +438,7 @@ BoundedTimeline<Phone> detectPhones(
 	try {
 		// Determine how many parallel threads to use
 		int threadCount = std::min({
-			// Don't use more threads than there are CPU cores
-			getProcessorCoreCount(),
+			maxThreadCount,
 			// Don't use more threads than there are utterances to be processed
 			static_cast<int>(utterances.size()),
 			// Don't waste time creating additional threads (and decoders!) if the recording is short

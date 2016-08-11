@@ -16,6 +16,7 @@
 #include "stringTools.h"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include "parallel.h"
 
 using std::exception;
 using std::string;
@@ -115,6 +116,7 @@ int main(int argc, char *argv[]) {
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
 	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
+	tclap::ValueArg<int> maxThreadCount("", "threads", "The maximum number of worker threads to use.", false, getProcessorCoreCount(), "number", cmd);
 	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
@@ -132,6 +134,9 @@ int main(int argc, char *argv[]) {
 
 		// Parse command line
 		cmd.parse(argc, argv);
+		if (maxThreadCount.getValue() < 1) {
+			throw std::runtime_error("Thread count must be 1 or higher.");
+		}
 
 		// Set up log file
 		if (logFileName.isSet()) {
@@ -151,6 +156,7 @@ int main(int argc, char *argv[]) {
 			phones = detectPhones(
 				*createAudioClip(inputFileName.getValue()),
 				dialogFile.isSet() ? readTextFile(path(dialogFile.getValue())) : boost::optional<u32string>(),
+				maxThreadCount.getValue(),
 				progressBar);
 		}
 		std::cerr << "Done" << std::endl;

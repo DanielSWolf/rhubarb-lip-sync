@@ -8,4 +8,5 @@
 BoundedTimeline<Phone> detectPhones(
 	const AudioClip& audioClip,
 	boost::optional<std::u32string> dialog,
+	int maxThreadCount,
 	ProgressSink& progressSink);

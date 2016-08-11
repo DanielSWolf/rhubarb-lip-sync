@@ -66,7 +66,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 	return activity;
 }
 
-BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, ProgressSink& progressSink) {
+BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int maxThreadCount, ProgressSink& progressSink) {
 	// Prepare audio for VAD
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(16000) | removeDCOffset();
 
@@ -74,7 +74,7 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, Progr
 	std::mutex activityMutex;
 
 	// Split audio into segments and perform parallel VAD
-	int segmentCount = getProcessorCoreCount();
+	const int segmentCount = maxThreadCount;
 	centiseconds audioLength = audioClip->getTruncatedRange().getLength();
 	vector<TimeRange> audioSegments;
 	for (int i = 0; i < segmentCount; ++i) {
