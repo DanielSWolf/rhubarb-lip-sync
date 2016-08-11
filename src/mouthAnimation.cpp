@@ -53,7 +53,6 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	if (!phone)				return single({ X });
 
 	switch (*phone) {
-	case Phone::Unknown:	return single({ B });
 	case Phone::AO:			return single({ E });
 	case Phone::AA:			return single({ D });
 	case Phone::IY:			return single({ B });
@@ -69,6 +68,7 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	case Phone::AW:			return diphtong({ D }, { F });
 	case Phone::OY:			return diphtong({ F }, { B });
 	case Phone::ER:			return single({ { B }, 7_cs, { E } });
+	
 	case Phone::P:
 	case Phone::B:			return bilabialStop();
 	case Phone::T:
@@ -93,6 +93,12 @@ Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseco
 	case Phone::R:			return single({ { B, B, B, B, F } });
 	case Phone::Y:			return single({ B });
 	case Phone::W:			return single({ F });
+	
+	case Phone::Breath:
+	case Phone::Cough:
+	case Phone::Smack:		return single({ C });
+	case Phone::Noise:	return single({ B });
+
 	default:
 		throw std::invalid_argument("Unexpected phone.");
 	}

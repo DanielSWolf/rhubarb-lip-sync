@@ -14,7 +14,6 @@ string PhoneConverter::getTypeName() {
 
 EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 	return member_data{
-		{ Phone::Unknown,	"Unknown" },
 		{ Phone::AO,		"AO" },
 		{ Phone::AA,		"AA" },
 		{ Phone::IY,		"IY" },
@@ -30,6 +29,7 @@ EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 		{ Phone::AW,		"AW" },
 		{ Phone::OY,		"OY" },
 		{ Phone::ER,		"ER" },
+
 		{ Phone::P,			"P" },
 		{ Phone::B,			"B" },
 		{ Phone::T,			"T" },
@@ -53,13 +53,29 @@ EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 		{ Phone::L,			"L" },
 		{ Phone::R,			"R" },
 		{ Phone::Y,			"Y" },
-		{ Phone::W,			"W" }
+		{ Phone::W,			"W" },
+
+		{ Phone::Breath,	"Breath" },
+		{ Phone::Cough,		"Cough" },
+		{ Phone::Smack,		"Smack" },
+		{ Phone::Noise,		"Noise" }
 	};
 }
 
 optional<Phone> PhoneConverter::tryParse(const string& s) {
 	auto result = EnumConverter<Phone>::tryParse(s);
-	return result ? result : Phone::Unknown;
+	if (result) return result;
+
+	if (s == "+BREATH+") {
+		return Phone::Breath;
+	}
+	if (s == "+COUGH+") {
+		return Phone::Cough;
+	}
+	if (s == "+SMACK+") {
+		return Phone::Smack;
+	}
+	return Phone::Noise;
 }
 
 std::ostream& operator<<(std::ostream& stream, Phone value) {

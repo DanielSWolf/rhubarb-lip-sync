@@ -323,13 +323,37 @@ Timeline<Phone> utteranceToPhones(
 
 	// Align the words' phones with speech
 	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, *clipSegment, decoder, alignmentProgressSink)
-		.value_or(ContinuousTimeline<Phone>(clipSegment->getTruncatedRange(), Phone::Unknown));
+		.value_or(ContinuousTimeline<Phone>(clipSegment->getTruncatedRange(), Phone::Noise));
 	segmentPhones.shift(utterance.getStart());
 	for (const auto& timedPhone : segmentPhones) {
-		logging::logTimedEvent("phone", timedPhone);
+		logging::logTimedEvent("rawPhone", timedPhone);
 	}
 
 	return segmentPhones;
+}
+
+Timeline<void> getUnknownSounds(const Timeline<void>& utterances, const Timeline<Phone>& phones) {
+	Timeline<void> unknownSounds;
+
+	// Find utterance parts without recogniced phones
+	for (const auto& timedUtterance : utterances) {
+		unknownSounds.set(timedUtterance.getTimeRange());
+	}
+	for (const auto& timedPhone : phones) {
+		unknownSounds.clear(timedPhone.getTimeRange());
+	}
+
+	// Remove undesired elements
+	const centiseconds minSoundLength = 5_cs;
+	for (const auto& unknownSound : Timeline<void>(unknownSounds)) {
+		bool startsAtZero = unknownSound.getStart() == 0_cs;
+		bool tooShort = unknownSound.getTimeRange().getLength() < minSoundLength;
+		if (startsAtZero || tooShort) {
+			unknownSounds.clear(unknownSound.getTimeRange());
+		}
+	}
+
+	return unknownSounds;
 }
 
 BoundedTimeline<Phone> detectPhones(
@@ -378,24 +402,30 @@ BoundedTimeline<Phone> detectPhones(
 		decoderPool.push(std::move(decoder));
 	};
 
-	BoundedTimeline<Phone> result(audioClip->getTruncatedRange());
+	BoundedTimeline<Phone> phones(audioClip->getTruncatedRange());
 	std::mutex resultMutex;
 	auto processUtterance = [&](Timed<void> timedUtterance, ProgressSink& utteranceProgressSink) {
 		logging::logTimedEvent("utterance", timedUtterance.getTimeRange(), string(""));
 
+		// Pad time range to give the recognizer some breathing room
+		TimeRange paddedTimeRange = timedUtterance.getTimeRange();
+		const centiseconds padding(3);
+		paddedTimeRange.grow(padding);
+		paddedTimeRange.trim(audioClip->getTruncatedRange());
+
 		// Detect phones for utterance
 		auto decoder = getDecoder();
 		bool decoderIsStillUsable = true;
-		Timeline<Phone> phones =
-			utteranceToPhones(*audioClip, timedUtterance.getTimeRange(), *decoder, decoderIsStillUsable, utteranceProgressSink);
+		Timeline<Phone> utterancePhones =
+			utteranceToPhones(*audioClip, paddedTimeRange, *decoder, decoderIsStillUsable, utteranceProgressSink);
 		if (decoderIsStillUsable) {
 			returnDecoder(std::move(decoder));
 		}
 
 		// Copy phones to result timeline
 		std::lock_guard<std::mutex> lock(resultMutex);
-		for (const auto& timedPhone : phones) {
-			result.set(timedPhone);
+		for (const auto& timedPhone : utterancePhones) {
+			phones.set(timedPhone);
 		}
 	};
 
@@ -417,10 +447,19 @@ BoundedTimeline<Phone> detectPhones(
 		logging::debug("Speech recognition -- start");
 		runParallel(processUtterance, utterances, threadCount, dialogProgressSink, getUtteranceProgressWeight);
 		logging::debug("Speech recognition -- end");
-
-		return result;
 	}
 	catch (...) {
 		std::throw_with_nested(runtime_error("Error performing speech recognition via Pocketsphinx."));
 	}
+
+	logging::debug("Detecting unknown sounds");
+	Timeline<void> unknownSounds = getUnknownSounds(utterances, phones);
+	for (const auto& unknownSound : unknownSounds) {
+		phones.set(unknownSound.getTimeRange(), Phone::Noise);
+	}
+	for (const auto& timedPhone : phones) {
+		logging::logTimedEvent("phone", timedPhone);
+	}
+
+	return phones;
 }

@@ -258,6 +258,7 @@ public class Visualization {
 public enum EventType {
 	Utterance,
 	Word,
+	RawPhone,
 	Phone,
 	Shape
 }

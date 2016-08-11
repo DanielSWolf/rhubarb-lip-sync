@@ -1,11 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "EnumConverter.h"
 
 // Defines a subset of the Arpabet
 enum class Phone {
-	Unknown,
-
 	/////////
 	// Vowels
 
@@ -67,7 +65,15 @@ enum class Phone {
 
 	// ... semivowels
 	Y,		// [j] as in [y]es
-	W		// [w] as in [w]ay
+	W,		// [w] as in [w]ay
+
+	/////////////
+	// Misc.
+
+	Breath,
+	Cough,
+	Smack,
+	Noise
 };
 
 class PhoneConverter : public EnumConverter<Phone> {
