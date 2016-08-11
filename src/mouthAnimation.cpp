@@ -176,6 +176,7 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	// Don't close mouth for short pauses
 	for (const auto& timedShape : shapes) {
 		if (timedShape.getValue() != X) continue;
+		if (timedShape.getStart() == 0_cs || timedShape.getEnd() == shapes.getRange().getEnd()) continue;
 
 		const centiseconds maxPausedOpenMouthDuration = 35_cs;
 		const TimeRange timeRange = timedShape.getTimeRange();
