@@ -2,7 +2,6 @@
 
 #include <functional>
 #include "ProgressBar.h"
-#include <boost/optional/optional.hpp>
 #include <gsl_util.h>
 
 template<typename TCollection>
@@ -11,6 +10,18 @@ void runParallel(
 	TCollection& collection,
 	int maxThreadCount)
 {
+	if (maxThreadCount < 1) {
+		throw std::invalid_argument(fmt::format("maxThreadCount cannot be {}.", maxThreadCount));
+	}
+
+	if (maxThreadCount == 1) {
+		// Process synchronously
+		for (auto& element : collection) {
+			processElement(element);
+		}
+		return;
+	}
+
 	using future_type = std::future<void>;
 
 	std::mutex mutex;

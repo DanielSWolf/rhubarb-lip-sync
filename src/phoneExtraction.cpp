@@ -444,7 +444,10 @@ BoundedTimeline<Phone> detectPhones(
 			// Don't waste time creating additional threads (and decoders!) if the recording is short
 			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getLength()).count() / 5)
 		});
-		logging::debug("Speech recognition -- start");
+		if (threadCount < 1) {
+			threadCount = 1;
+		}
+		logging::debugFormat("Speech recognition using {} threads -- start", threadCount);
 		runParallel(processUtterance, utterances, threadCount, dialogProgressSink, getUtteranceProgressWeight);
 		logging::debug("Speech recognition -- end");
 	}
