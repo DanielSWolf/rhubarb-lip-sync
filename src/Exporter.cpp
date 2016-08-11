@@ -51,7 +51,7 @@ void TSVExporter::exportShapes(const boost::filesystem::path& inputFilePath, con
 	}
 
 	// Output closed mouth with end time
-	outputStream << formatDuration(shapes.getRange().getEnd()) << "\t" << Shape::A << "\n";
+	outputStream << formatDuration(shapes.getRange().getEnd()) << "\t" << Shape::X << "\n";
 }
 
 void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
