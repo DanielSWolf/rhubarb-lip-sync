@@ -58,6 +58,11 @@ void TimeRange::shrink(time_type value) {
 	grow(-value);
 }
 
+void TimeRange::trim(const TimeRange& limits) {
+	TimeRange newRange(std::max(start, limits.start), std::min(end, limits.end));
+	resize(newRange);
+}
+
 bool TimeRange::operator==(const TimeRange& rhs) const {
 	return start == rhs.start && end == rhs.end;
 }

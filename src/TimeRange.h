@@ -24,6 +24,7 @@ public:
 	void shift(time_type offset);
 	void grow(time_type value);
 	void shrink(time_type value);
+	void trim(const TimeRange& limits);
 
 	bool operator==(const TimeRange& rhs) const;
 	bool operator!=(const TimeRange& rhs) const;
