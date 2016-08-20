@@ -13,6 +13,12 @@ https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip-Sync] is a command-l
 
 Rhubarb Lip-Sync produces output files in various text formats (TSV/XML/JSON). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to https://github.com/DanielSWolf/rhubarb-lip-sync/issues[create an issue] telling me what tool you're using. I might add support for a few popular animation tools in the future.
 
+== Demo video
+
+Click the image for a demo video.
+
+https://www.youtube.com/watch?v=OX_K387EKoI[image:http://img.youtube.com/vi/OX_K387EKoI/0.jpg[]]
+
 == Mouth shapes
 
 Rhubarb Lip-Sync uses a set of nine mouth positions. To get good results, you must draw at least the first six mouth shapes ({A}-{F}) for your character. These six mouth shapes were invented at the Hanna-Barbera studios for shows such as Scooby-Doo and The Flintstones. Since then, they have evolved into a _de-facto_ standard for 2D animation, and have been widely used by studios like Disney and Warner Bros.
