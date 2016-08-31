@@ -2,7 +2,7 @@
 
 #include "audio/AudioClip.h"
 #include "Phone.h"
-#include "progressBar.h"
+#include "ProgressBar.h"
 #include "BoundedTimeline.h"
 
 BoundedTimeline<Phone> detectPhones(

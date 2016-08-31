@@ -17,6 +17,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 endif()
 
+# Enable POSIX threads
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lpthread")
+endif()
+
 # Make sure Xcode uses libc++ instead of libstdc++, allowing us to use the C++14 standard library prior to OS X 10.9
 if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
 	add_compile_options(-stdlib=libc++)
@@ -44,6 +49,10 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 endif()
 
+if(${UNIX})
+	add_definitions(-DHAVE_UNISTD_H)
+endif()
+
 # Enable project folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -53,7 +62,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost REQUIRED COMPONENTS filesystem locale system)
+find_package(Boost 1.58 REQUIRED COMPONENTS filesystem locale system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ... C++ Format
@@ -116,10 +125,15 @@ set(webRTCFiles
 )
 add_library(webRTC ${webRTCFiles})
 target_compile_options(webRTC PRIVATE ${disableWarningsFlags})
+target_compile_options(webRTC PRIVATE -pthread -lpthread)
 if (NOT WIN32)
 	target_compile_definitions(webRTC PRIVATE WEBRTC_POSIX)
 endif()
 set_target_properties(webRTC PROPERTIES FOLDER lib)
+
+# ... whereami
+include_directories(SYSTEM "lib/whereami/src")
+add_library(whereami lib/whereami/src/whereami.c)
 
 # ... Flite
 include_directories("lib/flite-1.4/include" "lib/flite-1.4")
@@ -230,7 +244,7 @@ set(SOURCE_FILES
 	src/Lazy.h
 )
 add_executable(rhubarb ${SOURCE_FILES})
-target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC)
+target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC whereami)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
@@ -258,7 +272,7 @@ set(TEST_FILES
 	src/Lazy.h
 )
 add_executable(runTests ${TEST_FILES})
-target_link_libraries(runTests ${Boost_LIBRARIES} gtest gmock gmock_main flite cppFormat)
+target_link_libraries(runTests ${Boost_LIBRARIES} gtest gmock gmock_main flite cppFormat whereami)
 
 set(CPACK_PACKAGE_NAME ${appName})
 string(REPLACE " " "-" CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
