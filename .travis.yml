@@ -1,0 +1,19 @@
+language: cpp
+
+sudo: required
+dist: trusty
+
+matrix:
+  include:
+    - compiler: gcc
+      install:
+        - sudo apt-get -y install g++-5
+      env: COMPILER=g++-5
+before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get -q update
+  - sudo apt-get -y install libboost-all-dev
+script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
