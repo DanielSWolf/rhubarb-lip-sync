@@ -62,7 +62,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost 1.58 REQUIRED COMPONENTS filesystem locale system)
+find_package(Boost 1.54 REQUIRED COMPONENTS filesystem locale system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ... C++ Format
