@@ -1,6 +1,5 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/predef.h>
 #include <format.h>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -47,7 +46,7 @@ path getTempFilePath() {
 
 std::tm getLocalTime(const time_t& time) {
 	tm timeInfo;
-#if (BOOST_OS_UNIX || BOOST_OS_MACOS)
+#if (__unix || __linux || __APPLE__)
 	localtime_r(&time, &timeInfo);
 #else
 	localtime_s(&timeInfo, &time);
@@ -57,7 +56,7 @@ std::tm getLocalTime(const time_t& time) {
 
 std::string errorNumberToString(int errorNumber) {
 	char message[256];
-#if (BOOST_OS_UNIX || BOOST_OS_MACOS)
+#if (__unix || __linux || __APPLE__)
 	strerror_r(errorNumber, message, sizeof message);
 #else
 	strerror_s(message, sizeof message, errorNumber);
