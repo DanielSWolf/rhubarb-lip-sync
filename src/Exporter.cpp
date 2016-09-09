@@ -68,7 +68,12 @@ void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, con
 		mouthCueElement.put("<xmlattr>.end", formatDuration(timedShape.getEnd()));
 	}
 
-	write_xml(outputStream, tree, boost::property_tree::xml_writer_settings<string>(' ', 2));
+#if BOOST_VERSION < 105600 // Support legacy syntax
+	using writer_setting = boost::property_tree::xml_writer_settings<char>;
+#else
+	using writer_setting = boost::property_tree::xml_writer_settings<string>;
+#endif
+	write_xml(outputStream, tree, writer_setting(' ', 2));
 }
 
 string escapeJSONString(const string& s) {
