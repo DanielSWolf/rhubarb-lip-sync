@@ -17,3 +17,9 @@ matrix:
         - mkdir build
         - cd build
         - cmake -DCMAKE_CXX_COMPILER=g++-5 .. && make
+    - os: osx
+      osx_image: xcode7.3
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. && make
