@@ -23,7 +23,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 # Make sure Xcode uses libc++ instead of libstdc++, allowing us to use the C++14 standard library prior to OS X 10.9
-if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 	add_compile_options(-stdlib=libc++)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 endif()
