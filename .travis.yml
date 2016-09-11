@@ -5,15 +5,15 @@ dist: trusty
 
 matrix:
   include:
-    - compiler: gcc
+    - os: linux
+      compiler: gcc
+      before_install:
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get -q update
       install:
         - sudo apt-get -y install g++-5
-      env: COMPILER=g++-5
-before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -q update
-  - sudo apt-get -y install libboost-all-dev
-script:
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
+        - sudo apt-get -y install libboost-all-dev
+      script:
+        - mkdir build
+        - cd build
+        - cmake -DCMAKE_CXX_COMPILER=g++-5 .. && make
