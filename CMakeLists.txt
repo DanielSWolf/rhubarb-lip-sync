@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.2)
 
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
@@ -23,7 +23,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 # Make sure Xcode uses libc++ instead of libstdc++, allowing us to use the C++14 standard library prior to OS X 10.9
-if("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 	add_compile_options(-stdlib=libc++)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 endif()
@@ -62,7 +62,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-find_package(Boost 1.58 REQUIRED COMPONENTS filesystem locale system)
+find_package(Boost 1.54 REQUIRED COMPONENTS filesystem locale system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ... C++ Format

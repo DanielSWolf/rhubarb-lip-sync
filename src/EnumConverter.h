@@ -33,7 +33,7 @@ public:
 			throw std::invalid_argument(fmt::format("{} is not a valid {} value.", numericValue, typeName));
 		}
 
-		return result.value();
+		return *result;
 	}
 
 	virtual boost::optional<TEnum> tryParse(const std::string& s) {
@@ -51,7 +51,7 @@ public:
 			throw std::invalid_argument(fmt::format("{} is not a valid {} value.", s, typeName));
 		}
 
-		return result.value();
+		return *result;
 	}
 
 	std::ostream& write(std::ostream& stream, TEnum value) {

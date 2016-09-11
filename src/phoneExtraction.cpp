@@ -18,6 +18,7 @@
 #include "ContinuousTimeline.h"
 #include "audio/processing.h"
 #include "parallel.h"
+#include <boost/version.hpp>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -322,6 +323,9 @@ Timeline<Phone> utteranceToPhones(
 	if (wordIds.empty()) return Timeline<Phone>();
 
 	// Align the words' phones with speech
+#if BOOST_VERSION < 105600 // Support legacy syntax
+#define value_or get_value_or
+#endif
 	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, *clipSegment, decoder, alignmentProgressSink)
 		.value_or(ContinuousTimeline<Phone>(clipSegment->getTruncatedRange(), Phone::Noise));
 	segmentPhones.shift(utterance.getStart());
