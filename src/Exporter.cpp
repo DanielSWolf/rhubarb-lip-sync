@@ -2,6 +2,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <tools.h>
+#include <boost/version.hpp>
 
 using std::string;
 using boost::property_tree::ptree;
