@@ -19,13 +19,16 @@ path getBinPath() {
 		}
 		
 		// Get path
-		std::vector<char> buffer(pathLength);
+		// Note: According to documentation, pathLength does *not* include the trailing zero. Actually, it does.
+		// In case there are situations where it doesn't, we allocate one character more.
+		std::vector<char> buffer(pathLength + 1);
 		if (wai_getExecutablePath(buffer.data(), buffer.size(), nullptr) == -1) {
 			throw std::runtime_error("Error reading path.");
 		}
+		buffer[pathLength] = 0;
 		
 		// Convert to boost::filesystem::path
-		string pathString(buffer.data(), buffer.size());
+		string pathString(buffer.data());
 		static path binPath(boost::filesystem::canonical(pathString).make_preferred());
 		return binPath;
 	} catch (...) {
