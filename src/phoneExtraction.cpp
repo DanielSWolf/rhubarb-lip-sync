@@ -96,7 +96,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decoder_t& decoder, bool& decoderIsStillUsable, ProgressSink& progressSink) {
+BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decoder_t& decoder, bool& decoderIsStillUsable) {
 	// Convert audio stream to the exact format PocketSphinx requires
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(sphinxSampleRate);
 
@@ -107,12 +107,12 @@ BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decod
 	int error = ps_start_utt(&decoder);
 	if (error) throw runtime_error("Error starting utterance processing for word recognition.");
 
-	// Process entire sound stream
-	auto processBuffer = [&decoder](const vector<int16_t>& buffer) {
-		int searchedFrameCount = ps_process_raw(&decoder, buffer.data(), buffer.size(), false, false);
-		if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
-	};
-	process16bitAudioClip(*audioClip, processBuffer, progressSink);
+	// Process entire audio clip
+	auto buffer = copyTo16bitBuffer(*audioClip);
+	const bool noRecognition = false;
+	const bool fullUtterance = true;
+	int searchedFrameCount = ps_process_raw(&decoder, buffer->data(), buffer->size(), noRecognition, fullUtterance);
+	if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
 
 	// End recognition
 	error = ps_end_utt(&decoder);
@@ -154,8 +154,7 @@ s3wid_t getWordId(const string& word, dict_t& dictionary) {
 optional<Timeline<Phone>> getPhoneAlignment(
 	const vector<s3wid_t>& wordIds,
 	const AudioClip& inputAudioClip,
-	ps_decoder_t& decoder,
-	ProgressSink& progressSink)
+	ps_decoder_t& decoder)
 {
 	// Create alignment list
 	lambda_unique_ptr<ps_alignment_t> alignment(
@@ -190,18 +189,17 @@ optional<Timeline<Phone>> getPhoneAlignment(
 		// Start search
 		ps_search_start(search.get());
 
-		// Process entire sound stream
-		auto processBuffer = [&](const vector<int16_t>& buffer) {
-			const int16* nextSample = buffer.data();
-			size_t remainingSamples = buffer.size();
-			while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, false) > 0) {
-				while (acousticModel->n_feat_frame > 0) {
-					ps_search_step(search.get(), acousticModel->output_frame);
-					acmod_advance(acousticModel);
-				}
+		// Process entire audio clip
+		auto buffer = copyTo16bitBuffer(*audioClip);
+		const int16* nextSample = buffer->data();
+		size_t remainingSamples = buffer->size();
+		bool fullUtterance = true;
+		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, fullUtterance) > 0) {
+			while (acousticModel->n_feat_frame > 0) {
+				ps_search_step(search.get(), acousticModel->output_frame);
+				acmod_advance(acousticModel);
 			}
-		};
-		process16bitAudioClip(*audioClip, processBuffer, progressSink);
+		}
 
 		// End search
 		error = ps_search_finish(search.get());
@@ -263,6 +261,8 @@ lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
 			"-dither", "yes",
 			// Disable VAD -- we're doing that ourselves
 			"-remove_silence", "no",
+			// Perform per-utterance cepstral mean normalization
+			"-cmn", "batch",
 			nullptr),
 		[](cmd_ln_t* config) { cmd_ln_free_r(config); });
 	if (!config) throw runtime_error("Error creating configuration.");
@@ -309,7 +309,8 @@ Timeline<Phone> utteranceToPhones(
 	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(utterance);
 
 	// Get words
-	BoundedTimeline<string> words = recognizeWords(*clipSegment, decoder, decoderIsStillUsable, wordRecognitionProgressSink);
+	BoundedTimeline<string> words = recognizeWords(*clipSegment, decoder, decoderIsStillUsable);
+	wordRecognitionProgressSink.reportProgress(1.0);
 	for (Timed<string> timedWord : words) {
 		timedWord.getTimeRange().shift(utterance.getStart());
 		logging::logTimedEvent("word", timedWord);
@@ -326,8 +327,9 @@ Timeline<Phone> utteranceToPhones(
 #if BOOST_VERSION < 105600 // Support legacy syntax
 #define value_or get_value_or
 #endif
-	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, *clipSegment, decoder, alignmentProgressSink)
+	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, *clipSegment, decoder)
 		.value_or(ContinuousTimeline<Phone>(clipSegment->getTruncatedRange(), Phone::Noise));
+	alignmentProgressSink.reportProgress(1.0);
 	segmentPhones.shift(utterance.getStart());
 	for (const auto& timedPhone : segmentPhones) {
 		logging::logTimedEvent("rawPhone", timedPhone);

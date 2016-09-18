@@ -2,6 +2,7 @@
 
 using std::function;
 using std::vector;
+using std::unique_ptr;
 
 // Converts a float in the range -1..1 to a signed 16-bit int
 inline int16_t floatSampleToInt16(float sample) {
@@ -38,3 +39,11 @@ void process16bitAudioClip(const AudioClip& audioClip, function<void(const vecto
 	process16bitAudioClip(audioClip, processBuffer, capacity, progressSink);
 }
 
+unique_ptr<vector<int16_t>> copyTo16bitBuffer(const AudioClip& audioClip) {
+	auto result = std::make_unique<vector<int16_t>>(static_cast<size_t>(audioClip.size()));
+	int index = 0;
+	for (float sample : audioClip) {
+		(*result)[index++] = floatSampleToInt16(sample);
+	}
+	return std::move(result);
+}
