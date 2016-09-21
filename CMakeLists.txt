@@ -212,7 +212,7 @@ set(SOURCE_FILES
 	src/EnumConverter.h
 	src/Viseme.cpp src/Viseme.h
 	src/mouthAnimation.cpp src/mouthAnimation.h
-	src/phoneExtraction.cpp src/phoneExtraction.h
+	src/phoneRecognition.cpp src/phoneRecognition.h
 	src/platformTools.cpp src/platformTools.h
 	src/tools.cpp src/tools.h
 	src/audio/AudioClip.cpp src/audio/AudioClip.h

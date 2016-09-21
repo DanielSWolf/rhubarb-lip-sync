@@ -3,7 +3,7 @@
 #include <format.h>
 #include <tclap/CmdLine.h>
 #include "audio/WaveFileReader.h"
-#include "phoneExtraction.h"
+#include "phoneRecognition.h"
 #include "mouthAnimation.h"
 #include "appInfo.h"
 #include "NiceCmdLineOutput.h"
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
 		BoundedTimeline<Phone> phones(TimeRange::zero());
 		{
 			ProgressBar progressBar;
-			phones = detectPhones(
+			phones = recognizePhones(
 				*createAudioClip(inputFileName.getValue()),
 				dialogFile.isSet() ? readTextFile(path(dialogFile.getValue())) : boost::optional<u32string>(),
 				maxThreadCount.getValue(),

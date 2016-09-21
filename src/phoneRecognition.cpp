@@ -1,5 +1,5 @@
 #include <boost/filesystem.hpp>
-#include "phoneExtraction.h"
+#include "phoneRecognition.h"
 #include "audio/SampleRateConverter.h"
 #include "platformTools.h"
 #include "tools.h"
@@ -356,7 +356,7 @@ Timeline<void> getUnknownSounds(const Timeline<void>& utterances, const Timeline
 	return unknownSounds;
 }
 
-BoundedTimeline<Phone> detectPhones(
+BoundedTimeline<Phone> recognizePhones(
 	const AudioClip& inputAudioClip,
 	optional<u32string> dialog,
 	int maxThreadCount,
