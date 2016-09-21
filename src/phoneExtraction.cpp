@@ -19,6 +19,7 @@
 #include "audio/processing.h"
 #include "parallel.h"
 #include <boost/version.hpp>
+#include "ObjectPool.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -96,7 +97,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decoder_t& decoder, bool& decoderIsStillUsable) {
+BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decoder_t& decoder) {
 	// Convert audio stream to the exact format PocketSphinx requires
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(sphinxSampleRate);
 
@@ -125,7 +126,6 @@ BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decod
 	BoundedTimeline<string> result(audioClip->getTruncatedRange());
 	bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
 	if (noWordsRecognized) {
-		decoderIsStillUsable = false;
 		return result;
 	}
 
@@ -135,11 +135,6 @@ BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decod
 		int firstFrame, lastFrame;
 		ps_seg_frames(it, &firstFrame, &lastFrame);
 		result.set(centiseconds(firstFrame), centiseconds(lastFrame + 1), word);
-	}
-	if (result.size() == 2) {
-		// The two recognized words are "<s>" and "</s>", which is really nothing.
-		// This seems to trigger a similar decoder corruption.
-		decoderIsStillUsable = false;
 	}
 
 	return result;
@@ -299,7 +294,6 @@ Timeline<Phone> utteranceToPhones(
 	const AudioClip& audioClip,
 	TimeRange utterance,
 	ps_decoder_t& decoder,
-	bool& decoderIsStillUsable,
 	ProgressSink& utteranceProgressSink)
 {
 	ProgressMerger utteranceProgressMerger(utteranceProgressSink);
@@ -309,7 +303,7 @@ Timeline<Phone> utteranceToPhones(
 	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(utterance);
 
 	// Get words
-	BoundedTimeline<string> words = recognizeWords(*clipSegment, decoder, decoderIsStillUsable);
+	BoundedTimeline<string> words = recognizeWords(*clipSegment, decoder);
 	wordRecognitionProgressSink.reportProgress(1.0);
 	for (Timed<string> timedWord : words) {
 		timedWord.getTimeRange().shift(utterance.getStart());
@@ -391,23 +385,8 @@ BoundedTimeline<Phone> detectPhones(
 	err_set_callback(sphinxLogCallback, nullptr);
 
 	// Prepare pool of decoders
-	std::stack<lambda_unique_ptr<ps_decoder_t>> decoderPool;
-	std::mutex decoderPoolMutex;
-	auto getDecoder = [&] {
-		{
-			std::lock_guard<std::mutex> lock(decoderPoolMutex);
-			if (!decoderPool.empty()) {
-				auto decoder = std::move(decoderPool.top());
-				decoderPool.pop();
-				return std::move(decoder);
-			}
-		}
-		return createDecoder(dialog);
-	};
-	auto returnDecoder = [&](lambda_unique_ptr<ps_decoder_t> decoder) {
-		std::lock_guard<std::mutex> lock(decoderPoolMutex);
-		decoderPool.push(std::move(decoder));
-	};
+	ObjectPool<ps_decoder_t, lambda_unique_ptr<ps_decoder_t>> decoderPool(
+		[&dialog] { return createDecoder(dialog); });
 
 	BoundedTimeline<Phone> phones(audioClip->getTruncatedRange());
 	std::mutex resultMutex;
@@ -421,13 +400,9 @@ BoundedTimeline<Phone> detectPhones(
 		paddedTimeRange.trim(audioClip->getTruncatedRange());
 
 		// Detect phones for utterance
-		auto decoder = getDecoder();
-		bool decoderIsStillUsable = true;
+		auto decoder = decoderPool.acquire();
 		Timeline<Phone> utterancePhones =
-			utteranceToPhones(*audioClip, paddedTimeRange, *decoder, decoderIsStillUsable, utteranceProgressSink);
-		if (decoderIsStillUsable) {
-			returnDecoder(std::move(decoder));
-		}
+			utteranceToPhones(*audioClip, paddedTimeRange, *decoder, utteranceProgressSink);
 
 		// Copy phones to result timeline
 		std::lock_guard<std::mutex> lock(resultMutex);
