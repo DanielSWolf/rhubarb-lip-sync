@@ -4,30 +4,28 @@
 #include <stack>
 #include <mutex>
 
-template <class T>
+template <typename value_type, typename pointer_type = std::unique_ptr<value_type>>
 class ObjectPool {
 public:
-	using ptr_type = std::unique_ptr<T, std::function<void(T*)>>;
+	using wrapper_type = lambda_unique_ptr<value_type>;
 
-	ObjectPool(std::function<std::unique_ptr<T>()> createObject) :
+	ObjectPool(std::function<pointer_type()> createObject) :
 		createObject(createObject)
 	{}
 
-	virtual ~ObjectPool() {}
-
-	ptr_type acquire() {
+	wrapper_type acquire() {
 		std::lock_guard<std::mutex> lock(poolMutex);
 
 		if (pool.empty()) {
 			pool.push(createObject());
 		}
 
-		ptr_type tmp(pool.top().release(), [this](T* p) {
-			std::lock_guard<std::mutex> lock(poolMutex);
-			this->pool.push(std::unique_ptr<T>(p));
-		});
+		auto pointer = pool.top();
 		pool.pop();
-		return std::move(tmp);
+		return wrapper_type(pointer.get(), [this, pointer](value_type*) {
+			std::lock_guard<std::mutex> lock(poolMutex);
+			this->pool.push(pointer);
+		});
 	}
 
 	bool empty() const {
@@ -41,7 +39,7 @@ public:
 	}
 
 private:
-	std::function<T*()> createObject;
-	std::stack<std::unique_ptr<T>> pool;
+	std::function<pointer_type()> createObject;
+	std::stack<std::shared_ptr<value_type>> pool;
 	mutable std::mutex poolMutex;
 };
