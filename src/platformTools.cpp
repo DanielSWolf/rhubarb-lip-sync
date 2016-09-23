@@ -33,8 +33,8 @@ path getBinPath() {
 			// Convert to boost::filesystem::path
 			string pathString(buffer.data());
 			logging::debugFormat("Bin path: '{}'", pathString);
-			static path binPath(boost::filesystem::canonical(pathString).make_preferred());
-			return binPath;
+			path result(boost::filesystem::canonical(pathString).make_preferred());
+			return result;
 		} catch (...) {
 			std::throw_with_nested(std::runtime_error("Could not determine path of bin directory."));
 		}
