@@ -222,7 +222,7 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 
 		// Check timeline via indexer
 		for (centiseconds t = 0_cs; t < 10_cs; ++t) {
-			optional<const int&> actual = timeline[t];
+			optional<int> actual = timeline[t];
 			EXPECT_EQ(expectedValues[t.count()], actual ? optional<int>(*actual) : none);
 		}
 
@@ -268,7 +268,7 @@ TEST(Timeline, indexer_get) {
 	vector<optional<int>> expectedValues{ none, 1, 2, 2, none, none, 3, 3, 3 };
 	for (centiseconds t = 0_cs; t < 9_cs; ++t) {
 		{
-			optional<const int&> actual = timeline[t];
+			optional<int> actual = timeline[t];
 			EXPECT_EQ(expectedValues[t.count()], actual ? optional<int>(*actual) : none);
 		}
 		{

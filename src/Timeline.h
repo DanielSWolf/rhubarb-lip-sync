@@ -56,11 +56,6 @@ public:
 
 	class ReferenceWrapper {
 	public:
-		operator boost::optional<const T&>() const {
-			auto optional = timeline.get(time);
-			return optional ? optional->getValue() : boost::optional<const T&>();
-		}
-
 		operator boost::optional<T>() const {
 			auto optional = timeline.get(time);
 			return optional ? optional->getValue() : boost::optional<T>();
