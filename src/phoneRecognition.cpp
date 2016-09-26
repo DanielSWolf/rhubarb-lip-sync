@@ -97,10 +97,7 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 	logging::log(logLevel, message);
 }
 
-BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decoder_t& decoder) {
-	// Convert audio stream to the exact format PocketSphinx requires
-	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(sphinxSampleRate);
-
+BoundedTimeline<string> recognizeWords(const vector<int16_t>& audioBuffer, ps_decoder_t& decoder) {
 	// Restart timing at 0
 	ps_start_stream(&decoder);
 
@@ -109,21 +106,16 @@ BoundedTimeline<string> recognizeWords(const AudioClip& inputAudioClip, ps_decod
 	if (error) throw runtime_error("Error starting utterance processing for word recognition.");
 
 	// Process entire audio clip
-	auto buffer = copyTo16bitBuffer(*audioClip);
 	const bool noRecognition = false;
 	const bool fullUtterance = true;
-	int searchedFrameCount = ps_process_raw(&decoder, buffer->data(), buffer->size(), noRecognition, fullUtterance);
+	int searchedFrameCount = ps_process_raw(&decoder, audioBuffer.data(), audioBuffer.size(), noRecognition, fullUtterance);
 	if (searchedFrameCount < 0) throw runtime_error("Error analyzing raw audio data for word recognition.");
 
 	// End recognition
 	error = ps_end_utt(&decoder);
 	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
 
-	// PocketSphinx can't handle an utterance with no recognized words.
-	// As a result, the following utterance will be garbage.
-	// As a workaround, we throw away the decoder in this case.
-	// See https://sourceforge.net/p/cmusphinx/discussion/help/thread/f1dd91c5/#7529
-	BoundedTimeline<string> result(audioClip->getTruncatedRange());
+	BoundedTimeline<string> result(TimeRange(0_cs, centiseconds(100 * audioBuffer.size() / sphinxSampleRate)));
 	bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
 	if (noWordsRecognized) {
 		return result;
@@ -148,7 +140,7 @@ s3wid_t getWordId(const string& word, dict_t& dictionary) {
 
 optional<Timeline<Phone>> getPhoneAlignment(
 	const vector<s3wid_t>& wordIds,
-	const AudioClip& inputAudioClip,
+	const vector<int16_t>& audioBuffer,
 	ps_decoder_t& decoder)
 {
 	// Create alignment list
@@ -162,9 +154,6 @@ optional<Timeline<Phone>> getPhoneAlignment(
 	}
 	int error = ps_alignment_populate(alignment.get());
 	if (error) throw runtime_error("Error populating alignment struct.");
-
-	// Convert audio stream to the exact format PocketSphinx requires
-	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(sphinxSampleRate);
 
 	// Create search structure
 	acmod_t* acousticModel = decoder.acmod;
@@ -185,9 +174,8 @@ optional<Timeline<Phone>> getPhoneAlignment(
 		ps_search_start(search.get());
 
 		// Process entire audio clip
-		auto buffer = copyTo16bitBuffer(*audioClip);
-		const int16* nextSample = buffer->data();
-		size_t remainingSamples = buffer->size();
+		const int16* nextSample = audioBuffer.data();
+		size_t remainingSamples = audioBuffer.size();
 		bool fullUtterance = true;
 		while (acmod_process_raw(acousticModel, &nextSample, &remainingSamples, fullUtterance) > 0) {
 			while (acousticModel->n_feat_frame > 0) {
@@ -300,10 +288,11 @@ Timeline<Phone> utteranceToPhones(
 	ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
 	ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
 
-	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(utterance);
+	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(utterance) | resample(sphinxSampleRate);
+	const auto audioBuffer = copyTo16bitBuffer(*clipSegment);
 
 	// Get words
-	BoundedTimeline<string> words = recognizeWords(*clipSegment, decoder);
+	BoundedTimeline<string> words = recognizeWords(audioBuffer, decoder);
 	wordRecognitionProgressSink.reportProgress(1.0);
 	for (Timed<string> timedWord : words) {
 		timedWord.getTimeRange().shift(utterance.getStart());
@@ -321,7 +310,7 @@ Timeline<Phone> utteranceToPhones(
 #if BOOST_VERSION < 105600 // Support legacy syntax
 #define value_or get_value_or
 #endif
-	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, *clipSegment, decoder)
+	Timeline<Phone> segmentPhones = getPhoneAlignment(wordIds, audioBuffer, decoder)
 		.value_or(ContinuousTimeline<Phone>(clipSegment->getTruncatedRange(), Phone::Noise));
 	alignmentProgressSink.reportProgress(1.0);
 	segmentPhones.shift(utterance.getStart());

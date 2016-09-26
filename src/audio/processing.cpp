@@ -39,11 +39,11 @@ void process16bitAudioClip(const AudioClip& audioClip, function<void(const vecto
 	process16bitAudioClip(audioClip, processBuffer, capacity, progressSink);
 }
 
-unique_ptr<vector<int16_t>> copyTo16bitBuffer(const AudioClip& audioClip) {
-	auto result = std::make_unique<vector<int16_t>>(static_cast<size_t>(audioClip.size()));
+vector<int16_t> copyTo16bitBuffer(const AudioClip& audioClip) {
+	vector<int16_t> result(static_cast<size_t>(audioClip.size()));
 	int index = 0;
 	for (float sample : audioClip) {
-		(*result)[index++] = floatSampleToInt16(sample);
+		result[index++] = floatSampleToInt16(sample);
 	}
 	return std::move(result);
 }
