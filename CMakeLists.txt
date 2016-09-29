@@ -136,6 +136,7 @@ set_target_properties(webRTC PROPERTIES FOLDER lib)
 # ... whereami
 include_directories(SYSTEM "lib/whereami/src")
 add_library(whereami lib/whereami/src/whereami.c)
+set_target_properties(whereami PROPERTIES FOLDER lib)
 
 # ... Flite
 include_directories("lib/flite-1.4/include" "lib/flite-1.4")
