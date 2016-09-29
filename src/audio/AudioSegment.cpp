@@ -6,7 +6,7 @@ using std::make_unique;
 AudioSegment::AudioSegment(std::unique_ptr<AudioClip> inputClip, const TimeRange& range) :
 	inputClip(std::move(inputClip)),
 	sampleOffset(static_cast<int64_t>(range.getStart().count()) * this->inputClip->getSampleRate() / 100),
-	sampleCount(static_cast<int64_t>(range.getLength().count()) * this->inputClip->getSampleRate() / 100)
+	sampleCount(static_cast<int64_t>(range.getDuration().count()) * this->inputClip->getSampleRate() / 100)
 {
 	if (sampleOffset < 0 || sampleOffset + sampleCount > this->inputClip->size()) {
 		throw std::invalid_argument("Segment extends beyond input clip.");

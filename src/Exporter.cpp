@@ -60,7 +60,7 @@ void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, con
 
 	// Add metadata
 	tree.put("rhubarbResult.metadata.soundFile", inputFilePath.string());
-	tree.put("rhubarbResult.metadata.duration", formatDuration(shapes.getRange().getLength()));
+	tree.put("rhubarbResult.metadata.duration", formatDuration(shapes.getRange().getDuration()));
 
 	// Add mouth cues
 	for (auto& timedShape : dummyShapeIfEmpty(shapes)) {
@@ -105,7 +105,7 @@ void JSONExporter::exportShapes(const boost::filesystem::path& inputFilePath, co
 	outputStream << "{\n";
 	outputStream << "  \"metadata\": {\n";
 	outputStream << "    \"soundFile\": \"" << escapeJSONString(inputFilePath.string()) << "\",\n";
-	outputStream << "    \"duration\": " << formatDuration(shapes.getRange().getLength()) << "\n";
+	outputStream << "    \"duration\": " << formatDuration(shapes.getRange().getDuration()) << "\n";
 	outputStream << "  },\n";
 	outputStream << "  \"mouthCues\": [\n";
 	bool isFirst = true;

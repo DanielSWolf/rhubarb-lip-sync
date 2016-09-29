@@ -29,7 +29,7 @@ float getDCOffset(const AudioClip& audioClip) {
 		flatMeanSampleCount = 3 * sampleRate;
 		fadingMeanSampleCount = 1 * sampleRate;
 	} else {
-		// Short audio file. Average over the entire length.
+		// Short audio file. Average over the entire duration.
 		flatMeanSampleCount = static_cast<int>(audioClip.size());
 		fadingMeanSampleCount = 0;
 	}

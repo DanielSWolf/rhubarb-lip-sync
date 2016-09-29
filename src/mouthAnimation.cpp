@@ -146,17 +146,17 @@ Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
 		centiseconds tweenStart, tweenDuration;
 		switch (tweenTiming) {
 		case TweenTiming::Early: {
-				tweenDuration = std::min(firstTimeRange.getLength() / 3, maxTweenDuration);
+				tweenDuration = std::min(firstTimeRange.getDuration() / 3, maxTweenDuration);
 				tweenStart = firstTimeRange.getEnd() - tweenDuration;
 				break;
 			}
 		case TweenTiming::Centered: {
-				tweenDuration = std::min({ firstTimeRange.getLength() / 3, secondTimeRange.getLength() / 3, maxTweenDuration });
+				tweenDuration = std::min({ firstTimeRange.getDuration() / 3, secondTimeRange.getDuration() / 3, maxTweenDuration });
 				tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
 				break;
 			}
 		case TweenTiming::Late: {
-				tweenDuration = std::min(secondTimeRange.getLength() / 3, maxTweenDuration);
+				tweenDuration = std::min(secondTimeRange.getDuration() / 3, maxTweenDuration);
 				tweenStart = secondTimeRange.getStart();
 				break;
 			}
@@ -180,7 +180,7 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 
 		const centiseconds maxPausedOpenMouthDuration = 35_cs;
 		const TimeRange timeRange = timedShape.getTimeRange();
-		if (timeRange.getLength() <= maxPausedOpenMouthDuration) {
+		if (timeRange.getDuration() <= maxPausedOpenMouthDuration) {
 			result.set(timeRange, B);
 		}
 	}
@@ -189,11 +189,11 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& secondLast, const Timed<Shape>& last, const Timed<Shape>& pause) {
 		if (pause.getValue() != X) return;
 
-		centiseconds lastLength = last.getTimeRange().getLength();
+		centiseconds lastDuration = last.getTimeRange().getDuration();
 		const centiseconds minOpenDuration = 20_cs;
-		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastLength < minOpenDuration) {
+		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastDuration < minOpenDuration) {
 			const centiseconds minSpillDuration = 20_cs;
-			centiseconds spillDuration = std::min(minSpillDuration, pause.getTimeRange().getLength());
+			centiseconds spillDuration = std::min(minSpillDuration, pause.getTimeRange().getDuration());
 			result.set(pause.getStart(), pause.getStart() + spillDuration, B);
 		}
 	});
@@ -214,7 +214,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	for (const auto& timedPhone : continuousPhones) {
 		// Animate one phone
 		optional<Phone> phone = timedPhone.getValue();
-		centiseconds duration = timedPhone.getTimeRange().getLength();
+		centiseconds duration = timedPhone.getTimeRange().getDuration();
 		Timeline<Viseme> phoneVisemes = animate(phone, duration, previousPhoneDuration);
 
 		// Result timing is relative to phone. Make absolute.
@@ -236,7 +236,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		Viseme viseme = it->getValue();
 
 		// Convert viseme to phone
-		Shape shape = viseme.getShape(it->getTimeRange().getLength(), lastShape);
+		Shape shape = viseme.getShape(it->getTimeRange().getDuration(), lastShape);
 		shapes.set(it->getTimeRange(), shape);
 
 		lastShape = shape;

@@ -75,10 +75,10 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int m
 
 	// Split audio into segments and perform parallel VAD
 	const int segmentCount = maxThreadCount;
-	centiseconds audioLength = audioClip->getTruncatedRange().getLength();
+	centiseconds audioDuration = audioClip->getTruncatedRange().getDuration();
 	vector<TimeRange> audioSegments;
 	for (int i = 0; i < segmentCount; ++i) {
-		TimeRange segmentRange = TimeRange(i * audioLength / segmentCount, (i + 1) * audioLength / segmentCount);
+		TimeRange segmentRange = TimeRange(i * audioDuration / segmentCount, (i + 1) * audioDuration / segmentCount);
 		audioSegments.push_back(segmentRange);
 	}
 	runParallel([&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
@@ -103,7 +103,7 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int m
 	// Shorten activities. WebRTC adds a bit of buffer at the end.
 	const centiseconds tail(5);
 	for (const auto& utterance : Timeline<void>(activity)) {
-		if (utterance.getTimeRange().getLength() > tail && utterance.getEnd() < audioLength) {
+		if (utterance.getTimeRange().getDuration() > tail && utterance.getEnd() < audioDuration) {
 			activity.clear(utterance.getEnd() - tail, utterance.getEnd());
 		}
 	}

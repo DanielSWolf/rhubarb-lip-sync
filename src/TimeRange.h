@@ -16,7 +16,7 @@ public:
 
 	time_type getStart() const;
 	time_type getEnd() const;
-	time_type getLength() const;
+	time_type getDuration() const;
 	bool empty() const;
 
 	void resize(const TimeRange& newRange);

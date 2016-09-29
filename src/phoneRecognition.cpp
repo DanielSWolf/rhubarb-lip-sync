@@ -288,10 +288,10 @@ Timeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone
 	}
 
 	// Remove undesired elements
-	const centiseconds minSoundLength = 12_cs;
+	const centiseconds minSoundDuration = 12_cs;
 	for (const auto& unknownSound : Timeline<void>(noiseSounds)) {
 		bool startsAtZero = unknownSound.getStart() == 0_cs;
-		bool tooShort = unknownSound.getTimeRange().getLength() < minSoundLength;
+		bool tooShort = unknownSound.getTimeRange().getDuration() < minSoundDuration;
 		if (startsAtZero || tooShort) {
 			noiseSounds.clear(unknownSound.getTimeRange());
 		}
@@ -428,7 +428,7 @@ BoundedTimeline<Phone> recognizePhones(
 	};
 
 	auto getUtteranceProgressWeight = [](const Timed<void> timedUtterance) {
-		return timedUtterance.getTimeRange().getLength().count();
+		return timedUtterance.getTimeRange().getDuration().count();
 	};
 
 	// Perform speech recognition
@@ -439,7 +439,7 @@ BoundedTimeline<Phone> recognizePhones(
 			// Don't use more threads than there are utterances to be processed
 			static_cast<int>(utterances.size()),
 			// Don't waste time creating additional threads (and decoders!) if the recording is short
-			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getLength()).count() / 5)
+			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getDuration()).count() / 5)
 		});
 		if (threadCount < 1) {
 			threadCount = 1;

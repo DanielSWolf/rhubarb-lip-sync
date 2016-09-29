@@ -27,7 +27,7 @@ time_type TimeRange::getEnd() const {
 	return end;
 }
 
-time_type TimeRange::getLength() const {
+time_type TimeRange::getDuration() const {
 	return end - start;
 }
 
