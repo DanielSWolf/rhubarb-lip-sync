@@ -288,7 +288,7 @@ Timeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone
 	}
 
 	// Remove undesired elements
-	const centiseconds minSoundLength = 5_cs;
+	const centiseconds minSoundLength = 12_cs;
 	for (const auto& unknownSound : Timeline<void>(noiseSounds)) {
 		bool startsAtZero = unknownSound.getStart() == 0_cs;
 		bool tooShort = unknownSound.getTimeRange().getLength() < minSoundLength;
