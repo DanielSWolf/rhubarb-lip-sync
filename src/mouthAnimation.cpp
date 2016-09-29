@@ -189,11 +189,11 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& secondLast, const Timed<Shape>& last, const Timed<Shape>& pause) {
 		if (pause.getValue() != X) return;
 
-		centiseconds lastDuration = last.getTimeRange().getDuration();
+		centiseconds lastDuration = last.getDuration();
 		const centiseconds minOpenDuration = 20_cs;
 		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastDuration < minOpenDuration) {
 			const centiseconds minSpillDuration = 20_cs;
-			centiseconds spillDuration = std::min(minSpillDuration, pause.getTimeRange().getDuration());
+			centiseconds spillDuration = std::min(minSpillDuration, pause.getDuration());
 			result.set(pause.getStart(), pause.getStart() + spillDuration, B);
 		}
 	});
@@ -214,7 +214,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	for (const auto& timedPhone : continuousPhones) {
 		// Animate one phone
 		optional<Phone> phone = timedPhone.getValue();
-		centiseconds duration = timedPhone.getTimeRange().getDuration();
+		centiseconds duration = timedPhone.getDuration();
 		Timeline<Viseme> phoneVisemes = animate(phone, duration, previousPhoneDuration);
 
 		// Result timing is relative to phone. Make absolute.
@@ -236,7 +236,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		Viseme viseme = it->getValue();
 
 		// Convert viseme to phone
-		Shape shape = viseme.getShape(it->getTimeRange().getDuration(), lastShape);
+		Shape shape = viseme.getShape(it->getDuration(), lastShape);
 		shapes.set(it->getTimeRange(), shape);
 
 		lastShape = shape;

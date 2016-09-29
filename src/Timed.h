@@ -37,6 +37,10 @@ public:
 		return timeRange.getEnd();
 	}
 
+	TimeRange::time_type getDuration() const {
+		return timeRange.getDuration();
+	}
+
 	void setTimeRange(const TimeRange& timeRange) {
 		this->timeRange = timeRange;
 	}
@@ -102,6 +106,10 @@ public:
 
 	TimeRange::time_type getEnd() const {
 		return timeRange.getEnd();
+	}
+
+	TimeRange::time_type getDuration() const {
+		return timeRange.getDuration();
 	}
 
 	void setTimeRange(const TimeRange& timeRange) {

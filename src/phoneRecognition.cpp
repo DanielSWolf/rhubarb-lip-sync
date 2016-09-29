@@ -291,7 +291,7 @@ Timeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone
 	const centiseconds minSoundDuration = 12_cs;
 	for (const auto& unknownSound : Timeline<void>(noiseSounds)) {
 		bool startsAtZero = unknownSound.getStart() == 0_cs;
-		bool tooShort = unknownSound.getTimeRange().getDuration() < minSoundDuration;
+		bool tooShort = unknownSound.getDuration() < minSoundDuration;
 		if (startsAtZero || tooShort) {
 			noiseSounds.clear(unknownSound.getTimeRange());
 		}
@@ -428,7 +428,7 @@ BoundedTimeline<Phone> recognizePhones(
 	};
 
 	auto getUtteranceProgressWeight = [](const Timed<void> timedUtterance) {
-		return timedUtterance.getTimeRange().getDuration().count();
+		return timedUtterance.getDuration().count();
 	};
 
 	// Perform speech recognition

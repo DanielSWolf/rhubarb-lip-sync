@@ -103,7 +103,7 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int m
 	// Shorten activities. WebRTC adds a bit of buffer at the end.
 	const centiseconds tail(5);
 	for (const auto& utterance : Timeline<void>(activity)) {
-		if (utterance.getTimeRange().getDuration() > tail && utterance.getEnd() < audioDuration) {
+		if (utterance.getDuration() > tail && utterance.getEnd() < audioDuration) {
 			activity.clear(utterance.getEnd() - tail, utterance.getEnd());
 		}
 	}

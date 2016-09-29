@@ -230,7 +230,7 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 		Timed<int> lastElement(centiseconds::min(), centiseconds::min(), std::numeric_limits<int>::min());
 		for (const auto& element : timeline) {
 			// No element shound have zero-length
-			EXPECT_LT(0_cs, element.getTimeRange().getDuration());
+			EXPECT_LT(0_cs, element.getDuration());
 
 			// No two adjacent elements should have the same value; they should have been merged
 			if (element.getStart() == lastElement.getEnd()) {
