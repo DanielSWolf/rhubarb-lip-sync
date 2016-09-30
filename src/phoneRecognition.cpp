@@ -203,7 +203,12 @@ optional<Timeline<Phone>> getPhoneAlignment(
 		// Add entry
 		centiseconds start(phoneEntry->start);
 		centiseconds duration(phoneEntry->duration);
-		Timed<Phone> timedPhone(start, start + duration, PhoneConverter::get().parse(phoneName));
+		Phone phone = PhoneConverter::get().parse(phoneName);
+		if (phone == Phone::AH && duration < 6_cs) {
+			// Heuristic: < 6_cs is schwa. Pocketsphinx doesn't differentiate.
+			phone = Phone::Schwa;
+		}
+		Timed<Phone> timedPhone(start, start + duration, phone);
 		result.set(timedPhone);
 	}
 	return result;

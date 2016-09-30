@@ -15,7 +15,8 @@ enum class Phone {
 	EH,		// [ɛ] as in r[e]d, m[e]n
 	IH,		// [ɪ] as in b[i]g, w[i]n
 	UH,		// [ʊ] as in sh[ou]ld, c[ou]ld
-	AH,		// [ʌ, ə] as in b[u]t, s[u]n, [a]lone, disc[u]s
+	AH,		// [ʌ] as in b[u]t, s[u]n
+	Schwa,	// [ə] as in [a]lone, disc[u]s
 	AE,		// [æ] as in [a]t, b[a]t
 
 	// ... diphthongs

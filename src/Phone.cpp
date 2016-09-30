@@ -22,6 +22,7 @@ EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
 		{ Phone::IH,		"IH" },
 		{ Phone::UH,		"UH" },
 		{ Phone::AH,		"AH" },
+		{ Phone::Schwa,		"Schwa" },
 		{ Phone::AE,		"AE" },
 		{ Phone::EY,		"EY" },
 		{ Phone::AY,		"AY" },
