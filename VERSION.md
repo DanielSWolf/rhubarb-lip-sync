@@ -1,5 +1,31 @@
 # Version history
 
+## Version 1.1.0
+
+* **More reliable speech recognition**
+
+  The first step in automatic lip-sync is speech recognition.
+  Rhubarb Lip-Sync 1.1.0 recognizes spoken dialog more accurately, especially at the beginning of recordings.
+  This improves the overall quality of the resulting animation.
+
+* **More accurate breath detection**
+
+  Rhubarb Lip-Sync animates not only dialog, but also noises such as taking a breath.
+  For this version, the accuracy of breath detection has been improved.
+  You shouldn't see actors opening their mouth for no reason any more.
+
+* **Better animation of short pauses**
+
+  During short pauses between words or sentences (up to 0.35s), the mouth is kept open.
+  Now, this open mouth shape is chosen based on the previous and following mouth shapes.
+  This gives pauses in speech a more natural, less mechanical look.
+
+* **Builds on Linux**
+
+  In addition to Windows and OS X, Rhubarb Lip-Sync can now be built on Linux systems.
+  I'm not offering binary distributions for Linux at this time.
+  To build the application yourself, you need CMake, Boost, and a C++14-compatible compiler.
+
 ## Version 1.0.0
 
 * More realistic animation using new, predictive algorithm
