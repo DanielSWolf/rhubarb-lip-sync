@@ -125,6 +125,29 @@ optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
 	return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
 }
 
+// Returns the mouth shape to use for *short* pauses between words.
+Shape getRelaxedShape(Shape lhs, Shape rhs) {
+	if (lhs == rhs) {
+		return lhs;
+	}
+
+	// Lookup that contains relaxed versions of mouth shapes
+	static const map<Shape, Shape> relaxed {
+		{ A, A },
+		{ B, B },
+		{ C, C },
+		{ D, C },
+		{ E, C },
+		{ F, B },
+		{ G, X },
+		{ H, C },
+		{ X, X }
+	};
+	assert(relaxed.size() == static_cast<size_t>(Shape::EndSentinel));
+
+	return relaxed.at(lhs);
+}
+
 Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
 	centiseconds minTweenDuration = 4_cs;
 	centiseconds maxTweenDuration = 10_cs;
@@ -175,16 +198,15 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	Timeline<Shape> result;
 
 	// Don't close mouth for short pauses
-	for (const auto& timedShape : shapes) {
-		if (timedShape.getValue() != X) continue;
-		if (timedShape.getStart() == 0_cs || timedShape.getEnd() == shapes.getRange().getEnd()) continue;
+	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& lhs, const Timed<Shape>& pause, const Timed<Shape>& rhs) {
+		if (pause.getValue() != X) return;
 
 		const centiseconds maxPausedOpenMouthDuration = 35_cs;
-		const TimeRange timeRange = timedShape.getTimeRange();
+		const TimeRange timeRange = pause.getTimeRange();
 		if (timeRange.getDuration() <= maxPausedOpenMouthDuration) {
-			result.set(timeRange, B);
+			result.set(timeRange, getRelaxedShape(lhs.getValue(), rhs.getValue()));
 		}
-	}
+	});
 
 	// Keep mouth open into pause if it just opened
 	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& secondLast, const Timed<Shape>& last, const Timed<Shape>& pause) {
@@ -195,7 +217,7 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastDuration < minOpenDuration) {
 			const centiseconds minSpillDuration = 20_cs;
 			centiseconds spillDuration = std::min(minSpillDuration, pause.getDuration());
-			result.set(pause.getStart(), pause.getStart() + spillDuration, B);
+			result.set(pause.getStart(), pause.getStart() + spillDuration, getRelaxedShape(last.getValue(), X));
 		}
 	});
 
