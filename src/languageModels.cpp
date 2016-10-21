@@ -172,12 +172,12 @@ void createLanguageModelFile(const vector<string>& words, path filePath) {
 	file << "\\end\\" << endl;
 }
 
-lambda_unique_ptr<ngram_model_t> createLanguageModel(const vector<string>& words, logmath_t& logMath) {
+lambda_unique_ptr<ngram_model_t> createLanguageModel(const vector<string>& words, ps_decoder_t& decoder) {
 	path tempFilePath = getTempFilePath();
 	createLanguageModelFile(words, tempFilePath);
 	auto deleteTempFile = gsl::finally([&]() { boost::filesystem::remove(tempFilePath); });
 
 	return lambda_unique_ptr<ngram_model_t>(
-		ngram_model_read(nullptr, tempFilePath.string().c_str(), NGRAM_ARPA, &logMath),
+		ngram_model_read(decoder.config, tempFilePath.string().c_str(), NGRAM_ARPA, decoder.lmath),
 		[](ngram_model_t* lm) { ngram_model_free(lm); });
 }

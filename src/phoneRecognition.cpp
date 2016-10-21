@@ -267,7 +267,7 @@ lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
 		vector<string> words = tokenizeText(*dialog, [&](const string& word) { return dictionaryContains(*decoder->dict, word); });
 		words.insert(words.begin(), "<s>");
 		words.push_back("</s>");
-		languageModel = createLanguageModel(words, *decoder->lmath);
+		languageModel = createLanguageModel(words, *decoder);
 
 		// Add any dialog-specific words to the dictionary
 		addMissingDictionaryWords(words, *decoder);
