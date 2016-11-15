@@ -6,7 +6,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include "platformTools.h"
 #include <whereami.h>
-#include "logging.h"
 
 using boost::filesystem::path;
 using std::string;
@@ -19,7 +18,6 @@ path getBinPath() {
 			if (pathLength == -1) {
 				throw std::runtime_error("Error determining path length.");
 			}
-			logging::debugFormat("Bin path has length {}.", pathLength);
 
 			// Get path
 			// Note: According to documentation, pathLength does *not* include the trailing zero. Actually, it does.
@@ -32,7 +30,6 @@ path getBinPath() {
 
 			// Convert to boost::filesystem::path
 			string pathString(buffer.data());
-			logging::debugFormat("Bin path: '{}'", pathString);
 			path result(boost::filesystem::canonical(pathString).make_preferred());
 			return result;
 		} catch (...) {

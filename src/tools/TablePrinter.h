@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <initializer_list>
 #include <ostream>
 #include <vector>

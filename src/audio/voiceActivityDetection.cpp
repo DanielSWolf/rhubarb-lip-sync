@@ -1,13 +1,13 @@
 #include "voiceActivityDetection.h"
-#include <audio/DCOffset.h>
-#include <audio/SampleRateConverter.h>
-#include <logging.h>
-#include <pairs.h>
+#include "DCOffset.h"
+#include "SampleRateConverter.h"
+#include "logging.h"
+#include "pairs.h"
 #include <boost/range/adaptor/transformed.hpp>
 #include <webrtc/common_audio/vad/include/webrtc_vad.h>
 #include "processing.h"
 #include <gsl_util.h>
-#include <parallel.h>
+#include "parallel.h"
 #include "AudioSegment.h"
 
 using std::vector;

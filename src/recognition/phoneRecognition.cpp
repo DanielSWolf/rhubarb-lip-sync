@@ -1,6 +1,6 @@
 #include <boost/filesystem.hpp>
 #include "phoneRecognition.h"
-#include "audio/SampleRateConverter.h"
+#include "SampleRateConverter.h"
 #include "platformTools.h"
 #include "tools.h"
 #include <format.h>
@@ -8,18 +8,19 @@
 #include <regex>
 #include <gsl_util.h>
 #include <logging.h>
-#include <audio/DCOffset.h>
-#include <Timeline.h>
-#include <audio/voiceActivityDetection.h>
-#include "audio/AudioSegment.h"
+#include "DCOffset.h"
+#include "Timeline.h"
+#include "voiceActivityDetection.h"
+#include "AudioSegment.h"
 #include "languageModels.h"
 #include "tokenization.h"
 #include "g2p.h"
 #include "ContinuousTimeline.h"
-#include "audio/processing.h"
+#include "processing.h"
 #include "parallel.h"
 #include <boost/version.hpp>
 #include "ObjectPool.h"
+#include "timedLogging.h"
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -372,12 +373,12 @@ Timeline<Phone> utteranceToPhones(
 		}
 		text += word;
 	}
-	logging::logTimedEvent("utterance", utteranceTimeRange, text);
+	logTimedEvent("utterance", utteranceTimeRange, text);
 
 	// Log words
 	for (Timed<string> timedWord : words) {
 		timedWord.getTimeRange().shift(paddedTimeRange.getStart());
-		logging::logTimedEvent("word", timedWord);
+		logTimedEvent("word", timedWord);
 	}
 
 	// Convert word strings to word IDs using dictionary
@@ -398,7 +399,7 @@ Timeline<Phone> utteranceToPhones(
 
 	// Log raw phones
 	for (const auto& timedPhone : utterancePhones) {
-		logging::logTimedEvent("rawPhone", timedPhone);
+		logTimedEvent("rawPhone", timedPhone);
 	}
 
 	// Guess positions of noise sounds
@@ -409,7 +410,7 @@ Timeline<Phone> utteranceToPhones(
 
 	// Log phones
 	for (const auto& timedPhone : utterancePhones) {
-		logging::logTimedEvent("phone", timedPhone);
+		logTimedEvent("phone", timedPhone);
 	}
 
 	return utterancePhones;

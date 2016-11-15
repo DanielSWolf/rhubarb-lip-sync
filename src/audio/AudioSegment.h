@@ -1,4 +1,5 @@
 #pragma once
+
 #include "AudioClip.h"
 
 class AudioSegment : public AudioClip {

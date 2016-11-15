@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <boost/algorithm/clamp.hpp>
 #include "Viseme.h"
+#include "timedLogging.h"
 
 using std::map;
 using std::unordered_set;
@@ -278,7 +279,7 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	}
 
 	for (const auto& timedShape : shapes) {
-		logging::logTimedEvent("shape", timedShape);
+		logTimedEvent("shape", timedShape);
 	}
 
 	return shapes;

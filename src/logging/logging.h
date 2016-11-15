@@ -1,10 +1,8 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <mutex>
 #include "tools.h"
-#include "Timed.h"
 #include "EnumConverter.h"
 
 namespace logging {
@@ -124,20 +122,4 @@ namespace logging {
 	LOG_WITH_LEVEL(warn, Warn)
 	LOG_WITH_LEVEL(error, Error)
 	LOG_WITH_LEVEL(fatal, Fatal)
-
-	template<typename TValue>
-	void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
-		debugFormat("##{0}[{1}-{2}]: {3}",
-			eventName, formatDuration(timedValue.getStart()), formatDuration(timedValue.getEnd()), timedValue.getValue());
-	}
-
-	template<typename TValue>
-	void logTimedEvent(const std::string& eventName, const TimeRange& timeRange, const TValue& value) {
-		logTimedEvent(eventName, Timed<TValue>(timeRange, value));
-	}
-
-	template<typename TValue>
-	void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const TValue& value) {
-		logTimedEvent(eventName, Timed<TValue>(start, end, value));
-	}
 }

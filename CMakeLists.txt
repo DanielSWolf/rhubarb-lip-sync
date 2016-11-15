@@ -64,26 +64,34 @@ set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem locale system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+link_libraries(${Boost_LIBRARIES}) # Just about every project needs Boost
 
 # ... C++ Format
-include_directories(SYSTEM "lib/cppformat")
 FILE(GLOB cppFormatFiles "lib/cppformat/*.cc")
 add_library(cppFormat ${cppFormatFiles})
+target_include_directories(cppFormat SYSTEM PUBLIC "lib/cppformat")
 target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
-include_directories(SYSTEM "lib/sphinxbase-rev13216/include" "lib/sphinxbase-rev13216/src" "lib/sphinx_config")
 FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-rev13216/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
+target_include_directories(sphinxbase SYSTEM PUBLIC
+	"lib/sphinxbase-rev13216/include"
+	"lib/sphinxbase-rev13216/src"
+	"lib/sphinx_config"
+)
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
 target_compile_definitions(sphinxbase PUBLIC __SPHINXBASE_EXPORT_H__=1 SPHINXBASE_EXPORT=) # Compile as static lib
 set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
-include_directories(SYSTEM "lib/pocketsphinx-rev13216/include" "lib/pocketsphinx-rev13216/src/libpocketsphinx")
 FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-rev13216/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
+target_include_directories(pocketSphinx SYSTEM PUBLIC
+	"lib/pocketsphinx-rev13216/include"
+	"lib/pocketsphinx-rev13216/src/libpocketsphinx"
+)
 target_link_libraries(pocketSphinx sphinxbase)
 target_compile_options(pocketSphinx PRIVATE ${disableWarningsFlags})
 target_compile_definitions(pocketSphinx PUBLIC __POCKETSPHINX_EXPORT_H__=1 POCKETSPHINX_EXPORT=) # Compile as static lib
@@ -103,7 +111,6 @@ set_target_properties(gtest_main PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/gsl/include")
 
 # ... WebRTC
-include_directories(SYSTEM "lib/webrtc-8d2248ff")
 set(webRTCFiles
 	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/cross_correlation.c
 	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/division_operations.c
@@ -124,6 +131,7 @@ set(webRTCFiles
 	lib/webrtc-8d2248ff/webrtc/common_audio/vad/webrtc_vad.c
 )
 add_library(webRTC ${webRTCFiles})
+target_include_directories(webRTC SYSTEM PUBLIC "lib/webrtc-8d2248ff")
 target_compile_options(webRTC PRIVATE ${disableWarningsFlags})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   target_compile_options(webRTC PRIVATE -pthread -lpthread)
@@ -134,12 +142,11 @@ endif()
 set_target_properties(webRTC PROPERTIES FOLDER lib)
 
 # ... whereami
-include_directories(SYSTEM "lib/whereami/src")
 add_library(whereami lib/whereami/src/whereami.c)
+target_include_directories(whereami SYSTEM PUBLIC "lib/whereami/src")
 set_target_properties(whereami PROPERTIES FOLDER lib)
 
 # ... Flite
-include_directories("lib/flite-1.4/include" "lib/flite-1.4")
 set(fliteFiles
 	lib/flite-1.4/lang/cmulex/cmu_lex.c
 	lib/flite-1.4/lang/cmulex/cmu_lex_data.c
@@ -200,54 +207,184 @@ set(fliteFiles
 	lib/flite-1.4/src/utils/cst_val_user.c
 )
 add_library(flite ${fliteFiles})
+target_include_directories(flite SYSTEM PUBLIC
+	"lib/flite-1.4/include"
+	"lib/flite-1.4"
+)
 target_compile_options(flite PRIVATE ${disableWarningsFlags})
 set_target_properties(flite PROPERTIES FOLDER lib)
 
-# Define executable
-include_directories("src" "src/audio_input")
-configure_file(src/appInfo.cpp.in src/appInfo.cpp ESCAPE_QUOTES)
-set(SOURCE_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/src/appInfo.cpp
-	src/main.cpp
-	src/Phone.cpp src/Phone.h
-	src/Shape.cpp src/Shape.h
-	src/centiseconds.cpp src/centiseconds.h
-	src/EnumConverter.h
-	src/Viseme.cpp src/Viseme.h
-	src/mouthAnimation.cpp src/mouthAnimation.h
-	src/phoneRecognition.cpp src/phoneRecognition.h
-	src/platformTools.cpp src/platformTools.h
-	src/tools.cpp src/tools.h
-	src/audio/AudioClip.cpp src/audio/AudioClip.h
-	src/audio/AudioSegment.cpp src/audio/AudioSegment.h
-	src/audio/DCOffset.cpp src/audio/DCOffset.h
-	src/audio/SampleRateConverter.cpp src/audio/SampleRateConverter.h
-	src/audio/voiceActivityDetection.cpp src/audio/voiceActivityDetection.h
-	src/audio/WaveFileReader.cpp src/audio/WaveFileReader.h
-	src/audio/waveFileWriting.cpp src/audio/waveFileWriting.h
-	src/audio/processing.cpp src/audio/processing.h
-	src/stringTools.cpp src/stringTools.h
-	src/NiceCmdLineOutput.cpp src/NiceCmdLineOutput.h
-	src/TablePrinter.cpp src/TablePrinter.h
-	src/ProgressBar.cpp src/ProgressBar.h
-	src/logging.cpp src/logging.h
-	src/Timed.h
-	src/TimeRange.cpp src/TimeRange.h
-	src/Timeline.h
-	src/BoundedTimeline.h
-	src/ContinuousTimeline.h
-	src/pairs.h
-	src/Exporter.cpp src/Exporter.h
-	src/tokenization.cpp src/tokenization.h
-	src/g2p.cpp src/g2p.h
-	src/languageModels.cpp src/languageModels.h
-	src/tupleHash.h
-	src/parallel.h
-	src/ObjectPool.h
-	src/Lazy.h
+# Define Rhubarb libraries
+
+# ... rhubarb-animation
+add_library(rhubarb-animation
+	src/animation/mouthAnimation.cpp
+	src/animation/mouthAnimation.h
+	src/animation/Viseme.cpp
+	src/animation/Viseme.h
 )
-add_executable(rhubarb ${SOURCE_FILES})
-target_link_libraries(rhubarb ${Boost_LIBRARIES} cppFormat sphinxbase pocketSphinx flite webRTC whereami)
+target_include_directories(rhubarb-animation PUBLIC "src/animation")
+target_link_libraries(rhubarb-animation
+	rhubarb-core
+	rhubarb-logging
+	rhubarb-time
+)
+
+# ... rhubarb-audio
+add_library(rhubarb-audio
+	src/audio/AudioClip.cpp
+	src/audio/AudioClip.h
+	src/audio/AudioSegment.cpp
+	src/audio/AudioSegment.h
+	src/audio/DCOffset.cpp
+	src/audio/DCOffset.h
+	src/audio/ioTools.h
+	src/audio/processing.cpp
+	src/audio/processing.h
+	src/audio/SampleRateConverter.cpp
+	src/audio/SampleRateConverter.h
+	src/audio/voiceActivityDetection.cpp
+	src/audio/voiceActivityDetection.h
+	src/audio/WaveFileReader.cpp
+	src/audio/WaveFileReader.h
+	src/audio/waveFileWriting.cpp
+	src/audio/waveFileWriting.h
+)
+target_include_directories(rhubarb-audio PUBLIC "src/audio")
+target_link_libraries(rhubarb-audio
+	webRTC
+	rhubarb-logging
+	rhubarb-time
+	rhubarb-tools
+)
+
+# ... rhubarb-core
+configure_file(src/core/appInfo.cpp.in appInfo.cpp ESCAPE_QUOTES)
+add_library(rhubarb-core
+	${CMAKE_CURRENT_BINARY_DIR}/appInfo.cpp
+	src/core/appInfo.h
+	src/core/Phone.cpp
+	src/core/Phone.h
+	src/core/Shape.cpp
+	src/core/Shape.h
+)
+target_include_directories(rhubarb-core PUBLIC "src/core")
+target_link_libraries(rhubarb-core
+	rhubarb-tools
+)
+
+# ... rhubarb-exporters
+add_library(rhubarb-exporters
+	src/exporters/Exporter.cpp
+	src/exporters/Exporter.h
+)
+target_include_directories(rhubarb-exporters PUBLIC "src/exporters")
+target_link_libraries(rhubarb-exporters
+	rhubarb-core
+	rhubarb-time
+)
+
+# ... rhubarb-lib
+add_library(rhubarb-lib
+	src/lib/rhubarbLib.cpp
+	src/lib/rhubarbLib.h
+)
+target_include_directories(rhubarb-lib PUBLIC "src/lib")
+target_link_libraries(rhubarb-lib
+	rhubarb-animation
+	rhubarb-audio
+	rhubarb-core
+	rhubarb-recognition
+	rhubarb-time
+	rhubarb-tools
+)
+
+# ... rhubarb-logging
+add_library(rhubarb-logging
+	src/logging/logging.cpp
+	src/logging/logging.h
+)
+target_include_directories(rhubarb-logging PUBLIC "src/logging")
+target_link_libraries(rhubarb-logging
+	rhubarb-tools
+)
+
+# ... rhubarb-recognition
+add_library(rhubarb-recognition
+	src/recognition/g2p.cpp
+	src/recognition/g2p.h
+	src/recognition/languageModels.cpp
+	src/recognition/languageModels.h
+	src/recognition/phoneRecognition.cpp
+	src/recognition/phoneRecognition.h
+	src/recognition/tokenization.cpp
+	src/recognition/tokenization.h
+)
+target_include_directories(rhubarb-recognition PUBLIC "src/recognition")
+target_link_libraries(rhubarb-recognition
+	flite
+	pocketSphinx
+	rhubarb-audio
+	rhubarb-core
+	rhubarb-logging
+)
+
+# ... rhubarb-time
+add_library(rhubarb-time
+	src/time/BoundedTimeline.h
+	src/time/centiseconds.cpp
+	src/time/centiseconds.h
+	src/time/ContinuousTimeline.h
+	src/time/Timed.h
+	src/time/timedLogging.h
+	src/time/Timeline.h
+	src/time/TimeRange.cpp
+	src/time/TimeRange.h
+)
+target_include_directories(rhubarb-time PUBLIC "src/time")
+target_link_libraries(rhubarb-time
+	cppFormat
+	rhubarb-logging
+)
+
+# ... rhubarb-tools
+add_library(rhubarb-tools
+	src/tools/EnumConverter.h
+	src/tools/exceptions.cpp
+	src/tools/exceptions.h
+	src/tools/Lazy.h
+	src/tools/NiceCmdLineOutput.cpp
+	src/tools/NiceCmdLineOutput.h
+	src/tools/ObjectPool.h
+	src/tools/pairs.h
+	src/tools/parallel.h
+	src/tools/platformTools.cpp
+	src/tools/platformTools.h
+	src/tools/ProgressBar.cpp
+	src/tools/ProgressBar.h
+	src/tools/stringTools.cpp
+	src/tools/stringTools.h
+	src/tools/TablePrinter.cpp
+	src/tools/TablePrinter.h
+	src/tools/textFiles.cpp
+	src/tools/textFiles.h
+	src/tools/tools.cpp
+	src/tools/tools.h
+	src/tools/tupleHash.h
+)
+target_include_directories(rhubarb-tools PUBLIC "src/tools")
+target_link_libraries(rhubarb-tools
+	cppFormat
+	whereami
+)
+
+# Define Rhubarb executable
+add_executable(rhubarb src/main.cpp)
+target_include_directories(rhubarb PUBLIC "src")
+target_link_libraries(rhubarb
+	rhubarb-exporters
+	rhubarb-lib
+)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
@@ -261,21 +398,15 @@ set(TEST_FILES
 	tests/tokenizationTests.cpp
 	tests/g2pTests.cpp
 	tests/LazyTests.cpp
-	src/stringTools.cpp src/stringTools.h
-	src/platformTools.cpp src/platformTools.h
-	src/Timeline.h
-	src/TimeRange.cpp src/TimeRange.h
-	src/centiseconds.cpp src/centiseconds.h
-	src/pairs.h
-	src/Phone.cpp src/Phone.h
-	src/tokenization.cpp src/tokenization.h
-	src/g2p.cpp src/g2p.h
-	src/logging.cpp src/logging.h
-	src/tools.cpp src/tools.h
-	src/Lazy.h
 )
 add_executable(runTests ${TEST_FILES})
-target_link_libraries(runTests ${Boost_LIBRARIES} gtest gmock gmock_main flite cppFormat whereami)
+target_link_libraries(runTests
+	gtest
+	gmock
+	gmock_main
+	rhubarb-recognition
+	rhubarb-time
+)
 
 set(CPACK_PACKAGE_NAME ${appName})
 string(REPLACE " " "-" CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
