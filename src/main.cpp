@@ -16,6 +16,10 @@
 #include "exceptions.h"
 #include "textFiles.h"
 #include "rhubarbLib.h"
+#include "ExportFormat.h"
+#include "TsvExporter.h"
+#include "XmlExporter.h"
+#include "JsonExporter.h"
 
 using std::exception;
 using std::string;

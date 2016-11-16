@@ -275,8 +275,15 @@ target_link_libraries(rhubarb-core
 
 # ... rhubarb-exporters
 add_library(rhubarb-exporters
-	src/exporters/Exporter.cpp
 	src/exporters/Exporter.h
+	src/exporters/exporterTools.cpp
+	src/exporters/exporterTools.h
+	src/exporters/JsonExporter.cpp
+	src/exporters/JsonExporter.h
+	src/exporters/TsvExporter.cpp
+	src/exporters/TsvExporter.h
+	src/exporters/XmlExporter.cpp
+	src/exporters/XmlExporter.h
 )
 target_include_directories(rhubarb-exporters PUBLIC "src/exporters")
 target_link_libraries(rhubarb-exporters
@@ -379,7 +386,11 @@ target_link_libraries(rhubarb-tools
 )
 
 # Define Rhubarb executable
-add_executable(rhubarb src/main.cpp)
+add_executable(rhubarb
+	src/main.cpp
+	src/ExportFormat.cpp
+	src/ExportFormat.h
+)
 target_include_directories(rhubarb PUBLIC "src")
 target_link_libraries(rhubarb
 	rhubarb-exporters
