@@ -218,6 +218,8 @@ set_target_properties(flite PROPERTIES FOLDER lib)
 
 # ... rhubarb-animation
 add_library(rhubarb-animation
+	src/animation/animationRules.cpp
+	src/animation/animationRules.h
 	src/animation/mouthAnimation.cpp
 	src/animation/mouthAnimation.h
 	src/animation/Viseme.cpp
