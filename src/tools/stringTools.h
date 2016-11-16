@@ -12,9 +12,9 @@ std::vector<std::string> wrapString(const std::string& s, int lineLength, int ha
 
 std::wstring latin1ToWide(const std::string& s);
 
-boost::optional<char> toASCII(char32_t ch);
+boost::optional<char> toAscii(char32_t ch);
 
-std::string toASCII(const std::u32string& s);
+std::string toAscii(const std::u32string& s);
 
 std::u32string utf8ToUtf32(const std::string& s);
 

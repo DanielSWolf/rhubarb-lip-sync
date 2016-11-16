@@ -6,7 +6,7 @@
 using std::string;
 using boost::property_tree::ptree;
 
-void XMLExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
+void XmlExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	ptree tree;
 
 	// Add metadata

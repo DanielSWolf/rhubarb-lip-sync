@@ -8,7 +8,7 @@ using std::string;
 using std::u32string;
 using boost::filesystem::path;
 
-u32string readUTF8File(path filePath) {
+u32string readUtf8File(path filePath) {
 	if (!exists(filePath)) {
 		throw std::invalid_argument(fmt::format("File {} does not exist.", filePath));
 	}

@@ -13,9 +13,9 @@ string ExportFormatConverter::getTypeName() {
 
 EnumConverter<ExportFormat>::member_data ExportFormatConverter::getMemberData() {
 	return member_data{
-		{ ExportFormat::TSV,		"TSV" },
-		{ ExportFormat::XML,		"XML" },
-		{ ExportFormat::JSON,		"JSON" }
+		{ ExportFormat::Tsv,		"tsv" },
+		{ ExportFormat::Xml,		"xml" },
+		{ ExportFormat::Json,		"json" }
 	};
 }
 

@@ -2,7 +2,7 @@
 
 #include "Exporter.h"
 
-class JSONExporter : public Exporter {
+class JsonExporter : public Exporter {
 public:
 	void exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) override;
 };

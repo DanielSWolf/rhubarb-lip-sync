@@ -3,7 +3,7 @@
 
 using std::string;
 
-string escapeJSONString(const string& s) {
+string escapeJsonString(const string& s) {
 	string result;
 	for (char c : s) {
 		switch (c) {
@@ -25,12 +25,12 @@ string escapeJSONString(const string& s) {
 	return result;
 }
 
-void JSONExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
+void JsonExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	// Export as JSON.
 	// I'm not using a library because the code is short enough without one and it lets me control the formatting.
 	outputStream << "{\n";
 	outputStream << "  \"metadata\": {\n";
-	outputStream << "    \"soundFile\": \"" << escapeJSONString(inputFilePath.string()) << "\",\n";
+	outputStream << "    \"soundFile\": \"" << escapeJsonString(inputFilePath.string()) << "\",\n";
 	outputStream << "    \"duration\": " << formatDuration(shapes.getRange().getDuration()) << "\n";
 	outputStream << "  },\n";
 	outputStream << "  \"mouthCues\": [\n";

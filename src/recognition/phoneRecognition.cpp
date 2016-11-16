@@ -8,7 +8,7 @@
 #include <regex>
 #include <gsl_util.h>
 #include <logging.h>
-#include "DCOffset.h"
+#include "DcOffset.h"
 #include "Timeline.h"
 #include "voiceActivityDetection.h"
 #include "AudioSegment.h"
@@ -427,7 +427,7 @@ BoundedTimeline<Phone> recognizePhones(
 	ProgressSink& dialogProgressSink = totalProgressMerger.addSink(15);
 
 	// Make sure audio stream has no DC offset
-	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | removeDCOffset();
+	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | removeDcOffset();
 
 	// Split audio into utterances
 	BoundedTimeline<void> utterances;

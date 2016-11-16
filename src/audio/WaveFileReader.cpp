@@ -26,7 +26,7 @@ int roundToEven(int i) {
 }
 
 namespace Codec {
-	constexpr int PCM = 0x01;
+	constexpr int Pcm = 0x01;
 	constexpr int Float = 0x03;
 };
 
@@ -103,7 +103,7 @@ WaveFileReader::WaveFileReader(path filePath) :
 			// Determine sample format
 			int bytesPerSample;
 			switch (codec) {
-			case Codec::PCM:
+			case Codec::Pcm:
 				// Determine sample size.
 				// According to the WAVE standard, sample sizes that are not multiples of 8 bits
 				// (e.g. 12 bits) can be treated like the next-larger byte size.
@@ -135,7 +135,7 @@ WaveFileReader::WaveFileReader(path filePath) :
 			default:
 				throw runtime_error(format(
 					"Unsupported audio codec: '{}'. Only uncompressed codecs ('{}' and '{}') are supported.",
-					codecToString(codec), codecToString(Codec::PCM), codecToString(Codec::Float)));
+					codecToString(codec), codecToString(Codec::Pcm), codecToString(Codec::Float)));
 			}
 			formatInfo.bytesPerFrame = bytesPerSample * formatInfo.channelCount;
 			break;

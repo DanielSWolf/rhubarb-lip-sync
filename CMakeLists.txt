@@ -111,7 +111,7 @@ set_target_properties(gtest_main PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/gsl/include")
 
 # ... WebRTC
-set(webRTCFiles
+set(webRtcFiles
 	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/cross_correlation.c
 	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/division_operations.c
 	lib/webrtc-8d2248ff/webrtc/common_audio/signal_processing/downsample_fast.c
@@ -130,16 +130,16 @@ set(webRTCFiles
 	lib/webrtc-8d2248ff/webrtc/common_audio/vad/vad_sp.c
 	lib/webrtc-8d2248ff/webrtc/common_audio/vad/webrtc_vad.c
 )
-add_library(webRTC ${webRTCFiles})
-target_include_directories(webRTC SYSTEM PUBLIC "lib/webrtc-8d2248ff")
-target_compile_options(webRTC PRIVATE ${disableWarningsFlags})
+add_library(webRtc ${webRtcFiles})
+target_include_directories(webRtc SYSTEM PUBLIC "lib/webrtc-8d2248ff")
+target_compile_options(webRtc PRIVATE ${disableWarningsFlags})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  target_compile_options(webRTC PRIVATE -pthread -lpthread)
+  target_compile_options(webRtc PRIVATE -pthread -lpthread)
 endif()
 if (NOT WIN32)
-	target_compile_definitions(webRTC PRIVATE WEBRTC_POSIX)
+	target_compile_definitions(webRtc PRIVATE WEBRTC_POSIX)
 endif()
-set_target_properties(webRTC PROPERTIES FOLDER lib)
+set_target_properties(webRtc PROPERTIES FOLDER lib)
 
 # ... whereami
 add_library(whereami lib/whereami/src/whereami.c)
@@ -236,8 +236,8 @@ add_library(rhubarb-audio
 	src/audio/AudioClip.h
 	src/audio/AudioSegment.cpp
 	src/audio/AudioSegment.h
-	src/audio/DCOffset.cpp
-	src/audio/DCOffset.h
+	src/audio/DcOffset.cpp
+	src/audio/DcOffset.h
 	src/audio/ioTools.h
 	src/audio/processing.cpp
 	src/audio/processing.h
@@ -252,7 +252,7 @@ add_library(rhubarb-audio
 )
 target_include_directories(rhubarb-audio PUBLIC "src/audio")
 target_link_libraries(rhubarb-audio
-	webRTC
+	webRtc
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools

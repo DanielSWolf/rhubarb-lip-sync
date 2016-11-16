@@ -68,12 +68,12 @@ void addFileSink(path path, logging::Level minLevel) {
 
 unique_ptr<Exporter> createExporter(ExportFormat exportFormat) {
 	switch (exportFormat) {
-	case ExportFormat::TSV:
-		return make_unique<TSVExporter>();
-	case ExportFormat::XML:
-		return make_unique<XMLExporter>();
-	case ExportFormat::JSON:
-		return make_unique<JSONExporter>();
+	case ExportFormat::Tsv:
+		return make_unique<TsvExporter>();
+	case ExportFormat::Xml:
+		return make_unique<XmlExporter>();
+	case ExportFormat::Json:
+		return make_unique<JsonExporter>();
 	default:
 		throw std::runtime_error("Unknown export format.");
 	}
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
-	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::TSV, &exportFormatConstraint, cmd);
+	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::Tsv, &exportFormatConstraint, cmd);
 	tclap::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
 	try {
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
 			// Animate the recording
 			animation = animateWaveFile(
 				inputFileName.getValue(),
-				dialogFile.isSet() ? readUTF8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
+				dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
 				maxThreadCount.getValue(),
 				progressBar);
 		}

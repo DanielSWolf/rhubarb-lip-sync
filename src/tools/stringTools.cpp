@@ -91,7 +91,7 @@ wstring latin1ToWide(const string& s) {
 	return result;
 }
 
-optional<char> toASCII(char32_t ch) {
+optional<char> toAscii(char32_t ch) {
 	switch (ch) {
 #include "asciiCases.cpp"
 	default:
@@ -99,10 +99,10 @@ optional<char> toASCII(char32_t ch) {
 	}
 }
 
-string toASCII(const u32string& s) {
+string toAscii(const u32string& s) {
 	string result;
 	for (char32_t ch : s) {
-		optional<char> ascii = toASCII(ch);
+		optional<char> ascii = toAscii(ch);
 		if (ascii) result.append(1, *ascii);
 	}
 	return result;

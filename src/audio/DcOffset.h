@@ -4,9 +4,9 @@
 
 // Applies a constant DC offset to an audio clip and reduces its amplitude
 // to prevent clipping
-class DCOffset : public AudioClip {
+class DcOffset : public AudioClip {
 public:
-	DCOffset(std::unique_ptr<AudioClip> inputClip, float offset);
+	DcOffset(std::unique_ptr<AudioClip> inputClip, float offset);
 	std::unique_ptr<AudioClip> clone() const override;
 	int getSampleRate() const override;
 	size_type size() const override;
@@ -18,15 +18,15 @@ private:
 	float factor;
 };
 
-inline int DCOffset::getSampleRate() const {
+inline int DcOffset::getSampleRate() const {
 	return inputClip->getSampleRate();
 }
 
-inline AudioClip::size_type DCOffset::size() const {
+inline AudioClip::size_type DcOffset::size() const {
 	return inputClip->size();
 }
 
-float getDCOffset(const AudioClip& audioClip);
+float getDcOffset(const AudioClip& audioClip);
 
-AudioEffect addDCOffset(float offset, float epsilon = 1.0f / 15000);
-AudioEffect removeDCOffset(float epsilon = 1.0f / 15000);
+AudioEffect addDcOffset(float offset, float epsilon = 1.0f / 15000);
+AudioEffect removeDcOffset(float epsilon = 1.0f / 15000);

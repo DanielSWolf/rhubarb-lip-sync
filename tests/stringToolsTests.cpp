@@ -81,11 +81,11 @@ TEST(latin1ToWide, basic) {
 	EXPECT_EQ(pangramWide, latin1ToWide(pangramLatin1));
 }
 
-// toASCII
+// toAscii
 
-TEST(toASCII, string) {
+TEST(toAscii, string) {
 	EXPECT_EQ(
 		"A naive man called  was having pina colada and creme brulee.",
-		toASCII(U"A naïve man called 晨 was having piña colada and crème brûlée."));
-	EXPECT_EQ(string(""), toASCII(U""));
+		toAscii(U"A naïve man called 晨 was having piña colada and crème brûlée."));
+	EXPECT_EQ(string(""), toAscii(U""));
 }

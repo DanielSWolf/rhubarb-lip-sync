@@ -1,6 +1,6 @@
 #include "TsvExporter.h"
 
-void TSVExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
+void TsvExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	UNUSED(inputFilePath);
 
 	// Output shapes with start times

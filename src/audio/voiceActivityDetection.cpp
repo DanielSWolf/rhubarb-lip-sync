@@ -1,5 +1,5 @@
 #include "voiceActivityDetection.h"
-#include "DCOffset.h"
+#include "DcOffset.h"
 #include "SampleRateConverter.h"
 #include "logging.h"
 #include "pairs.h"
@@ -68,7 +68,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 
 BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int maxThreadCount, ProgressSink& progressSink) {
 	// Prepare audio for VAD
-	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(16000) | removeDCOffset();
+	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(16000) | removeDcOffset();
 
 	BoundedTimeline<void> activity(audioClip->getTruncatedRange());
 	std::mutex activityMutex;

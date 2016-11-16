@@ -3,9 +3,9 @@
 #include "EnumConverter.h"
 
 enum class ExportFormat {
-	TSV,
-	XML,
-	JSON
+	Tsv,
+	Xml,
+	Json
 };
 
 class ExportFormatConverter : public EnumConverter<ExportFormat> {

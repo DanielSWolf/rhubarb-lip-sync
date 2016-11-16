@@ -1,27 +1,27 @@
-#include "DCOffset.h"
+#include "DcOffset.h"
 #include <cmath>
 
 using std::unique_ptr;
 using std::make_unique;
 
-DCOffset::DCOffset(unique_ptr<AudioClip> inputClip, float offset) :
+DcOffset::DcOffset(unique_ptr<AudioClip> inputClip, float offset) :
 	inputClip(std::move(inputClip)),
 	offset(offset),
 	factor(1 / (1 + std::abs(offset)))
 {}
 
-unique_ptr<AudioClip> DCOffset::clone() const {
-	return make_unique<DCOffset>(*this);
+unique_ptr<AudioClip> DcOffset::clone() const {
+	return make_unique<DcOffset>(*this);
 }
 
-SampleReader DCOffset::createUnsafeSampleReader() const {
+SampleReader DcOffset::createUnsafeSampleReader() const {
 	return [read = inputClip->createSampleReader(), factor = factor, offset = offset](size_type index) {
 		float sample = read(index);
 		return sample * factor + offset;
 	};
 }
 
-float getDCOffset(const AudioClip& audioClip) {
+float getDcOffset(const AudioClip& audioClip) {
 	int flatMeanSampleCount, fadingMeanSampleCount;
 	int sampleRate = audioClip.getSampleRate();
 	if (audioClip.size() > 4 * sampleRate) {
@@ -49,16 +49,16 @@ float getDCOffset(const AudioClip& audioClip) {
 	return static_cast<float>(offset);
 }
 
-AudioEffect addDCOffset(float offset, float epsilon) {
+AudioEffect addDcOffset(float offset, float epsilon) {
 	return [offset, epsilon](unique_ptr<AudioClip> inputClip) -> unique_ptr<AudioClip> {
 		if (std::abs(offset) < epsilon) return std::move(inputClip);
-		return make_unique<DCOffset>(std::move(inputClip), offset);
+		return make_unique<DcOffset>(std::move(inputClip), offset);
 	};
 }
 
-AudioEffect removeDCOffset(float epsilon) {
+AudioEffect removeDcOffset(float epsilon) {
 	return [epsilon](unique_ptr<AudioClip> inputClip) {
-		float offset = getDCOffset(*inputClip);
-		return std::move(inputClip) | addDCOffset(-offset, epsilon);
+		float offset = getDcOffset(*inputClip);
+		return std::move(inputClip) | addDcOffset(-offset, epsilon);
 	};
 }

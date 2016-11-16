@@ -74,7 +74,7 @@ optional<string> findSimilarDictionaryWord(const string& word, function<bool(con
 }
 
 vector<string> tokenizeText(const u32string& text, function<bool(const string&)> dictionaryContains) {
-	vector<string> words = tokenizeViaFlite(toASCII(text));
+	vector<string> words = tokenizeViaFlite(toAscii(text));
 
 	// Join words separated by apostophes
 	for (int i = words.size() - 1; i > 0; --i) {
