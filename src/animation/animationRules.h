@@ -9,4 +9,11 @@
 // A set of mouth shapes that can be used to represent a certain sound
 using ShapeSet = std::set<Shape>;
 
-Timeline<ShapeSet> animatePhone(boost::optional<Phone> phone, centiseconds duration, centiseconds previousDuration);
+struct ShapeRule {
+	ShapeRule(const ShapeSet& regularShapes, const ShapeSet& alternativeShapes = {});
+
+	ShapeSet regularShapes;
+	ShapeSet alternativeShapes;
+};
+
+Timeline<ShapeRule> animatePhone(boost::optional<Phone> phone, centiseconds duration, centiseconds previousDuration);
