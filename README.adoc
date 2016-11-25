@@ -86,7 +86,11 @@ The following is a complete list of available command-line options.
 | The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>). Default value: `tsv`
 
 | `-d` _<path>_, `--dialogFile` _<path>_
-| Allows you to explicitly provide the spoken text rather than relying on Rhubarb Lip-Sync's automatic recognition. Specifying the dialog text often results in more accurate lip-sync. The dialog text must be stored in a plain-text file in ASCII or UTF-8 format.
+| This option is meant for situations where you know the dialog text in advance. Specify a plain-text file (in ASCII or UTF-8 format) containing just the dialog of the audio file. Rhubarb Lip-Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
+
+For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" slightly changing the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip-Sync to produce better results. Rhubarb Lip-Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
+
+_It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate._
 
 | `--threads` _<number>_
 | Rhubarb Lip-Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip-Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
