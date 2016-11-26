@@ -45,7 +45,7 @@ This shape is also used as an in-between when animating from {A} or {B} to {D}. 
 | Wide open mouth. This mouth shapes is used for vowels like "`AA`" as in f**a**ther, "`AE`" as in b**a**t, and "`AY`" as in wh**y**.
 
 | {E} | image:img/ken-E.png[]
-| Slightly rounded mouth. This mouth shape is used for vowels like "`AO`" as in **o**ff, "`UH`" as in sh**ou**ld, and "`OW`" as in sh**o**w.
+| Slightly rounded mouth. This mouth shape is used for vowels like "`AO`" as in **o**ff.
 
 This shape is also used as an in-between when animating from {C} or {D} to {F}. Make sure the mouth isn't wider open than for {C}. Both {C}{E}{F} and {D}{E}{F} should result in smooth animation.
 

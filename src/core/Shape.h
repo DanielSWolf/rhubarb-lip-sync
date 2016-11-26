@@ -6,15 +6,21 @@
 // For reference, see http://sunewatts.dk/lipsync/lipsync/article_02.php
 // For visual examples, see https://flic.kr/s/aHsj86KR4J. Their shapes "BMP".."L" map to A..H.
 enum class Shape {
-	A,	// Closed mouth (silence, M, B, P)
-	B,	// Clenched teeth (most vowels, m[e]n)
-	C,	// Mouth slightly open (b[ir]d, s[ay], w[i]n...)
-	D,	// Mouth wide open (b[u]t, m[y], sh[ou]ld...)
-	E,	// h[ow]
-	F,	// Pout ([o]ff, sh[ow])
-	G,	// F, V
-	H,	// L
+	// Basic shapes
+	
+	A,	// Closed mouth (M, B, P)
+	B,	// Clenched teeth (most consonants, some vowels like EE as in b[ee])
+	C,	// Open mouth (vowels like m[e]n, s[u]n, s[a]y)
+	D,	// Mouth wide open (vowels like f[a]ther, b[a]t, wh[y])
+	E,	// Rounded mouth (vowels like [o]ff)
+	F,	// Puckered lips (y[ou], b[o]y, [w]ay)
+
+	// Extended shapes
+
+	G,	// "F", "V"
+	H,	// "L"
 	X,	// Idle
+
 	EndSentinel
 };
 
