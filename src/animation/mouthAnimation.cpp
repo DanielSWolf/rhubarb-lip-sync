@@ -5,6 +5,7 @@
 #include <boost/algorithm/clamp.hpp>
 #include "Viseme.h"
 #include "timedLogging.h"
+#include "shapeShorthands.h"
 
 using std::map;
 using std::unordered_set;
@@ -15,16 +16,6 @@ using std::chrono::duration_cast;
 using boost::algorithm::clamp;
 using std::pair;
 using std::tuple;
-
-constexpr Shape A = Shape::A;
-constexpr Shape B = Shape::B;
-constexpr Shape C = Shape::C;
-constexpr Shape D = Shape::D;
-constexpr Shape E = Shape::E;
-constexpr Shape F = Shape::F;
-constexpr Shape G = Shape::G;
-constexpr Shape H = Shape::H;
-constexpr Shape X = Shape::X;
 
 Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseconds previousPhoneDuration) {
 	auto single = [&](Viseme viseme) {

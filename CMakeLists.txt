@@ -222,6 +222,7 @@ add_library(rhubarb-animation
 	src/animation/animationRules.h
 	src/animation/mouthAnimation.cpp
 	src/animation/mouthAnimation.h
+	src/animation/shapeShorthands.h
 	src/animation/Viseme.cpp
 	src/animation/Viseme.h
 )
