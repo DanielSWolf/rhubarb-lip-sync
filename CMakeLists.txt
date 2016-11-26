@@ -358,6 +358,7 @@ target_link_libraries(rhubarb-time
 
 # ... rhubarb-tools
 add_library(rhubarb-tools
+	src/tools/array.h
 	src/tools/EnumConverter.h
 	src/tools/exceptions.cpp
 	src/tools/exceptions.h
