@@ -1,19 +1,37 @@
 #pragma once
 
 #include <set>
-#include <boost/optional.hpp>
 #include "Shape.h"
 #include "Timeline.h"
 #include "Phone.h"
 
+// Returns the basic shape (A-F) that most closely resembles the specified shape.
+Shape getBasicShape(Shape shape);
+
+// Returns the mouth shape that results from relaxing the specified shape.
+Shape relax(Shape shape);
+
 // A set of mouth shapes that can be used to represent a certain sound
 using ShapeSet = std::set<Shape>;
 
+// Gets the shape from a non-empty set of shapes that most closely resembles a reference shape.
+Shape getClosestShape(Shape reference, ShapeSet shapes);
+
+// A struct describing the possible shapes to use during a given time range.
 struct ShapeRule {
 	ShapeRule(const ShapeSet& regularShapes, const ShapeSet& alternativeShapes = {});
 
+	// A set of one or more shapes that may be used to animate a given time range.
+	// The actual selection will be performed based on similarity with the previous or next shape.
 	ShapeSet regularShapes;
+
+	// The regular animation algorithm tries to minimize mouth shape changes. As a result, the mouth may sometimes remain static for too long.
+	// This is a set of zero or more shapes that may be used in these cases.
+	// In contrast to the regular shapes, this set should only contain shapes that can be used regardless of the surrounding shapes.
 	ShapeSet alternativeShapes;
 };
 
-Timeline<ShapeRule> animatePhone(boost::optional<Phone> phone, centiseconds duration, centiseconds previousDuration);
+// Returns the shape rule(s) to use for a given phone.
+// The resulting timeline will always cover the entire duration of the phone (starting at 0 cs).
+// It may extend into the negative time range if animation is required prior to the sound being heard.
+Timeline<ShapeRule> getShapeRule(Phone phone, centiseconds duration, centiseconds previousDuration);

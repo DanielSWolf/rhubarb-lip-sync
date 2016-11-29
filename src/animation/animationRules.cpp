@@ -1,17 +1,59 @@
 #include "animationRules.h"
 #include <boost/algorithm/clamp.hpp>
 #include "shapeShorthands.h"
+#include "array.h"
 
 using std::chrono::duration_cast;
 using boost::algorithm::clamp;
 using boost::optional;
+using std::array;
+
+constexpr size_t shapeValueCount = static_cast<size_t>(Shape::EndSentinel);
+
+Shape getBasicShape(Shape shape) {
+	static constexpr array<Shape, shapeValueCount> basicShapes = make_array(A, B, C, D, E, F, B, C, A);
+	return basicShapes[static_cast<size_t>(shape)];
+}
+
+Shape relax(Shape shape) {
+	static constexpr array<Shape, shapeValueCount> relaxedShapes = make_array(A, B, C, C, C, B, B, C, X);
+	return relaxedShapes[static_cast<size_t>(shape)];
+}
+
+Shape getClosestShape(Shape reference, ShapeSet shapes) {
+	if (shapes.empty()) {
+		throw std::invalid_argument("Cannot select from empty set of shapes.");
+	}
+
+	// A matrix that for each shape contains all shapes in ascending order of effort required to move to them
+	constexpr static array<array<Shape, shapeValueCount>, shapeValueCount> effortMatrix = make_array(
+		/* A */ make_array(A, X, G, B, C, H, E, D, F),
+		/* B */ make_array(B, G, A, X, C, H, E, D, F),
+		/* C */ make_array(C, H, B, G, D, A, X, E, F),
+		/* D */ make_array(D, C, H, B, G, A, X, E, F),
+		/* E */ make_array(E, C, H, B, G, A, X, D, F),
+		/* F */ make_array(F, B, G, A, X, C, H, E, D),
+		/* G */ make_array(G, B, C, H, A, X, E, D, F),
+		/* H */ make_array(H, C, B, G, D, A, X, E, F), // Like C
+		/* X */ make_array(X, A, G, B, C, H, E, D, F)  // Like A
+	);
+
+	auto& closestShapes = effortMatrix.at(static_cast<size_t>(reference));
+	for (Shape closestShape : closestShapes) {
+		if (shapes.find(closestShape) != shapes.end()) {
+			return closestShape;
+		}
+	}
+
+	throw std::invalid_argument("Unable to find closest shape.");
+}
 
 ShapeRule::ShapeRule(const ShapeSet& regularShapes, const ShapeSet& alternativeShapes) :
 	regularShapes(regularShapes),
 	alternativeShapes(alternativeShapes)
 {}
 
-Timeline<ShapeRule> animatePhone(optional<Phone> phone, centiseconds duration, centiseconds previousDuration) {
+Timeline<ShapeRule> getShapeRule(Phone phone, centiseconds duration, centiseconds previousDuration) {
 	// Returns a timeline with a single shape set
 	auto single = [duration](ShapeRule value) {
 		return Timeline<ShapeRule> {{0_cs, duration, value}};
@@ -37,19 +79,15 @@ Timeline<ShapeRule> animatePhone(optional<Phone> phone, centiseconds duration, c
 		};
 	};
 
-	// Returns the result of `animatePhone` when called with identical arguments
+	// Returns the result of `getShapeRule` when called with identical arguments
 	// except for a different phone.
-	auto like = [duration, previousDuration](optional<Phone> referencePhone) {
-		return animatePhone(referencePhone, duration, previousDuration);
+	auto like = [duration, previousDuration](Phone referencePhone) {
+		return getShapeRule(referencePhone, duration, previousDuration);
 	};
 
 	static const ShapeRule any{{A, B, C, D, E, F, G, H, X}};
 
-	if (!phone) {
-		return single({{X}});
-	}
-
-	switch (*phone) {
+	switch (phone) {
 	case Phone::AO:			return single({{E}});
 	case Phone::AA:			return single({{D}});
 	case Phone::IY:			return single({{B}, {C}});
