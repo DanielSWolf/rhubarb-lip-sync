@@ -25,6 +25,10 @@ TEST(ContinuousTimeline, constructors_initializeState) {
 		ElementsAreArray(expected)
 	);
 	EXPECT_THAT(
+		ContinuousTimeline<int>(range, defaultValue, vector<Timed<int>>(args)),
+		ElementsAreArray(expected)
+	);
+	EXPECT_THAT(
 		ContinuousTimeline<int>(range, defaultValue, args),
 		ElementsAreArray(expected)
 	);

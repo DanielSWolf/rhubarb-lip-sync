@@ -25,6 +25,10 @@ TEST(Timeline, constructors_initializeState) {
 		ElementsAreArray(expected)
 	);
 	EXPECT_THAT(
+		Timeline<int>(vector<Timed<int>>(args)),
+		ElementsAreArray(expected)
+	);
+	EXPECT_THAT(
 		Timeline<int>(args),
 		ElementsAreArray(expected)
 	);

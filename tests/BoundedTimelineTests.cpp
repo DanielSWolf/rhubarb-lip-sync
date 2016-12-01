@@ -23,6 +23,10 @@ TEST(BoundedTimeline, constructors_initializeState) {
 		ElementsAreArray(expected)
 	);
 	EXPECT_THAT(
+		BoundedTimeline<int>(range, vector<Timed<int>>(args)),
+		ElementsAreArray(expected)
+	);
+	EXPECT_THAT(
 		BoundedTimeline<int>(range, args),
 		ElementsAreArray(expected)
 	);

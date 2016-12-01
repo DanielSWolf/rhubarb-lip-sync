@@ -98,6 +98,11 @@ public:
 		}
 	}
 
+	template<typename collection_type>
+	explicit Timeline(collection_type collection) :
+		Timeline(collection.begin(), collection.end())
+	{}
+
 	explicit Timeline(std::initializer_list<Timed<T>> initializerList) :
 		Timeline(initializerList.begin(), initializerList.end())
 	{}

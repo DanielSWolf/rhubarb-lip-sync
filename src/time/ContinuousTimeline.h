@@ -24,11 +24,16 @@ public:
 		}
 	}
 
+	template<typename collection_type>
+	ContinuousTimeline(TimeRange range, T defaultValue, collection_type collection) :
+		ContinuousTimeline(range, defaultValue, collection.begin(), collection.end())
+	{}
+
 	ContinuousTimeline(TimeRange range, T defaultValue, std::initializer_list<Timed<T>> initializerList) :
 		ContinuousTimeline(range, defaultValue, initializerList.begin(), initializerList.end())
 	{}
 
-    using BoundedTimeline<T>::clear;
+	using BoundedTimeline<T>::clear;
 
 	void clear(const TimeRange& range) override {
 		BoundedTimeline<T>::set(Timed<T>(range, defaultValue));

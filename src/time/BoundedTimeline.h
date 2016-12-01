@@ -29,6 +29,11 @@ public:
 		}
 	}
 
+	template<typename collection_type>
+	BoundedTimeline(TimeRange range, collection_type collection) :
+		BoundedTimeline(range, collection.begin(), collection.end())
+	{}
+
 	BoundedTimeline(TimeRange range, std::initializer_list<Timed<T>> initializerList) :
 		BoundedTimeline(range, initializerList.begin(), initializerList.end())
 	{}
