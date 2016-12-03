@@ -3,142 +3,22 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <boost/algorithm/clamp.hpp>
-#include "Viseme.h"
+#include <boost/range/adaptor/transformed.hpp>
 #include "timedLogging.h"
 #include "shapeShorthands.h"
+#include "animationRules.h"
 
 using std::map;
 using std::unordered_set;
 using std::unordered_map;
 using std::vector;
 using boost::optional;
+using boost::make_optional;
 using std::chrono::duration_cast;
 using boost::algorithm::clamp;
+using boost::adaptors::transformed;
 using std::pair;
 using std::tuple;
-
-Timeline<Viseme> animate(optional<Phone> phone, centiseconds duration, centiseconds previousPhoneDuration) {
-	auto single = [&](Viseme viseme) {
-		return Timeline<Viseme>{
-			{ 0_cs, duration, viseme }
-		};
-	};
-
-	auto diphtong = [&](Viseme first, Viseme second) {
-		centiseconds firstDuration = duration_cast<centiseconds>(duration * 0.6);
-		return Timeline<Viseme>{
-			{ 0_cs, firstDuration, first },
-			{ firstDuration, duration, second }
-		};
-	};
-
-	auto bilabialStop = [&]() {
-		centiseconds maxDuration = 12_cs;
-		centiseconds leftOverlap = clamp(previousPhoneDuration / 2, 4_cs, maxDuration);
-		centiseconds rightOverlap = min(duration, maxDuration - leftOverlap);
-		return Timeline<Viseme>{
-			{ -leftOverlap, rightOverlap, { A } },
-			{ rightOverlap, duration, {{ B, C, D, E, F }} }
-		};
-	};
-
-	if (!phone)				return single({ X });
-
-	switch (*phone) {
-	case Phone::AO:			return single({ E });
-	case Phone::AA:			return single({ D });
-	case Phone::IY:			return single({ B });
-	case Phone::UW:			return single({ F });
-	case Phone::EH:			return single({ { C }, 20_cs, { D } });
-	case Phone::IH:			return single({ B });
-	case Phone::UH:			return single({ E });
-	case Phone::AH:			return single({ C }); 
-	case Phone::Schwa:		return single({ { B, C, D, E, F } }); 
-	case Phone::AE:			return single({ D });
-	case Phone::EY:			return diphtong({ { C }, 20_cs, { D } }, { B });
-	case Phone::AY:			return diphtong({ D }, { B });
-	case Phone::OW:			return diphtong({ E }, { F });
-	case Phone::AW:			return diphtong({ D }, { F });
-	case Phone::OY:			return diphtong({ F }, { B });
-	case Phone::ER:			return single({ { B }, 7_cs, { E } });
-	
-	case Phone::P:
-	case Phone::B:			return bilabialStop();
-	case Phone::T:
-	case Phone::D:
-	case Phone::K:			return single({ { B, B, B, B, F } });
-	case Phone::G:			return single({ { B, C, C, E, F } });
-	case Phone::CH:
-	case Phone::JH:			return single({ { B, B, B, B, F } });
-	case Phone::F:
-	case Phone::V:			return single({ G });
-	case Phone::TH:
-	case Phone::DH:
-	case Phone::S:
-	case Phone::Z:
-	case Phone::SH:
-	case Phone::ZH:			return single({ { B, B, B, B, F } });
-	case Phone::HH:			return single({ { B, C, D, E, F } });
-	case Phone::M:			return single({ A });
-	case Phone::N:			return single({ { B, C, C, C, F } });
-	case Phone::NG:			return single({ { B, C, D, E, F } });
-	case Phone::L:			return single({ { H, H, H, E, F } });
-	case Phone::R:			return single({ { B, B, B, B, F } });
-	case Phone::Y:			return single({ B });
-	case Phone::W:			return single({ F });
-	
-	case Phone::Breath:
-	case Phone::Cough:
-	case Phone::Smack:		return single({ C });
-	case Phone::Noise:	return single({ B });
-
-	default:
-		throw std::invalid_argument("Unexpected phone.");
-	}
-}
-
-enum class TweenTiming {
-	Early,
-	Centered,
-	Late
-};
-
-optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
-	static const map<pair<Shape, Shape>, pair<Shape, TweenTiming>> lookup {
-		{ { A, D }, { C, TweenTiming::Late } },			{ { D, A },{ C, TweenTiming::Early } },
-		{ { B, D }, { C, TweenTiming::Centered } },		{ { D, B },{ C, TweenTiming::Centered } },
-		{ { G, D }, { C, TweenTiming::Late } },			{ { D, G },{ C, TweenTiming::Early } },
-		{ { X, D }, { C, TweenTiming::Early } },		{ { D, X },{ C, TweenTiming::Late } },
-		{ { C, F }, { E, TweenTiming::Centered } },		{ { F, C },{ E, TweenTiming::Centered } },
-		{ { D, F }, { E, TweenTiming::Centered } },		{ { F, D },{ E, TweenTiming::Centered } },
-		{ { H, F }, { E, TweenTiming::Late } },			{ { F, H },{ E, TweenTiming::Early } },
-	};
-	auto it = lookup.find({ first, second });
-	return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
-}
-
-// Returns the mouth shape to use for *short* pauses between words.
-Shape getRelaxedShape(Shape lhs, Shape rhs) {
-	if (lhs == rhs) {
-		return lhs;
-	}
-
-	// Lookup that contains relaxed versions of mouth shapes
-	static const map<Shape, Shape> relaxed {
-		{ A, A },
-		{ B, B },
-		{ C, C },
-		{ D, C },
-		{ E, C },
-		{ F, B },
-		{ G, X },
-		{ H, C },
-		{ X, X }
-	};
-	assert(relaxed.size() == static_cast<size_t>(Shape::EndSentinel));
-
-	return relaxed.at(lhs);
-}
 
 Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
 	centiseconds minTweenDuration = 4_cs;
@@ -196,7 +76,7 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 		const centiseconds maxPausedOpenMouthDuration = 35_cs;
 		const TimeRange timeRange = pause.getTimeRange();
 		if (timeRange.getDuration() <= maxPausedOpenMouthDuration) {
-			result.set(timeRange, getRelaxedShape(lhs.getValue(), rhs.getValue()));
+			result.set(timeRange, getRelaxedBridge(lhs.getValue(), rhs.getValue()));
 		}
 	});
 
@@ -209,53 +89,114 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastDuration < minOpenDuration) {
 			const centiseconds minSpillDuration = 20_cs;
 			centiseconds spillDuration = std::min(minSpillDuration, pause.getDuration());
-			result.set(pause.getStart(), pause.getStart() + spillDuration, getRelaxedShape(last.getValue(), X));
+			result.set(pause.getStart(), pause.getStart() + spillDuration, getRelaxedBridge(last.getValue(), X));
 		}
 	});
 
 	return result;
 }
 
-ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
-	// Convert phones to continuous timeline so that silences aren't skipped when iterating
-	ContinuousTimeline<optional<Phone>> continuousPhones(phones.getRange(), boost::none);
-	for (const auto& timedPhone : phones) {
-		continuousPhones.set(timedPhone.getTimeRange(), timedPhone.getValue());
-	}
+template<typename T>
+ContinuousTimeline<optional<T>> boundedTimelinetoContinuousOptional(const BoundedTimeline<T>& timeline) {
+	return {
+		timeline.getRange(), boost::none,
+		timeline | transformed([](const Timed<T>& timedValue) { return Timed<optional<T>>(timedValue.getTimeRange(), timedValue.getValue()); })
+	};
+}
 
-	// Create timeline of visemes
-	ContinuousTimeline<Viseme> visemes(phones.getRange(), { X });
-	centiseconds previousPhoneDuration = 0_cs;
+ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones) {
+	// Convert to continuous timeline so that silences aren't skipped when iterating
+	auto continuousPhones = boundedTimelinetoContinuousOptional(phones);
+
+	// Create timeline of shape rules
+	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), {{X}});
+	centiseconds previousDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
-		// Animate one phone
 		optional<Phone> phone = timedPhone.getValue();
 		centiseconds duration = timedPhone.getDuration();
-		Timeline<Viseme> phoneVisemes = animate(phone, duration, previousPhoneDuration);
 
-		// Result timing is relative to phone. Make absolute.
-		phoneVisemes.shift(timedPhone.getStart());
+		if (phone) {
+			// Animate one phone
+			Timeline<ShapeRule> phoneShapeRules = getShapeRules(*phone, duration, previousDuration);
 
-		// Copy to viseme timeline
-		for (const auto& timedViseme : phoneVisemes) {
-			visemes.set(timedViseme);
+			// Result timing is relative to phone. Make absolute.
+			phoneShapeRules.shift(timedPhone.getStart());
+
+			// Copy to timeline.
+			// Later shape rules may overwrite earlier ones if overlapping.
+			for (const auto& timedShapeRule : phoneShapeRules) {
+				shapeRules.set(timedShapeRule);
+			}
 		}
 
-		previousPhoneDuration = duration;
+		previousDuration = duration;
 	}
 
-	// Create timeline of shapes.
-	// Iterate visemes in *reverse* order so we always know what shape will follow.
-	ContinuousTimeline<Shape> shapes(phones.getRange(), X);
-	Shape lastShape = X;
-	for (auto it = visemes.rbegin(); it != visemes.rend(); ++it) {
-		Viseme viseme = it->getValue();
+	return shapeRules;
+}
 
-		// Convert viseme to phone
-		Shape shape = viseme.getShape(it->getDuration(), lastShape);
+// Create timeline of shape rules using a bidirectional algorithm.
+// Here's a rough sketch:
+//
+// * Most consonants result in shape sets with multiple options; most vowels have only one shape option.
+// * When speaking, we tend to slur mouth shapes into each other. So we animate from start to end,
+//   always choosing a shape from the current set that resembles the last shape and is somewhat relaxed.
+// * When speaking, we anticipate vowels, trying to form their shape before the actual vowel.
+//   So whenever we come across a one-shape set, we backtrack a little, spreating that shape to the left.
+ContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& shapeSets) {
+	ContinuousTimeline<Shape> shapes(shapeSets.getRange(), X);
+
+	Shape referenceShape = X;
+	// Animate forwards
+	centiseconds lastAnticipatedShapeStart = -1_cs;
+	for (auto it = shapeSets.begin(); it != shapeSets.end(); ++it) {
+		const ShapeSet shapeSet = it->getValue();
+		const Shape shape = getClosestShape(referenceShape, shapeSet);
 		shapes.set(it->getTimeRange(), shape);
+		const bool anticipateShape = shapeSet.size() == 1 && *shapeSet.begin() != X;
+		if (anticipateShape) {
+			// Animate backwards a little
+			const Shape anticipatedShape = shape;
+			const centiseconds anticipatedShapeStart = it->getStart();
+			referenceShape = anticipatedShape;
+			for (auto reverseIt = it; reverseIt != shapeSets.begin(); ) {
+				--reverseIt;
 
-		lastShape = shape;
+				// Make sure we haven't animated too far back
+				centiseconds anticipatingShapeStart = reverseIt->getStart();
+				if (anticipatingShapeStart == lastAnticipatedShapeStart) break;
+				const centiseconds maxAnticipationDuration = 20_cs;
+				const centiseconds anticipationDuration = anticipatedShapeStart - anticipatingShapeStart;
+				if (anticipationDuration > maxAnticipationDuration) break;
+
+				// Make sure the new, backwards-animated shape still resembles the anticipated shape
+				const Shape anticipatingShape = getClosestShape(referenceShape, reverseIt->getValue());
+				if (getBasicShape(anticipatingShape) != getBasicShape(anticipatedShape)) break;
+
+				// Overwrite forward-animated shape with backwards-animated, anticipating shape
+				shapes.set(reverseIt->getTimeRange(), anticipatingShape);
+
+				referenceShape = anticipatingShape;
+			}
+			lastAnticipatedShapeStart = anticipatedShapeStart;
+		}
+		referenceShape = anticipateShape ? shape : relax(shape);
 	}
+
+	return shapes;
+}
+
+ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
+	// Create timeline of shape rules
+	ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
+
+	// Take only the regular shapes from each shape rule. Alternative shapes will be implemented later.
+	ContinuousTimeline<ShapeSet> shapeSets(
+		shapeRules.getRange(), {{X}},
+		shapeRules | transformed([](const Timed<ShapeRule>& timedRule) { return Timed<ShapeSet>(timedRule.getTimeRange(), timedRule.getValue().regularShapes); }));
+
+	// Animate
+	ContinuousTimeline<Shape> shapes = animate(shapeSets);
 
 	// Animate pauses
 	Timeline<Shape> pauses = animatePauses(shapes);

@@ -223,8 +223,6 @@ add_library(rhubarb-animation
 	src/animation/mouthAnimation.cpp
 	src/animation/mouthAnimation.h
 	src/animation/shapeShorthands.h
-	src/animation/Viseme.cpp
-	src/animation/Viseme.h
 )
 target_include_directories(rhubarb-animation PUBLIC "src/animation")
 target_link_libraries(rhubarb-animation
