@@ -106,6 +106,7 @@ Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centisecon
 	};
 
 	static const ShapeRule any{{A, B, C, D, E, F, G, H, X}};
+	static const ShapeRule anyOpen{{B, C, D, E, F, G, H}};
 
 	// Note:
 	// The shapes {A, B, G, X} are very similar. You should avoid regular shape sets containing more than one of these shapes.
@@ -117,25 +118,25 @@ Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centisecon
 	case Phone::AA:			return single({{D}});
 	case Phone::IY:			return single({{B}, {C}});
 	case Phone::UW:			return single({{F}});
-	case Phone::EH:			return duration < 20_cs ? single({{C}}) : single({{D}});
+	case Phone::EH:			return single({{C}});
 	case Phone::IH:			return single({{B}, {C}});
 	case Phone::UH:			return single({{F}});
 	case Phone::AH:			return single({{C}});
-	case Phone::Schwa:		return single({{B, C, D, E, F}});
+	case Phone::Schwa:		return single({{B, C}});
 	case Phone::AE:			return single({{C}});
 	case Phone::EY:			return diphthong({{C}}, {{B}, {C}});
 	case Phone::AY:			return duration < 20_cs ? diphthong({{C}}, {{B}, {C}}) : diphthong({{D}}, {{B}, {C}});
 	case Phone::OW:			return single({{F}});
-	case Phone::AW:			return duration < 20_cs ? diphthong({{C}}, {{F}}) : diphthong({{D}}, {{F}});
-	case Phone::OY:			return diphthong({{F}}, {{B}, {C}});
-	case Phone::ER:			return duration < 7_cs ? like(Phone::Schwa) : single({{F}});
+	case Phone::AW:			return duration < 30_cs ? diphthong({{C}}, {{F}}) : diphthong({{D}}, {{F}});
+	case Phone::OY:			return diphthong({{E}}, {{B}, {C}});
+	case Phone::ER:			return duration < 7_cs ? like(Phone::Schwa) : single({{B}});
 
 	case Phone::P:
 	case Phone::B:			return plosive({{A}}, any);
 	case Phone::T:
-	case Phone::D:			return plosive({{B, C, F, H}}, {{B, C, D, E, F, G, H}});
+	case Phone::D:			return plosive({{B, F}}, anyOpen);
 	case Phone::K:
-	case Phone::G:			return plosive({{B, C, E, F, H}}, any);
+	case Phone::G:			return plosive({{B, C, E, F, H}}, anyOpen);
 	case Phone::CH:
 	case Phone::JH:			return single({{B, F}});
 	case Phone::F:
@@ -146,12 +147,12 @@ Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centisecon
 	case Phone::Z:
 	case Phone::SH:
 	case Phone::ZH:			return single({{B, F}});
-	case Phone::HH:			return single(any);
+	case Phone::HH:			return single(any); // think "m-hm"
 	case Phone::M:			return single({{A}});
 	case Phone::N:			return single({{B, C, F, H}});
 	case Phone::NG:			return single({{B, C, E, F}});
-	case Phone::L:			return duration < 20_cs ? single({{B, C, D, E, F, H}}) : single({{H}});
-	case Phone::R:			return single({{B, C, E, F}});
+	case Phone::L:			return duration < 20_cs ? single({{B, C, E, F, H}}) : single({{H}});
+	case Phone::R:			return single({{B, E, F}});
 	case Phone::Y:			return single({{B, C, F}});
 	case Phone::W:			return single({{F}});
 
