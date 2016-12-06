@@ -55,14 +55,17 @@ Shape getClosestShape(Shape reference, ShapeSet shapes) {
 }
 
 optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
+	// Note that most of the following rules work in one direction only.
+	// That's because in animation, the mouth should usually "pop" open without inbetweens,
+	// then close slowly.
 	static const map<pair<Shape, Shape>, pair<Shape, TweenTiming>> lookup{
-		{{A, D}, {C, TweenTiming::Late}},		{{D, A}, {C, TweenTiming::Early}},
-		{{B, D}, {C, TweenTiming::Centered}},	{{D, B}, {C, TweenTiming::Centered}},
-		{{G, D}, {C, TweenTiming::Late}},		{{D, G}, {C, TweenTiming::Early}},
-		{{X, D}, {C, TweenTiming::Early}},		{{D, X}, {C, TweenTiming::Late}},
-		{{C, F}, {E, TweenTiming::Centered}},	{{F, C}, {E, TweenTiming::Centered}},
-		{{D, F}, {E, TweenTiming::Centered}},	{{F, D}, {E, TweenTiming::Centered}},
-		{{H, F}, {E, TweenTiming::Late}},		{{F, H}, {E, TweenTiming::Early}},
+		{{D, A}, {C, TweenTiming::Early}},
+		{{D, B}, {C, TweenTiming::Centered}},
+		{{D, G}, {C, TweenTiming::Early}},
+		{{D, X}, {C, TweenTiming::Late}},
+		{{C, F}, {E, TweenTiming::Centered}}, {{F, C}, {E, TweenTiming::Centered}},
+		{{D, F}, {E, TweenTiming::Centered}},
+		{{H, F}, {E, TweenTiming::Late}}, {{F, H}, {E, TweenTiming::Early}}
 	};
 	auto it = lookup.find({first, second});
 	return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
