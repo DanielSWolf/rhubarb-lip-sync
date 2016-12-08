@@ -1,7 +1,7 @@
 #include "exporterTools.h"
 
 // Makes sure there is at least one mouth shape
-std::vector<Timed<Shape>> dummyShapeIfEmpty(const Timeline<Shape>& shapes) {
+std::vector<Timed<Shape>> dummyShapeIfEmpty(const JoiningTimeline<Shape>& shapes) {
 	std::vector<Timed<Shape>> result;
 	std::copy(shapes.begin(), shapes.end(), std::back_inserter(result));
 	if (result.empty()) {

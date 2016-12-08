@@ -314,8 +314,8 @@ lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
 	return decoder;
 }
 
-Timeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone>& phones) {
-	Timeline<void> noiseSounds;
+JoiningTimeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone>& phones) {
+	JoiningTimeline<void> noiseSounds;
 
 	// Find utterance parts without recogniced phones
 	noiseSounds.set(utteranceTimeRange);
@@ -325,7 +325,7 @@ Timeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone
 
 	// Remove undesired elements
 	const centiseconds minSoundDuration = 12_cs;
-	for (const auto& unknownSound : Timeline<void>(noiseSounds)) {
+	for (const auto& unknownSound : JoiningTimeline<void>(noiseSounds)) {
 		bool startsAtZero = unknownSound.getStart() == 0_cs;
 		bool tooShort = unknownSound.getDuration() < minSoundDuration;
 		if (startsAtZero || tooShort) {
@@ -386,7 +386,7 @@ Timeline<Phone> utteranceToPhones(
 	for (const auto& timedWord : words) {
 		wordIds.push_back(getWordId(timedWord.getValue(), *decoder.dict));
 	}
-	if (wordIds.empty()) return Timeline<Phone>();
+	if (wordIds.empty()) return {};
 
 	// Align the words' phones with speech
 #if BOOST_VERSION < 105600 // Support legacy syntax
@@ -403,7 +403,7 @@ Timeline<Phone> utteranceToPhones(
 	}
 
 	// Guess positions of noise sounds
-	Timeline<void> noiseSounds = getNoiseSounds(utteranceTimeRange, utterancePhones);
+	JoiningTimeline<void> noiseSounds = getNoiseSounds(utteranceTimeRange, utterancePhones);
 	for (const auto& noiseSound : noiseSounds) {
 		utterancePhones.set(noiseSound.getTimeRange(), Phone::Noise);
 	}
@@ -430,7 +430,7 @@ BoundedTimeline<Phone> recognizePhones(
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | removeDcOffset();
 
 	// Split audio into utterances
-	BoundedTimeline<void> utterances;
+	JoiningBoundedTimeline<void> utterances;
 	try {
 		utterances = detectVoiceActivity(*audioClip, maxThreadCount, voiceActivationProgressSink);
 	}

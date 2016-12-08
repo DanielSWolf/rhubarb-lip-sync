@@ -3,4 +3,4 @@
 #include <BoundedTimeline.h>
 #include <ProgressBar.h>
 
-BoundedTimeline<void> detectVoiceActivity(const AudioClip& audioClip, int maxThreadCount, ProgressSink& progressSink);
+JoiningBoundedTimeline<void> detectVoiceActivity(const AudioClip& audioClip, int maxThreadCount, ProgressSink& progressSink);

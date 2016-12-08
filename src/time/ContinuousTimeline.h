@@ -2,16 +2,16 @@
 
 #include "BoundedTimeline.h"
 
-template<typename T>
-class ContinuousTimeline : public BoundedTimeline<T> {
+template<typename T, bool AutoJoin = false>
+class ContinuousTimeline : public BoundedTimeline<T, AutoJoin> {
 
 public:
 	ContinuousTimeline(TimeRange range, T defaultValue) :
-		BoundedTimeline<T>(range),
+		BoundedTimeline<T, AutoJoin>(range),
 		defaultValue(defaultValue)
 	{
 		// Virtual function call in constructor. Derived constructors shouldn't call this one!
-		ContinuousTimeline<T>::clear(range);
+		ContinuousTimeline::clear(range);
 	}
 
 	template<typename InputIterator>
@@ -20,7 +20,7 @@ public:
 	{
 		// Virtual function calls in constructor. Derived constructors shouldn't call this one!
 		for (auto it = first; it != last; ++it) {
-			ContinuousTimeline<T>::set(*it);
+			ContinuousTimeline::set(*it);
 		}
 	}
 
@@ -33,12 +33,15 @@ public:
 		ContinuousTimeline(range, defaultValue, initializerList.begin(), initializerList.end())
 	{}
 
-	using BoundedTimeline<T>::clear;
+	using BoundedTimeline<T, AutoJoin>::clear;
 
 	void clear(const TimeRange& range) override {
-		BoundedTimeline<T>::set(Timed<T>(range, defaultValue));
+		BoundedTimeline<T, AutoJoin>::set(Timed<T>(range, defaultValue));
 	}
 
 private:
 	T defaultValue;
 };
+
+template<typename T>
+using JoiningContinuousTimeline = ContinuousTimeline<T, true>;

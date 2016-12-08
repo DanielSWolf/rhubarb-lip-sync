@@ -25,7 +25,7 @@ string escapeJsonString(const string& s) {
 	return result;
 }
 
-void JsonExporter::exportShapes(const boost::filesystem::path& inputFilePath, const ContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
+void JsonExporter::exportShapes(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
 	// Export as JSON.
 	// I'm not using a library because the code is short enough without one and it lets me control the formatting.
 	outputStream << "{\n";

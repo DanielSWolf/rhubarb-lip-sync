@@ -2,14 +2,14 @@
 
 #include "Timeline.h"
 
-template<typename T>
-class BoundedTimeline : public Timeline<T> {
-	using typename Timeline<T>::time_type;
-	using Timeline<T>::equals;
+template<typename T, bool AutoJoin = false>
+class BoundedTimeline : public Timeline<T, AutoJoin> {
+	using typename Timeline<T, AutoJoin>::time_type;
+	using Timeline<T, AutoJoin>::equals;
 
 public:
-	using typename Timeline<T>::iterator;
-	using Timeline<T>::end;
+	using typename Timeline<T, AutoJoin>::iterator;
+	using Timeline<T, AutoJoin>::end;
 
 	BoundedTimeline() :
 		range(TimeRange::zero())
@@ -25,7 +25,7 @@ public:
 	{
 		for (auto it = first; it != last; ++it) {
 			// Virtual function call in constructor. Derived constructors shouldn't call this one!
-			BoundedTimeline<T>::set(*it);
+			BoundedTimeline::set(*it);
 		}
 	}
 
@@ -42,7 +42,7 @@ public:
 		return range;
 	}
 
-	using Timeline<T>::set;
+	using Timeline<T, AutoJoin>::set;
 
 	iterator set(Timed<T> timedValue) override {
 		// Exit if the value's range is completely out of bounds
@@ -54,16 +54,16 @@ public:
 		TimeRange& valueRange = timedValue.getTimeRange();
 		valueRange.resize(max(range.getStart(), valueRange.getStart()), min(range.getEnd(), valueRange.getEnd()));
 
-		return Timeline<T>::set(timedValue);
+		return Timeline<T, AutoJoin>::set(timedValue);
 	}
 
 	void shift(time_type offset) override {
-		Timeline<T>::shift(offset);
+		Timeline<T, AutoJoin>::shift(offset);
 		range.shift(offset);
 	}
 
 	bool operator==(const BoundedTimeline& rhs) const {
-		return Timeline<T>::equals(rhs) && range == rhs.range;
+		return Timeline<T, AutoJoin>::equals(rhs) && range == rhs.range;
 	}
 
 	bool operator!=(const BoundedTimeline& rhs) const {
@@ -73,3 +73,6 @@ public:
 private:
 	TimeRange range;
 };
+
+template<typename T>
+using JoiningBoundedTimeline = BoundedTimeline<T, true>;

@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 			vector<char*>(argv, argv + argc) | transformed([](char* arg) { return fmt::format("\"{}\"", arg); }), " "));
 
 		std::cerr << "Processing input file.  ";
-		ContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
+		JoiningContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
 		{
 			ProgressBar progressBar;
 

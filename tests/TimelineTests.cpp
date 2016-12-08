@@ -231,16 +231,9 @@ void testSetter(std::function<void(const Timed<int>&, Timeline<int>&)> set) {
 		}
 
 		// Check timeline via iterators
-		Timed<int> lastElement(centiseconds::min(), centiseconds::min(), std::numeric_limits<int>::min());
 		for (const auto& element : timeline) {
 			// No element shound have zero-length
 			EXPECT_LT(0_cs, element.getDuration());
-
-			// No two adjacent elements should have the same value; they should have been merged
-			if (element.getStart() == lastElement.getEnd()) {
-				EXPECT_NE(lastElement.getValue(), element.getValue());
-			}
-			lastElement = element;
 
 			// Element should match expected values
 			for (centiseconds t = std::max(centiseconds::zero(), element.getStart()); t < element.getEnd(); ++t) {
@@ -298,6 +291,51 @@ TEST(Timeline, indexer_set) {
 			timeline[t] = element.getValue();
 		}
 	});
+}
+
+TEST(Timeline, joinAdjacent) {
+	Timeline<int> timeline{
+		{1_cs, 2_cs, 1},
+		{2_cs, 4_cs, 2},
+		{3_cs, 6_cs, 2},
+		{6_cs, 7_cs, 2},
+		// Gap
+		{8_cs, 10_cs, 2},
+		{11_cs, 12_cs, 3}
+	};
+	EXPECT_EQ(6, timeline.size());
+	timeline.joinAdjacent();
+	EXPECT_EQ(4, timeline.size());
+	
+	Timed<int> expectedJoined[] = {
+		{1_cs, 2_cs, 1},
+		{2_cs, 7_cs, 2},
+		// Gap
+		{8_cs, 10_cs, 2},
+		{11_cs, 12_cs, 3}
+	};
+	EXPECT_THAT(timeline, ElementsAreArray(expectedJoined));
+}
+
+TEST(Timeline, autoJoin) {
+	JoiningTimeline<int> timeline{
+		{1_cs, 2_cs, 1},
+		{2_cs, 4_cs, 2},
+		{3_cs, 6_cs, 2},
+		{6_cs, 7_cs, 2},
+		// Gap
+		{8_cs, 10_cs, 2},
+		{11_cs, 12_cs, 3}
+	};
+	Timed<int> expectedJoined[] = {
+		{1_cs, 2_cs, 1},
+		{2_cs, 7_cs, 2},
+		// Gap
+		{8_cs, 10_cs, 2},
+		{11_cs, 12_cs, 3}
+	};
+	EXPECT_EQ(4, timeline.size());
+	EXPECT_THAT(timeline, ElementsAreArray(expectedJoined));
 }
 
 TEST(Timeline, shift) {

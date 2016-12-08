@@ -20,11 +20,11 @@ using boost::adaptors::transformed;
 using std::pair;
 using std::tuple;
 
-Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
+JoiningTimeline<Shape> createTweens(JoiningContinuousTimeline<Shape> shapes) {
 	centiseconds minTweenDuration = 4_cs;
 	centiseconds maxTweenDuration = 10_cs;
 
-	Timeline<Shape> tweens;
+	JoiningTimeline<Shape> tweens;
 
 	for (auto first = shapes.begin(), second = std::next(shapes.begin());
 		first != shapes.end() && second != shapes.end();
@@ -66,8 +66,8 @@ Timeline<Shape> createTweens(ContinuousTimeline<Shape> shapes) {
 	return tweens;
 }
 
-Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
-	Timeline<Shape> result;
+JoiningTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& shapes) {
+	JoiningTimeline<Shape> result;
 
 	// Don't close mouth for short pauses
 	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& lhs, const Timed<Shape>& pause, const Timed<Shape>& rhs) {
@@ -96,8 +96,8 @@ Timeline<Shape> animatePauses(const ContinuousTimeline<Shape>& shapes) {
 	return result;
 }
 
-template<typename T>
-ContinuousTimeline<optional<T>> boundedTimelinetoContinuousOptional(const BoundedTimeline<T>& timeline) {
+template<typename T, bool AutoJoin>
+ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(const BoundedTimeline<T, AutoJoin>& timeline) {
 	return {
 		timeline.getRange(), boost::none,
 		timeline | transformed([](const Timed<T>& timedValue) { return Timed<optional<T>>(timedValue.getTimeRange(), timedValue.getValue()); })
@@ -143,8 +143,8 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 //   always choosing a shape from the current set that resembles the last shape and is somewhat relaxed.
 // * When speaking, we anticipate vowels, trying to form their shape before the actual vowel.
 //   So whenever we come across a one-shape set, we backtrack a little, spreating that shape to the left.
-ContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& shapeSets) {
-	ContinuousTimeline<Shape> shapes(shapeSets.getRange(), X);
+JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& shapeSets) {
+	JoiningContinuousTimeline<Shape> shapes(shapeSets.getRange(), X);
 
 	Shape referenceShape = X;
 	// Animate forwards
@@ -186,7 +186,7 @@ ContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& shapeSets)
 	return shapes;
 }
 
-ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
+JoiningContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	// Create timeline of shape rules
 	ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
 
@@ -196,16 +196,16 @@ ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 		shapeRules | transformed([](const Timed<ShapeRule>& timedRule) { return Timed<ShapeSet>(timedRule.getTimeRange(), timedRule.getValue().regularShapes); }));
 
 	// Animate
-	ContinuousTimeline<Shape> shapes = animate(shapeSets);
+	JoiningContinuousTimeline<Shape> shapes = animate(shapeSets);
 
 	// Animate pauses
-	Timeline<Shape> pauses = animatePauses(shapes);
+	JoiningTimeline<Shape> pauses = animatePauses(shapes);
 	for (const auto& pause : pauses) {
 		shapes.set(pause);
 	}
 
 	// Create inbetweens for smoother animation
-	Timeline<Shape> tweens = createTweens(shapes);
+	JoiningTimeline<Shape> tweens = createTweens(shapes);
 	for (const auto& tween : tweens) {
 		shapes.set(tween);
 	}

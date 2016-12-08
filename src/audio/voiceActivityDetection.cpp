@@ -9,6 +9,7 @@
 #include <gsl_util.h>
 #include "parallel.h"
 #include "AudioSegment.h"
+#include "stringTools.h"
 
 using std::vector;
 using boost::adaptors::transformed;
@@ -16,7 +17,7 @@ using fmt::format;
 using std::runtime_error;
 using std::unique_ptr;
 
-BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, ProgressSink& progressSink) {
+JoiningBoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, ProgressSink& progressSink) {
 	VadInst* vadHandle = WebRtcVad_Create();
 	if (!vadHandle) throw runtime_error("Error creating WebRTC VAD handle.");
 
@@ -34,7 +35,7 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 	ProgressSink& pass2ProgressSink = progressMerger.addSink(0.3);
 
 	// Detect activity
-	BoundedTimeline<void> activity(audioClip.getTruncatedRange());
+	JoiningBoundedTimeline<void> activity(audioClip.getTruncatedRange());
 	centiseconds time = 0_cs;
 	const size_t bufferCapacity = audioClip.getSampleRate() / 100;
 	auto processBuffer = [&](const vector<int16_t>& buffer) {
@@ -66,11 +67,11 @@ BoundedTimeline<void> webRtcDetectVoiceActivity(const AudioClip& audioClip, Prog
 	return activity;
 }
 
-BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int maxThreadCount, ProgressSink& progressSink) {
+JoiningBoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int maxThreadCount, ProgressSink& progressSink) {
 	// Prepare audio for VAD
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | resample(16000) | removeDcOffset();
 
-	BoundedTimeline<void> activity(audioClip->getTruncatedRange());
+	JoiningBoundedTimeline<void> activity(audioClip->getTruncatedRange());
 	std::mutex activityMutex;
 
 	// Split audio into segments and perform parallel VAD
@@ -83,7 +84,7 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int m
 	}
 	runParallel([&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
 		unique_ptr<AudioClip> audioSegment = audioClip->clone() | segment(segmentRange);
-		BoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
+		JoiningBoundedTimeline<void> activitySegment = webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
 
 		std::lock_guard<std::mutex> lock(activityMutex);
 		for (auto activityRange : activitySegment) {
@@ -102,7 +103,7 @@ BoundedTimeline<void> detectVoiceActivity(const AudioClip& inputAudioClip, int m
 
 	// Shorten activities. WebRTC adds a bit of buffer at the end.
 	const centiseconds tail(5);
-	for (const auto& utterance : Timeline<void>(activity)) {
+	for (const auto& utterance : JoiningBoundedTimeline<void>(activity)) {
 		if (utterance.getDuration() > tail && utterance.getEnd() < audioDuration) {
 			activity.clear(utterance.getEnd() - tail, utterance.getEnd());
 		}

@@ -6,13 +6,13 @@
 #include "ProgressBar.h"
 #include <boost/filesystem.hpp>
 
-ContinuousTimeline<Shape> animateAudioClip(
+JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,
 	boost::optional<std::u32string> dialog,
 	int maxThreadCount,
 	ProgressSink& progressSink);
 
-ContinuousTimeline<Shape> animateWaveFile(
+JoiningContinuousTimeline<Shape> animateWaveFile(
 	boost::filesystem::path filePath,
 	boost::optional<std::u32string> dialog,
 	int maxThreadCount,

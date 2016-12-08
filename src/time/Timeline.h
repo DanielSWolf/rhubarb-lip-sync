@@ -26,7 +26,7 @@ namespace internal {
 	}
 }
 
-template<typename T>
+template<typename T, bool AutoJoin = false>
 class Timeline {
 public:
 	using time_type = TimeRange::time_type;
@@ -94,7 +94,7 @@ public:
 	Timeline(InputIterator first, InputIterator last) {
 		for (auto it = first; it != last; ++it) {
 			// Virtual function call in constructor. Derived constructors don't call this one.
-			Timeline<T>::set(*it);
+			Timeline::set(*it);
 		}
 	}
 
@@ -200,14 +200,16 @@ public:
 			return end();
 		}
 
-		// Extend the timed value if it touches elements with equal value
-		iterator elementBefore = find(timedValue.getStart(), FindMode::SampleLeft);
-		if (elementBefore != end() && ::internal::valueEquals(*elementBefore, timedValue)) {
-			timedValue.getTimeRange().resize(elementBefore->getStart(), timedValue.getEnd());
-		}
-		iterator elementAfter = find(timedValue.getEnd(), FindMode::SampleRight);
-		if (elementAfter != end() && ::internal::valueEquals(*elementAfter, timedValue)) {
-			timedValue.getTimeRange().resize(timedValue.getStart(), elementAfter->getEnd());
+		if (AutoJoin) {
+			// Extend the timed value if it touches elements with equal value
+			iterator elementBefore = find(timedValue.getStart(), FindMode::SampleLeft);
+			if (elementBefore != end() && ::internal::valueEquals(*elementBefore, timedValue)) {
+				timedValue.getTimeRange().resize(elementBefore->getStart(), timedValue.getEnd());
+			}
+			iterator elementAfter = find(timedValue.getEnd(), FindMode::SampleRight);
+			if (elementAfter != end() && ::internal::valueEquals(*elementAfter, timedValue)) {
+				timedValue.getTimeRange().resize(timedValue.getStart(), elementAfter->getEnd());
+			}
 		}
 
 		// Erase overlapping elements
@@ -240,6 +242,26 @@ public:
 	// ReSharper disable once CppConstValueFunctionReturnType
 	const ReferenceWrapper operator[](time_type time) const {
 		return ReferenceWrapper(*this, time);
+	}
+
+	// Combines adjacent equal elements into one
+	template<bool autoJoin = AutoJoin, typename = std::enable_if_t<!autoJoin>>
+	void joinAdjacent() {
+		Timeline copy(*this);
+		for (auto it = copy.begin(); it != copy.end(); ++it) {
+			const auto rangeBegin = it;
+			auto rangeEnd = std::next(rangeBegin);
+			while (rangeEnd != copy.end() && rangeEnd->getStart() == rangeBegin->getEnd() && ::internal::valueEquals(*rangeEnd, *rangeBegin)) {
+				++rangeEnd;
+			}
+
+			if (rangeEnd != std::next(rangeBegin)) {
+				Timed<T> combined = *rangeBegin;
+				combined.setTimeRange({rangeBegin->getStart(), rangeEnd->getEnd()});
+				set(combined);
+				it = rangeEnd;
+			}
+		}
 	}
 
 	virtual void shift(time_type offset) {
@@ -290,7 +312,10 @@ private:
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& stream, const Timeline<T>& timeline) {
+using JoiningTimeline = Timeline<T, true>;
+
+template<typename T, bool AutoJoin>
+std::ostream& operator<<(std::ostream& stream, const Timeline<T, AutoJoin>& timeline) {
 	stream << "Timeline{";
 	bool isFirst = true;
 	for (auto element : timeline) {

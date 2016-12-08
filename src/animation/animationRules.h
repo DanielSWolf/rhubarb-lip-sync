@@ -61,4 +61,3 @@ struct ShapeRule {
 // The resulting timeline will always cover the entire duration of the phone (starting at 0 cs).
 // It may extend into the negative time range if animation is required prior to the sound being heard.
 Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centiseconds previousDuration);
-

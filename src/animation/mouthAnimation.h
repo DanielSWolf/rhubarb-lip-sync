@@ -4,4 +4,4 @@
 #include "Shape.h"
 #include "ContinuousTimeline.h"
 
-ContinuousTimeline<Shape> animate(const BoundedTimeline<Phone>& phones);
+JoiningContinuousTimeline<Shape> animate(const BoundedTimeline<Phone>& phones);

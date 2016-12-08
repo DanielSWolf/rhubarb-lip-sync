@@ -10,14 +10,14 @@ using std::u32string;
 using boost::filesystem::path;
 using std::unique_ptr;
 
-ContinuousTimeline<Shape> animateAudioClip(
+JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,
 	optional<u32string> dialog,
 	int maxThreadCount,
 	ProgressSink& progressSink)
 {
 	BoundedTimeline<Phone> phones = recognizePhones(audioClip, dialog, maxThreadCount, progressSink);
-	ContinuousTimeline<Shape> result = animate(phones);
+	JoiningContinuousTimeline<Shape> result = animate(phones);
 	return result;
 }
 
@@ -29,7 +29,7 @@ unique_ptr<AudioClip> createWaveAudioClip(path filePath) {
 	}
 }
 
-ContinuousTimeline<Shape> animateWaveFile(
+JoiningContinuousTimeline<Shape> animateWaveFile(
 	path filePath,
 	optional<u32string> dialog,
 	int maxThreadCount,
