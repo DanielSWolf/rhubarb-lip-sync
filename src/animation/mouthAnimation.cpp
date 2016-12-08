@@ -104,12 +104,12 @@ ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(co
 	};
 }
 
-ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones) {
+ContinuousTimeline<ShapeSet> getShapeSets(const BoundedTimeline<Phone>& phones) {
 	// Convert to continuous timeline so that silences aren't skipped when iterating
 	auto continuousPhones = boundedTimelinetoContinuousOptional(phones);
 
-	// Create timeline of shape rules
-	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), {{X}});
+	// Create timeline of shape sets
+	ContinuousTimeline<ShapeSet> shapeSets(phones.getRange(), {{X}});
 	centiseconds previousDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
 		optional<Phone> phone = timedPhone.getValue();
@@ -117,25 +117,25 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 
 		if (phone) {
 			// Animate one phone
-			Timeline<ShapeRule> phoneShapeRules = getShapeRules(*phone, duration, previousDuration);
+			Timeline<ShapeSet> phoneShapeSets = getShapeSets(*phone, duration, previousDuration);
 
 			// Result timing is relative to phone. Make absolute.
-			phoneShapeRules.shift(timedPhone.getStart());
+			phoneShapeSets.shift(timedPhone.getStart());
 
 			// Copy to timeline.
-			// Later shape rules may overwrite earlier ones if overlapping.
-			for (const auto& timedShapeRule : phoneShapeRules) {
-				shapeRules.set(timedShapeRule);
+			// Later shape sets may overwrite earlier ones if overlapping.
+			for (const auto& timedShapeSet : phoneShapeSets) {
+				shapeSets.set(timedShapeSet);
 			}
 		}
 
 		previousDuration = duration;
 	}
 
-	return shapeRules;
+	return shapeSets;
 }
 
-// Create timeline of shape rules using a bidirectional algorithm.
+// Create timeline of shapes using a bidirectional algorithm.
 // Here's a rough sketch:
 //
 // * Most consonants result in shape sets with multiple options; most vowels have only one shape option.
@@ -187,13 +187,8 @@ JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& sha
 }
 
 JoiningContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
-	// Create timeline of shape rules
-	ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
-
-	// Take only the regular shapes from each shape rule. Alternative shapes will be implemented later.
-	ContinuousTimeline<ShapeSet> shapeSets(
-		shapeRules.getRange(), {{X}},
-		shapeRules | transformed([](const Timed<ShapeRule>& timedRule) { return Timed<ShapeSet>(timedRule.getTimeRange(), timedRule.getValue().regularShapes); }));
+	// Create timeline of shape sets
+	ContinuousTimeline<ShapeSet> shapeSets = getShapeSets(phones);
 
 	// Animate
 	JoiningContinuousTimeline<Shape> shapes = animate(shapeSets);

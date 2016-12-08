@@ -71,45 +71,40 @@ optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
 	return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
 }
 
-ShapeRule::ShapeRule(const ShapeSet& regularShapes, const ShapeSet& alternativeShapes) :
-	regularShapes(regularShapes),
-	alternativeShapes(alternativeShapes)
-{}
-
-Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centiseconds previousDuration) {
+Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds previousDuration) {
 	// Returns a timeline with a single shape set
-	auto single = [duration](ShapeRule value) {
-		return Timeline<ShapeRule> {{0_cs, duration, value}};
+	auto single = [duration](ShapeSet value) {
+		return Timeline<ShapeSet> {{0_cs, duration, value}};
 	};
 
 	// Returns a timeline with two shape sets, timed as a diphthong
-	auto diphthong = [duration](ShapeRule first, ShapeRule second) {
+	auto diphthong = [duration](ShapeSet first, ShapeSet second) {
 		centiseconds firstDuration = duration_cast<centiseconds>(duration * 0.6);
-		return Timeline<ShapeRule> {
+		return Timeline<ShapeSet> {
 			{0_cs, firstDuration, first},
 			{firstDuration, duration, second}
 		};
 	};
 
 	// Returns a timeline with two shape sets, timed as a plosive
-	auto plosive = [duration, previousDuration](ShapeRule first, ShapeRule second) {
+	auto plosive = [duration, previousDuration](ShapeSet first, ShapeSet second) {
 		centiseconds minOcclusionDuration = 4_cs;
 		centiseconds maxOcclusionDuration = 12_cs;
 		centiseconds occlusionDuration = clamp(previousDuration / 2, minOcclusionDuration, maxOcclusionDuration);
-		return Timeline<ShapeRule> {
+		return Timeline<ShapeSet> {
 			{-occlusionDuration, 0_cs, first},
 			{0_cs, duration, second}
 		};
 	};
 
-	// Returns the result of `getShapeRules` when called with identical arguments
+	// Returns the result of `getShapeSets` when called with identical arguments
 	// except for a different phone.
 	auto like = [duration, previousDuration](Phone referencePhone) {
-		return getShapeRules(referencePhone, duration, previousDuration);
+		return getShapeSets(referencePhone, duration, previousDuration);
 	};
 
-	static const ShapeRule any{{A, B, C, D, E, F, G, H, X}};
-	static const ShapeRule anyOpen{{B, C, D, E, F, G, H}};
+	static const ShapeSet any{A, B, C, D, E, F, G, H, X};
+	static const ShapeSet anyOpen{B, C, D, E, F, G, H};
 
 	// Note:
 	// The shapes {A, B, G, X} are very similar. You should avoid regular shape sets containing more than one of these shapes.
@@ -117,52 +112,52 @@ Timeline<ShapeRule> getShapeRules(Phone phone, centiseconds duration, centisecon
 	// As an exception, a very flexible rule may contain *all* these shapes.
 
 	switch (phone) {
-	case Phone::AO:			return single({{E}});
-	case Phone::AA:			return single({{D}});
-	case Phone::IY:			return single({{B}, {C}});
-	case Phone::UW:			return single({{F}});
-	case Phone::EH:			return single({{C}});
-	case Phone::IH:			return single({{B}, {C}});
-	case Phone::UH:			return single({{F}});
-	case Phone::AH:			return single({{C}});
-	case Phone::Schwa:		return single({{B, C}});
-	case Phone::AE:			return single({{C}});
-	case Phone::EY:			return diphthong({{C}}, {{B}, {C}});
-	case Phone::AY:			return duration < 20_cs ? diphthong({{C}}, {{B}, {C}}) : diphthong({{D}}, {{B}, {C}});
-	case Phone::OW:			return single({{F}});
-	case Phone::AW:			return duration < 30_cs ? diphthong({{C}}, {{F}}) : diphthong({{D}}, {{F}});
-	case Phone::OY:			return diphthong({{E}}, {{B}, {C}});
-	case Phone::ER:			return duration < 7_cs ? like(Phone::Schwa) : single({{B}});
+	case Phone::AO:			return single({E});
+	case Phone::AA:			return single({D});
+	case Phone::IY:			return single({B});
+	case Phone::UW:			return single({F});
+	case Phone::EH:			return single({C});
+	case Phone::IH:			return single({B});
+	case Phone::UH:			return single({F});
+	case Phone::AH:			return single({C});
+	case Phone::Schwa:		return single({B, C});
+	case Phone::AE:			return single({C});
+	case Phone::EY:			return diphthong({C}, {B});
+	case Phone::AY:			return duration < 20_cs ? diphthong({C}, {B}) : diphthong({D}, {B});
+	case Phone::OW:			return single({F});
+	case Phone::AW:			return duration < 30_cs ? diphthong({C}, {F}) : diphthong({D}, {F});
+	case Phone::OY:			return diphthong({E}, {B});
+	case Phone::ER:			return duration < 7_cs ? like(Phone::Schwa) : single({B});
 
 	case Phone::P:
-	case Phone::B:			return plosive({{A}}, any);
+	case Phone::B:			return plosive({A}, any);
 	case Phone::T:
-	case Phone::D:			return plosive({{B, F}}, anyOpen);
+	case Phone::D:			return plosive({B, F}, anyOpen);
 	case Phone::K:
-	case Phone::G:			return plosive({{B, C, E, F, H}}, anyOpen);
+	case Phone::G:			return plosive({B, C, E, F, H}, anyOpen);
 	case Phone::CH:
-	case Phone::JH:			return single({{B, F}});
+	case Phone::JH:			return single({B, F});
 	case Phone::F:
-	case Phone::V:			return single({{G}});
+	case Phone::V:			return single({G});
 	case Phone::TH:
 	case Phone::DH:
 	case Phone::S:
 	case Phone::Z:
 	case Phone::SH:
-	case Phone::ZH:			return single({{B, F}});
+	case Phone::ZH:			return single({B, F});
 	case Phone::HH:			return single(any); // think "m-hm"
-	case Phone::M:			return single({{A}});
-	case Phone::N:			return single({{B, C, F, H}});
-	case Phone::NG:			return single({{B, C, E, F}});
-	case Phone::L:			return duration < 20_cs ? single({{B, C, E, F, H}}) : single({{H}});
-	case Phone::R:			return single({{B, E, F}});
-	case Phone::Y:			return single({{B, C, F}});
-	case Phone::W:			return single({{F}});
+	case Phone::M:			return single({A});
+	case Phone::N:			return single({B, C, F, H});
+	case Phone::NG:			return single({B, C, E, F});
+	case Phone::L:			return duration < 20_cs ? single({B, C, E, F, H}) : single({H});
+	case Phone::R:			return single({B, E, F});
+	case Phone::Y:			return single({B, C, F});
+	case Phone::W:			return single({F});
 
 	case Phone::Breath:
 	case Phone::Cough:
-	case Phone::Smack:		return single({{C}});
-	case Phone::Noise:		return single({{B}});
+	case Phone::Smack:		return single({C});
+	case Phone::Noise:		return single({B});
 
 	default:				throw std::invalid_argument("Unexpected phone.");
 	}
