@@ -86,3 +86,7 @@ std::ostream& operator<<(std::ostream& stream, Phone value) {
 std::istream& operator>>(std::istream& stream, Phone& value) {
 	return PhoneConverter::get().read(stream, value);
 }
+
+bool isVowel(Phone phone) {
+	return phone <= Phone::LastVowel;
+}

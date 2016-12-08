@@ -28,6 +28,7 @@ enum class Phone {
 
 	// ... r-colored
 	ER,		// [ɝ] as in h[er], b[ir]d, h[ur]t
+	LastVowel = ER,
 
 	/////////////
 	// Consonants
@@ -90,3 +91,5 @@ public:
 std::ostream& operator<<(std::ostream& stream, Phone value);
 
 std::istream& operator>>(std::istream& stream, Phone& value);
+
+bool isVowel(Phone phone);

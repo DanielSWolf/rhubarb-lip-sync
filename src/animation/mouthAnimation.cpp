@@ -104,12 +104,14 @@ ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(co
 	};
 }
 
-ContinuousTimeline<ShapeSet> getShapeSets(const BoundedTimeline<Phone>& phones) {
+using ShapeRule = tuple<ShapeSet, optional<Phone>>;
+
+ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones) {
 	// Convert to continuous timeline so that silences aren't skipped when iterating
 	auto continuousPhones = boundedTimelinetoContinuousOptional(phones);
 
-	// Create timeline of shape sets
-	ContinuousTimeline<ShapeSet> shapeSets(phones.getRange(), {{X}});
+	// Create timeline of shape rules
+	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), {{X}, boost::none});
 	centiseconds previousDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
 		optional<Phone> phone = timedPhone.getValue();
@@ -125,14 +127,14 @@ ContinuousTimeline<ShapeSet> getShapeSets(const BoundedTimeline<Phone>& phones) 
 			// Copy to timeline.
 			// Later shape sets may overwrite earlier ones if overlapping.
 			for (const auto& timedShapeSet : phoneShapeSets) {
-				shapeSets.set(timedShapeSet);
+				shapeRules.set(timedShapeSet.getTimeRange(), {timedShapeSet.getValue(), phone});
 			}
 		}
 
 		previousDuration = duration;
 	}
 
-	return shapeSets;
+	return shapeRules;
 }
 
 // Create timeline of shapes using a bidirectional algorithm.
@@ -142,24 +144,26 @@ ContinuousTimeline<ShapeSet> getShapeSets(const BoundedTimeline<Phone>& phones) 
 // * When speaking, we tend to slur mouth shapes into each other. So we animate from start to end,
 //   always choosing a shape from the current set that resembles the last shape and is somewhat relaxed.
 // * When speaking, we anticipate vowels, trying to form their shape before the actual vowel.
-//   So whenever we come across a one-shape set, we backtrack a little, spreating that shape to the left.
-JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& shapeSets) {
-	JoiningContinuousTimeline<Shape> shapes(shapeSets.getRange(), X);
+//   So whenever we come across a one-shape vowel, we backtrack a little, spreating that shape to the left.
+JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeRule>& shapeRules) {
+	JoiningContinuousTimeline<Shape> shapes(shapeRules.getRange(), X);
 
 	Shape referenceShape = X;
 	// Animate forwards
 	centiseconds lastAnticipatedShapeStart = -1_cs;
-	for (auto it = shapeSets.begin(); it != shapeSets.end(); ++it) {
-		const ShapeSet shapeSet = it->getValue();
+	for (auto it = shapeRules.begin(); it != shapeRules.end(); ++it) {
+		const ShapeRule shapeRule = it->getValue();
+		const ShapeSet shapeSet = std::get<ShapeSet>(shapeRule);
 		const Shape shape = getClosestShape(referenceShape, shapeSet);
 		shapes.set(it->getTimeRange(), shape);
-		const bool anticipateShape = shapeSet.size() == 1 && *shapeSet.begin() != X;
+		const auto phone = std::get<optional<Phone>>(shapeRule);
+		const bool anticipateShape = phone && isVowel(*phone) && shapeSet.size() == 1;
 		if (anticipateShape) {
 			// Animate backwards a little
 			const Shape anticipatedShape = shape;
 			const centiseconds anticipatedShapeStart = it->getStart();
 			referenceShape = anticipatedShape;
-			for (auto reverseIt = it; reverseIt != shapeSets.begin(); ) {
+			for (auto reverseIt = it; reverseIt != shapeRules.begin(); ) {
 				--reverseIt;
 
 				// Make sure we haven't animated too far back
@@ -170,7 +174,7 @@ JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& sha
 				if (anticipationDuration > maxAnticipationDuration) break;
 
 				// Make sure the new, backwards-animated shape still resembles the anticipated shape
-				const Shape anticipatingShape = getClosestShape(referenceShape, reverseIt->getValue());
+				const Shape anticipatingShape = getClosestShape(referenceShape, std::get<ShapeSet>(reverseIt->getValue()));
 				if (getBasicShape(anticipatingShape) != getBasicShape(anticipatedShape)) break;
 
 				// Overwrite forward-animated shape with backwards-animated, anticipating shape
@@ -187,11 +191,11 @@ JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeSet>& sha
 }
 
 JoiningContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
-	// Create timeline of shape sets
-	ContinuousTimeline<ShapeSet> shapeSets = getShapeSets(phones);
+	// Create timeline of shape rules
+	ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
 
 	// Animate
-	JoiningContinuousTimeline<Shape> shapes = animate(shapeSets);
+	JoiningContinuousTimeline<Shape> shapes = animate(shapeRules);
 
 	// Animate pauses
 	JoiningTimeline<Shape> pauses = animatePauses(shapes);
