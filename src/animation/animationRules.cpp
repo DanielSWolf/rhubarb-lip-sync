@@ -149,7 +149,7 @@ Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds
 	case Phone::M:			return single({A});
 	case Phone::N:			return single({B, C, F, H});
 	case Phone::NG:			return single({B, C, E, F});
-	case Phone::L:			return duration < 20_cs ? single({B, C, E, F, H}) : single({H});
+	case Phone::L:			return duration < 20_cs ? single({B, E, F, H}) : single({H});
 	case Phone::R:			return single({B, E, F});
 	case Phone::Y:			return single({B, C, F});
 	case Phone::W:			return single({F});
