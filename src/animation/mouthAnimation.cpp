@@ -20,11 +20,11 @@ using boost::adaptors::transformed;
 using std::pair;
 using std::tuple;
 
-JoiningTimeline<Shape> createTweens(JoiningContinuousTimeline<Shape> shapes) {
+JoiningContinuousTimeline<Shape> insertTweens(JoiningContinuousTimeline<Shape> shapes) {
 	centiseconds minTweenDuration = 4_cs;
 	centiseconds maxTweenDuration = 10_cs;
 
-	JoiningTimeline<Shape> tweens;
+	JoiningContinuousTimeline<Shape> result(shapes);
 
 	for (auto first = shapes.begin(), second = std::next(shapes.begin());
 		first != shapes.end() && second != shapes.end();
@@ -60,14 +60,14 @@ JoiningTimeline<Shape> createTweens(JoiningContinuousTimeline<Shape> shapes) {
 
 		if (tweenDuration < minTweenDuration) continue;
 
-		tweens.set(tweenStart, tweenStart + tweenDuration, tweenShape);
+		result.set(tweenStart, tweenStart + tweenDuration, tweenShape);
 	}
 
-	return tweens;
+	return result;
 }
 
-JoiningTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& shapes) {
-	JoiningTimeline<Shape> result;
+JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& shapes) {
+	JoiningContinuousTimeline<Shape> result(shapes);
 
 	// Don't close mouth for short pauses
 	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& lhs, const Timed<Shape>& pause, const Timed<Shape>& rhs) {
@@ -145,7 +145,7 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 //   always choosing a shape from the current set that resembles the last shape and is somewhat relaxed.
 // * When speaking, we anticipate vowels, trying to form their shape before the actual vowel.
 //   So whenever we come across a one-shape vowel, we backtrack a little, spreating that shape to the left.
-JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeRule>& shapeRules) {
+JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule>& shapeRules) {
 	JoiningContinuousTimeline<Shape> shapes(shapeRules.getRange(), X);
 
 	Shape referenceShape = X;
@@ -192,22 +192,12 @@ JoiningContinuousTimeline<Shape> animate(const ContinuousTimeline<ShapeRule>& sh
 
 JoiningContinuousTimeline<Shape> animate(const BoundedTimeline<Phone> &phones) {
 	// Create timeline of shape rules
-	ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
+	const ContinuousTimeline<ShapeRule> shapeRules = getShapeRules(phones);
 
 	// Animate
-	JoiningContinuousTimeline<Shape> shapes = animate(shapeRules);
-
-	// Animate pauses
-	JoiningTimeline<Shape> pauses = animatePauses(shapes);
-	for (const auto& pause : pauses) {
-		shapes.set(pause);
-	}
-
-	// Create inbetweens for smoother animation
-	JoiningTimeline<Shape> tweens = createTweens(shapes);
-	for (const auto& tween : tweens) {
-		shapes.set(tween);
-	}
+	JoiningContinuousTimeline<Shape> shapes = animateRough(shapeRules);
+	shapes = animatePauses(shapes);
+	shapes = insertTweens(shapes);
 
 	for (const auto& timedShape : shapes) {
 		logTimedEvent("shape", timedShape);
