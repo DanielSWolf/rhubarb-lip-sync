@@ -222,7 +222,15 @@ add_library(rhubarb-animation
 	src/animation/animationRules.h
 	src/animation/mouthAnimation.cpp
 	src/animation/mouthAnimation.h
+	src/animation/pauseAnimation.cpp
+	src/animation/pauseAnimation.h
+	src/animation/roughAnimation.cpp
+	src/animation/roughAnimation.h
+	src/animation/shapeRule.cpp
+	src/animation/shapeRule.h
 	src/animation/shapeShorthands.h
+	src/animation/tweening.cpp
+	src/animation/tweening.h
 )
 target_include_directories(rhubarb-animation PUBLIC "src/animation")
 target_link_libraries(rhubarb-animation

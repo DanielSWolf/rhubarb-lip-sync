@@ -2,6 +2,7 @@
 #include <boost/algorithm/clamp.hpp>
 #include "shapeShorthands.h"
 #include "array.h"
+#include "ContinuousTimeline.h"
 
 using std::chrono::duration_cast;
 using boost::algorithm::clamp;
