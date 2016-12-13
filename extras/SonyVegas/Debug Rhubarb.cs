@@ -260,7 +260,8 @@ public enum EventType {
 	Word,
 	RawPhone,
 	Phone,
-	Shape
+	Shape,
+	Segment
 }
 
 public enum VisualizationType {

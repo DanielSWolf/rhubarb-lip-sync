@@ -229,6 +229,8 @@ add_library(rhubarb-animation
 	src/animation/shapeRule.cpp
 	src/animation/shapeRule.h
 	src/animation/shapeShorthands.h
+	src/animation/timingOptimization.cpp
+	src/animation/timingOptimization.h
 	src/animation/tweening.cpp
 	src/animation/tweening.h
 )
