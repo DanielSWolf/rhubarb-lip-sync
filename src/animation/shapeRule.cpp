@@ -18,7 +18,7 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 	auto continuousPhones = boundedTimelinetoContinuousOptional(phones);
 
 	// Create timeline of shape rules
-	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), {{Shape::X}, boost::none});
+	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), ShapeRule({Shape::X}, boost::none));
 	centiseconds previousDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
 		optional<Phone> phone = timedPhone.getValue();
@@ -34,7 +34,7 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 			// Copy to timeline.
 			// Later shape sets may overwrite earlier ones if overlapping.
 			for (const auto& timedShapeSet : phoneShapeSets) {
-				shapeRules.set(timedShapeSet.getTimeRange(), {timedShapeSet.getValue(), phone});
+				shapeRules.set(timedShapeSet.getTimeRange(), ShapeRule(timedShapeSet.getValue(), phone));
 			}
 		}
 
