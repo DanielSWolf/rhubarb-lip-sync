@@ -35,6 +35,26 @@ bool TimeRange::empty() const {
 	return start == end;
 }
 
+void TimeRange::setStart(time_type newStart) {
+	resize(newStart, end);
+}
+
+void TimeRange::setEnd(time_type newEnd) {
+	resize(start, newEnd);
+}
+
+void TimeRange::setStartIfEarlier(time_type newStart) {
+	if (newStart < start) {
+		setStart(newStart);
+	}
+}
+
+void TimeRange::setEndIfLater(time_type newEnd) {
+	if (newEnd > end) {
+		setEnd(newEnd);
+	}
+}
+
 void TimeRange::resize(const TimeRange& newRange) {
 	start = newRange.start;
 	end = newRange.end;
@@ -61,6 +81,14 @@ void TimeRange::shrink(time_type value) {
 void TimeRange::trim(const TimeRange& limits) {
 	TimeRange newRange(std::max(start, limits.start), std::min(end, limits.end));
 	resize(newRange);
+}
+
+void TimeRange::trimLeft(time_type value) {
+	trim({value, end});
+}
+
+void TimeRange::trimRight(time_type value) {
+	trim({start, value});
 }
 
 bool TimeRange::operator==(const TimeRange& rhs) const {

@@ -19,12 +19,19 @@ public:
 	time_type getDuration() const;
 	bool empty() const;
 
+	void setStart(time_type newStart);
+	void setEnd(time_type newEnd);
+	void setStartIfEarlier(time_type newStart);
+	void setEndIfLater(time_type newEnd);
+
 	void resize(const TimeRange& newRange);
 	void resize(time_type start, time_type end);
 	void shift(time_type offset);
 	void grow(time_type value);
 	void shrink(time_type value);
 	void trim(const TimeRange& limits);
+	void trimLeft(time_type value);
+	void trimRight(time_type value);
 
 	bool operator==(const TimeRange& rhs) const;
 	bool operator!=(const TimeRange& rhs) const;
