@@ -35,7 +35,11 @@ JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& 
 	centiseconds targetPosition = targetRange.getEnd();
 	while (targetPosition > targetRange.getStart()) {
 		// Determine the time range of source shapes competing for the next target shape
-		TimeRange candidateRange(targetPosition - minShapeDuration, targetPosition);
+		const centiseconds remainingTargetDuration = targetPosition - targetRange.getStart();
+		const bool canFitOneOrLess = remainingTargetDuration <= minShapeDuration;
+		const bool canFitTwo = remainingTargetDuration >= 2 * minShapeDuration;
+		const centiseconds duration = canFitOneOrLess || canFitTwo ? minShapeDuration : remainingTargetDuration / 2;
+		TimeRange candidateRange(targetPosition - duration, targetPosition);
 		if (targetPosition == targetRange.getEnd()) {
 			// This is the first iteration.
 			// Extend the candidate range to the right in order to consider all source shapes after the target range.
