@@ -25,7 +25,7 @@ unique_ptr<AudioClip> createWaveAudioClip(path filePath) {
 	try {
 		return std::make_unique<WaveFileReader>(filePath);
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(fmt::format("Could not open sound file '{0}'.", filePath.string())));
+		std::throw_with_nested(std::runtime_error(fmt::format("Could not open sound file {}.", filePath)));
 	}
 }
 

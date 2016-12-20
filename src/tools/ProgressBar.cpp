@@ -48,7 +48,9 @@ void ProgressMerger::report() {
 	}
 }
 
-ProgressBar::ProgressBar() {
+ProgressBar::ProgressBar(std::ostream& stream) :
+	stream(stream)
+{
 	updateLoopFuture = std::async(std::launch::async, &ProgressBar::updateLoop, this);
 }
 
@@ -108,6 +110,6 @@ void ProgressBar::updateText(const string& text) {
 		output.append(overlapCount, '\b');
 	}
 
-	std::cerr << output;
+	stream << output;
 	currentText = text;
 }

@@ -7,6 +7,7 @@
 #include <vector>
 #include <mutex>
 #include <string>
+#include <iostream>
 
 class ProgressSink {
 public:
@@ -43,7 +44,7 @@ private:
 
 class ProgressBar : public ProgressSink {
 public:
-	ProgressBar();
+	ProgressBar(std::ostream& stream = std::cerr);
 	~ProgressBar();
 	void reportProgress(double value) override;
 
@@ -55,6 +56,7 @@ private:
 	std::atomic<double> currentProgress { 0 };
 	std::atomic<bool> done { false };
 
+	std::ostream& stream;
 	std::string currentText;
 	int animationIndex = 0;
 };

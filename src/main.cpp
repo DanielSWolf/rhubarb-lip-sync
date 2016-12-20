@@ -20,6 +20,8 @@
 #include "TsvExporter.h"
 #include "XmlExporter.h"
 #include "JsonExporter.h"
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/null.hpp>
 
 using std::exception;
 using std::string;
@@ -80,10 +82,8 @@ unique_ptr<Exporter> createExporter(ExportFormat exportFormat) {
 }
 
 int main(int argc, char *argv[]) {
-#ifdef _DEBUG
 	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
-#endif
 
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
 	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
+	tclap::SwitchArg quietMode("q", "quiet", "Suppresses all output to stderr except for error messages.", cmd, false);
 	tclap::ValueArg<int> maxThreadCount("", "threads", "The maximum number of worker threads to use.", false, getProcessorCoreCount(), "number", cmd);
 	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
@@ -101,20 +102,24 @@ int main(int argc, char *argv[]) {
 	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::Tsv, &exportFormatConstraint, cmd);
 	tclap::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
+	std::ostream* infoStream = &std::cerr;
+	boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostreams::null_sink()));
+
 	try {
 		auto resumeLogging = gsl::finally([&]() {
-			std::cerr << std::endl << std::endl;
-#ifdef _DEBUG
+			*infoStream << std::endl << std::endl;
 			pausableStderrSink->resume();
-#endif
-			std::cerr << std::endl;
 		});
 
 		// Parse command line
 		cmd.parse(argc, argv);
+		if (quietMode.getValue()) {
+			infoStream = &nullStream;
+		}
 		if (maxThreadCount.getValue() < 1) {
 			throw std::runtime_error("Thread count must be 1 or higher.");
 		}
+		path inputFilePath(inputFileName.getValue());
 
 		// Set up log file
 		if (logFileName.isSet()) {
@@ -124,43 +129,45 @@ int main(int argc, char *argv[]) {
 		logging::infoFormat("Application startup. Command line: {}", join(
 			vector<char*>(argv, argv + argc) | transformed([](char* arg) { return fmt::format("\"{}\"", arg); }), " "));
 
-		std::cerr << "Processing input file.  ";
-		JoiningContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
-		{
-			ProgressBar progressBar;
+		try {
+			*infoStream << fmt::format("Generating lip-sync data for {}.", inputFilePath) << std::endl;
+			*infoStream << "Processing.  ";
+			JoiningContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
+			{
+				ProgressBar progressBar(*infoStream);
 
-			// Animate the recording
-			animation = animateWaveFile(
-				inputFileName.getValue(),
-				dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
-				maxThreadCount.getValue(),
-				progressBar);
+				// Animate the recording
+				animation = animateWaveFile(
+					inputFilePath,
+					dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
+					maxThreadCount.getValue(),
+					progressBar);
+			}
+			*infoStream << "Done." << std::endl << std::endl;
+
+			// Export animation
+			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
+			exporter->exportShapes(inputFilePath, animation, std::cout);
+
+			logging::info("Exiting application normally.");
+		} catch (...) {
+			std::throw_with_nested(std::runtime_error(fmt::format("Error processing file {}.", inputFilePath)));
 		}
-		std::cerr << "Done." << std::endl << std::endl;
-
-		// Export animation
-		unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
-		exporter->exportShapes(path(inputFileName.getValue()), animation, std::cout);
-
-		logging::info("Exiting application normally.");
 
 		return 0;
 	} catch (tclap::ArgException& e) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
-		std::cerr << std::endl;
-		logging::error("Invalid command line. Exiting application with error code.");
+		logging::error("Invalid command line. Exiting application.");
 		return 1;
 	} catch (tclap::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
-		std::cerr << std::endl;
 		logging::info("Exiting application after help-like command.");
 		return 0;
 	} catch (const exception& e) {
 		// Generic error
 		string message = getMessage(e);
-		std::cerr << "An error occurred.\n" << message << std::endl;
-		logging::errorFormat("Exiting application with error: {}", message);
+		logging::fatalFormat("Exiting application with error:\n{}", message);
 		return 1;
 	}
 }
