@@ -3,7 +3,7 @@
 
 JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& shapes) {
 	centiseconds minTweenDuration = 4_cs;
-	centiseconds maxTweenDuration = 10_cs;
+	centiseconds maxTweenDuration = 8_cs;
 
 	JoiningContinuousTimeline<Shape> result(shapes);
 
@@ -28,7 +28,7 @@ JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Sh
 			break;
 		}
 		case TweenTiming::Centered: {
-			tweenDuration = std::min({firstTimeRange.getDuration() / 3, secondTimeRange.getDuration() / 3, maxTweenDuration});
+			tweenDuration = std::min({firstTimeRange.getDuration() / 4, secondTimeRange.getDuration() / 4, maxTweenDuration});
 			tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
 			break;
 		}
