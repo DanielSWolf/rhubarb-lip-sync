@@ -39,12 +39,12 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 				const centiseconds anticipationDuration = anticipatedShapeStart - anticipatingShapeStart;
 				if (anticipationDuration > maxAnticipationDuration) break;
 
-				// Make sure the new, backwards-animated shape still resembles the anticipated shape
-				const Shape anticipatingShape = getClosestShape(referenceShape, std::get<ShapeSet>(reverseIt->getValue()));
-				if (getBasicShape(anticipatingShape) != getBasicShape(anticipatedShape)) break;
-
 				// Overwrite forward-animated shape with backwards-animated, anticipating shape
+				const Shape anticipatingShape = getClosestShape(referenceShape, std::get<ShapeSet>(reverseIt->getValue()));
 				shapes.set(reverseIt->getTimeRange(), anticipatingShape);
+
+				// Make sure the new, backwards-animated shape still resembles the anticipated shape
+				if (getBasicShape(anticipatingShape) != getBasicShape(anticipatedShape)) break;
 
 				referenceShape = anticipatingShape;
 			}
