@@ -69,6 +69,17 @@ end
 # Read rules
 lines = File.read('../../lib/soundchange/english.sc', :encoding => 'iso-8859-1').split(/\r?\n/)
 
+# Add supplementary rules
+lines.push(
+  '* There are a number of cases not covered by these rules.',
+  '* Let\'s add some reasonable fallback rules.',
+  'a/â/_',
+  'e/@/_',
+  'i/ë/_',
+  'o/ö/_',
+  'q/k/_'
+)
+
 # Parse character class definitions
 characterClassLineCount = 0
 lines.each_with_index do |line, index|

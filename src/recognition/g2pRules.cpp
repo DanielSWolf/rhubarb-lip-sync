@@ -206,3 +206,10 @@
 { wregex(L"l(l)"), L"$1" },
 { wregex(L"f(f)"), L"$1" },
 { wregex(L"z(z)"), L"$1" },
+// There are a number of cases not covered by these rules.
+// Let's add some reasonable fallback rules.
+{ wregex(L"a"), L"â" },
+{ wregex(L"e"), L"@" },
+{ wregex(L"i"), L"ë" },
+{ wregex(L"o"), L"ö" },
+{ wregex(L"q"), L"k" },
