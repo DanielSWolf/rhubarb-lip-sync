@@ -27,6 +27,7 @@ def formatRule(searchValue, replaceValue, contextBegin, contextEnd)
   searchValue = Regexp.escape(searchValue)
   contextBegin = Regexp.escape(contextBegin)
   contextEnd = Regexp.escape(contextEnd)
+  replaceValue.gsub!(/\$/, '$$')
   
   # Anchors
   contextBegin.sub!(/^\\\#/, '^')
@@ -66,7 +67,7 @@ def formatRule(searchValue, replaceValue, contextBegin, contextEnd)
 end
 
 # Read rules
-lines = File.read('../lib/soundchange/english.sc', :encoding => 'iso-8859-1').split(/\r?\n/)
+lines = File.read('../../lib/soundchange/english.sc', :encoding => 'iso-8859-1').split(/\r?\n/)
 
 # Parse character class definitions
 characterClassLineCount = 0

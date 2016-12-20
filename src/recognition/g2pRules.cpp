@@ -5,7 +5,7 @@
 //
 // get rid of some digraphs
 { wregex(L"ch"), L"ç" },
-{ wregex(L"sh"), L"$" },
+{ wregex(L"sh"), L"$$" },
 { wregex(L"ph"), L"f" },
 { wregex(L"th"), L"+" },
 { wregex(L"qu"), L"kw" },
@@ -48,16 +48,16 @@
 // sSl can simplify
 { wregex(L"(s)t(l[aeiouäëïöüâêîôûùò@]$)"), L"$1$2" },
 // affrication of t + front vowel
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ci([aeiouäëïöüâêîôûùò@])"), L"$1$$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ti([aeiouäëïöüâêîôûùò@])"), L"$1$$2" },
+{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ci([aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
+{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ti([aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
 { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([aeiouäëïöüâêîôûùò@])"), L"$1çu$2" },
 { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([rl][aeiouäëïöüâêîôûùò@])"), L"$1çu$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])si(o)"), L"$1$$2" },
+{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])si(o)"), L"$1$$$2" },
 { wregex(L"([aeiouäëïöüâêîôûùò@])si(o)"), L"$1j$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])s(ur)"), L"$1$$2" },
+{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])s(ur)"), L"$1$$$2" },
 { wregex(L"([aeiouäëïöüâêîôûùò@])s(ur)"), L"$1j$2" },
-{ wregex(L"(k)s(u[aeiouäëïöüâêîôûùò@])"), L"$1$$2" },
-{ wregex(L"(k)s(u[rl])"), L"$1$$2" },
+{ wregex(L"(k)s(u[aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
+{ wregex(L"(k)s(u[rl])"), L"$1$$$2" },
 // intervocalic s
 { wregex(L"([eiou])s([aeiouäëïöüâêîôûùò@])"), L"$1z$2" },
 // al to ol (do this before respelling)
