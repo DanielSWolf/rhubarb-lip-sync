@@ -88,15 +88,20 @@ vector<Phone> wordToPhones(const std::string& word) {
 		} while (changed);
 	}
 
+	// Remove duplicate phones
 	vector<Phone> result;
+	Phone lastPhone = Phone::Noise;
 	for (wchar_t c : wideWord) {
 		Phone phone = charToPhone(c);
 		if (phone == Phone::Noise) {
 			logging::errorFormat("G2P error determining pronunciation for '{}': Character '{}' is not a recognized phone shorthand.",
 				word, static_cast<char>(c));
-		} else {
+		}
+
+		if (phone != lastPhone) {
 			result.push_back(phone);
 		}
+		lastPhone = phone;
 	}
 	return result;
 }
