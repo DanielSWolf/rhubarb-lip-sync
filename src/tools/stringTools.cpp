@@ -108,6 +108,15 @@ string toAscii(const u32string& s) {
 	return result;
 }
 
+string toAscii(const wstring& s) {
+	string result;
+	for (wchar_t ch : s) {
+		optional<char> ascii = toAscii(ch);
+		if (ascii) result.append(1, *ascii);
+	}
+	return result;
+}
+
 u32string utf8ToUtf32(const string& s) {
 #if defined(_MSC_VER) && _MSC_VER <= 1900
 	// Workaround for Visual Studio 2015

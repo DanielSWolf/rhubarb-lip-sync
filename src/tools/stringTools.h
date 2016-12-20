@@ -16,6 +16,8 @@ boost::optional<char> toAscii(char32_t ch);
 
 std::string toAscii(const std::u32string& s);
 
+std::string toAscii(const std::wstring& s);
+
 std::u32string utf8ToUtf32(const std::string& s);
 
 template<typename T>
