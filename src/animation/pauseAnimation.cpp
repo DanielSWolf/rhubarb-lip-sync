@@ -1,31 +1,40 @@
 #include "pauseAnimation.h"
 #include "animationRules.h"
 
+Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
+	// For very short pauses: Just hold the previous shape
+	if (duration < 12_cs) {
+		return previous;
+	}
+
+	// For short pauses: Relax the mouth
+	if (duration <= 35_cs) {
+		// It looks odd if the pause shape is identical to the next shape.
+		// Make sure we find a relaxed shape that's different from the next one.
+		for (Shape currentRelaxedShape = previous;;) {
+			Shape nextRelaxedShape = relax(currentRelaxedShape);
+			if (nextRelaxedShape != next) {
+				return nextRelaxedShape;
+			}
+			if (nextRelaxedShape == currentRelaxedShape) {
+				// We're going in circles
+				break;
+			}
+			currentRelaxedShape = nextRelaxedShape;
+		}
+	}
+
+	// For longer pauses: Close the mouth
+	return Shape::X;
+}
+
 JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& shapes) {
 	JoiningContinuousTimeline<Shape> result(shapes);
-
-	// Don't close mouth for short pauses
-	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& lhs, const Timed<Shape>& pause, const Timed<Shape>& rhs) {
+	
+	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& previous, const Timed<Shape>& pause, const Timed<Shape>& next) {
 		if (pause.getValue() != Shape::X) return;
 
-		const centiseconds maxPausedOpenMouthDuration = 35_cs;
-		const TimeRange timeRange = pause.getTimeRange();
-		if (timeRange.getDuration() <= maxPausedOpenMouthDuration) {
-			result.set(timeRange, getRelaxedBridge(lhs.getValue(), rhs.getValue()));
-		}
-	});
-
-	// Keep mouth open into pause if it just opened
-	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& secondLast, const Timed<Shape>& last, const Timed<Shape>& pause) {
-		if (pause.getValue() != Shape::X) return;
-
-		centiseconds lastDuration = last.getDuration();
-		const centiseconds minOpenDuration = 20_cs;
-		if (isClosed(secondLast.getValue()) && !isClosed(last.getValue()) && lastDuration < minOpenDuration) {
-			const centiseconds minSpillDuration = 20_cs;
-			centiseconds spillDuration = std::min(minSpillDuration, pause.getDuration());
-			result.set(pause.getStart(), pause.getStart() + spillDuration, getRelaxedBridge(last.getValue(), Shape::X));
-		}
+		result.set(pause.getTimeRange(), getPauseShape(previous.getValue(), next.getValue(), pause.getDuration()));
 	});
 
 	return result;

@@ -23,10 +23,6 @@ Shape relax(Shape shape) {
 	return relaxedShapes[static_cast<size_t>(shape)];
 }
 
-Shape getRelaxedBridge(Shape lhs, Shape rhs) {
-	return lhs == rhs ? lhs : relax(lhs);
-}
-
 Shape getClosestShape(Shape reference, ShapeSet shapes) {
 	if (shapes.empty()) {
 		throw std::invalid_argument("Cannot select from empty set of shapes.");

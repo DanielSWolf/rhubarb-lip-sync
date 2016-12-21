@@ -11,9 +11,6 @@ Shape getBasicShape(Shape shape);
 // Returns the mouth shape that results from relaxing the specified shape.
 Shape relax(Shape shape);
 
-// Returns the mouth shape to use for *short* pauses between words.
-Shape getRelaxedBridge(Shape lhs, Shape rhs);
-
 // A set of mouth shapes that can be used to represent a certain sound.
 // The actual selection will be performed based on similarity with the previous or next shape.
 using ShapeSet = std::set<Shape>;
