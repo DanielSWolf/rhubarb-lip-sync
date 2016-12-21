@@ -22,6 +22,7 @@
 #include "JsonExporter.h"
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/null.hpp>
+#include "targetShapeSet.h"
 
 using std::exception;
 using std::string;
@@ -81,6 +82,18 @@ unique_ptr<Exporter> createExporter(ExportFormat exportFormat) {
 	}
 }
 
+ShapeSet getTargetShapeSet(const string& extendedShapesString) {
+	// All basic shapes are mandatory
+	ShapeSet result(ShapeConverter::get().getBasicShapes());
+
+	// Add any extended shapes
+	for (char ch : extendedShapesString) {
+		Shape shape = ShapeConverter::get().parse(string(1, ch));
+		result.insert(shape);
+	}
+	return result;
+}
+
 int main(int argc, char *argv[]) {
 	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
@@ -96,6 +109,7 @@ int main(int argc, char *argv[]) {
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
 	tclap::SwitchArg quietMode("q", "quiet", "Suppresses all output to stderr except for error messages.", cmd, false);
 	tclap::ValueArg<int> maxThreadCount("", "threads", "The maximum number of worker threads to use.", false, getProcessorCoreCount(), "number", cmd);
+	tclap::ValueArg<string> extendedShapes("", "extendedShapes", "All extended, optional shapes to use.", false, "GHX", "string", cmd);
 	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
@@ -120,6 +134,7 @@ int main(int argc, char *argv[]) {
 			throw std::runtime_error("Thread count must be 1 or higher.");
 		}
 		path inputFilePath(inputFileName.getValue());
+		ShapeSet targetShapeSet = getTargetShapeSet(extendedShapes.getValue());
 
 		// Set up log file
 		if (logFileName.isSet()) {
@@ -140,6 +155,7 @@ int main(int argc, char *argv[]) {
 				animation = animateWaveFile(
 					inputFilePath,
 					dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
+					targetShapeSet,
 					maxThreadCount.getValue(),
 					progressBar);
 			}
@@ -147,7 +163,7 @@ int main(int argc, char *argv[]) {
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
-			exporter->exportShapes(inputFilePath, animation, std::cout);
+			exporter->exportShapes(inputFilePath, animation, targetShapeSet, std::cout);
 
 			logging::info("Exiting application normally.");
 		} catch (...) {

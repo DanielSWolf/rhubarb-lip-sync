@@ -229,6 +229,8 @@ add_library(rhubarb-animation
 	src/animation/shapeRule.cpp
 	src/animation/shapeRule.h
 	src/animation/shapeShorthands.h
+	src/animation/targetShapeSet.cpp
+	src/animation/targetShapeSet.h
 	src/animation/timingOptimization.cpp
 	src/animation/timingOptimization.h
 	src/animation/tweening.cpp
@@ -298,6 +300,7 @@ add_library(rhubarb-exporters
 )
 target_include_directories(rhubarb-exporters PUBLIC "src/exporters")
 target_link_libraries(rhubarb-exporters
+	rhubarb-animation
 	rhubarb-core
 	rhubarb-time
 )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EnumConverter.h"
+#include <set>
 
 // The classic Hanna-Barbera mouth shapes A-F phus the common supplements G-H
 // For reference, see http://sunewatts.dk/lipsync/lipsync/article_02.php
@@ -14,6 +15,7 @@ enum class Shape {
 	D,	// Mouth wide open (vowels like f[a]ther, b[a]t, wh[y])
 	E,	// Rounded mouth (vowels like [o]ff)
 	F,	// Puckered lips (y[ou], b[o]y, [w]ay)
+	LastBasicShape = F,
 
 	// Extended shapes
 
@@ -27,6 +29,8 @@ enum class Shape {
 class ShapeConverter : public EnumConverter<Shape> {
 public:
 	static ShapeConverter& get();
+	std::set<Shape> getBasicShapes();
+	std::set<Shape> getExtendedShapes();
 protected:
 	std::string getTypeName() override;
 	member_data getMemberData() override;
@@ -39,3 +43,8 @@ std::istream& operator>>(std::istream& stream, Shape& value);
 inline bool isClosed(Shape shape) {
 	return shape == Shape::A || shape == Shape::X;
 }
+
+// A set of mouth shapes.
+// This may be used to represent all shapes that can be used to represent a certain sound.
+// Alternatively, it can represent all shapes the user wants to allow as program output.
+using ShapeSet = std::set<Shape>;

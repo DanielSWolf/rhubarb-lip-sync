@@ -1,6 +1,7 @@
 #include "TsvExporter.h"
+#include "targetShapeSet.h"
 
-void TsvExporter::exportShapes(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& shapes, std::ostream& outputStream) {
+void TsvExporter::exportShapes(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& shapes, const ShapeSet& targetShapeSet, std::ostream& outputStream) {
 	UNUSED(inputFilePath);
 
 	// Output shapes with start times
@@ -9,5 +10,5 @@ void TsvExporter::exportShapes(const boost::filesystem::path& inputFilePath, con
 	}
 
 	// Output closed mouth with end time
-	outputStream << formatDuration(shapes.getRange().getEnd()) << "\t" << Shape::X << "\n";
+	outputStream << formatDuration(shapes.getRange().getEnd()) << "\t" << convertToTargetShapeSet(Shape::X, targetShapeSet) << "\n";
 }
