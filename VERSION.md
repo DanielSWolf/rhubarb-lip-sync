@@ -1,5 +1,41 @@
 # Version history
 
+## Version 1.3.0
+
+* **New, bidirectional animation algorithm**
+
+  Since version 1.0.0, Rhubarb Lip-Sync has used a predictive animation algorithm. That means that in many situations (usually before a vowel), the mouth *anticipates* the upcoming sound. It moves *ahead of time*, resulting in more natural animation.
+
+  For version 1.3.0, this core animation algorithm has been re-written from scratch. The new algorithm still anticipates the *next* vowel, but now also considers the *previous* vowel. The resulting animation is even closer to human speech.
+
+* **Artistic timing**
+
+  Previous versions of Rhubarb Lip-Sync have tried to reproduce the timing of the recording as precisely as possible. For rapid speech, this often resulted in jittery animation that didn't look good: It tried to fit too much information into the available time. Traditional animators have known this problem since the 1930s. Instead of slavishly following the timing of the recording, they focus on important sounds and mouth shapes, showing them earlier (and thus longer) than would be realistic. On the other hand, they often skip unimportant sounds and mouth shapes altogether.
+
+  Rhubarb Lip-Sync 1.3.0 adds a new step in the animation pipeline that emulates this artistic approach. The resulting animation looks much cleaner and smoother. Ironically, it also looks more in-sync than the precise animation created by earlier versions.
+
+* **Tweaks to the animation rules and tweening**
+
+  Animation rules define which mouth shapes can be used to represent a specific sound. For this release, there have been many tweaks to the animation rules, making some sounds look much more convincing. In addition, the rules for inbetweens ("tweening") have been improved. As in traditional animation, the mouth now "pops" open without inbetweens, then closes smoothly.
+
+* **Improved pause animations**
+
+  Pauses in speech are tricky to animate. Early version of Rhubarb Lip-Sync always closed the mouth, which looks strange for very short pauses. Later versions kept the mouth open for short pauses, which can also look weird if the first mouth shape *after* the pause is identical to the mouth shape *during* the pause: It looks as if somebody just forgot to animate that part.
+
+  This version of Rhubarb Lip-Sync uses three different strategies for animating pauses, depending on the duration of the pause and the mouth shapes before and after it.
+
+* **`--extendedShapes` command-line option**
+
+  Previous versions of Rhubarb Lip-Sync used a fixed set of eight or nine mouth shapes for animation. If users wanted to use fewer mouth shapes, they had to modify the output, for instance by replacing every "X" shape with an "A". This version of Rhubarb Lip-Sync introduces the `--extendedShapes` command-line option that allows the user to specify which mouth shapes should be used. This is not only more convenient; knowing which mouth shapes are actually available also allows Rhubarb Lip-Sync to create better animation.
+
+* **`--quiet` mode**
+
+  A "quiet" mode has been added. In that mode, Rhubarb Lip-Sync doesn't create any output except for animation data and error messages. This is helpful when using Rhubarb Lip-Sync as part of an automated process.
+
+* **Fixes to the grapheme-to-phoneme algorithm**
+
+  Rhubarb Lip-Sync comes with a huge dictionary containing pronunciations for more than 100,000 English words. If the dialog text contains words not found in this dictionary, Rhubarb Lip-Sync will try to guess the correct pronunciation. I've fixed several bugs in the G2P algorithm that does this. As a result, using the `--dialogFile` option now results in even better animation.
+
 ## Version 1.2.0
 
 * **Dialog file needn't be exact**
