@@ -17,15 +17,16 @@ Rhubarb Lip-Sync produces output files in various text formats (TSV/XML/JSON). I
 
 == Demo video
 
-Click the image for a demo video.
+Click the image for a demo video. This was generated using Rhubarb Lip-Sync 1.0.0; newer versions create even better animation!
 
 https://www.youtube.com/watch?v=OX_K387EKoI[image:http://img.youtube.com/vi/OX_K387EKoI/0.jpg[]]
 
+[[mouth-shapes]]
 == Mouth shapes
 
-Rhubarb Lip-Sync uses a set of nine mouth positions. To get good results, you must draw at least the first six mouth shapes ({A}-{F}) for your character. These six mouth shapes were invented at the Hanna-Barbera studios for shows such as Scooby-Doo and The Flintstones. Since then, they have evolved into a _de-facto_ standard for 2D animation, and have been widely used by studios like Disney and Warner Bros.
+Rhubarb Lip-Sync can use between six and nine different mouth positions. The first six mouth shapes ({A}-{F}) are the _basic mouth shapes_ and the absolute minimum you have to draw for your character. These six mouth shapes were invented at the Hanna-Barbera studios for shows such as Scooby-Doo and The Flintstones. Since then, they have evolved into a _de-facto_ standard for 2D animation, and have been widely used by studios like Disney and Warner Bros.
 
-The additional three mouth shapes ({G}, {H}, and {X}) are optional. You may choose to draw all three of them, pick just one or two, or leave them out entirely.
+In addition to the six basic mouth shapes, there are three _extended mouth shapes_: {G}, {H}, and {X}. These are optional. You may choose to draw all three of them, pick just one or two, or leave them out entirely.
 
 [cols="1h,2,6"]
 |===
@@ -53,28 +54,33 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 | Puckered lips. This mouth shape is used for "`UW`" as in y**ou**, "`OY`" as in b**o**y, and "`W`" as in **w**ay.
 
 | {G} | image:img/ken-G.png[]
-| Biting the lower lip for the "`F`" and "`V`" sounds.
+| Upper teeth touching the lower lip for the "`F`" and "`V`" sounds. Don't overdo it: It shouldn't look as if your character were actually biting on their lower lip.
 
-This mouth shape is *optional*. If your art style is detailed enough, it greatly improves the overall look of the animation. If you decide not to use it, you can show the {B} shape instead.
+*This extended mouth shape is optional.* If your art style is detailed enough, it greatly improves the overall look of the animation. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 
 | {H} | image:img/ken-H.png[]
 | This shape should identical to {C}, except for the tongue showing. It is used for the "`L`" sound, so the tongue should touch behind the upper teeth.
 
-This mouth shape is *optional*. Depending on your art style and the angle of the head, the tongue may not be visible at all. In this case, there is no point in drawing this extra shape. If you decide not to use it, you can show the {C} shape instead.
+*This extended mouth shape is optional.* Depending on your art style and the angle of the head, the tongue may not be visible at all. In this case, there is no point in drawing this extra shape. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 
 | {X} | image:img/ken-X.png[]
-| Idle position. This mouth shape is used for pauses in speech. It is almost identical to {A}, but without the pressure between the lips: For {X}, the lips should be relaxed but closed.
+| Idle position. This mouth shape is used for pauses in speech. This should be the same mouth drawing you use when your character is walking around without talking. It is almost identical to {A}, but without the pressure between the lips: For {X}, the lips should be closed but relaxed.
 
-This mouth shape is *optional*. Whether there should be any visible difference between the rest position {X} and the closed talking mouth {A} depends on your art style and personal taste. If you decide not to use this shape, you can safely show the {A} shape instead.
+*This extended mouth shape is optional.* Whether there should be any visible difference between the rest position {X} and the closed talking mouth {A} depends on your art style and personal taste. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 |===
 
 == How to run Rhubarb Lip-Sync
 
+=== General usage ===
+
 Rhubarb Lip-Sync is a command-line tool that is currently available for Windows and OS X.
 
 * Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
-* Call `rhubarb`, passing it a WAVE file as argument, and redirecting the output to a file. This might look like this: `rhubarb my-recording.wav > output.txt`.
-* Rhubarb Lip-Sync will analyze the sound file and print the result to `stdout`. If you've redirected `stdout` to a file like above, you will now have an XML file containing the lip-sync data.
+* Call `rhubarb`, passing it a WAVE file as argument, and redirecting the output to a file. In its simplest form, this might look like this: `rhubarb my-recording.wav > output.txt`. There are additional <<options,command-line options>> you can specify in order to get better results.
+* Rhubarb Lip-Sync will analyze the sound file and print the result to `stdout`. If you've redirected `stdout` to a file like above, you will now have an XML file containing the lip-sync data. If an error occurs, Rhubarb Lip-Sync will print an error message to `stderr` and exit with a non-zero exit code.
+
+[[options]]
+=== Command-line options ===
 
 The following is a complete list of available command-line options.
 
@@ -83,7 +89,9 @@ The following is a complete list of available command-line options.
 | Option | Description
 
 | `-f` _<format>_, `--exportFormat` _<format>_
-| The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>). Default value: `tsv`
+| The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>).
+
+_Default value: ``tsv``_
 
 | `-d` _<path>_, `--dialogFile` _<path>_
 | This option is meant for situations where you know the dialog text in advance. Specify a plain-text file (in ASCII or UTF-8 format) containing just the dialog of the audio file. Rhubarb Lip-Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
@@ -92,16 +100,29 @@ For instance, let's say you're recording dialog for a computer game. The script 
 
 _It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate._
 
+[[extendedShapes]]
+| `--extendedShapes` _<string>_
+| As described in <<mouth-shapes>>, Rhubarb Lip-Sync uses six basic mouth shapes and up to three _extended mouth shapes_, which are optional. Use this option to specify which extended mouth shapes should be used. For example, to use only the {G} and {X} extended mouth shapes, specify `GX`; to use only the six basic mouth shapes, specify an empty string: `""`.
+
+_Default value: ``GHX``_
+
 | `--threads` _<number>_
 | Rhubarb Lip-Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip-Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
 
 Note that for short audio files, Rhubarb Lip-Sync may choose to use fewer threads than specified.
 
+_Default value: as many threads as your CPU has cores_
+
+| `-q`, `--quiet`
+| By default, Rhubarb Lip-Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
+
 | `--logFile` _<path>_
 | Creates a log file with diagnostic information at the specified path.
 
 |`--logLevel` _<level>_
-| Sets the log level for the log file. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`. Default value: `debug`
+| Sets the log level for the log file. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+_Default value: ``debug``_
 
 | `--version`
 | Displays version information and exits.
@@ -138,7 +159,7 @@ Here's how to read it:
 * 0.05s into the recording, the mouth opens wide (shape {D}) for the "`HH`" sound, anticipating the "`AY`" sound that will follow.
 * The second half of the "`AY`" diphtong (0.31s into the recording) requires clenched teeth (shape {B}). Before that, shape {C} is inserted as an in-between at 0.27s. This allows for a smoother animation from {D} to {B}.
 * 0.43s into the recording, the dialog is finished and the mouth closes again (shape {X}).
-* The last output line in TSV format is special: Its timestamp is always the very end of the recording (truncated to a multiple of 0.01s) and its value is always a closed mouth (shape {X}).
+* The last output line in TSV format is special: Its timestamp is always the very end of the recording (truncated to a multiple of 0.01s) and its value is always a closed mouth (shape {X} or {A}, depending on your <<extendedShapes,`extendedShapes`>> settings).
 
 [[xml]]
 === XML format (`xml`)
