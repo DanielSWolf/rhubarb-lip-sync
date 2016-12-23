@@ -49,7 +49,15 @@ public class EntryPoint {
 				List<TimedEvent> filteredEvents = FilterEvents(timedEvents[eventType], visualization.Regex);
 				foreach (TimedEvent timedEvent in filteredEvents) {
 					Timecode start = Timecode.FromSeconds(timedEvent.Start);
-					Timecode length = Timecode.FromSeconds(timedEvent.End) - start;
+					Timecode end = Timecode.FromSeconds(timedEvent.End);
+					Timecode length = end - start;
+					if (config.LoopRegionOnly) {
+						Timecode loopRegionStart = vegas.Transport.LoopRegionStart;
+						Timecode loopRegionEnd = loopRegionStart + vegas.Transport.LoopRegionLength;
+						if (start < loopRegionStart || start > loopRegionEnd || end < loopRegionStart || end > loopRegionEnd) {
+							continue;
+						}
+					}
 					switch (visualization.VisualizationType) {
 						case VisualizationType.Marker:
 							project.Markers.Add(new Marker(start, timedEvent.Value));
@@ -149,6 +157,7 @@ public class Config {
 	private string logFile;
 	private bool clearMarkers;
 	private bool clearRegions;
+	private bool loopRegionOnly;
 	private List<Visualization> visualizations = new List<Visualization>();
 
 	[DisplayName("Log File")]
@@ -171,6 +180,13 @@ public class Config {
 	public bool ClearRegions {
 		get { return clearRegions; }
 		set { clearRegions = value; }
+	}
+
+	[DisplayName("Loop region only")]
+	[Description("Adds regions or markers to the loop region only.")]
+	public bool LoopRegionOnly {
+		get { return loopRegionOnly; }
+		set { loopRegionOnly = value; }
 	}
 
 	[DisplayName("Visualization rules")]
