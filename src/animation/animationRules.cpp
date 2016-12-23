@@ -116,7 +116,7 @@ Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds
 	case Phone::EH:			return single({C});
 	case Phone::IH:			return single({B});
 	case Phone::UH:			return single({F});
-	case Phone::AH:			return single({C});
+	case Phone::AH:			return duration < 20_cs ? single({C}) : single({D});
 	case Phone::Schwa:		return single({B, C});
 	case Phone::AE:			return single({C});
 	case Phone::EY:			return diphthong({C}, {B});
