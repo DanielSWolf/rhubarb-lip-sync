@@ -17,6 +17,7 @@ public:
 	time_type getStart() const;
 	time_type getEnd() const;
 	time_type getDuration() const;
+	time_type getMiddle() const;
 	bool empty() const;
 
 	void setStart(time_type newStart);

@@ -31,6 +31,10 @@ time_type TimeRange::getDuration() const {
 	return end - start;
 }
 
+time_type TimeRange::getMiddle() const {
+	return (start + end) / 2;
+}
+
 bool TimeRange::empty() const {
 	return start == end;
 }
