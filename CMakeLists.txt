@@ -229,6 +229,8 @@ add_library(rhubarb-animation
 	src/animation/ShapeRule.cpp
 	src/animation/ShapeRule.h
 	src/animation/shapeShorthands.h
+	src/animation/staticSegments.cpp
+	src/animation/staticSegments.h
 	src/animation/targetShapeSet.cpp
 	src/animation/targetShapeSet.h
 	src/animation/timingOptimization.cpp
@@ -375,6 +377,7 @@ add_library(rhubarb-tools
 	src/tools/exceptions.cpp
 	src/tools/exceptions.h
 	src/tools/Lazy.h
+	src/tools/nextCombination.h
 	src/tools/NiceCmdLineOutput.cpp
 	src/tools/NiceCmdLineOutput.h
 	src/tools/ObjectPool.h
