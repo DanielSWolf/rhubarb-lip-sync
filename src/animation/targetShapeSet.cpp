@@ -23,7 +23,7 @@ ContinuousTimeline<ShapeRule> convertToTargetShapeSet(const ContinuousTimeline<S
 	ContinuousTimeline<ShapeRule> result(shapeRules);
 	for (const auto& timedShapeRule : shapeRules) {
 		ShapeRule rule = timedShapeRule.getValue();
-		std::get<ShapeSet>(rule) = convertToTargetShapeSet(std::get<ShapeSet>(rule), targetShapeSet);
+		rule.shapeSet = convertToTargetShapeSet(rule.shapeSet, targetShapeSet);
 		result.set(timedShapeRule.getTimeRange(), rule);
 	}
 	return result;

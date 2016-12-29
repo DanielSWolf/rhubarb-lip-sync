@@ -1,6 +1,6 @@
 #include "mouthAnimation.h"
 #include "timedLogging.h"
-#include "shapeRule.h"
+#include "ShapeRule.h"
 #include "roughAnimation.h"
 #include "pauseAnimation.h"
 #include "tweening.h"

@@ -3,7 +3,7 @@
 #include <boost/lexical_cast.hpp>
 #include <map>
 #include <algorithm>
-#include "shapeRule.h"
+#include "ShapeRule.h"
 
 using std::string;
 using std::map;

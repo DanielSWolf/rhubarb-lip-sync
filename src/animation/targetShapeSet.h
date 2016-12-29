@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shape.h"
-#include "shapeRule.h"
+#include "ShapeRule.h"
 
 // Returns the closest shape to the specified one that occurs in the target shape set.
 Shape convertToTargetShapeSet(Shape shape, const ShapeSet& targetShapeSet);

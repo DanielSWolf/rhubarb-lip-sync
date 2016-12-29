@@ -19,11 +19,9 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 	centiseconds lastAnticipatedShapeStart = -1_cs;
 	for (auto it = shapeRules.begin(); it != shapeRules.end(); ++it) {
 		const ShapeRule shapeRule = it->getValue();
-		const ShapeSet shapeSet = std::get<ShapeSet>(shapeRule);
-		const Shape shape = getClosestShape(referenceShape, shapeSet);
+		const Shape shape = getClosestShape(referenceShape, shapeRule.shapeSet);
 		animation.set(it->getTimeRange(), shape);
-		const auto phone = std::get<optional<Phone>>(shapeRule);
-		const bool anticipateShape = phone && isVowel(*phone) && shapeSet.size() == 1;
+		const bool anticipateShape = shapeRule.phone && isVowel(*shapeRule.phone) && shapeRule.shapeSet.size() == 1;
 		if (anticipateShape) {
 			// Animate backwards a little
 			const Shape anticipatedShape = shape;
@@ -40,7 +38,7 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 				if (anticipationDuration > maxAnticipationDuration) break;
 
 				// Overwrite forward-animated shape with backwards-animated, anticipating shape
-				const Shape anticipatingShape = getClosestShape(referenceShape, std::get<ShapeSet>(reverseIt->getValue()));
+				const Shape anticipatingShape = getClosestShape(referenceShape, reverseIt->getValue().shapeSet);
 				animation.set(reverseIt->getTimeRange(), anticipatingShape);
 
 				// Make sure the new, backwards-animated shape still resembles the anticipated shape

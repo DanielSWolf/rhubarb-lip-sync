@@ -226,8 +226,8 @@ add_library(rhubarb-animation
 	src/animation/pauseAnimation.h
 	src/animation/roughAnimation.cpp
 	src/animation/roughAnimation.h
-	src/animation/shapeRule.cpp
-	src/animation/shapeRule.h
+	src/animation/ShapeRule.cpp
+	src/animation/ShapeRule.h
 	src/animation/shapeShorthands.h
 	src/animation/targetShapeSet.cpp
 	src/animation/targetShapeSet.h
