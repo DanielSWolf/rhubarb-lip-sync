@@ -28,10 +28,10 @@ Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
 	return Shape::X;
 }
 
-JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& shapes) {
-	JoiningContinuousTimeline<Shape> result(shapes);
+JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& animation) {
+	JoiningContinuousTimeline<Shape> result(animation);
 	
-	for_each_adjacent(shapes.begin(), shapes.end(), [&](const Timed<Shape>& previous, const Timed<Shape>& pause, const Timed<Shape>& next) {
+	for_each_adjacent(animation.begin(), animation.end(), [&](const Timed<Shape>& previous, const Timed<Shape>& pause, const Timed<Shape>& next) {
 		if (pause.getValue() != Shape::X) return;
 
 		result.set(pause.getTimeRange(), getPauseShape(previous.getValue(), next.getValue(), pause.getDuration()));

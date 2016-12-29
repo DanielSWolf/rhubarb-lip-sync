@@ -3,7 +3,7 @@
 #include "EnumConverter.h"
 #include <set>
 
-// The classic Hanna-Barbera mouth shapes A-F phus the common supplements G-H
+// The classic Hanna-Barbera mouth shapes A-F plus the common supplements G-H
 // For reference, see http://sunewatts.dk/lipsync/lipsync/article_02.php
 // For visual examples, see https://flic.kr/s/aHsj86KR4J. Their shapes "BMP".."L" map to A..H.
 enum class Shape {

@@ -12,5 +12,5 @@ ShapeSet convertToTargetShapeSet(const ShapeSet& shapes, const ShapeSet& targetS
 // Replaces each shape in each rule with the closest shape that occurs in the target shape set.
 ContinuousTimeline<ShapeRule> convertToTargetShapeSet(const ContinuousTimeline<ShapeRule>& shapeRules, const ShapeSet& targetShapeSet);
 
-// Replaces each shape in the specified timeline with the closest shape that occurs in the target shape set.
-JoiningContinuousTimeline<Shape> convertToTargetShapeSet(const JoiningContinuousTimeline<Shape>& shapes, const ShapeSet& targetShapeSet);
+// Replaces each shape in the specified animation with the closest shape that occurs in the target shape set.
+JoiningContinuousTimeline<Shape> convertToTargetShapeSet(const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet);

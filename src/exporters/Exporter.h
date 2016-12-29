@@ -7,5 +7,5 @@
 class Exporter {
 public:
 	virtual ~Exporter() {}
-	virtual void exportShapes(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& shapes, const ShapeSet& targetShapeSet, std::ostream& outputStream) = 0;
+	virtual void exportAnimation(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet, std::ostream& outputStream) = 0;
 };

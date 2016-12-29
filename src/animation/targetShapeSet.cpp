@@ -29,9 +29,9 @@ ContinuousTimeline<ShapeRule> convertToTargetShapeSet(const ContinuousTimeline<S
 	return result;
 }
 
-JoiningContinuousTimeline<Shape> convertToTargetShapeSet(const JoiningContinuousTimeline<Shape>& shapes, const ShapeSet& targetShapeSet) {
-	JoiningContinuousTimeline<Shape> result(shapes);
-	for (const auto& timedShape : shapes) {
+JoiningContinuousTimeline<Shape> convertToTargetShapeSet(const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet) {
+	JoiningContinuousTimeline<Shape> result(animation);
+	for (const auto& timedShape : animation) {
 		result.set(timedShape.getTimeRange(), convertToTargetShapeSet(timedShape.getValue(), targetShapeSet));
 	}
 	return result;

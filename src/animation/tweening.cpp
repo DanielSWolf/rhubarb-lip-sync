@@ -1,14 +1,14 @@
 #include "tweening.h"
 #include "animationRules.h"
 
-JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& shapes) {
+JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& animation) {
 	centiseconds minTweenDuration = 4_cs;
 	centiseconds maxTweenDuration = 8_cs;
 
-	JoiningContinuousTimeline<Shape> result(shapes);
+	JoiningContinuousTimeline<Shape> result(animation);
 
-	for (auto first = shapes.begin(), second = std::next(shapes.begin());
-		first != shapes.end() && second != shapes.end();
+	for (auto first = animation.begin(), second = std::next(animation.begin());
+		first != animation.end() && second != animation.end();
 		++first, ++second)
 	{
 		auto pair = getTween(first->getValue(), second->getValue());

@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
-			exporter->exportShapes(inputFilePath, animation, targetShapeSet, std::cout);
+			exporter->exportAnimation(inputFilePath, animation, targetShapeSet, std::cout);
 
 			logging::info("Exiting application normally.");
 		} catch (...) {

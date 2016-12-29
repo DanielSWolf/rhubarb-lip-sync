@@ -12,7 +12,7 @@ using boost::optional;
 // * When speaking, we anticipate vowels, trying to form their shape before the actual vowel.
 //   So whenever we come across a one-shape vowel, we backtrack a little, spreating that shape to the left.
 JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule>& shapeRules) {
-	JoiningContinuousTimeline<Shape> shapes(shapeRules.getRange(), Shape::X);
+	JoiningContinuousTimeline<Shape> animation(shapeRules.getRange(), Shape::X);
 
 	Shape referenceShape = Shape::X;
 	// Animate forwards
@@ -21,7 +21,7 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 		const ShapeRule shapeRule = it->getValue();
 		const ShapeSet shapeSet = std::get<ShapeSet>(shapeRule);
 		const Shape shape = getClosestShape(referenceShape, shapeSet);
-		shapes.set(it->getTimeRange(), shape);
+		animation.set(it->getTimeRange(), shape);
 		const auto phone = std::get<optional<Phone>>(shapeRule);
 		const bool anticipateShape = phone && isVowel(*phone) && shapeSet.size() == 1;
 		if (anticipateShape) {
@@ -41,7 +41,7 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 
 				// Overwrite forward-animated shape with backwards-animated, anticipating shape
 				const Shape anticipatingShape = getClosestShape(referenceShape, std::get<ShapeSet>(reverseIt->getValue()));
-				shapes.set(reverseIt->getTimeRange(), anticipatingShape);
+				animation.set(reverseIt->getTimeRange(), anticipatingShape);
 
 				// Make sure the new, backwards-animated shape still resembles the anticipated shape
 				if (getBasicShape(anticipatingShape) != getBasicShape(anticipatedShape)) break;
@@ -53,5 +53,5 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
 		referenceShape = anticipateShape ? shape : relax(shape);
 	}
 
-	return shapes;
+	return animation;
 }

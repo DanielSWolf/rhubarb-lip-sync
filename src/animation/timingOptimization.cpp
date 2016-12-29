@@ -85,8 +85,8 @@ JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& 
 	return targetShapes;
 }
 
-JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& shapes, TimeRange sourceRange, TimeRange targetRange) {
-	const auto sourceShapes = JoiningContinuousTimeline<Shape>(sourceRange, Shape::X, shapes);
+JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& animation, TimeRange sourceRange, TimeRange targetRange) {
+	const auto sourceShapes = JoiningContinuousTimeline<Shape>(sourceRange, Shape::X, animation);
 	return retime(sourceShapes, targetRange);
 }
 
@@ -96,10 +96,10 @@ enum class MouthState {
 	Open
 };
 
-JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<Shape>& shapes) {
+JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<Shape>& animation) {
 	// Identify segments with idle, closed, and open mouth shapes
-	JoiningContinuousTimeline<MouthState> segments(shapes.getRange(), MouthState::Idle);
-	for (const auto& timedShape : shapes) {
+	JoiningContinuousTimeline<MouthState> segments(animation.getRange(), MouthState::Idle);
+	for (const auto& timedShape : animation) {
 		const Shape shape = timedShape.getValue();
 		const MouthState mouthState = shape == Shape::X ? MouthState::Idle : shape == Shape::A ? MouthState::Closed : MouthState::Open;
 		segments.set(timedShape.getTimeRange(), mouthState);
@@ -112,7 +112,7 @@ JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<
 
 	// Make sure all open and closed segments are long enough to register visually.
 	// We don't care about idle shapes at this point.
-	JoiningContinuousTimeline<Shape> result(shapes.getRange(), Shape::X);
+	JoiningContinuousTimeline<Shape> result(animation.getRange(), Shape::X);
 	// ... we're filling the result timeline from right to left, so `resultStart` points to the earliest shape already written
 	centiseconds resultStart = result.getRange().getEnd();
 	for (auto segmentIt = segments.rbegin(); segmentIt != segments.rend(); ++segmentIt) {
@@ -122,7 +122,7 @@ JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<
 		if (segmentTargetEnd - segmentIt->getStart() >= minSegmentDuration) {
 			// The segment is long enough; we don't have to extend it to the left.
 			const TimeRange targetRange(segmentIt->getStart(), segmentTargetEnd);
-			const auto retimedSegment = retime(shapes, segmentIt->getTimeRange(), targetRange);
+			const auto retimedSegment = retime(animation, segmentIt->getTimeRange(), targetRange);
 			for (const auto& timedShape : retimedSegment) {
 				result.set(timedShape);
 			}
@@ -148,7 +148,7 @@ JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<
 				size_t remainingShortSegmentCount = std::distance(shortSegmentIt, end);
 				const centiseconds segmentDuration = (resultStart - shortSegmentsTargetStart) / remainingShortSegmentCount;
 				const TimeRange segmentTargetRange(resultStart - segmentDuration, resultStart);
-				const auto retimedSegment = retime(shapes, shortSegmentIt->getTimeRange(), segmentTargetRange);
+				const auto retimedSegment = retime(animation, shortSegmentIt->getTimeRange(), segmentTargetRange);
 				for (const auto& timedShape : retimedSegment) {
 					result.set(timedShape);
 				}

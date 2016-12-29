@@ -6,15 +6,15 @@
 using std::string;
 using boost::property_tree::ptree;
 
-void XmlExporter::exportShapes(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& shapes, const ShapeSet& targetShapeSet, std::ostream& outputStream) {
+void XmlExporter::exportAnimation(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet, std::ostream& outputStream) {
 	ptree tree;
 
 	// Add metadata
 	tree.put("rhubarbResult.metadata.soundFile", inputFilePath.string());
-	tree.put("rhubarbResult.metadata.duration", formatDuration(shapes.getRange().getDuration()));
+	tree.put("rhubarbResult.metadata.duration", formatDuration(animation.getRange().getDuration()));
 
 	// Add mouth cues
-	for (auto& timedShape : dummyShapeIfEmpty(shapes, targetShapeSet)) {
+	for (auto& timedShape : dummyShapeIfEmpty(animation, targetShapeSet)) {
 		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", timedShape.getValue());
 		mouthCueElement.put("<xmlattr>.start", formatDuration(timedShape.getStart()));
 		mouthCueElement.put("<xmlattr>.end", formatDuration(timedShape.getEnd()));
