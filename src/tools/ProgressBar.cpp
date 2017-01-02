@@ -5,6 +5,7 @@
 #include <format.h>
 #include <iostream>
 #include <boost/algorithm/clamp.hpp>
+#include <cmath>
 
 using std::string;
 
@@ -62,6 +63,9 @@ ProgressBar::~ProgressBar() {
 void ProgressBar::reportProgress(double value) {
 	// Make sure value is in [0..1] range
 	value = boost::algorithm::clamp(value, 0.0, 1.0);
+	if (std::isnan(value)) {
+		value = 0.0;
+	}
 
 	currentProgress = value;
 }

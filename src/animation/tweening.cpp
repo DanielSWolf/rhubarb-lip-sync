@@ -2,23 +2,20 @@
 #include "animationRules.h"
 
 JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& animation) {
-	centiseconds minTweenDuration = 4_cs;
-	centiseconds maxTweenDuration = 8_cs;
+	const centiseconds minTweenDuration = 4_cs;
+	const centiseconds maxTweenDuration = 8_cs;
 
 	JoiningContinuousTimeline<Shape> result(animation);
 
-	for (auto first = animation.begin(), second = std::next(animation.begin());
-		first != animation.end() && second != animation.end();
-		++first, ++second)
-	{
-		auto pair = getTween(first->getValue(), second->getValue());
-		if (!pair) continue;
+	for_each_adjacent(animation.begin(), animation.end(), [&](const auto& first, const auto& second) {
+		auto pair = getTween(first.getValue(), second.getValue());
+		if (!pair) return;
 
 		Shape tweenShape;
 		TweenTiming tweenTiming;
 		std::tie(tweenShape, tweenTiming) = *pair;
-		TimeRange firstTimeRange = first->getTimeRange();
-		TimeRange secondTimeRange = second->getTimeRange();
+		TimeRange firstTimeRange = first.getTimeRange();
+		TimeRange secondTimeRange = second.getTimeRange();
 
 		centiseconds tweenStart, tweenDuration;
 		switch (tweenTiming) {
@@ -39,10 +36,10 @@ JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Sh
 		}
 		}
 
-		if (tweenDuration < minTweenDuration) continue;
+		if (tweenDuration < minTweenDuration) return;
 
 		result.set(tweenStart, tweenStart + tweenDuration, tweenShape);
-	}
+	});
 
 	return result;
 }
