@@ -31,11 +31,14 @@ Shape getRepresentativeShape(const JoiningTimeline<Shape>& timeline) {
 	}
 
 	// Select shape with highest total duration within the candidate range
-	const Shape result = std::max_element(
+	const Shape bestShape = std::max_element(
 		candidateShapeWeights.begin(), candidateShapeWeights.end(),
 		[](auto a, auto b) { return a.second < b.second; }
 	)->first;
-	return result;
+
+	// Shapes C and D are similar, but D is more interesting.
+	const bool substituteD = bestShape == Shape::C && candidateShapeWeights[Shape::D] > 0_cs;
+	return substituteD ? Shape::D : bestShape;
 }
 
 struct ShapeReduction {
