@@ -99,7 +99,15 @@ ShapeReduction getNextShapeReduction(const JoiningContinuousTimeline<Shape>& sou
 	const ShapeReduction extendedReduction(sourceShapes,
 		{minReduction.sourceShapes.begin()->getStart(), minReduction.sourceShapes.getRange().getEnd()});
 
-	return extendedReduction.shape == minReduction.shape ? extendedReduction : minReduction;
+	// Determine the shape that might be picked *next* if we choose the shortest-possible candidate range now
+	const ShapeReduction nextReduction(sourceShapes,
+		getNextMinimalCandidateRange(sourceShapes, targetRange, minReduction.sourceShapes.getRange().getStart()));
+
+	const bool minEqualsExtended = minReduction.shape == extendedReduction.shape;
+	const bool extendedIsSpecial = extendedReduction.shape != minReduction.shape
+		&& extendedReduction.shape != nextReduction.shape;
+
+	return minEqualsExtended || extendedIsSpecial ? extendedReduction : minReduction;
 }
 
 // Modifies the timing of the given animation to fit into the specified target time range without jitter.
