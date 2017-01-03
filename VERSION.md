@@ -1,5 +1,15 @@
 # Version history
 
+## Version 1.4.0
+
+* **Preventing long static segments**
+
+  Watch yourself in a mirror saying "He seized his keys." Your lips barely moved, right? That's exactly what would happen in previous versions of Rhubarb Lip-Sync. Only worse: Because there is only one "clenched teeth" mouth shape, the mouth would stay completely static during phrases like this. Rhubarb Lip-Sync 1.4.0 now does what [a professional animator would do](http://animateducated.blogspot.de/2016/10/lip-sync-animation-2.html?showComment=1478861729702#c2940729096183546458): It opens the mouth a bit wider for some syllables, keeping the lips moving. This may be cheating, but it looks much better!
+
+* **Using wide-open mouth shape more often**
+
+  Previous versions used mouth shape D (the wide-open mouth) very sparingly. This release uses it more often, which makes the resulting animation more lively and interesting.
+
 ## Version 1.3.0
 
 * **New, bidirectional animation algorithm**
