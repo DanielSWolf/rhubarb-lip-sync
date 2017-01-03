@@ -10,6 +10,11 @@ TimeRange TimeRange::zero() {
 	return zero;
 }
 
+TimeRange::TimeRange() :
+	start(0_cs),
+	end(0_cs)
+{}
+
 TimeRange::TimeRange(time_type start, time_type end) :
 	start(start),
 	end(end)

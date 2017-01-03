@@ -7,6 +7,7 @@ public:
 
 	static TimeRange zero();
 
+	TimeRange();
 	TimeRange(time_type start, time_type end);
 	TimeRange(const TimeRange&) = default;
 	TimeRange(TimeRange&&) = default;
