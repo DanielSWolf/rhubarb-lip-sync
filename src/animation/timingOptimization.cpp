@@ -19,70 +19,118 @@ string getShapesString(const JoiningContinuousTimeline<Shape>& shapes) {
 	return result;
 }
 
-// Modifies the timing of the given animation to fit into the specified target time range without jitter.
-JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& sourceShapes, TimeRange targetRange) {
-	logTimedEvent("segment", targetRange, getShapesString(sourceShapes));
+Shape getRepresentativeShape(const JoiningTimeline<Shape>& timeline) {
+	if (timeline.empty()) {
+		throw std::invalid_argument("Cannot determine representative shape from empty timeline.");
+	}
 
-	JoiningContinuousTimeline<Shape> targetShapes(targetRange, Shape::X);
-	if (sourceShapes.empty()) return targetShapes;
+	// Collect candidate shapes with weights
+	map<Shape, centiseconds> candidateShapeWeights;
+	for (const auto& timedShape : timeline) {
+		candidateShapeWeights[timedShape.getValue()] += timedShape.getDuration();
+	}
+
+	// Select shape with highest total duration within the candidate range
+	const Shape result = std::max_element(
+		candidateShapeWeights.begin(), candidateShapeWeights.end(),
+		[](auto a, auto b) { return a.second < b.second; }
+	)->first;
+	return result;
+}
+
+struct ShapeReduction {
+	ShapeReduction(const JoiningTimeline<Shape>& sourceShapes) :
+		sourceShapes(sourceShapes),
+		shape(getRepresentativeShape(sourceShapes))
+	{}
+
+	ShapeReduction(const JoiningTimeline<Shape>& sourceShapes, TimeRange candidateRange) :
+		ShapeReduction(JoiningBoundedTimeline<Shape>(candidateRange, sourceShapes))
+	{}
+
+	JoiningTimeline<Shape> sourceShapes;
+	Shape shape;
+};
+
+// Returns a time range of candidate shapes for the next shape to draw.
+// Guaranteed to be non-empty.
+TimeRange getNextMinimalCandidateRange(const JoiningContinuousTimeline<Shape>& sourceShapes, const TimeRange targetRange, const centiseconds writePosition) {
+	if (sourceShapes.empty()) {
+		throw std::invalid_argument("Cannot determine candidate range for empty source timeline.");
+	}
 
 	// Too short, and and we get flickering. Too long, and too many shapes are lost.
 	// Good values turn out to be 5 to 7 cs, with 7 cs sometimes looking just marginally better.
 	const centiseconds minShapeDuration = 7_cs;
 
-	// Animate backwards
-	// ... `targetPosition` points to the earliest target shape already written
-	centiseconds targetPosition = targetRange.getEnd();
-	while (targetPosition > targetRange.getStart()) {
-		// Determine the time range of source shapes competing for the next target shape
-		const centiseconds remainingTargetDuration = targetPosition - targetRange.getStart();
-		const bool canFitOneOrLess = remainingTargetDuration <= minShapeDuration;
-		const bool canFitTwo = remainingTargetDuration >= 2 * minShapeDuration;
-		const centiseconds duration = canFitOneOrLess || canFitTwo ? minShapeDuration : remainingTargetDuration / 2;
-		TimeRange candidateRange(targetPosition - duration, targetPosition);
-		if (targetPosition == targetRange.getEnd()) {
-			// This is the first iteration.
-			// Extend the candidate range to the right in order to consider all source shapes after the target range.
-			candidateRange.setEndIfLater(sourceShapes.getRange().getEnd());
-		}
-		if (candidateRange.getStart() >= sourceShapes.getRange().getEnd()) {
-			// We haven't reached the source range yet.
-			// Extend the candidate range to the left in order to encompass the first (last) source shape.
-			candidateRange.setStart(sourceShapes.rbegin()->getStart());
-		}
+	// If the remaining time can hold more than one shape, but not two: split it evenly
+	const centiseconds remainingTargetDuration = writePosition - targetRange.getStart();
+	const bool canFitOneOrLess = remainingTargetDuration <= minShapeDuration;
+	const bool canFitTwo = remainingTargetDuration >= 2 * minShapeDuration;
+	const centiseconds duration = canFitOneOrLess || canFitTwo ? minShapeDuration : remainingTargetDuration / 2;
 
-		// Collect candidate shapes with weights
-		const BoundedTimeline<Shape> candidateShapes(candidateRange, sourceShapes);
-		map<Shape, centiseconds> candidateShapeWeights;
-		for (const auto& timedShape : candidateShapes) {
-			candidateShapeWeights[timedShape.getValue()] += timedShape.getDuration();
-		}
-
-		// Select shape with highest total duration within the candidate range
-		const Shape targetShape = std::max_element(
-			candidateShapeWeights.begin(), candidateShapeWeights.end(),
-			[](auto a, auto b) { return a.second < b.second; }
-		)->first;
-
-		// Determine how long to display the shape
-		TimeRange targetShapeRange(candidateRange.getStart(), targetPosition);
-		if (targetShape == candidateShapes.begin()->getValue()) {
-			// We've chosen the very first candidate shape. Let's start at the beginning of the shape.
-			targetShapeRange.setStartIfEarlier(candidateShapes.begin()->getStart());
-		}
-		if (targetShapeRange.getStart() <= sourceShapes.getRange().getStart()) {
-			// We've used up the last (first) source shape. Fill the entire remaining target range.
-			targetShapeRange.setStart(targetRange.getStart());
-		}
-		targetShapeRange.trimLeft(targetRange.getStart());
-
-		// Draw shape
-		targetShapes.set(targetShapeRange, targetShape);
-
-		targetPosition = targetShapeRange.getStart();
+	TimeRange candidateRange(writePosition - duration, writePosition);
+	if (writePosition == targetRange.getEnd()) {
+		// This is the first iteration.
+		// Extend the candidate range to the right in order to consider all source shapes after the target range.
+		candidateRange.setEndIfLater(sourceShapes.getRange().getEnd());
+	}
+	if (candidateRange.getStart() >= sourceShapes.getRange().getEnd()) {
+		// We haven't reached the source range yet.
+		// Extend the candidate range to the left in order to encompass the right-most source shape.
+		candidateRange.setStart(sourceShapes.rbegin()->getStart());
+	}
+	if (candidateRange.getEnd() <= sourceShapes.getRange().getStart()) {
+		// We're past the source range. This can happen in corner cases.
+		// Extend the candidate range to the right in order to encompass the left-most source shape
+		candidateRange.setEnd(sourceShapes.begin()->getEnd());
 	}
 
-	return targetShapes;
+	return candidateRange;
+}
+
+ShapeReduction getNextShapeReduction(const JoiningContinuousTimeline<Shape>& sourceShapes, const TimeRange targetRange, centiseconds writePosition) {
+	// Determine the next time range of candidate shapes. Consider two scenarios:
+
+	// ... the shortest-possible candidate range
+	const ShapeReduction minReduction(sourceShapes, getNextMinimalCandidateRange(sourceShapes, targetRange, writePosition));
+
+	// ... a candidate range extended to the left to fully encompass its left-most shape
+	const ShapeReduction extendedReduction(sourceShapes,
+		{minReduction.sourceShapes.begin()->getStart(), minReduction.sourceShapes.getRange().getEnd()});
+
+	return extendedReduction.shape == minReduction.shape ? extendedReduction : minReduction;
+}
+
+// Modifies the timing of the given animation to fit into the specified target time range without jitter.
+JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& sourceShapes, const TimeRange targetRange) {
+	logTimedEvent("segment", targetRange, getShapesString(sourceShapes));
+
+	JoiningContinuousTimeline<Shape> result(targetRange, Shape::X);
+	if (sourceShapes.empty()) return result;
+
+	// Animate backwards
+	centiseconds writePosition = targetRange.getEnd();
+	while (writePosition > targetRange.getStart()) {
+
+		// Decide which shape to show next, possibly discarding short shapes
+		const ShapeReduction shapeReduction = getNextShapeReduction(sourceShapes, targetRange, writePosition);
+
+		// Determine how long to display the shape
+		TimeRange targetShapeRange(shapeReduction.sourceShapes.getRange());
+		if (targetShapeRange.getStart() <= sourceShapes.getRange().getStart()) {
+			// We've used up the left-most source shape. Fill the entire remaining target range.
+			targetShapeRange.setStart(targetRange.getStart());
+		}
+		targetShapeRange.trimRight(writePosition);
+
+		// Draw shape
+		result.set(targetShapeRange, shapeReduction.shape);
+
+		writePosition = targetShapeRange.getStart();
+	}
+
+	return result;
 }
 
 JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& animation, TimeRange sourceRange, TimeRange targetRange) {
