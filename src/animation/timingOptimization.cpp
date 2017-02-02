@@ -131,7 +131,7 @@ JoiningContinuousTimeline<Shape> retime(const JoiningContinuousTimeline<Shape>& 
 		TimeRange targetShapeRange(shapeReduction.sourceShapes.getRange());
 		if (targetShapeRange.getStart() <= sourceShapes.getRange().getStart()) {
 			// We've used up the left-most source shape. Fill the entire remaining target range.
-			targetShapeRange.setStart(targetRange.getStart());
+			targetShapeRange.setStartIfEarlier(targetRange.getStart());
 		}
 		targetShapeRange.trimRight(writePosition);
 
