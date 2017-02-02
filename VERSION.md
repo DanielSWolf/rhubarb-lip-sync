@@ -1,5 +1,9 @@
 # Version history
 
+## Version 1.4.1
+
+* Fixed [issue #6](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/6): Crash with message "Time range start must not be less than end."
+
 ## Version 1.4.0
 
 * **Preventing long static segments**
