@@ -1,5 +1,9 @@
 # Version history
 
+## Version 1.4.2
+
+* Fixed [issue #7](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/7): Incorrect animation before some pauses
+
 ## Version 1.4.1
 
 * Fixed [issue #6](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/6): Crash with message "Time range start must not be less than end."
