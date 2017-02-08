@@ -170,17 +170,17 @@ JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<
 	const centiseconds maxExtensionDuration = 6_cs;
 
 	// Make sure all open and closed segments are long enough to register visually.
-	// We don't care about idle shapes at this point.
 	JoiningContinuousTimeline<Shape> result(animation.getRange(), Shape::X);
 	// ... we're filling the result timeline from right to left, so `resultStart` points to the earliest shape already written
 	centiseconds resultStart = result.getRange().getEnd();
 	for (auto segmentIt = segments.rbegin(); segmentIt != segments.rend(); ++segmentIt) {
+		// We don't care about idle shapes at this point.
 		if (segmentIt->getValue() == MouthState::Idle) continue;
 
-		const centiseconds segmentTargetEnd = std::min(segmentIt->getEnd(), resultStart);
-		if (segmentTargetEnd - segmentIt->getStart() >= minSegmentDuration) {
+		resultStart = std::min(segmentIt->getEnd(), resultStart);
+		if (resultStart - segmentIt->getStart() >= minSegmentDuration) {
 			// The segment is long enough; we don't have to extend it to the left.
-			const TimeRange targetRange(segmentIt->getStart(), segmentTargetEnd);
+			const TimeRange targetRange(segmentIt->getStart(), resultStart);
 			const auto retimedSegment = retime(animation, segmentIt->getTimeRange(), targetRange);
 			for (const auto& timedShape : retimedSegment) {
 				result.set(timedShape);
