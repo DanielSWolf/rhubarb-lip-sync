@@ -1,6 +1,7 @@
 #include "XmlExporter.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/version.hpp>
 #include "exporterTools.h"
 
 using std::string;
@@ -19,6 +20,10 @@ void XmlExporter::exportAnimation(const boost::filesystem::path& inputFilePath, 
 		mouthCueElement.put("<xmlattr>.start", formatDuration(timedShape.getStart()));
 		mouthCueElement.put("<xmlattr>.end", formatDuration(timedShape.getEnd()));
 	}
+
+#ifndef BOOST_VERSION	//present in version.hpp
+        #error "Could not detect Boost version."
+#endif
 
 #if BOOST_VERSION < 105600 // Support legacy syntax
 	using writer_setting = boost::property_tree::xml_writer_settings<char>;
