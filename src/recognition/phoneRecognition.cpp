@@ -336,6 +336,22 @@ JoiningTimeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timelin
 	return noiseSounds;
 }
 
+// Some words have multiple pronunciations, one of which results in better animation than the others.
+// This function returns the optimal pronunciation for a select set of these words.
+string fixPronunciation(const string& word) {
+	const static map<string, string> replacements {
+		{"into(2)", "into"},
+		{"to(2)", "to"},
+		{"to(3)", "to"},
+		{"today(2)", "today"},
+		{"tomorrow(2)", "tomorrow"},
+		{"tonight(2)", "tonight"}
+	};
+
+	const auto pair = replacements.find(word);
+	return pair != replacements.end() ? pair->second : word;
+}
+
 Timeline<Phone> utteranceToPhones(
 	const AudioClip& audioClip,
 	TimeRange utteranceTimeRange,
@@ -384,7 +400,8 @@ Timeline<Phone> utteranceToPhones(
 	// Convert word strings to word IDs using dictionary
 	vector<s3wid_t> wordIds;
 	for (const auto& timedWord : words) {
-		wordIds.push_back(getWordId(timedWord.getValue(), *decoder.dict));
+		const string fixedWord = fixPronunciation(timedWord.getValue());
+		wordIds.push_back(getWordId(fixedWord, *decoder.dict));
 	}
 	if (wordIds.empty()) return {};
 
