@@ -31,39 +31,39 @@ In addition to the six basic mouth shapes, there are three _extended mouth shape
 [cols="1h,2,6"]
 |===
 
-| {A} | image:img/ken-A.png[]
+| {A} | image:img/lisa-A.png[]
 | Closed mouth for the "`P`", "`B`", and "`M`" sounds. This is almost identical to the {X} shape, but there is slight pressure between the lips.
 
-| {B} | image:img/ken-B.png[]
+| {B} | image:img/lisa-B.png[]
 | Slightly open mouth with clenched teeth. This mouth shape is used for most consonants ("`K`", "`S`", "`T`", etc.). It's also used for some vowels such as the "`EE`" sound in b**ee**.
 
-| {C} | image:img/ken-C.png[]
+| {C} | image:img/lisa-C.png[]
 | Open mouth. This mouth shape is used for vowels like "`EH`" as in m**e**n, "`AH`" as in s**u**n, and "`EY`" as in s**a**y. It's also used for some consonants, depending on context.
 
 This shape is also used as an in-between when animating from {A} or {B} to {D}. So make sure the animations {A}{C}{D} and {B}{C}{D} look smooth!
 
-| {D} | image:img/ken-D.png[]
+| {D} | image:img/lisa-D.png[]
 | Wide open mouth. This mouth shapes is used for vowels like "`AA`" as in f**a**ther, "`AE`" as in b**a**t, and "`AY`" as in wh**y**.
 
-| {E} | image:img/ken-E.png[]
+| {E} | image:img/lisa-E.png[]
 | Slightly rounded mouth. This mouth shape is used for vowels like "`AO`" as in **o**ff.
 
 This shape is also used as an in-between when animating from {C} or {D} to {F}. Make sure the mouth isn't wider open than for {C}. Both {C}{E}{F} and {D}{E}{F} should result in smooth animation.
 
-| {F} | image:img/ken-F.png[]
+| {F} | image:img/lisa-F.png[]
 | Puckered lips. This mouth shape is used for "`UW`" as in y**ou**, "`OY`" as in b**o**y, and "`W`" as in **w**ay.
 
-| {G} | image:img/ken-G.png[]
+| {G} | image:img/lisa-G.png[]
 | Upper teeth touching the lower lip for the "`F`" and "`V`" sounds. Don't overdo it: It shouldn't look as if your character were actually biting on their lower lip.
 
 *This extended mouth shape is optional.* If your art style is detailed enough, it greatly improves the overall look of the animation. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 
-| {H} | image:img/ken-H.png[]
+| {H} | image:img/lisa-H.png[]
 | This shape should identical to {C}, except for the tongue showing. It is used for the "`L`" sound, so the tongue should touch behind the upper teeth.
 
 *This extended mouth shape is optional.* Depending on your art style and the angle of the head, the tongue may not be visible at all. In this case, there is no point in drawing this extra shape. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 
-| {X} | image:img/ken-X.png[]
+| {X} | image:img/lisa-X.png[]
 | Idle position. This mouth shape is used for pauses in speech. This should be the same mouth drawing you use when your character is walking around without talking. It is almost identical to {A}, but without the pressure between the lips: For {X}, the lips should be closed but relaxed.
 
 *This extended mouth shape is optional.* Whether there should be any visible difference between the rest position {X} and the closed talking mouth {A} depends on your art style and personal taste. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
