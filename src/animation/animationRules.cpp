@@ -122,7 +122,7 @@ Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds
 	case Phone::EY:			return diphthong({C}, {B});
 	case Phone::AY:			return duration < 20_cs ? diphthong({C}, {B}) : diphthong({D}, {B});
 	case Phone::OW:			return single({F});
-	case Phone::AW:			return duration < 30_cs ? diphthong({C}, {F}) : diphthong({D}, {F});
+	case Phone::AW:			return duration < 30_cs ? diphthong({C}, {E}) : diphthong({D}, {E});
 	case Phone::OY:			return diphthong({E}, {B});
 	case Phone::ER:			return duration < 7_cs ? like(Phone::Schwa) : single({E});
 
