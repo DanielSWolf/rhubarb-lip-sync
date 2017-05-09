@@ -1,5 +1,11 @@
 # Version history
 
+## Version 1.5.0
+
+* Improved animation rules for ER and AW sounds
+* Optimized animation for words containing "to"
+* Fixed [issue #9](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/9): Fails to compile with Boost 1.56.0+
+
 ## Version 1.4.2
 
 * Fixed [issue #7](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/7): Incorrect animation before some pauses
