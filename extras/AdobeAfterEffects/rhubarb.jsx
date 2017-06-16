@@ -139,6 +139,31 @@ function createDialogWindow() {
 		cancelButton: window.buttons.cancel
 	};
 	
+	// Align controls
+	window.onShow = function() {
+		// Give uniform width to all labels
+		var groups = toArray(window.settings.children);
+		var labelWidths = groups.map(function(group) { return group.children[0].size.width; });
+		var maxLabelWidth = Math.max.apply(Math, labelWidths);
+		groups.forEach(function (group) {
+			group.children[0].size.width = maxLabelWidth;
+		});
+
+		// Give uniform width to inputs
+		var valueWidths = groups.map(function(group) {
+			return last(group.children).bounds.right - group.children[1].bounds.left;
+		});
+		var maxValueWidth = Math.max.apply(Math, valueWidths);
+		groups.forEach(function (group) {
+			var multipleControls = group.children.length > 2;
+			if (!multipleControls) {
+				group.children[1].size.width = maxValueWidth;
+			}
+		});
+
+		window.layout.layout(true);
+	};
+
 	// Handle animation
 	controls.animateButton.onClick = function() {
 		// TODO: validate
