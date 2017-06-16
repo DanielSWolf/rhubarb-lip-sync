@@ -47,6 +47,47 @@ function toArrayBase1(list) {
 	return result;
 }
 
+// Checks whether scripts are allowed to write files by creating and deleting a dummy file
+function canWriteFiles() {
+	try {
+		var file = new File();
+		file.open('w');
+		file.writeln('');
+		file.close();
+		file.remove();
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
+
+// On Windows, this is C:\ProgramData
+var settingsFilePath = Folder.appData.fullName + '/rhubarb-ae-settings.json';
+
+function readSettingsFile() {
+	var file = new File(settingsFilePath);
+	try {
+		file.open('r');
+		return JSON.parse(file.read());
+	} catch (e) {
+		return {};
+	} finally {
+		file.close();
+	}
+}
+
+function writeSettingsFile(settings) {
+	try {
+		var file = new File(settingsFilePath);
+		file.open('w');
+		file.write(JSON.stringify(settings, null, 2));
+	} catch (e) {
+		alert('Error persisting settings. ' + e.message);
+	} finally {
+		file.close();
+	}
+}
+
 // ExtendScript's resource strings are a pain to write.
 // This function allows them to be written in JSON notation, then converts them into the required
 // format.
@@ -225,6 +266,18 @@ function createDialogWindow() {
 		listItem.projectItem = projectFolder;
 	});
 
+	// Load persisted settings
+	var settings = readSettingsFile();
+	selectByTextOrFirst(controls.audioFile, settings.audioFile);
+	controls.dialogText.text = settings.dialogText || '';
+	selectByTextOrFirst(controls.mouthComp, settings.mouthComp);
+	controls.mouthShapeG.value = settings.extendedMouthShapes.g;
+	controls.mouthShapeH.value = settings.extendedMouthShapes.h;
+	controls.mouthShapeX.value = settings.extendedMouthShapes.x;
+	selectByTextOrFirst(controls.targetFolder, settings.targetFolder);
+	controls.frameRate.text = settings.frameRate || '';
+	controls.autoFrameRate.value = settings.autoFrameRate;
+
 	// Align controls
 	window.onShow = function() {
 		// Give uniform width to all labels
@@ -271,6 +324,22 @@ function createDialogWindow() {
 					controls.frameRate.text = sanitizedFrameRate;
 				}
 			}
+			
+			// Store settings
+			var settings = {
+				audioFile: (controls.audioFile.selection || {}).text,
+				dialogText: controls.dialogText.text,
+				mouthComp: (controls.mouthComp.selection || {}).text,
+				extendedMouthShapes: {
+					g: controls.mouthShapeG.value,
+					h: controls.mouthShapeH.value,
+					x: controls.mouthShapeX.value
+				},
+				targetFolder: (controls.targetFolder.selection || {}).text,
+				frameRate: Number(controls.frameRate.text),
+				autoFrameRate: controls.autoFrameRate.value
+			};
+			writeSettingsFile(settings);
 		} finally {
 			updating = false;
 		}
@@ -278,7 +347,13 @@ function createDialogWindow() {
 
 	// Handle changes
 	update();
+	controls.audioFile.onChange = update;
+	controls.dialogText.onChanging = update;
 	controls.mouthComp.onChange = update;
+	controls.mouthShapeG.onClick = update;
+	controls.mouthShapeH.onClick = update;
+	controls.mouthShapeX.onClick = update;
+	controls.targetFolder.onChange = update;
 	controls.frameRate.onChanging = update;
 	controls.autoFrameRate.onClick = update;
 	
@@ -299,4 +374,16 @@ function createDialogWindow() {
 	return window;
 }
 
-createDialogWindow().show();
+function checkPreconditions() {
+	if (!canWriteFiles()) {
+		Window.alert('This script requires file system access.\n\n'
+			+ 'Please enable Preferences > General > Allow Scripts to Write Files and Access Network.',
+			'Rhubarb Lip-Sync', true);
+		return false;
+	}
+	return true;
+}
+
+if (checkPreconditions()) {
+	createDialogWindow().show();
+}
