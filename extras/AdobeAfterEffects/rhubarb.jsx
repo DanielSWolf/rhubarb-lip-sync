@@ -455,6 +455,23 @@ function createDialogWindow() {
 				return '';
 			}
 		}
+	
+		// Check for correct Rhubarb version
+		var version = system.callSystem('rhubarb --version') || '';
+		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+))/);
+		if (!match) {
+			var isWindows = (system.osName || $.os).match(/windows/i);
+			return 'Cannot find executable file "' + (isWindows ? 'rhubarb.exe' : 'rhubarb') + '". '
+				+ 'Make sure your PATH environment variable contains the Rhubarb Lip-Sync '
+				+ 'application directory.';
+		}
+		var versionString = match[1];
+		var major = Number(match[2]);
+		var minor = Number(match[3]);
+		if (major != 1 || minor < 3) {
+			return 'This script requires Rhubarb Lip-Sync 1.3.0 or a later 1.x version. '
+				'Your installed version is ' + versionString + ', which is not compatible.';
+		}
 	}
 
 	// Handle changes
@@ -474,12 +491,12 @@ function createDialogWindow() {
 		var validationError = validate();
 		if (typeof validationError === 'string') {
 			if (validationError) {
-				Window.alert(validationError, 'Invalid input', true);
+				Window.alert(validationError, 'Rhubarb Lip-Sync', true);
 			}
 		} else {
 			app.beginUndoGroup('Rhubarb Lip-Sync: Animation');
 			window.close();
-			// TODO: animate
+			
 			app.endUndoGroup();
 		}
 	};
