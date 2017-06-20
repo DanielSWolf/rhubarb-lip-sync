@@ -67,6 +67,26 @@ function canWriteFiles() {
 	}
 }
 
+function frameToTime(compItem, frameNumber) {
+	return frameNumber * compItem.frameDuration;
+}
+
+// We'll add this to frame numbers to prevent rounding errors
+var epsilon = 0.01;
+
+function isFrameVisible(compItem, frameNumber) {
+	if (!compItem) return false;
+	
+	var time = frameToTime(compItem, frameNumber + epsilon);
+	var videoLayers = toArrayBase1(compItem.layers).filter(function(layer) {
+		return  layer.hasVideo;
+	});
+	var result = videoLayers.find(function(layer) {
+		return layer.activeAtTime(time);
+	});
+	return Boolean(result);
+}
+
 // On Windows, this is C:\ProgramData
 var settingsFilePath = Folder.appData.fullName + '/rhubarb-ae-settings.json';
 
@@ -171,6 +191,7 @@ function getWaveFileProjectItems() {
 
 var mouthShapeNames = 'ABCDEFGHX'.split('');
 var basicMouthShapeCount = 6;
+var mouthShapeCount = mouthShapeNames.length;
 var basicMouthShapeNames = mouthShapeNames.slice(0, basicMouthShapeCount);
 var extendedMouthShapeNames = mouthShapeNames.slice(basicMouthShapeCount);
 
@@ -395,6 +416,47 @@ function createDialogWindow() {
 		}
 	}
 
+	// Validate user input. Possible return values:
+	// * Non-empty string: Validation failed. Show error message.
+	// * Empty string: Validation failed. Don't show error message.
+	// * Undefined: Validation succeeded.
+	function validate() {
+		// Check input values
+		if (!controls.audioFile.selection) return 'Please select an audio file.';
+		if (!controls.mouthComp.selection) return 'Please select a mouth composition.';
+		if (!controls.targetFolder.selection) return 'Please select a target folder.';
+		if (Number(controls.frameRate.text) < 12) {
+			return 'Please enter a frame rate of at least 12 fps.';
+		}
+		
+		// Check mouth shape visibility
+		var comp = controls.mouthComp.selection.projectItem;
+		for (var i = 0; i < mouthShapeCount; i++) {
+			var shapeName = mouthShapeNames[i];
+			var required = i < basicMouthShapeCount || controls['mouthShape' + shapeName].value;
+			if (required && !isFrameVisible(comp, i)) {
+				return 'The mouth comp does not seem to contain an image for shape '
+					+ shapeName + ' at frame ' + i + '.';
+			}
+		}
+		
+		if (!comp.preserveNestedFrameRate) {
+			var fix = Window.confirm(
+				'The setting "Preserve frame rate when nested or in render queue" is not active '
+					+ 'for the mouth composition. This can result in incorrect animation.\n\n'
+					+ 'Activate this setting now?',
+				false,
+				'Fix composition setting?');
+			if (fix) {
+				app.beginUndoGroup('Rhubarb Lip-Sync: Mouth composition setting');
+				comp.preserveNestedFrameRate = true;
+				app.endUndoGroup();
+			} else {
+				return '';
+			}
+		}
+	}
+
 	// Handle changes
 	update();
 	controls.audioFile.onChange = update;
@@ -409,11 +471,17 @@ function createDialogWindow() {
 	
 	// Handle animation
 	controls.animateButton.onClick = function() {
-		// TODO: validate
-		app.beginUndoGroup('Rhubarb Lip-Sync');
-		window.close();
-		// TODO: animate
-		app.endUndoGroup();
+		var validationError = validate();
+		if (typeof validationError === 'string') {
+			if (validationError) {
+				Window.alert(validationError, 'Invalid input', true);
+			}
+		} else {
+			app.beginUndoGroup('Rhubarb Lip-Sync: Animation');
+			window.close();
+			// TODO: animate
+			app.endUndoGroup();
+		}
 	};
 	
 	// Handle cancelation
