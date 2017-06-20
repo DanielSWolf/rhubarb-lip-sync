@@ -179,34 +179,71 @@ function createDialogWindow() {
 							// with keyboard focus, so I can't type in the text edit field below.
 							active: true
 						}),
-						value: DropDownList()
+						value: DropDownList({
+							helpTip: 'An audio file containing recorded dialog.\n'
+								+ 'This field shows all audio files of type .wav that exist in '
+								+ 'your After Effects project.'
+						})
 					}),
 					dialogText: Group({
 						label: StaticText({ text: 'Dialog text (optional):' }),
 						value: EditText({
 							properties: { multiline: true },
 							characters: 60,
-							minimumSize: [0, 100]
+							minimumSize: [0, 100],
+							helpTip: 'For better animation results, you can specify the text of '
+								+ 'the recording here. This field is optional.'
 						})
 					}),
 					mouthComp: Group({
 						label: StaticText({ text: 'Mouth composition:' }),
-						value: DropDownList({})
+						value: DropDownList({
+							helpTip: 'A composition containing the mouth shapes, one drawing per '
+								+ 'frame. They must be arranged as follows:\n'
+								+ '00:00\tA\n'
+								+ '00:01\tB\n'
+								+ '00:02\tC\n'
+								+ '00:03\tD\n'
+								+ '00:04\tE\n'
+								+ '00:05\tF\n'
+								+ '00:06\tG (optional)\n'
+								+ '00:07\tH (optional)\n'
+								+ '00:08\tX (optional)'
+						})
 					}),
 					extendedMouthShapes: Group({
 						label: StaticText({ text: 'Extended mouth shapes:' }),
-						g: Checkbox({ text: 'G' }),
-						h: Checkbox({ text: 'H' }),
-						x: Checkbox({ text: 'X' }),
+						g: Checkbox({
+							text: 'G',
+							helpTip: 'Controls whether to use the optional G shape.'
+						}),
+						h: Checkbox({
+							text: 'H',
+							helpTip: 'Controls whether to use the optional H shape.'
+						}),
+						x: Checkbox({
+							text: 'X',
+							helpTip: 'Controls whether to use the optional X shape.'
+						}),
 					}),
 					targetFolder: Group({
 						label: StaticText({ text: 'Target folder:' }),
-						value: DropDownList({})
+						value: DropDownList({
+							helpTip: 'The project folder in which to create the animation '
+								+ 'composition. The composition will be named like the audio file.'
+						})
 					}),
 					frameRate: Group({
 						label: StaticText({ text: 'Frame rate:' }),
-						value: EditText({ characters: 8 }),
-						auto: Checkbox({ text: 'From mouth composition' })
+						value: EditText({
+							characters: 8,
+							helpTip: 'The frame rate for the animation.'
+						}),
+						auto: Checkbox({
+							text: 'From mouth composition',
+							helpTip: 'If checked, the animation will use the same frame rate as '
+								+ 'the mouth composition.'
+						})
 					})
 				}),
 				separator: Group({ preferredSize: ['', 3] }),
