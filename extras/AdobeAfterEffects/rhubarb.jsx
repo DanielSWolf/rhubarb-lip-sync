@@ -47,6 +47,12 @@ function toArrayBase1(list) {
 	return result;
 }
 
+function pad(n, width, z) {
+	z = z || '0';
+	n = String(n);
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
 // Checks whether scripts are allowed to write files by creating and deleting a dummy file
 function canWriteFiles() {
 	try {
@@ -163,6 +169,32 @@ function getWaveFileProjectItems() {
 	return result;
 }
 
+var mouthShapeNames = 'ABCDEFGHX'.split('');
+var basicMouthShapeCount = 6;
+var basicMouthShapeNames = mouthShapeNames.slice(0, basicMouthShapeCount);
+var extendedMouthShapeNames = mouthShapeNames.slice(basicMouthShapeCount);
+
+function getMouthCompHelpTip() {
+	var result = 'A composition containing the mouth shapes, one drawing per frame. They must be '
+		+ 'arranged as follows:\n';
+	mouthShapeNames.forEach(function(mouthShapeName, i) {
+		var isOptional = i >= basicMouthShapeCount;
+		result += '\n00:' + pad(i, 2) + '\t' + mouthShapeName + (isOptional ? ' (optional)' : '');
+	});
+	return result;
+}
+
+function createExtendedShapeCheckboxes() {
+	var result = {};
+	extendedMouthShapeNames.forEach(function(shapeName) {
+		result[shapeName.toLowerCase()] = controlFunctions.Checkbox({
+			text: shapeName,
+			helpTip: 'Controls whether to use the optional ' + shapeName + ' shape.'
+		});
+	});
+	return result;
+}
+
 function createDialogWindow() {
 	var resourceString;
 	with (controlFunctions) {
@@ -197,35 +229,14 @@ function createDialogWindow() {
 					}),
 					mouthComp: Group({
 						label: StaticText({ text: 'Mouth composition:' }),
-						value: DropDownList({
-							helpTip: 'A composition containing the mouth shapes, one drawing per '
-								+ 'frame. They must be arranged as follows:\n'
-								+ '00:00\tA\n'
-								+ '00:01\tB\n'
-								+ '00:02\tC\n'
-								+ '00:03\tD\n'
-								+ '00:04\tE\n'
-								+ '00:05\tF\n'
-								+ '00:06\tG (optional)\n'
-								+ '00:07\tH (optional)\n'
-								+ '00:08\tX (optional)'
-						})
+						value: DropDownList({ helpTip: getMouthCompHelpTip() })
 					}),
-					extendedMouthShapes: Group({
-						label: StaticText({ text: 'Extended mouth shapes:' }),
-						g: Checkbox({
-							text: 'G',
-							helpTip: 'Controls whether to use the optional G shape.'
-						}),
-						h: Checkbox({
-							text: 'H',
-							helpTip: 'Controls whether to use the optional H shape.'
-						}),
-						x: Checkbox({
-							text: 'X',
-							helpTip: 'Controls whether to use the optional X shape.'
-						}),
-					}),
+					extendedMouthShapes: Group(
+						Object.assign(
+							{ label: StaticText({ text: 'Extended mouth shapes:' }) },
+							createExtendedShapeCheckboxes()
+						)
+					),
 					targetFolder: Group({
 						label: StaticText({ text: 'Target folder:' }),
 						value: DropDownList({
@@ -268,15 +279,16 @@ function createDialogWindow() {
 		audioFile: window.settings.audioFile.value,
 		dialogText: window.settings.dialogText.value,
 		mouthComp: window.settings.mouthComp.value,
-		mouthShapeG: window.settings.extendedMouthShapes.g,
-		mouthShapeH: window.settings.extendedMouthShapes.h,
-		mouthShapeX: window.settings.extendedMouthShapes.x,
 		targetFolder: window.settings.targetFolder.value,
 		frameRate: window.settings.frameRate.value,
 		autoFrameRate: window.settings.frameRate.auto,
 		animateButton: window.buttons.animate,
 		cancelButton: window.buttons.cancel
 	};
+	extendedMouthShapeNames.forEach(function(shapeName) {
+		controls['mouthShape' + shapeName] =
+			window.settings.extendedMouthShapes[shapeName.toLowerCase()];
+	});
 	
 	// Add audio file options
 	getWaveFileProjectItems().forEach(function(projectItem) {
@@ -308,9 +320,10 @@ function createDialogWindow() {
 	selectByTextOrFirst(controls.audioFile, settings.audioFile);
 	controls.dialogText.text = settings.dialogText || '';
 	selectByTextOrFirst(controls.mouthComp, settings.mouthComp);
-	controls.mouthShapeG.value = settings.extendedMouthShapes.g;
-	controls.mouthShapeH.value = settings.extendedMouthShapes.h;
-	controls.mouthShapeX.value = settings.extendedMouthShapes.x;
+	extendedMouthShapeNames.forEach(function(shapeName) {
+		controls['mouthShape' + shapeName].value =
+			settings.extendedMouthShapes[shapeName.toLowerCase()];
+	});
 	selectByTextOrFirst(controls.targetFolder, settings.targetFolder);
 	controls.frameRate.text = settings.frameRate || '';
 	controls.autoFrameRate.value = settings.autoFrameRate;
@@ -367,15 +380,15 @@ function createDialogWindow() {
 				audioFile: (controls.audioFile.selection || {}).text,
 				dialogText: controls.dialogText.text,
 				mouthComp: (controls.mouthComp.selection || {}).text,
-				extendedMouthShapes: {
-					g: controls.mouthShapeG.value,
-					h: controls.mouthShapeH.value,
-					x: controls.mouthShapeX.value
-				},
+				extendedMouthShapes: {},
 				targetFolder: (controls.targetFolder.selection || {}).text,
 				frameRate: Number(controls.frameRate.text),
 				autoFrameRate: controls.autoFrameRate.value
 			};
+			extendedMouthShapeNames.forEach(function(shapeName) {
+				settings.extendedMouthShapes[shapeName.toLowerCase()] =
+					controls['mouthShape' + shapeName].value;
+			});
 			writeSettingsFile(settings);
 		} finally {
 			updating = false;
@@ -387,9 +400,9 @@ function createDialogWindow() {
 	controls.audioFile.onChange = update;
 	controls.dialogText.onChanging = update;
 	controls.mouthComp.onChange = update;
-	controls.mouthShapeG.onClick = update;
-	controls.mouthShapeH.onClick = update;
-	controls.mouthShapeX.onClick = update;
+	extendedMouthShapeNames.forEach(function(shapeName) {
+		controls['mouthShape' + shapeName].onClick = update;
+	});
 	controls.targetFolder.onChange = update;
 	controls.frameRate.onChanging = update;
 	controls.autoFrameRate.onClick = update;
