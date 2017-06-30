@@ -22,6 +22,15 @@ Array.prototype.forEach||(Array.prototype.forEach=function(a,b){var c,d;if(null=
 // Polyfill for Array.prototype.includes
 Array.prototype.includes||(Array.prototype.includes=function(r,t){if(null==this)throw new TypeError('"this" is null or not defined');var e=Object(this),n=e.length>>>0;if(0===n)return!1;for(var i=0|t,o=Math.max(i>=0?i:n-Math.abs(i),0);o<n;){if(function(r,t){return r===t||"number"==typeof r&&"number"==typeof t&&isNaN(r)&&isNaN(t)}(e[o],r))return!0;o++}return!1});
 
+// Polyfill for Array.prototype.indexOf
+Array.prototype.indexOf||(Array.prototype.indexOf=function(r,t){var n;if(null==this)throw new TypeError('"this" is null or not defined');var e=Object(this),i=e.length>>>0;if(0===i)return-1;var o=0|t;if(o>=i)return-1;for(n=Math.max(o>=0?o:i-Math.abs(o),0);n<i;){if(n in e&&e[n]===r)return n;n++}return-1});
+
+// Polyfill for Array.prototype.some
+Array.prototype.some||(Array.prototype.some=function(r){"use strict";if(null==this)throw new TypeError("Array.prototype.some called on null or undefined");if("function"!=typeof r)throw new TypeError;for(var e=Object(this),o=e.length>>>0,t=arguments.length>=2?arguments[1]:void 0,n=0;n<o;n++)if(n in e&&r.call(t,e[n],n,e))return!0;return!1});
+
+// Polyfill for String.prototype.trim
+String.prototype.trim||(String.prototype.trim=function(){return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,"")});
+
 // Polyfill for JSON
 "object"!=typeof JSON&&(JSON={}),function(){"use strict";function f(a){return a<10?"0"+a:a}function this_value(){return this.valueOf()}function quote(a){return rx_escapable.lastIndex=0,rx_escapable.test(a)?'"'+a.replace(rx_escapable,function(a){var b=meta[a];return"string"==typeof b?b:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function str(a,b){var c,d,e,f,h,g=gap,i=b[a];switch(i&&"object"==typeof i&&"function"==typeof i.toJSON&&(i=i.toJSON(a)),"function"==typeof rep&&(i=rep.call(b,a,i)),typeof i){case"string":return quote(i);case"number":return isFinite(i)?String(i):"null";case"boolean":case"null":return String(i);case"object":if(!i)return"null";if(gap+=indent,h=[],"[object Array]"===Object.prototype.toString.apply(i)){for(f=i.length,c=0;c<f;c+=1)h[c]=str(c,i)||"null";return e=0===h.length?"[]":gap?"[\n"+gap+h.join(",\n"+gap)+"\n"+g+"]":"["+h.join(",")+"]",gap=g,e}if(rep&&"object"==typeof rep)for(f=rep.length,c=0;c<f;c+=1)"string"==typeof rep[c]&&(d=rep[c],(e=str(d,i))&&h.push(quote(d)+(gap?": ":":")+e));else for(d in i)Object.prototype.hasOwnProperty.call(i,d)&&(e=str(d,i))&&h.push(quote(d)+(gap?": ":":")+e);return e=0===h.length?"{}":gap?"{\n"+gap+h.join(",\n"+gap)+"\n"+g+"}":"{"+h.join(",")+"}",gap=g,e}}var rx_one=/^[\],:{}\s]*$/,rx_two=/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,rx_three=/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,rx_four=/(?:^|:|,)(?:\s*\[)+/g,rx_escapable=/[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,rx_dangerous=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;"function"!=typeof Date.prototype.toJSON&&(Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+f(this.getUTCMonth()+1)+"-"+f(this.getUTCDate())+"T"+f(this.getUTCHours())+":"+f(this.getUTCMinutes())+":"+f(this.getUTCSeconds())+"Z":null},Boolean.prototype.toJSON=this_value,Number.prototype.toJSON=this_value,String.prototype.toJSON=this_value);var gap,indent,meta,rep;"function"!=typeof JSON.stringify&&(meta={"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},JSON.stringify=function(a,b,c){var d;if(gap="",indent="","number"==typeof c)for(d=0;d<c;d+=1)indent+=" ";else"string"==typeof c&&(indent=c);if(rep=b,b&&"function"!=typeof b&&("object"!=typeof b||"number"!=typeof b.length))throw new Error("JSON.stringify");return str("",{"":a})}),"function"!=typeof JSON.parse&&(JSON.parse=function(text,reviver){function walk(a,b){var c,d,e=a[b];if(e&&"object"==typeof e)for(c in e)Object.prototype.hasOwnProperty.call(e,c)&&(d=walk(e,c),void 0!==d?e[c]=d:delete e[c]);return reviver.call(a,b,e)}var j;if(text=String(text),rx_dangerous.lastIndex=0,rx_dangerous.test(text)&&(text=text.replace(rx_dangerous,function(a){return"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})),rx_one.test(text.replace(rx_two,"@").replace(rx_three,"]").replace(rx_four,"")))return j=eval("("+text+")"),"function"==typeof reviver?walk({"":j},""):j;throw new SyntaxError("JSON.parse")})}();
 
@@ -29,7 +38,13 @@ function last(array) {
 	return array[array.length - 1];
 }
 
-function identity(x) { return x; }
+function createGuid() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0;
+		var v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
 
 function toArray(list) {
 	var result = [];
@@ -67,17 +82,21 @@ function canWriteFiles() {
 	}
 }
 
-function frameToTime(compItem, frameNumber) {
+function frameToTime(frameNumber, compItem) {
 	return frameNumber * compItem.frameDuration;
 }
 
-// We'll add this to frame numbers to prevent rounding errors
-var epsilon = 0.01;
+function timeToFrame(time, compItem) {
+	return time * compItem.frameRate;
+}
+
+// To prevent rounding errors
+var epsilon = 0.001;
 
 function isFrameVisible(compItem, frameNumber) {
 	if (!compItem) return false;
 	
-	var time = frameToTime(compItem, frameNumber + epsilon);
+	var time = frameToTime(frameNumber + epsilon, compItem);
 	var videoLayers = toArrayBase1(compItem.layers).filter(function(layer) {
 		return  layer.hasVideo;
 	});
@@ -90,28 +109,62 @@ function isFrameVisible(compItem, frameNumber) {
 // On Windows, this is C:\ProgramData
 var settingsFilePath = Folder.appData.fullName + '/rhubarb-ae-settings.json';
 
-function readSettingsFile() {
-	var file = new File(settingsFilePath);
+function readTextFile(fileOrPath) {
+	var filePath = fileOrPath.fsName || fileOrPath;
+	var file = new File(filePath);
+	function check() {
+		if (file.error) throw new Error('Error reading file "' + filePath + '": ' + file.error);
+	}
 	try {
-		file.open('r');
-		return JSON.parse(file.read());
+		file.open('r'); check();
+		file.encoding = 'UTF-8'; check();
+		var result = file.read(); check();
+		return result;
+	} finally {
+		file.close(); check();
+	}
+}
+
+function writeTextFile(fileOrPath, text) {
+	var filePath = fileOrPath.fsName || fileOrPath;
+	var file = new File(filePath);
+	function check() {
+		if (file.error) throw new Error('Error writing file "' + filePath + '": ' + file.error);
+	}
+	try {
+		file.open('w'); check();
+		file.encoding = 'UTF-8'; check();
+		file.write(text); check();
+	} finally {
+		file.close(); check();
+	}
+}
+
+function readSettingsFile() {
+	try {
+		return JSON.parse(readTextFile(settingsFilePath));
 	} catch (e) {
 		return {};
-	} finally {
-		file.close();
 	}
 }
 
 function writeSettingsFile(settings) {
 	try {
-		var file = new File(settingsFilePath);
-		file.open('w');
-		file.write(JSON.stringify(settings, null, 2));
+		writeTextFile(settingsFilePath, JSON.stringify(settings, null, 2));
 	} catch (e) {
 		alert('Error persisting settings. ' + e.message);
-	} finally {
-		file.close();
 	}
+}
+
+function exec(command, options) {
+	var showWindow = (options || {}).showWindow;
+	var osIsWindows = (system.osName || $.os).match(/windows/i);
+	
+	// On Windows, calling a console application directly will hide the console window. Calling it
+	// through cmd.exe will show it.
+	// I don't know whether there's something similar for OS X. I only own the Windows version of
+	// After Effects.
+	return system.callSystem(showWindow && osIsWindows ? 'cmd /C "' + command + '"' : command);
 }
 
 // ExtendScript's resource strings are a pain to write.
@@ -457,7 +510,7 @@ function createDialogWindow() {
 		}
 	
 		// Check for correct Rhubarb version
-		var version = system.callSystem('rhubarb --version') || '';
+		var version = exec('rhubarb --version', { showWindow: false }) || '';
 		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+))/);
 		if (!match) {
 			var isWindows = (system.osName || $.os).match(/windows/i);
@@ -468,9 +521,125 @@ function createDialogWindow() {
 		var versionString = match[1];
 		var major = Number(match[2]);
 		var minor = Number(match[3]);
-		if (major != 1 || minor < 3) {
-			return 'This script requires Rhubarb Lip-Sync 1.3.0 or a later 1.x version. '
+		if (major != 1 || minor < 6) {
+			return 'This script requires Rhubarb Lip-Sync 1.6.0 or a later 1.x version. '
 				'Your installed version is ' + versionString + ', which is not compatible.';
+		}
+	}
+
+	function generateMouthCues(audioFileFootage, dialogText, mouthComp, extendedMouthShapeNames,
+		targetProjectFolder, frameRate)
+	{
+		var basePath = Folder.temp.fsName + '/' + createGuid();
+		var dialogFile = new File(basePath + '.txt');
+		var logFile = new File(basePath + '.log');
+		var jsonFile = new File(basePath + '.json');
+		try {
+			// Create text file containing dialog
+			writeTextFile(dialogFile, dialogText);
+			
+			// Create command line
+			var commandLine = 'rhubarb'
+				+ ' --dialogFile "' + dialogFile.fsName + '"'
+				+ ' --exportFormat json'
+				+ ' --extendedShapes "' + extendedMouthShapeNames.join('') + '"'
+				+ ' --logFile "' + logFile.fsName + '"'
+				+ ' --logLevel fatal'
+				+ ' --output "' + jsonFile.fsName + '"'
+				+ ' "' + audioFileFootage.file.fsName + '"';
+				
+			// Run Rhubarb
+			exec(commandLine, { showWindow: true });
+			
+			// Check log for fatal errors
+			if (logFile.exists) {
+				var fatalLog = readTextFile(logFile).trim();
+				if (fatalLog) {
+					// Try to extract only the actual error message
+					var match = fatalLog.match(/\[Fatal\] ([\s\S]*)/);
+					var message = match ? match[1] : fatalLog;
+					throw new Error('Error running Rhubarb Lip-Sync.\n' + message);
+				}
+			}
+		
+			var result;
+			try {
+				result = JSON.parse(readTextFile(jsonFile));
+				$.writeln(readTextFile(jsonFile));
+			} catch (e) {
+				throw new Error('No animation result. Animation was probably canceled.');
+			}
+			return result;
+		} finally {
+			dialogFile.remove();
+			logFile.remove();
+			jsonFile.remove();
+		}
+	}
+
+	function animateMouthCues(mouthCues, audioFileFootage, mouthComp, targetProjectFolder,
+		frameRate)
+	{
+		// Find an unconflicting comp name
+		// ... strip extension .wav, if present
+		var baseName = audioFileFootage.name.match(/^(.*?)(\.wav)?$/i)[1];
+		var compName = baseName;
+		// ... add numeric suffix, if needed
+		var existingItems = toArrayBase1(targetProjectFolder.items);
+		var counter = 1;
+		while (existingItems.some(function(item) { return item.name === compName; })) {
+			counter++;
+			compName = baseName + ' ' + counter;
+		}
+	
+		// Create new comp
+		var comp = targetProjectFolder.items.addComp(compName, mouthComp.width, mouthComp.height,
+			mouthComp.pixelAspect, audioFileFootage.duration, frameRate);
+			
+		// Show new comp
+		comp.openInViewer();
+		
+		// Add audio layer
+		comp.layers.add(audioFileFootage);
+		
+		// Add mouth layer
+		var mouthLayer = comp.layers.add(mouthComp);
+		mouthLayer.timeRemapEnabled = true;
+		mouthLayer.outPoint = comp.duration;
+		
+		// Animate mouth layer
+		var timeRemap = mouthLayer['Time Remap'];
+		// Enabling time remapping automatically adds two keys. Remove the second.
+		timeRemap.removeKey(2);
+		mouthCues.mouthCues.forEach(function(mouthCue) {
+			// Round down keyframe time. In animation, earlier is better than later.
+			// Set keyframe time to *just before* the exact frame to prevent rounding errors
+			var frame = Math.floor(timeToFrame(mouthCue.start, comp));
+			var time = frame !== 0 ? frameToTime(frame - epsilon, comp) : 0;
+			// Set remapped time to *just after* the exact frame to prevent rounding errors
+			var mouthCompFrame = mouthShapeNames.indexOf(mouthCue.value);
+			var remappedTime = frameToTime(mouthCompFrame + epsilon, mouthComp);
+			timeRemap.setValueAtTime(time, remappedTime);
+		});
+		for (var i = 1; i <= timeRemap.numKeys; i++) {
+			timeRemap.setInterpolationTypeAtKey(i, KeyframeInterpolationType.HOLD);
+		}
+	}
+
+	function animate(audioFileFootage, dialogText, mouthComp, extendedMouthShapeNames,
+		targetProjectFolder, frameRate)
+	{
+		try {
+			var mouthCues = generateMouthCues(audioFileFootage, dialogText, mouthComp,
+				extendedMouthShapeNames, targetProjectFolder, frameRate);
+
+			app.beginUndoGroup('Rhubarb Lip-Sync: Animation');
+			animateMouthCues(mouthCues, audioFileFootage, mouthComp, targetProjectFolder,
+				frameRate);
+			app.endUndoGroup();
+		} catch (e) {
+			Window.alert(e.message, 'Rhubarb Lip-Sync', true);
+			return;
 		}
 	}
 
@@ -494,10 +663,17 @@ function createDialogWindow() {
 				Window.alert(validationError, 'Rhubarb Lip-Sync', true);
 			}
 		} else {
-			app.beginUndoGroup('Rhubarb Lip-Sync: Animation');
 			window.close();
-			
-			app.endUndoGroup();
+			animate(
+				controls.audioFile.selection.projectItem,
+				controls.dialogText.text || '',
+				controls.mouthComp.selection.projectItem,
+				extendedMouthShapeNames.filter(function(shapeName) {
+					return controls['mouthShape' + shapeName].value;
+				}),
+				controls.targetFolder.selection.projectItem,
+				Number(controls.frameRate.text)
+			);
 		}
 	};
 	
