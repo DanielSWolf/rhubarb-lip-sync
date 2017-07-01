@@ -95,7 +95,7 @@ var epsilon = 0.001;
 
 function isFrameVisible(compItem, frameNumber) {
 	if (!compItem) return false;
-	
+
 	var time = frameToTime(frameNumber + epsilon, compItem);
 	var videoLayers = toArrayBase1(compItem.layers).filter(function(layer) {
 		return  layer.hasVideo;
@@ -106,8 +106,7 @@ function isFrameVisible(compItem, frameNumber) {
 	return Boolean(result);
 }
 
-// On Windows, this is C:\ProgramData
-var settingsFilePath = Folder.appData.fullName + '/rhubarb-ae-settings.json';
+var settingsFilePath = Folder.userData.fullName + '/rhubarb-ae-settings.json';
 
 function readTextFile(fileOrPath) {
 	var filePath = fileOrPath.fsName || fileOrPath;
@@ -156,16 +155,50 @@ function writeSettingsFile(settings) {
 	}
 }
 
-function exec(command, options) {
-	var showWindow = (options || {}).showWindow;
-	var osIsWindows = (system.osName || $.os).match(/windows/i);
-	
-	// On Windows, calling a console application directly will hide the console window. Calling it
-	// through cmd.exe will show it.
-	// I don't know whether there's something similar for OS X. I only own the Windows version of
-	// After Effects.
-	return system.callSystem(showWindow && osIsWindows ? 'cmd /C "' + command + '"' : command);
+var osIsWindows = (system.osName || $.os).match(/windows/i);
+
+// Depending on the operating system, the syntax for escaping command-line arguments differs.
+function cliEscape(argument) {
+	return osIsWindows
+		? '"' + argument + '"'
+		: "'" + argument.replace(/'/g, "'\\''") + "'";
 }
+
+function exec(command) {
+	return system.callSystem(command);
+}
+
+function execInWindow(command) {
+	if (osIsWindows) {
+		system.callSystem('cmd /C "' + command + '"');
+	} else {
+		// I didn't think it could be so complicated on OS X to open a new Terminal window,
+		// execute a command, then close the Terminal window.
+		// If you know a better solution, let me know!
+		var escapedCommand = command.replace(/"/g, '\\"');
+		var appleScript = '\
+			tell application "Terminal" \
+				-- Quit terminal \
+				-- Yes, that\'s undesirable if there was an open window before. \
+				-- But all solutions I could find were at least as hacky. \
+				quit \
+				-- Open terminal \
+				activate \
+				-- Run command in new tab \
+				set newTab to do script ("' + escapedCommand + '") \
+				-- Wait until command is done \
+				tell newTab \
+					repeat while busy \
+						delay 0.1 \
+					end repeat \
+				end tell \
+				quit \
+			end tell';
+		exec('osascript -e ' + cliEscape(appleScript));
+	}
+}
+
+var rhubarbPath = osIsWindows ? 'rhubarb.exe' : '/usr/local/bin/rhubarb';
 
 // ExtendScript's resource strings are a pain to write.
 // This function allows them to be written in JSON notation, then converts them into the required
@@ -208,7 +241,7 @@ function getItemPath(item) {
 	if (item === app.project.rootFolder) {
 		return '/';
 	}
-	
+
 	var result = item.name;
 	while (item.parentFolder !== app.project.rootFolder) {
 		result = item.parentFolder.name + ' / ' + result;
@@ -235,7 +268,7 @@ function getWaveFileProjectItems() {
 	var result = toArrayBase1(app.project.items).filter(function(item) {
 		var isAudioFootage = item instanceof FootageItem && item.hasAudio && !item.hasVideo;
 		if (!isAudioFootage) return false;
-		
+
 		var isWaveFile = item.file && item.file.exists && item.file.name.match(/\.wav$/i);
 		return isWaveFile;
 	});
@@ -363,13 +396,13 @@ function createDialogWindow() {
 		controls['mouthShape' + shapeName] =
 			window.settings.extendedMouthShapes[shapeName.toLowerCase()];
 	});
-	
+
 	// Add audio file options
 	getWaveFileProjectItems().forEach(function(projectItem) {
 		var listItem = controls.audioFile.add('item', getItemPath(projectItem));
 		listItem.projectItem = projectItem;
 	});
-	
+
 	// Add mouth composition options
 	var comps = toArrayBase1(app.project.items).filter(function (item) {
 		return item instanceof CompItem;
@@ -396,7 +429,7 @@ function createDialogWindow() {
 	selectByTextOrFirst(controls.mouthComp, settings.mouthComp);
 	extendedMouthShapeNames.forEach(function(shapeName) {
 		controls['mouthShape' + shapeName].value =
-			settings.extendedMouthShapes[shapeName.toLowerCase()];
+			(settings.extendedMouthShapes || {})[shapeName.toLowerCase()];
 	});
 	selectByTextOrFirst(controls.targetFolder, settings.targetFolder);
 	controls.frameRate.text = settings.frameRate || '';
@@ -431,7 +464,7 @@ function createDialogWindow() {
 
 	function update() {
 		if (updating) return;
-		
+
 		updating = true;
 		try {
 			// Handle auto frame rate
@@ -448,7 +481,7 @@ function createDialogWindow() {
 					controls.frameRate.text = sanitizedFrameRate;
 				}
 			}
-			
+
 			// Store settings
 			var settings = {
 				audioFile: (controls.audioFile.selection || {}).text,
@@ -481,7 +514,7 @@ function createDialogWindow() {
 		if (Number(controls.frameRate.text) < 12) {
 			return 'Please enter a frame rate of at least 12 fps.';
 		}
-		
+
 		// Check mouth shape visibility
 		var comp = controls.mouthComp.selection.projectItem;
 		for (var i = 0; i < mouthShapeCount; i++) {
@@ -492,7 +525,7 @@ function createDialogWindow() {
 					+ shapeName + ' at frame ' + i + '.';
 			}
 		}
-		
+
 		if (!comp.preserveNestedFrameRate) {
 			var fix = Window.confirm(
 				'The setting "Preserve frame rate when nested or in render queue" is not active '
@@ -508,22 +541,24 @@ function createDialogWindow() {
 				return '';
 			}
 		}
-	
+
 		// Check for correct Rhubarb version
-		var version = exec('rhubarb --version', { showWindow: false }) || '';
+		var version = exec(rhubarbPath + ' --version') || '';
 		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+))/);
 		if (!match) {
-			var isWindows = (system.osName || $.os).match(/windows/i);
-			return 'Cannot find executable file "' + (isWindows ? 'rhubarb.exe' : 'rhubarb') + '". '
-				+ 'Make sure your PATH environment variable contains the Rhubarb Lip-Sync '
-				+ 'application directory.';
+			var instructions = osIsWindows
+				? 'Make sure your PATH environment variable contains the Rhubarb Lip-Sync '
+					+ 'application directory.'
+				: 'Make sure you have created this file as a symbolic link to the Rhubarb Lip-Sync '
+					+ 'executable (rhubarb).';
+			return 'Cannot find executable file "' + rhubarbPath + '". \n' + instructions;
 		}
 		var versionString = match[1];
 		var major = Number(match[2]);
 		var minor = Number(match[3]);
 		if (major != 1 || minor < 6) {
 			return 'This script requires Rhubarb Lip-Sync 1.6.0 or a later 1.x version. '
-				'Your installed version is ' + versionString + ', which is not compatible.';
+				+ 'Your installed version is ' + versionString + ', which is not compatible.';
 		}
 	}
 
@@ -537,20 +572,20 @@ function createDialogWindow() {
 		try {
 			// Create text file containing dialog
 			writeTextFile(dialogFile, dialogText);
-			
+
 			// Create command line
-			var commandLine = 'rhubarb'
-				+ ' --dialogFile "' + dialogFile.fsName + '"'
+			var commandLine = rhubarbPath
+				+ ' --dialogFile ' + cliEscape(dialogFile.fsName)
 				+ ' --exportFormat json'
-				+ ' --extendedShapes "' + extendedMouthShapeNames.join('') + '"'
-				+ ' --logFile "' + logFile.fsName + '"'
+				+ ' --extendedShapes ' + cliEscape(extendedMouthShapeNames.join(''))
+				+ ' --logFile ' + cliEscape(logFile.fsName)
 				+ ' --logLevel fatal'
-				+ ' --output "' + jsonFile.fsName + '"'
-				+ ' "' + audioFileFootage.file.fsName + '"';
-				
+				+ ' --output ' + cliEscape(jsonFile.fsName)
+				+ ' ' + cliEscape(audioFileFootage.file.fsName);
+
 			// Run Rhubarb
-			exec(commandLine, { showWindow: true });
-			
+			execInWindow(commandLine);
+
 			// Check log for fatal errors
 			if (logFile.exists) {
 				var fatalLog = readTextFile(logFile).trim();
@@ -561,7 +596,7 @@ function createDialogWindow() {
 					throw new Error('Error running Rhubarb Lip-Sync.\n' + message);
 				}
 			}
-		
+
 			var result;
 			try {
 				result = JSON.parse(readTextFile(jsonFile));
@@ -591,22 +626,22 @@ function createDialogWindow() {
 			counter++;
 			compName = baseName + ' ' + counter;
 		}
-	
+
 		// Create new comp
 		var comp = targetProjectFolder.items.addComp(compName, mouthComp.width, mouthComp.height,
 			mouthComp.pixelAspect, audioFileFootage.duration, frameRate);
-			
+
 		// Show new comp
 		comp.openInViewer();
-		
+
 		// Add audio layer
 		comp.layers.add(audioFileFootage);
-		
+
 		// Add mouth layer
 		var mouthLayer = comp.layers.add(mouthComp);
 		mouthLayer.timeRemapEnabled = true;
 		mouthLayer.outPoint = comp.duration;
-		
+
 		// Animate mouth layer
 		var timeRemap = mouthLayer['Time Remap'];
 		// Enabling time remapping automatically adds two keys. Remove the second.
@@ -654,7 +689,7 @@ function createDialogWindow() {
 	controls.targetFolder.onChange = update;
 	controls.frameRate.onChanging = update;
 	controls.autoFrameRate.onClick = update;
-	
+
 	// Handle animation
 	controls.animateButton.onClick = function() {
 		var validationError = validate();
@@ -676,7 +711,7 @@ function createDialogWindow() {
 			);
 		}
 	};
-	
+
 	// Handle cancelation
 	controls.cancelButton.onClick = function() {
 		window.close();
