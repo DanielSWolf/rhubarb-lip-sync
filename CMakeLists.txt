@@ -5,9 +5,9 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment ver
 
 set(appName "Rhubarb Lip Sync")
 set(appVersionMajor 1)
-set(appVersionMinor 5)
+set(appVersionMinor 6)
 set(appVersionPatch 0)
-set(appVersionSuffix "")
+set(appVersionSuffix "-pre1")
 set(appVersion "${appVersionMajor}.${appVersionMinor}.${appVersionPatch}${appVersionSuffix}")
 
 project(${appName})
