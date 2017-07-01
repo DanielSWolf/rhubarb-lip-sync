@@ -77,8 +77,8 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 Rhubarb Lip-Sync is a command-line tool that is currently available for Windows and OS X.
 
 * Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
-* Call `rhubarb`, passing it a WAVE file as argument, and redirecting the output to a file. In its simplest form, this might look like this: `rhubarb my-recording.wav > output.txt`. There are additional <<options,command-line options>> you can specify in order to get better results.
-* Rhubarb Lip-Sync will analyze the sound file and print the result to `stdout`. If you've redirected `stdout` to a file like above, you will now have an XML file containing the lip-sync data. If an error occurs, Rhubarb Lip-Sync will print an error message to `stderr` and exit with a non-zero exit code.
+* Call `rhubarb`, passing it a WAVE file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
+* Rhubarb Lip-Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip-Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
 
 [[options]]
 === Command-line options ===
@@ -124,6 +124,9 @@ _Default value: as many threads as your CPU has cores_
 | Sets the log level for the log file. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
 
 _Default value: ``debug``_
+
+| `-o`, `--output` _<output file>_
+| The name of the output file to create. If the file already exists, it will be overwritten. If you don't specify an output file, the result will be written to `stdout`.
 
 | `--version`
 | Displays version information and exits.
