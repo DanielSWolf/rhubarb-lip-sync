@@ -23,6 +23,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/null.hpp>
 #include "targetShapeSet.h"
+#include <boost/utility/in_place_factory.hpp>
 
 using std::exception;
 using std::string;
@@ -35,8 +36,10 @@ using std::make_shared;
 using std::map;
 using std::chrono::duration;
 using std::chrono::duration_cast;
+using std::ofstream;
 using boost::filesystem::path;
 using boost::adaptors::transformed;
+using boost::optional;
 
 namespace tclap = TCLAP;
 
@@ -103,6 +106,7 @@ int main(int argc, char *argv[]) {
 	tclap::CmdLine cmd(appName, argumentValueSeparator, appVersion);
 	cmd.setExceptionHandling(false);
 	cmd.setOutput(new NiceCmdLineOutput());
+	tclap::ValueArg<string> outputFileName("o", "output", "The output file path.", false, string(), "string", cmd);
 	auto logLevels = vector<logging::Level>(logging::LevelConverter::get().getValues());
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
 	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
@@ -163,7 +167,12 @@ int main(int argc, char *argv[]) {
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
-			exporter->exportAnimation(inputFilePath, animation, targetShapeSet, std::cout);
+			optional<ofstream> outputFile;
+			if (outputFileName.isSet()) {
+				outputFile = boost::in_place(outputFileName.getValue());
+				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+			}
+			exporter->exportAnimation(inputFilePath, animation, targetShapeSet, outputFile ? *outputFile : std::cout);
 
 			logging::info("Exiting application normally.");
 		} catch (...) {

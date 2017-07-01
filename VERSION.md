@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* Added --output command-line option
+
 ## Version 1.5.0
 
 * Improved animation rules for ER and AW sounds
