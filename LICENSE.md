@@ -4,12 +4,12 @@
 
 This summary is not legally binding. The actual license terms are defined by the license texts below.
 
-* Rhubarb Lip-Sync is released under the MIT license. All its third-party dependencies (libraries, resources, etc.) are released under the MIT license, a BSD license, or a similar permissive license. This means that you can use Rhubarb Lip-Sync in almost any way you want, including the creation of commercial software based on it.
-* When you run Rhubarb Lip-Sync on an audio file, the resulting lip-sync data belongs to you alone. This means that if you use Rhubarb Lip-Sync in the production process of a video game, an animated cartoon, or a similar product *that doesn't ship with lip-sync functionality*, you don't even have to care about the MIT license.  
+* Rhubarb Lip Sync is released under the MIT license. All its third-party dependencies (libraries, resources, etc.) are released under the MIT license, a BSD license, or a similar permissive license. This means that you can use Rhubarb Lip Sync in almost any way you want, including the creation of commercial software based on it.
+* When you run Rhubarb Lip Sync on an audio file, the resulting lip sync data belongs to you alone. This means that if you use Rhubarb Lip Sync in the production process of a video game, an animated cartoon, or a similar product *that doesn't ship with lip sync functionality*, you don't even have to care about the MIT license.  
 
-## Rhubarb Lip-Sync
+## Rhubarb Lip Sync
 
-[Rhubarb Lip-Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) is released under the **MIT License (MIT)**.
+[Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) is released under the **MIT License (MIT)**.
 
 Copyright (c) 2015-2016 Daniel Wolf
 
