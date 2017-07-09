@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 			vector<char*>(argv, argv + argc) | transformed([](char* arg) { return fmt::format("\"{}\"", arg); }), " "));
 
 		try {
-			*infoStream << fmt::format("Generating lip-sync data for {}.", inputFilePath) << std::endl;
+			*infoStream << fmt::format("Generating lip sync data for {}.", inputFilePath) << std::endl;
 			*infoStream << "Processing.  ";
 			JoiningContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
 			{

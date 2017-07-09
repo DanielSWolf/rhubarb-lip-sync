@@ -1,4 +1,4 @@
-= Rhubarb Lip-Sync
+= Rhubarb Lip Sync
 :A: &#9398;
 :B: &#9399;
 :C: &#9400;
@@ -12,20 +12,20 @@
 image:https://img.shields.io/travis/DanielSWolf/rhubarb-lip-sync/master.svg["Build Status", link="https://travis-ci.org/DanielSWolf/rhubarb-lip-sync"]
 image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&label=Follow["Twitter", link="https://twitter.com/RhubarbLipSync"]
 
-https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip-Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
+https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
-Rhubarb Lip-Sync produces output files in various text formats (TSV/XML/JSON). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to https://github.com/DanielSWolf/rhubarb-lip-sync/issues[create an issue] telling me what tool you're using. I might add support for a few popular animation tools in the future.
+Rhubarb Lip Sync produces output files in various text formats (TSV/XML/JSON). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to https://github.com/DanielSWolf/rhubarb-lip-sync/issues[create an issue] telling me what tool you're using. I might add support for a few popular animation tools in the future.
 
 == Demo video
 
-Click the image for a demo video. This was generated using Rhubarb Lip-Sync 1.0.0; newer versions create even better animation!
+Click the image for a demo video. This was generated using Rhubarb Lip Sync 1.0.0; newer versions create even better animation!
 
 https://www.youtube.com/watch?v=OX_K387EKoI[image:http://img.youtube.com/vi/OX_K387EKoI/0.jpg[]]
 
 [[mouth-shapes]]
 == Mouth shapes
 
-Rhubarb Lip-Sync can use between six and nine different mouth positions. The first six mouth shapes ({A}-{F}) are the _basic mouth shapes_ and the absolute minimum you have to draw for your character. These six mouth shapes were invented at the Hanna-Barbera studios for shows such as Scooby-Doo and The Flintstones. Since then, they have evolved into a _de-facto_ standard for 2D animation, and have been widely used by studios like Disney and Warner Bros.
+Rhubarb Lip Sync can use between six and nine different mouth positions. The first six mouth shapes ({A}-{F}) are the _basic mouth shapes_ and the absolute minimum you have to draw for your character. These six mouth shapes were invented at the Hanna-Barbera studios for shows such as Scooby-Doo and The Flintstones. Since then, they have evolved into a _de-facto_ standard for 2D animation, and have been widely used by studios like Disney and Warner Bros.
 
 In addition to the six basic mouth shapes, there are three _extended mouth shapes_: {G}, {H}, and {X}. These are optional. You may choose to draw all three of them, pick just one or two, or leave them out entirely.
 
@@ -70,15 +70,15 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 *This extended mouth shape is optional.* Whether there should be any visible difference between the rest position {X} and the closed talking mouth {A} depends on your art style and personal taste. If you decide not to use it, you can specify so using the <<extendedShapes,`extendedShapes`>> option.
 |===
 
-== How to run Rhubarb Lip-Sync
+== How to run Rhubarb Lip Sync
 
 === General usage ===
 
-Rhubarb Lip-Sync is a command-line tool that is currently available for Windows and OS X.
+Rhubarb Lip Sync is a command-line tool that is currently available for Windows and OS X.
 
 * Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
 * Call `rhubarb`, passing it a WAVE file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
-* Rhubarb Lip-Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip-Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
+* Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
 
 [[options]]
 === Command-line options ===
@@ -95,27 +95,27 @@ The following is a complete list of available command-line options.
 _Default value: ``tsv``_
 
 | `-d` _<path>_, `--dialogFile` _<path>_
-| This option is meant for situations where you know the dialog text in advance. Specify a plain-text file (in ASCII or UTF-8 format) containing just the dialog of the audio file. Rhubarb Lip-Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
+| This option is meant for situations where you know the dialog text in advance. Specify a plain-text file (in ASCII or UTF-8 format) containing just the dialog of the audio file. Rhubarb Lip Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
 
-For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" slightly changing the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip-Sync to produce better results. Rhubarb Lip-Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
+For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" slightly changing the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip Sync to produce better results. Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
 
 _It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate._
 
 [[extendedShapes]]
 | `--extendedShapes` _<string>_
-| As described in <<mouth-shapes>>, Rhubarb Lip-Sync uses six basic mouth shapes and up to three _extended mouth shapes_, which are optional. Use this option to specify which extended mouth shapes should be used. For example, to use only the {G} and {X} extended mouth shapes, specify `GX`; to use only the six basic mouth shapes, specify an empty string: `""`.
+| As described in <<mouth-shapes>>, Rhubarb Lip Sync uses six basic mouth shapes and up to three _extended mouth shapes_, which are optional. Use this option to specify which extended mouth shapes should be used. For example, to use only the {G} and {X} extended mouth shapes, specify `GX`; to use only the six basic mouth shapes, specify an empty string: `""`.
 
 _Default value: ``GHX``_
 
 | `--threads` _<number>_
-| Rhubarb Lip-Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip-Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
+| Rhubarb Lip Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
 
-Note that for short audio files, Rhubarb Lip-Sync may choose to use fewer threads than specified.
+Note that for short audio files, Rhubarb Lip Sync may choose to use fewer threads than specified.
 
 _Default value: as many threads as your CPU has cores_
 
 | `-q`, `--quiet`
-| By default, Rhubarb Lip-Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
+| By default, Rhubarb Lip Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
 
 | `--logFile` _<path>_
 | Creates a log file with diagnostic information at the specified path.
@@ -140,12 +140,12 @@ _Default value: ``debug``_
 
 == How to use the output
 
-The output of Rhubarb Lip-Sync is a file that tells you which mouth shape to display at what time within the recording. You can choose between three file formats -- TSV, XML, and JSON. The following paragraphs show you what each of these formats looks like.
+The output of Rhubarb Lip Sync is a file that tells you which mouth shape to display at what time within the recording. You can choose between three file formats -- TSV, XML, and JSON. The following paragraphs show you what each of these formats looks like.
 
 [[tsv]]
 === Tab-separated values (`tsv`)
 
-TSV is the simplest and most compact export format supported by Rhubarb Lip-Sync. Each line starts with a timestamp (in seconds), followed by a tab, followed by the name of the mouth shape. The following is the output for a recording of a person saying 'Hi.'
+TSV is the simplest and most compact export format supported by Rhubarb Lip Sync. Each line starts with a timestamp (in seconds), followed by a tab, followed by the name of the mouth shape. The following is the output for a recording of a person saying 'Hi.'
 
 [source]
 ----
@@ -216,19 +216,19 @@ There is nothing surprising here; everything said about XML format applies to JS
 
 == Limitations
 
-Rhubarb Lip-Sync has some limitations you should be aware of.
+Rhubarb Lip Sync has some limitations you should be aware of.
 
 === English only
 
-Rhubarb Lip-Sync only produces good results when you give it recordings in English. You'll get best results with American English.
+Rhubarb Lip Sync only produces good results when you give it recordings in English. You'll get best results with American English.
 
 === 2D animation only
 
-Rhubarb Lip-Sync tries to imitate the animation style used in classic 2D animated cartoons. The results look stylized, and that's intentional. If you're working on a realistic 3D game or movie, Rhubarb Lip-Sync may not be the best choice.
+Rhubarb Lip Sync tries to imitate the animation style used in classic 2D animated cartoons. The results look stylized, and that's intentional. If you're working on a realistic 3D game or movie, Rhubarb Lip Sync may not be the best choice.
 
 == Tell me what you think!
 
 I'd love to hear from you!
 
-* Have you created something great using Rhubarb Lip-Sync? *https://twitter.com/RhubarbLipSync[Let me know on Twitter!]*
+* Have you created something great using Rhubarb Lip Sync? *https://twitter.com/RhubarbLipSync[Let me know on Twitter!]*
 * Do you need help? Have you spotted a bug? Do you have a suggestion? *https://github.com/DanielSWolf/rhubarb-lip-sync/issues[Create an issue!]*
