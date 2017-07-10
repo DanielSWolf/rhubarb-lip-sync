@@ -14,7 +14,7 @@ image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&labe
 
 https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
-Rhubarb Lip Sync produces output files in various text formats (TSV/XML/JSON). If you're a programmer, this makes it easy for you to use the output in whatever way you like. If you're not a programmer, there is currently no direct way to import the result into your favorite animation tool. If this is what you need, feel free to https://github.com/DanielSWolf/rhubarb-lip-sync/issues[create an issue] telling me what tool you're using. I might add support for a few popular animation tools in the future.
+Rhubarb Lip Sync produces output files in various text formats (TSV/XML/JSON). In addition, it comes with integrations for Adobe After Effects and Magix Vegas.
 
 == Demo video
 
