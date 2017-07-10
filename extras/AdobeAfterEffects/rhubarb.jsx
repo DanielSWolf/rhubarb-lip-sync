@@ -106,6 +106,8 @@ function isFrameVisible(compItem, frameNumber) {
 	return Boolean(result);
 }
 
+var appName = 'Rhubarb Lip Sync';
+
 var settingsFilePath = Folder.userData.fullName + '/rhubarb-ae-settings.json';
 
 function readTextFile(fileOrPath) {
@@ -307,7 +309,7 @@ function createDialogWindow() {
 	with (controlFunctions) {
 		resourceString = createResourceString(
 			Dialog({
-				text: 'Rhubarb Lip-Sync',
+				text: appName,
 				settings: Group({
 					orientation: 'column',
 					alignChildren: ['left', 'top'],
@@ -534,7 +536,7 @@ function createDialogWindow() {
 				false,
 				'Fix composition setting?');
 			if (fix) {
-				app.beginUndoGroup('Rhubarb Lip-Sync: Mouth composition setting');
+				app.beginUndoGroup(appName + ': Mouth composition setting');
 				comp.preserveNestedFrameRate = true;
 				app.endUndoGroup();
 			} else {
@@ -547,9 +549,9 @@ function createDialogWindow() {
 		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+))/);
 		if (!match) {
 			var instructions = osIsWindows
-				? 'Make sure your PATH environment variable contains the Rhubarb Lip-Sync '
+				? 'Make sure your PATH environment variable contains the ' + appName + ' '
 					+ 'application directory.'
-				: 'Make sure you have created this file as a symbolic link to the Rhubarb Lip-Sync '
+				: 'Make sure you have created this file as a symbolic link to the ' + appName + ' '
 					+ 'executable (rhubarb).';
 			return 'Cannot find executable file "' + rhubarbPath + '". \n' + instructions;
 		}
@@ -557,7 +559,7 @@ function createDialogWindow() {
 		var major = Number(match[2]);
 		var minor = Number(match[3]);
 		if (major != 1 || minor < 6) {
-			return 'This script requires Rhubarb Lip-Sync 1.6.0 or a later 1.x version. '
+			return 'This script requires ' + appName + ' 1.6.0 or a later 1.x version. '
 				+ 'Your installed version is ' + versionString + ', which is not compatible.';
 		}
 	}
@@ -593,7 +595,7 @@ function createDialogWindow() {
 					// Try to extract only the actual error message
 					var match = fatalLog.match(/\[Fatal\] ([\s\S]*)/);
 					var message = match ? match[1] : fatalLog;
-					throw new Error('Error running Rhubarb Lip-Sync.\n' + message);
+					throw new Error('Error running ' + appName + '.\n' + message);
 				}
 			}
 
@@ -668,12 +670,12 @@ function createDialogWindow() {
 			var mouthCues = generateMouthCues(audioFileFootage, dialogText, mouthComp,
 				extendedMouthShapeNames, targetProjectFolder, frameRate);
 
-			app.beginUndoGroup('Rhubarb Lip-Sync: Animation');
+			app.beginUndoGroup(appName + ': Animation');
 			animateMouthCues(mouthCues, audioFileFootage, mouthComp, targetProjectFolder,
 				frameRate);
 			app.endUndoGroup();
 		} catch (e) {
-			Window.alert(e.message, 'Rhubarb Lip-Sync', true);
+			Window.alert(e.message, appName, true);
 			return;
 		}
 	}
@@ -695,7 +697,7 @@ function createDialogWindow() {
 		var validationError = validate();
 		if (typeof validationError === 'string') {
 			if (validationError) {
-				Window.alert(validationError, 'Rhubarb Lip-Sync', true);
+				Window.alert(validationError, appName, true);
 			}
 		} else {
 			window.close();
@@ -724,7 +726,7 @@ function checkPreconditions() {
 	if (!canWriteFiles()) {
 		Window.alert('This script requires file system access.\n\n'
 			+ 'Please enable Preferences > General > Allow Scripts to Write Files and Access Network.',
-			'Rhubarb Lip-Sync', true);
+			appName, true);
 		return false;
 	}
 	return true;
