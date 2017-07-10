@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-* Added `--output` command-line option
+* Added a script for lip-syncing in Adobe After Effects.
+* Added `--output` command-line option.
 * Dropped the hyphen: Rhubarb Lip-Sync is now Rhubarb Lip Sync.
 
 ## Version 1.5.0
