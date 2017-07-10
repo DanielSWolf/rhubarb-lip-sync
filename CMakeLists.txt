@@ -468,5 +468,9 @@ install(
 	FILES README.adoc LICENSE.md VERSION.md
 	DESTINATION .
 )
+install(
+	DIRECTORY extras
+	DESTINATION .
+)
 
 include(CPack)
