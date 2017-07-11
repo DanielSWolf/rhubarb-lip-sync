@@ -14,13 +14,13 @@ image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&labe
 
 https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
-Rhubarb Lip Sync produces output files in various text formats (TSV/XML/JSON). In addition, it comes with integrations for Adobe After Effects and Magix Vegas.
+Rhubarb Lip Sync produces text files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). In addition, it comes with integrations for <<afterEffects,Adobe After Effects>> and <<vegas,Magix Vegas>>.
 
 == Demo video
 
-Click the image for a demo video. This was generated using Rhubarb Lip Sync 1.0.0; newer versions create even better animation!
+Click the image for a demo video.
 
-https://www.youtube.com/watch?v=OX_K387EKoI[image:http://img.youtube.com/vi/OX_K387EKoI/0.jpg[]]
+https://www.youtube.com/watch?v=zzdPSFJRlEo[image:http://img.youtube.com/vi/zzdPSFJRlEo/0.jpg[]]
 
 [[mouth-shapes]]
 == Mouth shapes
@@ -138,7 +138,8 @@ _Default value: ``debug``_
 | The input file to be analyzed. Must be an sound file in WAVE format.
 |===
 
-== How to use the output
+[[outputFormats]]
+== Output formats
 
 The output of Rhubarb Lip Sync is a file that tells you which mouth shape to display at what time within the recording. You can choose between three file formats -- TSV, XML, and JSON. The following paragraphs show you what each of these formats looks like.
 
@@ -213,6 +214,22 @@ JSON format is very similar to <<xml,XML format>>. The choice mainly depends on 
 ----
 
 There is nothing surprising here; everything said about XML format applies to JSON, too.
+
+== Integrations
+
+[[afterEffects]]
+=== Adobe After Effects
+
+You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the `extras` directory of the download.
+
+image:img/after-effects.png[]
+
+[[vegas]]
+=== Magix Vegas
+
+Rhubarb Lip Sync also comes with two plugin scripts for Magix Vegas (previously Sony Vegas). For more information, see the `extras` directory of the download.
+
+image:img/vegas.png[]
 
 == Limitations
 
