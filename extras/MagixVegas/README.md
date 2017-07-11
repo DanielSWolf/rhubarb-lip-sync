@@ -1,6 +1,6 @@
-# Scripts for Sony Vegas
+# Scripts for Magix Vegas
 
-If you own a copy of [Sony Vegas](http://www.sonycreativesoftware.com/vegassoftware), you can use this script to visualize Rhubarb Lip Sync's output on the timeline. This can be useful for creating lip-synced videos or for debugging.
+If you own a copy of [Magix Vegas](http://www.vegascreativesoftware.com/) (previously Sony Vegas), you can use this script to visualize Rhubarb Lip Sync's output on the timeline. This can be useful for creating lip-synced videos or for debugging.
 
 Copy (or symlink) the files in this directory to `<Vegas installation directory>\Script Menu`. When you restart Vegas, you'll find two new menu items:
 

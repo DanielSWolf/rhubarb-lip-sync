@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using System.Xml;
 using System.Xml.Serialization;
-using Sony.Vegas;
+using ScriptPortal.Vegas; // For older versions, this should say Sony.Vegas
 
 public class EntryPoint {
 	public void FromVegas(Vegas vegas) {

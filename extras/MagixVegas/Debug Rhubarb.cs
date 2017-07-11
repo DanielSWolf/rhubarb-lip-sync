@@ -13,8 +13,8 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using System.Xml;
 using System.Xml.Serialization;
-using Sony.Vegas;
-using Region = Sony.Vegas.Region;
+using ScriptPortal.Vegas; // For older versions, this should say Sony.Vegas
+using Region = ScriptPortal.Vegas.Region; // For older versions, this should say Sony.Vegas.Region
 
 public class EntryPoint {
 	public void FromVegas(Vegas vegas) {
