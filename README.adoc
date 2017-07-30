@@ -1,4 +1,3 @@
-= Rhubarb Lip Sync
 :A: &#9398;
 :B: &#9399;
 :C: &#9400;
@@ -11,6 +10,12 @@
 
 image:https://img.shields.io/travis/DanielSWolf/rhubarb-lip-sync/master.svg["Build Status", link="https://travis-ci.org/DanielSWolf/rhubarb-lip-sync"]
 image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&label=Follow["Twitter", link="https://twitter.com/RhubarbLipSync"]
+
+---
+
+image:img/logo.png[align="center"]
+
+---
 
 https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
