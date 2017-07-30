@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 # Support legacy OS X versions
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.8" CACHE STRING "Minimum OS X deployment version")
 
 set(appName "Rhubarb Lip Sync")
 set(appVersionMajor 1)
