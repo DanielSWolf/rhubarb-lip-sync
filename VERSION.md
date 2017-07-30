@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.6.0
 
 * Added a script for lip-syncing in Adobe After Effects.
 * Added `--output` command-line option.
