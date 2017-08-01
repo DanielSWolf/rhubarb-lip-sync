@@ -228,6 +228,15 @@ target_include_directories(utfcpp SYSTEM PUBLIC "lib/utfcpp-2.3.5/source")
 target_compile_options(utfcpp PRIVATE ${disableWarningsFlags})
 set_target_properties(utfcpp PROPERTIES FOLDER lib)
 
+# ... utf8proc
+add_library(utf8proc
+	lib/utf8proc-2a2f97e1/utf8proc.c
+	lib/utf8proc-2a2f97e1/utf8proc.h
+)
+target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2a2f97e1")
+target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
+set_target_properties(utf8proc PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 # ... rhubarb-animation
