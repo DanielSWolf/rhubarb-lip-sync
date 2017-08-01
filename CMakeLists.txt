@@ -219,6 +219,15 @@ target_include_directories(flite SYSTEM PUBLIC
 target_compile_options(flite PRIVATE ${disableWarningsFlags})
 set_target_properties(flite PROPERTIES FOLDER lib)
 
+# ... UTF8-CPP
+add_library(utfcpp
+	lib/header-only.c
+	lib/utfcpp-2.3.5/source/utf8.h
+)
+target_include_directories(utfcpp SYSTEM PUBLIC "lib/utfcpp-2.3.5/source")
+target_compile_options(utfcpp PRIVATE ${disableWarningsFlags})
+set_target_properties(utfcpp PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 # ... rhubarb-animation
