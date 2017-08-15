@@ -424,6 +424,8 @@ target_include_directories(rhubarb-tools PUBLIC "src/tools")
 target_link_libraries(rhubarb-tools
 	cppFormat
 	whereami
+	utfcpp
+	utf8proc
 )
 
 # Define Rhubarb executable

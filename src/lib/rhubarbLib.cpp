@@ -6,13 +6,13 @@
 #include "WaveFileReader.h"
 
 using boost::optional;
-using std::u32string;
+using std::string;
 using boost::filesystem::path;
 using std::unique_ptr;
 
 JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,
-	optional<u32string> dialog,
+	optional<string> dialog,
 	const ShapeSet& targetShapeSet,
 	int maxThreadCount,
 	ProgressSink& progressSink)
@@ -32,7 +32,7 @@ unique_ptr<AudioClip> createWaveAudioClip(path filePath) {
 
 JoiningContinuousTimeline<Shape> animateWaveFile(
 	path filePath,
-	optional<u32string> dialog,
+	optional<string> dialog,
 	const ShapeSet& targetShapeSet,
 	int maxThreadCount,
 	ProgressSink& progressSink)

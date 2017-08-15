@@ -6,9 +6,21 @@
 #include <boost/uuid/uuid_io.hpp>
 #include "platformTools.h"
 #include <whereami.h>
+#include <utf8.h>
+#include <gsl_util.h>
+#include "tools.h"
+#include <boost/filesystem/detail/utf8_codecvt_facet.hpp> 
+#include <iostream>
+
+#ifdef _WIN32
+	#include <Windows.h>
+	#include <io.h>
+	#include <fcntl.h>
+#endif
 
 using boost::filesystem::path;
 using std::string;
+using std::vector;
 
 path getBinPath() {
 	static const path binPath = [] {
@@ -68,4 +80,74 @@ std::string errorNumberToString(int errorNumber) {
 	strerror_s(message, sizeof message, errorNumber);
 #endif
 	return message;
+}
+
+vector<string> argsToUtf8(int argc, char* argv[]) {
+#ifdef _WIN32
+	// On Windows, there is no way to convert the single-byte argument strings to Unicode.
+	// We'll just ignore them.
+	UNUSED(argc);
+	UNUSED(argv);
+
+	// Get command-line arguments as UTF16 strings
+	int argumentCount;
+	static_assert(sizeof(wchar_t) == sizeof(char16_t), "Expected wchar_t to be a 16-bit type.");
+	char16_t** args = reinterpret_cast<char16_t**>(CommandLineToArgvW(GetCommandLineW(), &argumentCount));
+	if (!args) {
+		throw std::runtime_error("Error splitting the UTF-16 command line arguments.");
+	}
+	auto freeArgs = gsl::finally([&]() { LocalFree(args); });
+	assert(argumentCount == argc);
+
+	// Convert UTF16 strings to UTF8
+	vector<string> result;
+	for (int i = 0; i < argc; ++i) {
+		std::u16string utf16String(args[i]);
+		string utf8String;
+		utf8::utf16to8(utf16String.begin(), utf16String.end(), back_inserter(utf8String));
+		result.push_back(utf8String);
+	}
+	return result;
+#else
+	// On Unix systems, command-line args are already in UTF-8 format. Just convert them to strings.
+	vector<string> result;
+	for (int i = 0; i < argc; ++i) {
+		result.push_back(string(argv[i]));
+	}
+	return result;
+#endif
+}
+
+class ConsoleBuffer : public std::stringbuf {
+public:
+	explicit ConsoleBuffer(FILE* file)
+		: file(file) {}
+
+	int sync() override {
+		fputs(str().c_str(), file);
+		str("");
+		return 0;
+	}
+
+private:
+	FILE* file;
+};
+
+void useUtf8ForConsole() {
+// Unix systems already expect UTF-8-encoded data
+#ifdef _WIN32
+	// Set console code page to UTF-8 so the console knows how to interpret string data
+	SetConsoleOutputCP(CP_UTF8);
+
+	// Prevent default stream buffer from chopping up UTF-8 byte sequences.
+	// See https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
+	std::cout.rdbuf(new ConsoleBuffer(stdout));
+	std::cerr.rdbuf(new ConsoleBuffer(stderr));
+#endif
+}
+
+void useUtf8ForBoostFilesystem() {
+	std::locale globalLocale = std::locale();
+	std::locale utf8Locale(globalLocale, new boost::filesystem::detail::utf8_codecvt_facet);
+	path::imbue(utf8Locale);
 }

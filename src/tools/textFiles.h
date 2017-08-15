@@ -2,4 +2,4 @@
 
 #include <boost/filesystem/path.hpp>
 
-std::u32string readUtf8File(boost::filesystem::path filePath);
+std::string readUtf8File(boost::filesystem::path filePath);

@@ -81,11 +81,15 @@ TEST(latin1ToWide, basic) {
 	EXPECT_EQ(pangramWide, latin1ToWide(pangramLatin1));
 }
 
-// toAscii
+// utf8ToAscii
 
-TEST(toAscii, string) {
+TEST(utf8ToAscii, string) {
 	EXPECT_EQ(
 		"A naive man called  was having pina colada and creme brulee.",
-		toAscii(U"A naïve man called 晨 was having piña colada and crème brûlée."));
-	EXPECT_EQ(string(""), toAscii(U""));
+		utf8ToAscii("A naïve man called 晨 was having piña colada and crème brûlée."));
+	EXPECT_EQ(string(""), utf8ToAscii(""));
+	EXPECT_EQ(string("- - - - - - - - - -"), utf8ToAscii("- ‐ ‑ ‒ – — ― ﹘ ﹣ －"));
+	EXPECT_EQ(string("' ' ' ' \" \" \" \" \" \""), utf8ToAscii("‘ ’ ‚ ‛ “ ” „ ‟ « »"));
+	EXPECT_EQ(string("1 2 3"), utf8ToAscii("¹ ² ³"));
+	EXPECT_EQ(string("1/4 1/2 3/4"), utf8ToAscii("¼ ½ ¾"));
 }

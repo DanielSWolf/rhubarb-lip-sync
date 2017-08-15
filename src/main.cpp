@@ -24,10 +24,11 @@
 #include <boost/iostreams/device/null.hpp>
 #include "targetShapeSet.h"
 #include <boost/utility/in_place_factory.hpp>
+#include "platformTools.h"
 
 using std::exception;
 using std::string;
-using std::u32string;
+using std::string;
 using std::vector;
 using std::unique_ptr;
 using std::make_unique;
@@ -97,7 +98,14 @@ ShapeSet getTargetShapeSet(const string& extendedShapesString) {
 	return result;
 }
 
-int main(int argc, char *argv[]) {
+int main(int platformArgc, char *platformArgv[]) {
+	// Use UTF-8 throughout
+	useUtf8ForConsole();
+	useUtf8ForBoostFilesystem();
+
+	// Convert command-line arguments to UTF-8
+	const vector<string> args = argsToUtf8(platformArgc, platformArgv);
+
 	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
 	pausableStderrSink->pause();
 
@@ -130,7 +138,11 @@ int main(int argc, char *argv[]) {
 		});
 
 		// Parse command line
-		cmd.parse(argc, argv);
+		{
+			// TCLAP mutates the function argument! Pass a copy.
+			vector<string> argsCopy(args);
+			cmd.parse(argsCopy);
+		}
 		if (quietMode.getValue()) {
 			infoStream = &nullStream;
 		}
@@ -146,7 +158,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		logging::infoFormat("Application startup. Command line: {}", join(
-			vector<char*>(argv, argv + argc) | transformed([](char* arg) { return fmt::format("\"{}\"", arg); }), " "));
+			args | transformed([](string arg) { return fmt::format("\"{}\"", arg); }), " "));
 
 		try {
 			*infoStream << fmt::format("Generating lip sync data for {}.", inputFilePath) << std::endl;
@@ -158,7 +170,7 @@ int main(int argc, char *argv[]) {
 				// Animate the recording
 				animation = animateWaveFile(
 					inputFilePath,
-					dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<u32string>(),
+					dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<string>(),
 					targetShapeSet,
 					maxThreadCount.getValue(),
 					progressBar);
