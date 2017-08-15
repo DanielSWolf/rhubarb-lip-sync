@@ -184,7 +184,8 @@ int main(int platformArgc, char *platformArgv[]) {
 				outputFile = boost::in_place(outputFileName.getValue());
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			}
-			exporter->exportAnimation(inputFilePath, animation, targetShapeSet, outputFile ? *outputFile : std::cout);
+			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
+			exporter->exportAnimation(exporterInput, outputFile ? *outputFile : std::cout);
 
 			logging::info("Exiting application normally.");
 		} catch (...) {

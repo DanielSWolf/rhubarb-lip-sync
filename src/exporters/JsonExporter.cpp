@@ -34,17 +34,17 @@ string escapeJsonString(const string& s) {
 	return result;
 }
 
-void JsonExporter::exportAnimation(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet, std::ostream& outputStream) {
+void JsonExporter::exportAnimation(const ExporterInput& input, std::ostream& outputStream) {
 	// Export as JSON.
 	// I'm not using a library because the code is short enough without one and it lets me control the formatting.
 	outputStream << "{\n";
 	outputStream << "  \"metadata\": {\n";
-	outputStream << "    \"soundFile\": \"" << escapeJsonString(inputFilePath.string()) << "\",\n";
-	outputStream << "    \"duration\": " << formatDuration(animation.getRange().getDuration()) << "\n";
+	outputStream << "    \"soundFile\": \"" << escapeJsonString(input.inputFilePath.string()) << "\",\n";
+	outputStream << "    \"duration\": " << formatDuration(input.animation.getRange().getDuration()) << "\n";
 	outputStream << "  },\n";
 	outputStream << "  \"mouthCues\": [\n";
 	bool isFirst = true;
-	for (auto& timedShape : dummyShapeIfEmpty(animation, targetShapeSet)) {
+	for (auto& timedShape : dummyShapeIfEmpty(input.animation, input.targetShapeSet)) {
 		if (!isFirst) outputStream << ",\n";
 		isFirst = false;
 		outputStream << "    { \"start\": " << formatDuration(timedShape.getStart())

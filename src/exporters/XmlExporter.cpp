@@ -7,22 +7,22 @@
 using std::string;
 using boost::property_tree::ptree;
 
-void XmlExporter::exportAnimation(const boost::filesystem::path& inputFilePath, const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet, std::ostream& outputStream) {
+void XmlExporter::exportAnimation(const ExporterInput& input, std::ostream& outputStream) {
 	ptree tree;
 
 	// Add metadata
-	tree.put("rhubarbResult.metadata.soundFile", inputFilePath.string());
-	tree.put("rhubarbResult.metadata.duration", formatDuration(animation.getRange().getDuration()));
+	tree.put("rhubarbResult.metadata.soundFile", input.inputFilePath.string());
+	tree.put("rhubarbResult.metadata.duration", formatDuration(input.animation.getRange().getDuration()));
 
 	// Add mouth cues
-	for (auto& timedShape : dummyShapeIfEmpty(animation, targetShapeSet)) {
+	for (auto& timedShape : dummyShapeIfEmpty(input.animation, input.targetShapeSet)) {
 		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", timedShape.getValue());
 		mouthCueElement.put("<xmlattr>.start", formatDuration(timedShape.getStart()));
 		mouthCueElement.put("<xmlattr>.end", formatDuration(timedShape.getEnd()));
 	}
 
 #ifndef BOOST_VERSION	//present in version.hpp
-        #error "Could not detect Boost version."
+	#error "Could not detect Boost version."
 #endif
 
 #if BOOST_VERSION < 105600 // Support legacy syntax
