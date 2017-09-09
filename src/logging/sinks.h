@@ -3,7 +3,6 @@
 #include "Sink.h"
 #include <memory>
 #include "Formatter.h"
-#include <vector>
 #include <mutex>
 
 namespace logging {
@@ -30,19 +29,6 @@ namespace logging {
 	class StdErrSink : public StreamSink {
 	public:
 		explicit StdErrSink(std::shared_ptr<Formatter> formatter);
-	};
-
-	class PausableSink : public Sink {
-	public:
-		explicit PausableSink(std::shared_ptr<Sink> innerSink);
-		void receive(const Entry& entry) override;
-		void pause();
-		void resume();
-	private:
-		std::shared_ptr<Sink> innerSink;
-		std::vector<Entry> buffer;
-		std::mutex mutex;
-		bool isPaused = false;
 	};
 
 }

@@ -33,32 +33,4 @@ namespace logging {
 		StreamSink(std::shared_ptr<std::ostream>(&std::cerr, [](void*) {}), formatter)
 	{}
 
-	PausableSink::PausableSink(shared_ptr<Sink> innerSink) :
-		innerSink(innerSink)
-	{}
-
-	void PausableSink::receive(const Entry& entry) {
-		lock_guard<std::mutex> lock(mutex);
-		if (isPaused) {
-			buffer.push_back(entry);
-		} else {
-			innerSink->receive(entry);
-		}
-	}
-
-	void PausableSink::pause() {
-		lock_guard<std::mutex> lock(mutex);
-		isPaused = true;
-
-	}
-
-	void PausableSink::resume() {
-		lock_guard<std::mutex> lock(mutex);
-		isPaused = false;
-		for (const Entry& entry : buffer) {
-			innerSink->receive(entry);
-		}
-		buffer.clear();
-	}
-
 }

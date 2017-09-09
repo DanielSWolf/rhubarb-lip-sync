@@ -445,6 +445,10 @@ add_executable(rhubarb
 	src/rhubarb/main.cpp
 	src/rhubarb/ExportFormat.cpp
 	src/rhubarb/ExportFormat.h
+	src/rhubarb/semanticEntries.cpp
+	src/rhubarb/semanticEntries.h
+	src/rhubarb/sinks.cpp
+	src/rhubarb/sinks.h
 )
 target_include_directories(rhubarb PUBLIC "src/rhubarb")
 target_link_libraries(rhubarb
