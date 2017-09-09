@@ -19,15 +19,37 @@ vector<shared_ptr<Sink>>& getSinks() {
 	return sinks;
 }
 
-void logging::addSink(shared_ptr<Sink> sink) {
+bool logging::addSink(shared_ptr<Sink> sink) {
 	lock_guard<std::mutex> lock(getLogMutex());
-	getSinks().push_back(sink);
+
+	auto& sinks = getSinks();
+	if (std::find(sinks.begin(), sinks.end(), sink) == sinks.end()) {
+		sinks.push_back(sink);
+		return true;
+	}
+	return false;
 }
 
-void logging::log(Level level, const string& message) {
+bool logging::removeSink(std::shared_ptr<Sink> sink) {
 	lock_guard<std::mutex> lock(getLogMutex());
-	const Entry entry = Entry(level, message);
+
+	auto& sinks = getSinks();
+	const auto it = std::find(sinks.begin(), sinks.end(), sink);
+	if (it != sinks.end()) {
+		sinks.erase(it);
+		return true;
+	}
+	return false;
+}
+
+void logging::log(const Entry& entry) {
+	lock_guard<std::mutex> lock(getLogMutex());
 	for (auto& sink : getSinks()) {
 		sink->receive(entry);
 	}
+}
+
+void logging::log(Level level, const string& message) {
+	const Entry entry = Entry(level, message);
+	log(entry);
 }
