@@ -87,7 +87,9 @@ void ProgressBar::updateLoop() {
 		std::this_thread::sleep_for(animationInterval);
 	}
 
-	updateText("");
+	if (clearOnDestruction) {
+		updateText("");
+	}
 }
 
 void ProgressBar::updateText(const string& text) {

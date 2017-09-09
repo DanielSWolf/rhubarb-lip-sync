@@ -48,6 +48,14 @@ public:
 	~ProgressBar();
 	void reportProgress(double value) override;
 
+	bool getClearOnDestruction() const {
+		return clearOnDestruction;
+	}
+
+	void setClearOnDestruction(bool value) {
+		clearOnDestruction = value;
+	}
+
 private:
 	void updateLoop();
 	void updateText(const std::string& text);
@@ -59,4 +67,5 @@ private:
 	std::ostream& stream;
 	std::string currentText;
 	int animationIndex = 0;
+	bool clearOnDestruction = true;
 };
