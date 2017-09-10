@@ -44,7 +44,7 @@ using std::regex;
 using std::regex_replace;
 using std::chrono::duration;
 using boost::optional;
-using std::u32string;
+using std::string;
 using std::chrono::duration_cast;
 using std::array;
 
@@ -251,7 +251,7 @@ lambda_unique_ptr<ngram_model_t> createDefaultLanguageModel(ps_decoder_t& decode
 	return std::move(result);
 }
 
-lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(ps_decoder_t& decoder, const u32string& dialog) {
+lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(ps_decoder_t& decoder, const string& dialog) {
 	// Split dialog into normalized words
 	vector<string> words = tokenizeText(dialog, [&](const string& word) { return dictionaryContains(*decoder.dict, word); });
 
@@ -264,7 +264,7 @@ lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(ps_decoder_t& decoder
 	return createLanguageModel(words, decoder);
 }
 
-lambda_unique_ptr<ngram_model_t> createBiasedLanguageModel(ps_decoder_t& decoder, const u32string& dialog) {
+lambda_unique_ptr<ngram_model_t> createBiasedLanguageModel(ps_decoder_t& decoder, const string& dialog) {
 	auto defaultLanguageModel = createDefaultLanguageModel(decoder);
 	auto dialogLanguageModel = createDialogLanguageModel(decoder, dialog);
 	constexpr int modelCount = 2;
@@ -281,7 +281,7 @@ lambda_unique_ptr<ngram_model_t> createBiasedLanguageModel(ps_decoder_t& decoder
 	return std::move(result);
 }
 
-lambda_unique_ptr<ps_decoder_t> createDecoder(optional<u32string> dialog) {
+lambda_unique_ptr<ps_decoder_t> createDecoder(optional<string> dialog) {
 	lambda_unique_ptr<cmd_ln_t> config(
 		cmd_ln_init(
 			nullptr, ps_args(), true,
@@ -435,7 +435,7 @@ Timeline<Phone> utteranceToPhones(
 
 BoundedTimeline<Phone> recognizePhones(
 	const AudioClip& inputAudioClip,
-	optional<u32string> dialog,
+	optional<string> dialog,
 	int maxThreadCount,
 	ProgressSink& progressSink)
 {

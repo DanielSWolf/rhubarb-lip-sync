@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 # Support legacy OS X versions
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.8" CACHE STRING "Minimum OS X deployment version")
 
 set(appName "Rhubarb Lip Sync")
 set(appVersionMajor 1)
@@ -47,6 +47,11 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 	# Assume UTF-8 encoding for source files and encode string constants in UTF-8
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+endif()
+
+# Use UTF-8 throughout
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	add_compile_options("/utf-8")
 endif()
 
 if(${UNIX})
@@ -213,6 +218,24 @@ target_include_directories(flite SYSTEM PUBLIC
 )
 target_compile_options(flite PRIVATE ${disableWarningsFlags})
 set_target_properties(flite PROPERTIES FOLDER lib)
+
+# ... UTF8-CPP
+add_library(utfcpp
+	lib/header-only.c
+	lib/utfcpp-2.3.5/source/utf8.h
+)
+target_include_directories(utfcpp SYSTEM PUBLIC "lib/utfcpp-2.3.5/source")
+target_compile_options(utfcpp PRIVATE ${disableWarningsFlags})
+set_target_properties(utfcpp PROPERTIES FOLDER lib)
+
+# ... utf8proc
+add_library(utf8proc
+	lib/utf8proc-2a2f97e1/utf8proc.c
+	lib/utf8proc-2a2f97e1/utf8proc.h
+)
+target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2a2f97e1")
+target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
+set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
 # Define Rhubarb libraries
 
@@ -401,6 +424,8 @@ target_include_directories(rhubarb-tools PUBLIC "src/tools")
 target_link_libraries(rhubarb-tools
 	cppFormat
 	whereami
+	utfcpp
+	utf8proc
 )
 
 # Define Rhubarb executable

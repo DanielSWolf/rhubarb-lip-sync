@@ -10,7 +10,6 @@ extern "C" {
 }
 
 using std::runtime_error;
-using std::u32string;
 using std::string;
 using std::vector;
 using std::regex;
@@ -34,9 +33,12 @@ static const cst_synth_module synth_method_normalize[] = {
 };
 
 vector<string> tokenizeViaFlite(const string& text) {
+	// Convert text to ASCII
+	const string asciiText = utf8ToAscii(text);
+
 	// Create utterance object with text
 	lambda_unique_ptr<cst_utterance> utterance(new_utterance(), [](cst_utterance* utterance) { delete_utterance(utterance); });
-	utt_set_input_text(utterance.get(), text.c_str());
+	utt_set_input_text(utterance.get(), asciiText.c_str());
 	lambda_unique_ptr<cst_voice> voice = createDummyVoice();
 	utt_init(utterance.get(), voice.get());
 
@@ -73,8 +75,8 @@ optional<string> findSimilarDictionaryWord(const string& word, function<bool(con
 	return boost::none;
 }
 
-vector<string> tokenizeText(const u32string& text, function<bool(const string&)> dictionaryContains) {
-	vector<string> words = tokenizeViaFlite(toAscii(text));
+vector<string> tokenizeText(const string& text, function<bool(const string&)> dictionaryContains) {
+	vector<string> words = tokenizeViaFlite(text);
 
 	// Join words separated by apostophes
 	for (int i = words.size() - 1; i > 0; --i) {

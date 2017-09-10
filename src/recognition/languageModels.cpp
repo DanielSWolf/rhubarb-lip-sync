@@ -11,7 +11,6 @@
 #include <gsl_util.h>
 
 using std::string;
-using std::u32string;
 using std::vector;
 using std::regex;
 using std::map;

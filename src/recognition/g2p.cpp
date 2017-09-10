@@ -1,4 +1,4 @@
-﻿#include <g2p.h>
+#include <g2p.h>
 #include <regex>
 #include "stringTools.h"
 #include "logging.h"

@@ -1,0 +1,23 @@
+diff --git a/lib/utf8proc-2a2f97e1/utf8proc.h b/lib/utf8proc-2a2f97e1/utf8proc.h
+index 64155a1..2fca528 100644
+--- a/lib/utf8proc-2a2f97e1/utf8proc.h
++++ b/lib/utf8proc-2a2f97e1/utf8proc.h
+@@ -120,17 +120,7 @@ typedef bool utf8proc_bool;
+ #endif
+ #include <limits.h>
+ 
+-#ifdef _WIN32
+-#  ifdef UTF8PROC_EXPORTS
+-#    define UTF8PROC_DLLEXPORT __declspec(dllexport)
+-#  else
+-#    define UTF8PROC_DLLEXPORT __declspec(dllimport)
+-#  endif
+-#elif __GNUC__ >= 4
+-#  define UTF8PROC_DLLEXPORT __attribute__ ((visibility("default")))
+-#else
+-#  define UTF8PROC_DLLEXPORT
+-#endif
++#define UTF8PROC_DLLEXPORT
+ 
+ #ifdef __cplusplus
+ extern "C" {

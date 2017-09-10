@@ -1,12 +1,16 @@
-#include "stringTools.h"
+﻿#include "stringTools.h"
 #include <boost/algorithm/string/trim.hpp>
-#include <codecvt>
+#include <utf8.h>
+#include <utf8proc.h>
+#include <regex>
 
 using std::string;
 using std::wstring;
 using std::u32string;
 using std::vector;
 using boost::optional;
+using std::regex;
+using std::regex_replace;
 
 vector<string> splitIntoLines(const string& s) {
 	vector<string> lines;
@@ -83,6 +87,10 @@ vector<string> wrapString(const string& s, int lineLength, int hangingIndent) {
 	return lines;
 }
 
+bool isValidUtf8(const string& s) {
+	return utf8::is_valid(s.begin(), s.end());
+}
+
 wstring latin1ToWide(const string& s) {
 	wstring result;
 	for (unsigned char c : s) {
@@ -91,40 +99,61 @@ wstring latin1ToWide(const string& s) {
 	return result;
 }
 
-optional<char> toAscii(char32_t ch) {
-	switch (ch) {
-#include "asciiCases.cpp"
-	default:
-		return ch < 0x80 ? static_cast<char>(ch) : optional<char>();
-	}
-}
+string utf8ToAscii(const string s) {
+	// Normalize string, simplifying it as much as possible
+	const NormalizationOptions options = NormalizationOptions::CompatibilityMode
+		| NormalizationOptions::Decompose
+		| NormalizationOptions::SimplifyLineBreaks
+		| NormalizationOptions::SimplifyWhiteSpace
+		| NormalizationOptions::StripCharacterMarkings
+		| NormalizationOptions::StripIgnorableCharacters;
+	string simplified = normalizeUnicode(s, options);
 
-string toAscii(const u32string& s) {
-	string result;
-	for (char32_t ch : s) {
-		optional<char> ascii = toAscii(ch);
-		if (ascii) result.append(1, *ascii);
+	// Replace common Unicode characters with ASCII equivalents
+	static const vector<std::pair<regex, string>> replacements{
+		{regex("«|»|“|”|„|‟"), "\""},
+		{regex("‘|’|‚|‛|‹|›"), "'"},
+		{regex("‐|‑|‒|⁃|⁻|₋|−|➖|–|—|―|﹘|﹣|－"), "-"},
+		{regex("…|⋯"), "..."},
+		{regex("•"), "*"},
+		{regex("†|＋"), "+"},
+		{regex("⁄|∕|⧸|／|/"), "/"},
+		{regex("×"), "x"},
+	};
+	for (const auto& replacement : replacements) {
+		simplified = regex_replace(simplified, replacement.first, replacement.second);
 	}
+
+	// Skip all non-ASCII code points, including multi-byte characters
+	string result;
+	for (char c : simplified) {
+		const bool isAscii = (c & 0x80) == 0;
+		if (isAscii) {
+			result.append(1, c);
+		}
+	}
+
 	return result;
 }
 
-string toAscii(const wstring& s) {
-	string result;
-	for (wchar_t ch : s) {
-		optional<char> ascii = toAscii(ch);
-		if (ascii) result.append(1, *ascii);
-	}
-	return result;
-}
+string normalizeUnicode(const string s, NormalizationOptions options) {
+	char* result;
+	const utf8proc_ssize_t charCount = utf8proc_map(
+		reinterpret_cast<const uint8_t*>(s.data()),
+		s.length(),
+		reinterpret_cast<uint8_t**>(&result),
+		static_cast<utf8proc_option_t>(options));
 
-u32string utf8ToUtf32(const string& s) {
-#if defined(_MSC_VER) && _MSC_VER <= 1900
-	// Workaround for Visual Studio 2015
-	// See https://connect.microsoft.com/VisualStudio/feedback/details/1403302/unresolved-external-when-using-codecvt-utf8
-	std::wstring_convert<std::codecvt_utf8<uint32_t>, uint32_t> convert;
-	return u32string(reinterpret_cast<const char32_t*>(convert.from_bytes(s).c_str()));
-#else
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
-	return convert.from_bytes(s);
-#endif
+	if (charCount < 0) {
+		const utf8proc_ssize_t errorCode = charCount;
+		const string message = string("Error normalizing string: ") + utf8proc_errmsg(errorCode);
+		if (errorCode == UTF8PROC_ERROR_INVALIDOPTS) {
+			throw std::invalid_argument(message);
+		}
+		throw std::runtime_error(message);
+	}
+
+	string resultString(result, charCount);
+	free(result);
+	return resultString;
 }
