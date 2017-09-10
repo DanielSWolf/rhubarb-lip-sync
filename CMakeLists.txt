@@ -347,8 +347,18 @@ target_link_libraries(rhubarb-lib
 
 # ... rhubarb-logging
 add_library(rhubarb-logging
+	src/logging/Entry.cpp
+	src/logging/Entry.h
+	src/logging/Formatter.h
+	src/logging/formatters.cpp
+	src/logging/formatters.h
+	src/logging/Level.cpp
+	src/logging/Level.h
 	src/logging/logging.cpp
 	src/logging/logging.h
+	src/logging/Sink.h
+	src/logging/sinks.cpp
+	src/logging/sinks.h
 )
 target_include_directories(rhubarb-logging PUBLIC "src/logging")
 target_link_libraries(rhubarb-logging

@@ -5,6 +5,8 @@
 #include "NiceCmdLineOutput.h"
 #include "ProgressBar.h"
 #include "logging.h"
+#include "sinks.h"
+#include "formatters.h"
 #include <gsl_util.h>
 #include "Exporter.h"
 #include "ContinuousTimeline.h"
