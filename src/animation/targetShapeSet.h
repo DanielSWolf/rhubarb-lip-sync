@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shape.h"
+#include "core/Shape.h"
 #include "ShapeRule.h"
 
 // Returns the closest shape to the specified one that occurs in the target shape set.

@@ -1,8 +1,8 @@
 #include "animationRules.h"
 #include <boost/algorithm/clamp.hpp>
 #include "shapeShorthands.h"
-#include "array.h"
-#include "ContinuousTimeline.h"
+#include "tools/array.h"
+#include "time/ContinuousTimeline.h"
 
 using std::chrono::duration_cast;
 using boost::algorithm::clamp;

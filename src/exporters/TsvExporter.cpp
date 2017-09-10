@@ -1,5 +1,5 @@
 #include "TsvExporter.h"
-#include "targetShapeSet.h"
+#include "animation/targetShapeSet.h"
 
 void TsvExporter::exportAnimation(const ExporterInput& input, std::ostream& outputStream) {
 	// Output shapes with start times

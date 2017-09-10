@@ -1,6 +1,6 @@
 #include "ShapeRule.h"
 #include <boost/range/adaptor/transformed.hpp>
-#include "ContinuousTimeline.h"
+#include "time/ContinuousTimeline.h"
 
 using boost::optional;
 using boost::adaptors::transformed;

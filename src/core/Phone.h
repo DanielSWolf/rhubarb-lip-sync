@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnumConverter.h"
+#include "tools/EnumConverter.h"
 
 // Defines a subset of the Arpabet
 enum class Phone {

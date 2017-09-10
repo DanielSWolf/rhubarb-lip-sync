@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shape.h"
+#include "core/Shape.h"
 
 constexpr Shape A = Shape::A;
 constexpr Shape B = Shape::B;

@@ -1,6 +1,6 @@
 #include "JsonExporter.h"
 #include "exporterTools.h"
-#include "stringTools.h"
+#include "tools/stringTools.h"
 
 using std::string;
 

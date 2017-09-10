@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Phone.h"
+#include "core/Phone.h"
 #include "animationRules.h"
-#include "BoundedTimeline.h"
-#include "ContinuousTimeline.h"
+#include "time/BoundedTimeline.h"
+#include "time/ContinuousTimeline.h"
+#include "time/TimeRange.h"
 
 struct ShapeRule {
 	ShapeSet shapeSet;

@@ -1,15 +1,15 @@
 #include "voiceActivityDetection.h"
 #include "DcOffset.h"
 #include "SampleRateConverter.h"
-#include "logging.h"
-#include "pairs.h"
+#include "logging/logging.h"
+#include "tools/pairs.h"
 #include <boost/range/adaptor/transformed.hpp>
 #include <webrtc/common_audio/vad/include/webrtc_vad.h>
 #include "processing.h"
 #include <gsl_util.h>
-#include "parallel.h"
+#include "tools/parallel.h"
 #include "AudioSegment.h"
-#include "stringTools.h"
+#include "tools/stringTools.h"
 
 using std::vector;
 using boost::adaptors::transformed;

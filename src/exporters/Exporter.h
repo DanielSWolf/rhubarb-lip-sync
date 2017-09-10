@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Shape.h>
-#include "ContinuousTimeline.h"
+#include "core/Shape.h"
+#include "time/ContinuousTimeline.h"
 #include <boost/filesystem/path.hpp>
 
 class ExporterInput {

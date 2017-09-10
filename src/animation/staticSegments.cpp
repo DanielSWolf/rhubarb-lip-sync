@@ -1,7 +1,7 @@
 #include "staticSegments.h"
 #include <vector>
 #include <numeric>
-#include "nextCombination.h"
+#include "tools/nextCombination.h"
 
 using std::vector;
 using boost::optional;

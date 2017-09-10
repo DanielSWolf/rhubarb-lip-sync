@@ -1,7 +1,7 @@
 #include "formatters.h"
 #include <format.h>
 #include "Entry.h"
-#include "tools.h"
+#include "tools/tools.h"
 
 using std::string;
 

@@ -1,5 +1,5 @@
 #include "timingOptimization.h"
-#include "timedLogging.h"
+#include "time/timedLogging.h"
 #include <boost/lexical_cast.hpp>
 #include <map>
 #include <algorithm>

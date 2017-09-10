@@ -3,7 +3,7 @@
 #include <set>
 #include <boost/optional.hpp>
 #include <type_traits>
-#include "tools.h"
+#include "tools/tools.h"
 
 enum class FindMode {
 	SampleLeft,

@@ -4,9 +4,9 @@
 #include <regex>
 #include <map>
 #include <tuple>
-#include "platformTools.h"
+#include "tools/platformTools.h"
 #include <boost/filesystem/fstream.hpp>
-#include "appInfo.h"
+#include "core/appInfo.h"
 #include <cmath>
 #include <gsl_util.h>
 

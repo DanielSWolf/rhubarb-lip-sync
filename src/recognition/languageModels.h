@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "tools.h"
+#include "tools/tools.h"
 
 extern "C" {
 #include <pocketsphinx.h>

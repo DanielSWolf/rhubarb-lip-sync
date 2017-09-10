@@ -1,7 +1,7 @@
 #include <g2p.h>
 #include <regex>
-#include "stringTools.h"
-#include "logging.h"
+#include "tools/stringTools.h"
+#include "logging/logging.h"
 
 using std::vector;
 using std::wstring;
