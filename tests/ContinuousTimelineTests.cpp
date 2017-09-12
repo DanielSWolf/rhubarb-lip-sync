@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "ContinuousTimeline.h"
+#include "time/ContinuousTimeline.h"
 
 using namespace testing;
 using std::vector;

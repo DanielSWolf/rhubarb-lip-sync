@@ -2,7 +2,7 @@
 #include <string.h>
 #include "WaveFileReader.h"
 #include "ioTools.h"
-#include "platformTools.h"
+#include "tools/platformTools.h"
 
 using std::runtime_error;
 using fmt::format;

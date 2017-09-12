@@ -239,6 +239,8 @@ set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
 # Define Rhubarb libraries
 
+include_directories("src")
+
 # ... rhubarb-animation
 add_library(rhubarb-animation
 	src/animation/animationRules.cpp
@@ -261,7 +263,7 @@ add_library(rhubarb-animation
 	src/animation/tweening.cpp
 	src/animation/tweening.h
 )
-target_include_directories(rhubarb-animation PUBLIC "src/animation")
+target_include_directories(rhubarb-animation PRIVATE "src/animation")
 target_link_libraries(rhubarb-animation
 	rhubarb-core
 	rhubarb-logging
@@ -288,7 +290,7 @@ add_library(rhubarb-audio
 	src/audio/waveFileWriting.cpp
 	src/audio/waveFileWriting.h
 )
-target_include_directories(rhubarb-audio PUBLIC "src/audio")
+target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
 	rhubarb-logging
@@ -306,7 +308,7 @@ add_library(rhubarb-core
 	src/core/Shape.cpp
 	src/core/Shape.h
 )
-target_include_directories(rhubarb-core PUBLIC "src/core")
+target_include_directories(rhubarb-core PRIVATE "src/core")
 target_link_libraries(rhubarb-core
 	rhubarb-tools
 )
@@ -323,7 +325,7 @@ add_library(rhubarb-exporters
 	src/exporters/XmlExporter.cpp
 	src/exporters/XmlExporter.h
 )
-target_include_directories(rhubarb-exporters PUBLIC "src/exporters")
+target_include_directories(rhubarb-exporters PRIVATE "src/exporters")
 target_link_libraries(rhubarb-exporters
 	rhubarb-animation
 	rhubarb-core
@@ -335,7 +337,7 @@ add_library(rhubarb-lib
 	src/lib/rhubarbLib.cpp
 	src/lib/rhubarbLib.h
 )
-target_include_directories(rhubarb-lib PUBLIC "src/lib")
+target_include_directories(rhubarb-lib PRIVATE "src/lib")
 target_link_libraries(rhubarb-lib
 	rhubarb-animation
 	rhubarb-audio
@@ -347,10 +349,20 @@ target_link_libraries(rhubarb-lib
 
 # ... rhubarb-logging
 add_library(rhubarb-logging
+	src/logging/Entry.cpp
+	src/logging/Entry.h
+	src/logging/Formatter.h
+	src/logging/formatters.cpp
+	src/logging/formatters.h
+	src/logging/Level.cpp
+	src/logging/Level.h
 	src/logging/logging.cpp
 	src/logging/logging.h
+	src/logging/Sink.h
+	src/logging/sinks.cpp
+	src/logging/sinks.h
 )
-target_include_directories(rhubarb-logging PUBLIC "src/logging")
+target_include_directories(rhubarb-logging PRIVATE "src/logging")
 target_link_libraries(rhubarb-logging
 	rhubarb-tools
 )
@@ -366,7 +378,7 @@ add_library(rhubarb-recognition
 	src/recognition/tokenization.cpp
 	src/recognition/tokenization.h
 )
-target_include_directories(rhubarb-recognition PUBLIC "src/recognition")
+target_include_directories(rhubarb-recognition PRIVATE "src/recognition")
 target_link_libraries(rhubarb-recognition
 	flite
 	pocketSphinx
@@ -387,7 +399,7 @@ add_library(rhubarb-time
 	src/time/TimeRange.cpp
 	src/time/TimeRange.h
 )
-target_include_directories(rhubarb-time PUBLIC "src/time")
+target_include_directories(rhubarb-time PRIVATE "src/time")
 target_link_libraries(rhubarb-time
 	cppFormat
 	rhubarb-logging
@@ -420,7 +432,7 @@ add_library(rhubarb-tools
 	src/tools/tools.h
 	src/tools/tupleHash.h
 )
-target_include_directories(rhubarb-tools PUBLIC "src/tools")
+target_include_directories(rhubarb-tools PRIVATE "src/tools")
 target_link_libraries(rhubarb-tools
 	cppFormat
 	whereami
@@ -430,11 +442,11 @@ target_link_libraries(rhubarb-tools
 
 # Define Rhubarb executable
 add_executable(rhubarb
-	src/main.cpp
-	src/ExportFormat.cpp
-	src/ExportFormat.h
+	src/rhubarb/main.cpp
+	src/rhubarb/ExportFormat.cpp
+	src/rhubarb/ExportFormat.h
 )
-target_include_directories(rhubarb PUBLIC "src")
+target_include_directories(rhubarb PUBLIC "src/rhubarb")
 target_link_libraries(rhubarb
 	rhubarb-exporters
 	rhubarb-lib

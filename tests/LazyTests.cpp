@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "Lazy.h"
+#include "tools/Lazy.h"
 
 using namespace testing;
 using std::make_unique;

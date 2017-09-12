@@ -1,9 +1,9 @@
 #include "rhubarbLib.h"
-#include "Phone.h"
-#include "phoneRecognition.h"
-#include "textFiles.h"
-#include "mouthAnimation.h"
-#include "WaveFileReader.h"
+#include "core/Phone.h"
+#include "recognition/phoneRecognition.h"
+#include "tools/textFiles.h"
+#include "animation/mouthAnimation.h"
+#include "audio/WaveFileReader.h"
 
 using boost::optional;
 using std::string;

@@ -3,6 +3,7 @@
 #include <utf8.h>
 #include <utf8proc.h>
 #include <regex>
+#include <format.h>
 
 using std::string;
 using std::wstring;
@@ -156,4 +157,34 @@ string normalizeUnicode(const string s, NormalizationOptions options) {
 	string resultString(result, charCount);
 	free(result);
 	return resultString;
+}
+
+string escapeJsonString(const string& s) {
+	// JavaScript uses UTF-16 internally. As a result, character escaping in JSON strings is UTF-16-based.
+	// Convert string to UTF-16
+	std::u16string utf16String;
+	utf8::utf8to16(s.begin(), s.end(), std::back_inserter(utf16String));
+
+	string result;
+	for (char16_t c : utf16String) {
+		switch (c) {
+		case '"':  result += "\\\""; break;
+		case '\\': result += "\\\\"; break;
+		case '\b': result += "\\b"; break;
+		case '\f': result += "\\f"; break;
+		case '\n': result += "\\n"; break;
+		case '\r': result += "\\r"; break;
+		case '\t': result += "\\t"; break;
+		default:
+		{
+			bool needsEscaping = c < '\x20' || c >= 0x80;
+			if (needsEscaping) {
+				result += fmt::format("\\u{0:04x}", c);
+			} else {
+				result += static_cast<char>(c);
+			}
+		}
+		}
+	}
+	return result;
 }

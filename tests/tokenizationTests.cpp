@@ -1,5 +1,5 @@
 ﻿#include <gmock/gmock.h>
-#include "tokenization.h"
+#include "recognition/tokenization.h"
 #include <regex>
 #include <unordered_set>
 #include <utf8.h>

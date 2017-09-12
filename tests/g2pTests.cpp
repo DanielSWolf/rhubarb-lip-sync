@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "g2p.h"
+#include "recognition/g2p.h"
 
 using namespace testing;
 using std::vector;

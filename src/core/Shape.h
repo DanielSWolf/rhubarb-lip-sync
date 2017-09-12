@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnumConverter.h"
+#include "tools/EnumConverter.h"
 #include <set>
 
 // The classic Hanna-Barbera mouth shapes A-F plus the common supplements G-H

@@ -1,30 +1,32 @@
 #include <iostream>
 #include <format.h>
 #include <tclap/CmdLine.h>
-#include "appInfo.h"
-#include "NiceCmdLineOutput.h"
-#include "ProgressBar.h"
-#include "logging.h"
+#include "core/appInfo.h"
+#include "tools/NiceCmdLineOutput.h"
+#include "tools/ProgressBar.h"
+#include "logging/logging.h"
+#include "logging/sinks.h"
+#include "logging/formatters.h"
 #include <gsl_util.h>
-#include "Exporter.h"
-#include "ContinuousTimeline.h"
+#include "exporters/Exporter.h"
+#include "time/ContinuousTimeline.h"
 #include <boost/filesystem/operations.hpp>
-#include "stringTools.h"
+#include "tools/stringTools.h"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include "parallel.h"
-#include "exceptions.h"
-#include "textFiles.h"
-#include "rhubarbLib.h"
+#include "tools/parallel.h"
+#include "tools/exceptions.h"
+#include "tools/textFiles.h"
+#include "lib/rhubarbLib.h"
 #include "ExportFormat.h"
-#include "TsvExporter.h"
-#include "XmlExporter.h"
-#include "JsonExporter.h"
+#include "exporters/TsvExporter.h"
+#include "exporters/XmlExporter.h"
+#include "exporters/JsonExporter.h"
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/null.hpp>
-#include "targetShapeSet.h"
+#include "animation/targetShapeSet.h"
 #include <boost/utility/in_place_factory.hpp>
-#include "platformTools.h"
+#include "tools/platformTools.h"
 
 using std::exception;
 using std::string;
@@ -184,7 +186,8 @@ int main(int platformArgc, char *platformArgv[]) {
 				outputFile = boost::in_place(outputFileName.getValue());
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			}
-			exporter->exportAnimation(inputFilePath, animation, targetShapeSet, outputFile ? *outputFile : std::cout);
+			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
+			exporter->exportAnimation(exporterInput, outputFile ? *outputFile : std::cout);
 
 			logging::info("Exiting application normally.");
 		} catch (...) {

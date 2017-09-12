@@ -1,102 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <mutex>
-#include "tools.h"
-#include "EnumConverter.h"
+#include "tools/EnumConverter.h"
+#include "Sink.h"
+#include "Level.h"
 
 namespace logging {
-
-	enum class Level {
-		Trace,
-		Debug,
-		Info,
-		Warn,
-		Error,
-		Fatal,
-		EndSentinel
-	};
-
-	class LevelConverter : public EnumConverter<Level> {
-	public:
-		static LevelConverter& get();
-	protected:
-		std::string getTypeName() override;
-		member_data getMemberData() override;
-	};
-
-	std::ostream& operator<<(std::ostream& stream, Level value);
-
-	std::istream& operator>>(std::istream& stream, Level& value);
-
-	struct Entry {
-		Entry(Level level, const std::string& message);
-
-		time_t timestamp;
-		int threadCounter;
-		Level level;
-		std::string message;
-	};
-
-	class Formatter {
-	public:
-		virtual ~Formatter() = default;
-		virtual std::string format(const Entry& entry) = 0;
-	};
-
-	class SimpleConsoleFormatter : public Formatter {
-	public:
-		std::string format(const Entry& entry) override;
-	};
-
-	class SimpleFileFormatter : public Formatter {
-	public:
-		std::string format(const Entry& entry) override;
-	private:
-		SimpleConsoleFormatter consoleFormatter;
-	};
-
-	class Sink {
-	public:
-		virtual ~Sink() = default;
-		virtual void receive(const Entry& entry) = 0;
-	};
-
-	class LevelFilter : public Sink {
-	public:
-		LevelFilter(std::shared_ptr<Sink> innerSink, Level minLevel);
-		void receive(const Entry& entry) override;
-	private:
-		std::shared_ptr<Sink> innerSink;
-		Level minLevel;
-	};
-
-	class StreamSink : public Sink {
-	public:
-		StreamSink(std::shared_ptr<std::ostream> stream, std::shared_ptr<Formatter> formatter);
-		void receive(const Entry& entry) override;
-	private:
-		std::shared_ptr<std::ostream> stream;
-		std::shared_ptr<Formatter> formatter;
-	};
-
-	class StdErrSink : public StreamSink {
-	public:
-		explicit StdErrSink(std::shared_ptr<Formatter> formatter);
-	};
-
-	class PausableSink : public Sink {
-	public:
-		explicit PausableSink(std::shared_ptr<Sink> innerSink);
-		void receive(const Entry& entry) override;
-		void pause();
-		void resume();
-	private:
-		std::shared_ptr<Sink> innerSink;
-		std::vector<Entry> buffer;
-		std::mutex mutex;
-		bool isPaused = false;
-	};
 
 	void addSink(std::shared_ptr<Sink> sink);
 

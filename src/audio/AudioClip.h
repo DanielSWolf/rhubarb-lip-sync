@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "TimeRange.h"
+#include "time/TimeRange.h"
 #include <functional>
-#include "Lazy.h"
+#include "tools/Lazy.h"
 
 class AudioClip;
 class SampleIterator;

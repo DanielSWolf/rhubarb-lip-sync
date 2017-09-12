@@ -3,7 +3,7 @@
 #include "centiseconds.h"
 #include "TimeRange.h"
 #include "Timed.h"
-#include "logging.h"
+#include "logging/logging.h"
 
 template<typename TValue>
 void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {

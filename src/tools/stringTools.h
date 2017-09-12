@@ -48,3 +48,5 @@ std::string join(T range, const std::string separator) {
 	}
 	return result;
 }
+
+std::string escapeJsonString(const std::string& s);

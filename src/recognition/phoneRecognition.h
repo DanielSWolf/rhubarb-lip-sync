@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AudioClip.h"
-#include "Phone.h"
-#include "ProgressBar.h"
-#include "BoundedTimeline.h"
+#include "audio/AudioClip.h"
+#include "core/Phone.h"
+#include "tools/ProgressBar.h"
+#include "time/BoundedTimeline.h"
 
 BoundedTimeline<Phone> recognizePhones(
 	const AudioClip& audioClip,

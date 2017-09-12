@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnumConverter.h"
+#include "tools/EnumConverter.h"
 
 enum class ExportFormat {
 	Tsv,

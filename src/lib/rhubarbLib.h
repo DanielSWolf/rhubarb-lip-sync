@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Shape.h"
-#include "ContinuousTimeline.h"
-#include "AudioClip.h"
-#include "ProgressBar.h"
+#include "core/Shape.h"
+#include "time/ContinuousTimeline.h"
+#include "audio/AudioClip.h"
+#include "tools/ProgressBar.h"
 #include <boost/filesystem.hpp>
-#include "targetShapeSet.h"
+#include "animation/targetShapeSet.h"
 
 JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,

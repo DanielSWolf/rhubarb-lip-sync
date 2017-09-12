@@ -1,6 +1,6 @@
 #pragma once
 
 #include <vector>
-#include "Phone.h"
+#include "core/Phone.h"
 
 std::vector<Phone> wordToPhones(const std::string& word);

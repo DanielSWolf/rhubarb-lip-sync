@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "pairs.h"
+#include "tools/pairs.h"
 
 using namespace testing;
 using std::vector;
