@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* Full Unicode support. File names, dialog files, strings in exported files etc. should now be fully Unicode-compatible.
+
 ## Version 1.6.0
 
 * Added a script for lip-syncing in Adobe After Effects.
