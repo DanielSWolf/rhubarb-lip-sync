@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Full Unicode support. File names, dialog files, strings in exported files etc. should now be fully Unicode-compatible.
+* Added `--machineReadable` command-line option to allow for better integration with other applications.
 
 ## Version 1.6.0
 
@@ -76,7 +77,7 @@
 
   Since version 1.0.0, Rhubarb Lip Sync can handle situations where the dialog text is specified (using the `-dialogFile` option), but the actual recording omits some words. For instance, the specified dialog text can be "That's all gobbledygook to me," but the recording only says "That's gobbledygook to me," dropping the word "all."
 
-  Until now, however, Rhubarb Lip Sync couldn't handle *changed* or *inserted* words, such as a recording saying "That's *just* gobbledygook to me." This restriction has been removed. As of version 1.2.0, the actual recording may freely deviate from the specified dialog text. Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches. 
+  Until now, however, Rhubarb Lip Sync couldn't handle *changed* or *inserted* words, such as a recording saying "That's *just* gobbledygook to me." This restriction has been removed. As of version 1.2.0, the actual recording may freely deviate from the specified dialog text. Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
 
 ## Version 1.1.0
 
