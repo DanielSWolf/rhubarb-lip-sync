@@ -93,8 +93,8 @@ ShapeSet getTargetShapeSet(const string& extendedShapesString) {
 
 int main(int platformArgc, char *platformArgv[]) {
 	// Set up default logging so early errors are printed to stdout
-	const logging::Level minStderrLevel = logging::Level::Warn;
-	shared_ptr<logging::Sink> defaultSink = std::make_shared<NiceStderrSink>(minStderrLevel);
+	const logging::Level defaultMinStderrLevel = logging::Level::Error;
+	shared_ptr<logging::Sink> defaultSink = make_shared<NiceStderrSink>(defaultMinStderrLevel);
 	logging::addSink(defaultSink);
 
 	// Use UTF-8 throughout
@@ -112,8 +112,9 @@ int main(int platformArgc, char *platformArgv[]) {
 	tclap::ValueArg<string> outputFileName("o", "output", "The output file path.", false, string(), "string", cmd);
 	auto logLevels = vector<logging::Level>(logging::LevelConverter::get().getValues());
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
-	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
+	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level that will be written to the log file", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
+	tclap::ValueArg<logging::Level> consoleLevel("", "consoleLevel", "The minimum log level that will be printed on the console (stderr)", false, defaultMinStderrLevel, &logLevelConstraint, cmd);
 	tclap::SwitchArg machineReadableMode("", "machineReadable", "Formats all output to stderr in a structured JSON format.", cmd, false);
 	tclap::SwitchArg quietMode("q", "quiet", "Suppresses all output to stderr except for warnings and error messages.", cmd, false);
 	tclap::ValueArg<int> maxThreadCount("", "threads", "The maximum number of worker threads to use.", false, getProcessorCoreCount(), "number", cmd);
@@ -133,16 +134,19 @@ int main(int platformArgc, char *platformArgv[]) {
 		}
 
 		// Set up logging
+		// ... to stderr
+		if (quietMode.getValue()) {
+			logging::addSink(make_shared<QuietStderrSink>(consoleLevel.getValue()));
+		} else if (machineReadableMode.getValue()) {
+			logging::addSink(make_shared<MachineReadableStderrSink>(consoleLevel.getValue()));
+		} else {
+			logging::addSink(make_shared<NiceStderrSink>(consoleLevel.getValue()));
+		}
+		logging::removeSink(defaultSink);
+		// ... to log file
 		if (logFileName.isSet()) {
 			auto fileSink = createFileSink(path(logFileName.getValue()), logLevel.getValue());
 			logging::addSink(fileSink);
-		}
-		if (quietMode.getValue()) {
-			logging::removeSink(defaultSink);
-			logging::addSink(make_shared<QuietStderrSink>(minStderrLevel));
-		} else if (machineReadableMode.getValue()) {
-			logging::removeSink(defaultSink);
-			logging::addSink(make_shared<MachineReadableStderrSink>(minStderrLevel));
 		}
 
 		// Validate and transform command line arguments

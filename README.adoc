@@ -151,8 +151,11 @@ The following command-line options can be helpful in special situations, especia
 |===
 | Option | Description
 
+[[quiet]]
 | `-q`, `--quiet`
 | By default, Rhubarb Lip Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option to change the minimum event level that is printed to `stderr`.
 
 | `--machineReadable`
 a| This option is useful if you want to integrate Rhubarb Lip Sync with another (possibly graphical) application. All progress output to `stderr` will be in structured JSON format, allowing your program to parse the output and display a graphical progress bar or something similar.
@@ -162,6 +165,8 @@ In this mode, each line printed to `stderr` will be an object in JSON format. Ev
 * Property `type`: The type of the event. Currently, one of `"start"` (application start), `"progress"` (numeric progress), `"success"` (successful termination), `"failure"` (unsuccessful termination), and `"log"` (a log message without structured information).
 * Event-specific structured data. For instance, a `"progress"` event contains the property `value` with a numeric value between 0.0 and 1.0.
 * Property `log`: A log message describing the event, plus severity information. If you aren't interested in the structured data, you can display this as a fallback. For instance, a `"progress"` event with the structured information `"value": 0.69` may contain the following redundant log message: `"Progress: 69%"`.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option. Note, however, that this only affects unstructured events of type `"log"` (not to be confused with the `log` property each event contains).
 
 The following is an example output from a _successful_ run:
 
@@ -192,11 +197,19 @@ Note that the output format <<Versioning,adheres to SemVer>>. That means that th
 * Changes in JSON formatting, such as a re-ordering of properties or changes in whitespaces (except for line breaks -- every event will remain on a singe line.)
 * Fewer or more events of type `"log"` or changes in the wording of log messages
 
+[[consoleLevel]]
+| `--consoleLevel` _<level>_
+| Sets the log level for reporting to the console (`stderr`). Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+If <<quiet,`--quiet`>> is also specified, only events with the specified level or higher will be printed. Otherwise, a small number of essential events (startup, progress, etc.) will be printed even if their levels are below the specified value.
+
+_Default value: ``error``_
+
 | `--logFile` _<path>_
 | Creates a log file with diagnostic information at the specified path.
 
 |`--logLevel` _<level>_
-| Sets the log level for the log file. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+| Sets the log level for the log file. Only events with the specified level or higher will be logged. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
 
 _Default value: ``debug``_
 

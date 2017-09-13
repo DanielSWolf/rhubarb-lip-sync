@@ -4,6 +4,8 @@
 
 * Full Unicode support. File names, dialog files, strings in exported files etc. should now be fully Unicode-compatible.
 * Added `--machineReadable` command-line option to allow for better integration with other applications.
+* Added `--consoleLevel` command-line option to control how much detail to log to the console (`stderr`).
+* Unless specified using `--consoleLevel`, only errors and fatal errors are printed to the console. Previously, warnings were also printed.
 
 ## Version 1.6.0
 
