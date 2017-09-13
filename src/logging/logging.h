@@ -6,7 +6,11 @@
 
 namespace logging {
 
-	void addSink(std::shared_ptr<Sink> sink);
+	bool addSink(std::shared_ptr<Sink> sink);
+
+	bool removeSink(std::shared_ptr<Sink> sink);
+
+	void log(const Entry& entry);
 
 	void log(Level level, const std::string& message);
 

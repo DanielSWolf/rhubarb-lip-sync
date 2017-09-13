@@ -27,6 +27,22 @@ Click the image for a demo video.
 
 https://www.youtube.com/watch?v=zzdPSFJRlEo[image:http://img.youtube.com/vi/zzdPSFJRlEo/0.jpg[]]
 
+== Integrations
+
+[[afterEffects]]
+=== Adobe After Effects
+
+You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the `extras` directory of the download.
+
+image:img/after-effects.png[]
+
+[[vegas]]
+=== Magix Vegas
+
+Rhubarb Lip Sync also comes with two plugin scripts for Magix Vegas (previously Sony Vegas). For more information, see the `extras` directory of the download.
+
+image:img/vegas.png[]
+
 [[mouth-shapes]]
 == Mouth shapes
 
@@ -88,11 +104,16 @@ Rhubarb Lip Sync is a command-line tool that is currently available for Windows 
 [[options]]
 === Command-line options ===
 
-The following is a complete list of available command-line options.
+==== Basic command-line options ====
+
+The following command-line options are the most common:
 
 [cols="2,5"]
 |===
 | Option | Description
+
+| _<input file>_
+| The audio file (.wav format) to be analyzed. This must be the last command-line argument.
 
 | `-f` _<format>_, `--exportFormat` _<format>_
 | The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>).
@@ -100,9 +121,9 @@ The following is a complete list of available command-line options.
 _Default value: ``tsv``_
 
 | `-d` _<path>_, `--dialogFile` _<path>_
-| This option is meant for situations where you know the dialog text in advance. Specify a plain-text file (in ASCII or UTF-8 format) containing just the dialog of the audio file. Rhubarb Lip Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
+| With this option, you can provide Rhubarb Lip Sync with the dialog text to get more reliable results. Specify the path to a plain-text file (in ASCII or UTF-8 format) containing the dialog contained in the audio file. Rhubarb Lip Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
 
-For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" slightly changing the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip Sync to produce better results. Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
+For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" deviating from the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip Sync to produce better results, because it will watch out for the uncommon word "`gobbledygook`". Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
 
 _It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate._
 
@@ -112,24 +133,6 @@ _It is always a good idea to specify the dialog text. This will usually lead to 
 
 _Default value: ``GHX``_
 
-| `--threads` _<number>_
-| Rhubarb Lip Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
-
-Note that for short audio files, Rhubarb Lip Sync may choose to use fewer threads than specified.
-
-_Default value: as many threads as your CPU has cores_
-
-| `-q`, `--quiet`
-| By default, Rhubarb Lip Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
-
-| `--logFile` _<path>_
-| Creates a log file with diagnostic information at the specified path.
-
-|`--logLevel` _<level>_
-| Sets the log level for the log file. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
-
-_Default value: ``debug``_
-
 | `-o`, `--output` _<output file>_
 | The name of the output file to create. If the file already exists, it will be overwritten. If you don't specify an output file, the result will be written to `stdout`.
 
@@ -138,9 +141,84 @@ _Default value: ``debug``_
 
 | `-h`, `--help`
 | Displays usage information and exits.
+|===
 
-| _<input file>_
-| The input file to be analyzed. Must be an sound file in WAVE format.
+==== Advanced command-line options ====
+
+The following command-line options can be helpful in special situations, especially when automating Rhubarb Lip Sync.
+
+[cols="2,5"]
+|===
+| Option | Description
+
+[[quiet]]
+| `-q`, `--quiet`
+| By default, Rhubarb Lip Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option to change the minimum event level that is printed to `stderr`.
+
+| `--machineReadable`
+a| This option is useful if you want to integrate Rhubarb Lip Sync with another (possibly graphical) application. All progress output to `stderr` will be in structured JSON format, allowing your program to parse the output and display a graphical progress bar or something similar.
+
+In this mode, each line printed to `stderr` will be an object in JSON format. Every object contains the following:
+
+* Property `type`: The type of the event. Currently, one of `"start"` (application start), `"progress"` (numeric progress), `"success"` (successful termination), `"failure"` (unsuccessful termination), and `"log"` (a log message without structured information).
+* Event-specific structured data. For instance, a `"progress"` event contains the property `value` with a numeric value between 0.0 and 1.0.
+* Property `log`: A log message describing the event, plus severity information. If you aren't interested in the structured data, you can display this as a fallback. For instance, a `"progress"` event with the structured information `"value": 0.69` may contain the following redundant log message: `"Progress: 69%"`.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option. Note, however, that this only affects unstructured events of type `"log"` (not to be confused with the `log` property each event contains).
+
+The following is an example output from a _successful_ run:
+
+[source,json]
+----
+{ "type": "start", "file": "hi.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"hi.wav\"." } }
+{ "type": "progress", "value": 0.00, "log": { "level": "Trace", "message": "Progress: 0%" } }
+{ "type": "progress", "value": 0.01, "log": { "level": "Trace", "message": "Progress: 1%" } }
+{ "type": "progress", "value": 0.03, "log": { "level": "Trace", "message": "Progress: 3%" } }
+{ "type": "progress", "value": 0.06, "log": { "level": "Trace", "message": "Progress: 6%" } }
+{ "type": "progress", "value": 0.69, "log": { "level": "Trace", "message": "Progress: 68%" } }
+{ "type": "progress", "value": 1.00, "log": { "level": "Trace", "message": "Progress: 100%" } }
+{ "type": "success", "log": { "level": "Info", "message": "Application terminating normally." } }
+----
+
+The following is an example output from a _failed_ run:
+
+[source,json]
+----
+{ "type": "start", "file": "no-such-file.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"no-such-file.wav\"." } }
+{ "type": "failure", "reason": "Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory", "log": { "level": "Fatal", "message": "Application terminating with error: Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory" } }
+----
+
+Note that the output format <<Versioning,adheres to SemVer>>. That means that the JSON output created after a minor upgrade will still be compatible. Note, however, that the following kinds of changes may occur at any time, because I interpret them as compatible:
+
+* Additional types of progress events. Just ignore those events whose types you do not know or use their unstructured `log` property.
+* Additional properties in any object. Just ignore properties you aren't interested in.
+* Changes in JSON formatting, such as a re-ordering of properties or changes in whitespaces (except for line breaks -- every event will remain on a singe line.)
+* Fewer or more events of type `"log"` or changes in the wording of log messages
+
+[[consoleLevel]]
+| `--consoleLevel` _<level>_
+| Sets the log level for reporting to the console (`stderr`). Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+If <<quiet,`--quiet`>> is also specified, only events with the specified level or higher will be printed. Otherwise, a small number of essential events (startup, progress, etc.) will be printed even if their levels are below the specified value.
+
+_Default value: ``error``_
+
+| `--logFile` _<path>_
+| Creates a log file with diagnostic information at the specified path.
+
+|`--logLevel` _<level>_
+| Sets the log level for the log file. Only events with the specified level or higher will be logged. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+_Default value: ``debug``_
+
+| `--threads` _<number>_
+| Rhubarb Lip Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
+
+Note that for short audio files, Rhubarb Lip Sync may choose to use fewer threads than specified.
+
+_Default value: as many threads as your CPU has cores_
 |===
 
 [[outputFormats]]
@@ -220,37 +298,15 @@ JSON format is very similar to <<xml,XML format>>. The choice mainly depends on 
 
 There is nothing surprising here; everything said about XML format applies to JSON, too.
 
-== Integrations
+[[versioning]]
+== Versioning (SemVer)
 
-[[afterEffects]]
-=== Adobe After Effects
+Rhubarb Lip Sync uses Semantic Versioning (SemVer) for its command-line interface. For general information on Semantic Versioning, have a look at the http://semver.org/[official SemVer website].
 
-You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the `extras` directory of the download.
+As a rule of thumb, everything you can use through the command-line interface adheres to SemVer. Everything else (i.e., the source code) does not. Here are some examples and clarifications:
 
-image:img/after-effects.png[]
+== I'd love to hear from you!
 
-[[vegas]]
-=== Magix Vegas
+Have you created something great using Rhubarb Lip Sync? -- *https://twitter.com/RhubarbLipSync[Let me know on Twitter]* or *send me an email* at +++&#100;&#119;&#111;&#108;&#102;&#064;&#100;&#097;&#110;&#110;&#097;&#100;&#046;&#100;&#101;+++!
 
-Rhubarb Lip Sync also comes with two plugin scripts for Magix Vegas (previously Sony Vegas). For more information, see the `extras` directory of the download.
-
-image:img/vegas.png[]
-
-== Limitations
-
-Rhubarb Lip Sync has some limitations you should be aware of.
-
-=== English only
-
-Rhubarb Lip Sync only produces good results when you give it recordings in English. You'll get best results with American English.
-
-=== 2D animation only
-
-Rhubarb Lip Sync tries to imitate the animation style used in classic 2D animated cartoons. The results look stylized, and that's intentional. If you're working on a realistic 3D game or movie, Rhubarb Lip Sync may not be the best choice.
-
-== Tell me what you think!
-
-I'd love to hear from you!
-
-* Have you created something great using Rhubarb Lip Sync? *https://twitter.com/RhubarbLipSync[Let me know on Twitter!]*
-* Do you need help? Have you spotted a bug? Do you have a suggestion? *https://github.com/DanielSWolf/rhubarb-lip-sync/issues[Create an issue!]*
+Do you need help? Have you spotted a bug? Do you have a suggestion? -- *https://github.com/DanielSWolf/rhubarb-lip-sync/issues[Create an issue!]*

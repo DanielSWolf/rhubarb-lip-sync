@@ -22,11 +22,11 @@
 #include "exporters/TsvExporter.h"
 #include "exporters/XmlExporter.h"
 #include "exporters/JsonExporter.h"
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/null.hpp>
 #include "animation/targetShapeSet.h"
 #include <boost/utility/in_place_factory.hpp>
 #include "tools/platformTools.h"
+#include "sinks.h"
+#include "semanticEntries.h"
 
 using std::exception;
 using std::string;
@@ -58,21 +58,12 @@ namespace TCLAP {
 	};
 }
 
-shared_ptr<logging::PausableSink> addPausableStdErrSink(logging::Level minLevel) {
-	auto stdErrSink = make_shared<logging::StdErrSink>(make_shared<logging::SimpleConsoleFormatter>());
-	auto pausableSink = make_shared<logging::PausableSink>(stdErrSink);
-	auto levelFilter = make_shared<logging::LevelFilter>(pausableSink, minLevel);
-	logging::addSink(levelFilter);
-	return pausableSink;
-}
-
-void addFileSink(path path, logging::Level minLevel) {
+shared_ptr<logging::Sink> createFileSink(path path, logging::Level minLevel) {
 	auto file = make_shared<boost::filesystem::ofstream>();
 	file->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	file->open(path);
 	auto FileSink = make_shared<logging::StreamSink>(file, make_shared<logging::SimpleFileFormatter>());
-	auto levelFilter = make_shared<logging::LevelFilter>(FileSink, minLevel);
-	logging::addSink(levelFilter);
+	return make_shared<logging::LevelFilter>(FileSink, minLevel);
 }
 
 unique_ptr<Exporter> createExporter(ExportFormat exportFormat) {
@@ -101,15 +92,17 @@ ShapeSet getTargetShapeSet(const string& extendedShapesString) {
 }
 
 int main(int platformArgc, char *platformArgv[]) {
+	// Set up default logging so early errors are printed to stdout
+	const logging::Level defaultMinStderrLevel = logging::Level::Error;
+	shared_ptr<logging::Sink> defaultSink = make_shared<NiceStderrSink>(defaultMinStderrLevel);
+	logging::addSink(defaultSink);
+
 	// Use UTF-8 throughout
 	useUtf8ForConsole();
 	useUtf8ForBoostFilesystem();
 
 	// Convert command-line arguments to UTF-8
 	const vector<string> args = argsToUtf8(platformArgc, platformArgv);
-
-	auto pausableStderrSink = addPausableStdErrSink(logging::Level::Warn);
-	pausableStderrSink->pause();
 
 	// Define command-line parameters
 	const char argumentValueSeparator = ' ';
@@ -119,9 +112,11 @@ int main(int platformArgc, char *platformArgv[]) {
 	tclap::ValueArg<string> outputFileName("o", "output", "The output file path.", false, string(), "string", cmd);
 	auto logLevels = vector<logging::Level>(logging::LevelConverter::get().getValues());
 	tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
-	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level to log", false, logging::Level::Debug, &logLevelConstraint, cmd);
+	tclap::ValueArg<logging::Level> logLevel("", "logLevel", "The minimum log level that will be written to the log file", false, logging::Level::Debug, &logLevelConstraint, cmd);
 	tclap::ValueArg<string> logFileName("", "logFile", "The log file path.", false, string(), "string", cmd);
-	tclap::SwitchArg quietMode("q", "quiet", "Suppresses all output to stderr except for error messages.", cmd, false);
+	tclap::ValueArg<logging::Level> consoleLevel("", "consoleLevel", "The minimum log level that will be printed on the console (stderr)", false, defaultMinStderrLevel, &logLevelConstraint, cmd);
+	tclap::SwitchArg machineReadableMode("", "machineReadable", "Formats all output to stderr in a structured JSON format.", cmd, false);
+	tclap::SwitchArg quietMode("q", "quiet", "Suppresses all output to stderr except for warnings and error messages.", cmd, false);
 	tclap::ValueArg<int> maxThreadCount("", "threads", "The maximum number of worker threads to use.", false, getProcessorCoreCount(), "number", cmd);
 	tclap::ValueArg<string> extendedShapes("", "extendedShapes", "All extended, optional shapes to use.", false, "GHX", "string", cmd);
 	tclap::ValueArg<string> dialogFile("d", "dialogFile", "A file containing the text of the dialog.", false, string(), "string", cmd);
@@ -130,54 +125,52 @@ int main(int platformArgc, char *platformArgv[]) {
 	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::Tsv, &exportFormatConstraint, cmd);
 	tclap::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
-	std::ostream* infoStream = &std::cerr;
-	boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostreams::null_sink()));
-
 	try {
-		auto resumeLogging = gsl::finally([&]() {
-			*infoStream << std::endl << std::endl;
-			pausableStderrSink->resume();
-		});
-
 		// Parse command line
 		{
 			// TCLAP mutates the function argument! Pass a copy.
 			vector<string> argsCopy(args);
 			cmd.parse(argsCopy);
 		}
+
+		// Set up logging
+		// ... to stderr
 		if (quietMode.getValue()) {
-			infoStream = &nullStream;
+			logging::addSink(make_shared<QuietStderrSink>(consoleLevel.getValue()));
+		} else if (machineReadableMode.getValue()) {
+			logging::addSink(make_shared<MachineReadableStderrSink>(consoleLevel.getValue()));
+		} else {
+			logging::addSink(make_shared<NiceStderrSink>(consoleLevel.getValue()));
 		}
+		logging::removeSink(defaultSink);
+		// ... to log file
+		if (logFileName.isSet()) {
+			auto fileSink = createFileSink(path(logFileName.getValue()), logLevel.getValue());
+			logging::addSink(fileSink);
+		}
+
+		// Validate and transform command line arguments
 		if (maxThreadCount.getValue() < 1) {
 			throw std::runtime_error("Thread count must be 1 or higher.");
 		}
 		path inputFilePath(inputFileName.getValue());
 		ShapeSet targetShapeSet = getTargetShapeSet(extendedShapes.getValue());
 
-		// Set up log file
-		if (logFileName.isSet()) {
-			addFileSink(path(logFileName.getValue()), logLevel.getValue());
-		}
-
-		logging::infoFormat("Application startup. Command line: {}", join(
-			args | transformed([](string arg) { return fmt::format("\"{}\"", arg); }), " "));
+		logging::log(StartEntry(inputFilePath));
+		logging::debugFormat("Command line: {}",
+			join(args | transformed([](string arg) { return fmt::format("\"{}\"", arg); }), " "));
 
 		try {
-			*infoStream << fmt::format("Generating lip sync data for {}.", inputFilePath) << std::endl;
-			*infoStream << "Processing.  ";
-			JoiningContinuousTimeline<Shape> animation(TimeRange::zero(), Shape::X);
-			{
-				ProgressBar progressBar(*infoStream);
+			// On progress change: Create log message
+			ProgressForwarder progressSink([](double progress) { logging::log(ProgressEntry(progress)); });
 
-				// Animate the recording
-				animation = animateWaveFile(
-					inputFilePath,
-					dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<string>(),
-					targetShapeSet,
-					maxThreadCount.getValue(),
-					progressBar);
-			}
-			*infoStream << "Done." << std::endl << std::endl;
+			// Animate the recording
+			JoiningContinuousTimeline<Shape> animation = animateWaveFile(
+				inputFilePath,
+				dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<string>(),
+				targetShapeSet,
+				maxThreadCount.getValue(),
+				progressSink);
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
@@ -189,7 +182,7 @@ int main(int platformArgc, char *platformArgv[]) {
 			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
 			exporter->exportAnimation(exporterInput, outputFile ? *outputFile : std::cout);
 
-			logging::info("Exiting application normally.");
+			logging::log(SuccessEntry());
 		} catch (...) {
 			std::throw_with_nested(std::runtime_error(fmt::format("Error processing file {}.", inputFilePath)));
 		}
@@ -198,7 +191,7 @@ int main(int platformArgc, char *platformArgv[]) {
 	} catch (tclap::ArgException& e) {
 		// Error parsing command-line args.
 		cmd.getOutput()->failure(cmd, e);
-		logging::error("Invalid command line. Exiting application.");
+		logging::log(FailureEntry("Invalid command line."));
 		return 1;
 	} catch (tclap::ExitException&) {
 		// A built-in TCLAP command (like --help) has finished. Exit application.
@@ -207,7 +200,7 @@ int main(int platformArgc, char *platformArgv[]) {
 	} catch (const exception& e) {
 		// Generic error
 		string message = getMessage(e);
-		logging::fatalFormat("Exiting application with error:\n{}", message);
+		logging::log(FailureEntry(message));
 		return 1;
 	}
 }
