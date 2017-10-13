@@ -118,5 +118,7 @@ void MachineReadableStderrSink::receive(const logging::Entry& entry) {
 
 	if (line) {
 		std::cerr << *line << std::endl;
+		// Make sure the stream is flushed so that applications listening to it get the line immediately
+		fflush(stderr);
 	}
 }
