@@ -1,5 +1,16 @@
+def getVersion() {
+	// Dynamically read version from CMake file
+	String text = new File('../../appInfo.cmake').getText('UTF-8')
+	String major = (text =~ /appVersionMajor\s+(\d+)/)[0][1]
+	String minor = (text =~ /appVersionMinor\s+(\d+)/)[0][1]
+	String patch = (text =~ /appVersionPatch\s+(\d+)/)[0][1]
+	String suffix = (text =~ /appVersionSuffix\s+"(.*?)"/)[0][1]
+	String result = "${major}.${minor}.${patch}${suffix}"
+	return result
+}
+
 group 'com.rhubarb_lip_sync'
-version '1.0-SNAPSHOT'
+version = getVersion()
 
 buildscript {
     ext.kotlin_version = '1.1.4-3'
