@@ -141,7 +141,11 @@ ContinuousTimeline<ShapeRule> fixStaticSegmentRules(const ContinuousTimeline<Sha
 
 	// Find best solution. Start with a single replacement, then increase as necessary.
 	RuleChangeScenario bestScenario(shapeRules, {}, animate);
-	for (int replacementCount = 1; bestScenario.getStaticSegmentCount() > 0 && replacementCount <= maxReplacementCount; ++replacementCount) {
+	for (
+            int replacementCount = 1;
+            bestScenario.getStaticSegmentCount() > 0 && replacementCount <= std::min(static_cast<int>(possibleRuleChanges.size()), maxReplacementCount);
+            ++replacementCount
+        ) {
 		// Only the first <replacementCount> elements of `currentRuleChanges` count
 		auto currentRuleChanges(possibleRuleChanges);
 		do {
