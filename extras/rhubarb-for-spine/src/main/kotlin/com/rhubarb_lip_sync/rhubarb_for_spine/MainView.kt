@@ -1,10 +1,17 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
+import javafx.beans.property.SimpleStringProperty
+import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.scene.control.Button
+import javafx.scene.control.TableCell
+import javafx.scene.control.TableView
 import javafx.scene.control.TextField
 import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
+import javafx.stage.FileChooser
 import tornadofx.*
+import java.io.File
 import java.time.LocalDate
 import java.time.Period
 
@@ -16,47 +23,85 @@ class MainView : View() {
 		val age: Int get() = Period.between(birthday, LocalDate.now()).years
 	}
 
-	private val persons = listOf(
-		Person(1,"Samantha Stuart",LocalDate.of(1981,12,4)),
-		Person(2,"Tom Marks",LocalDate.of(2001,1,23)),
-		Person(3,"Stuart Gills",LocalDate.of(1989,5,23)),
-		Person(3,"Nicole Williams",LocalDate.of(1998,8,11))
-	).observable()
-
 	init {
 		title = "Rhubarb Lip Sync for Spine"
 	}
 
 	override val root = form {
-		var filePathField: TextField? = null
+		var filePathTextField: TextField? = null
+		var filePathButton: Button? = null
+
+		val fileModelProperty = mainModel.animationFileModelProperty
 
 		minWidth = 800.0
+		prefWidth = 1000.0
 		fieldset("Settings") {
 			field("Spine JSON file") {
-				filePathField = textfield {
+				filePathTextField = textfield {
 					textProperty().bindBidirectional(mainModel.filePathStringProperty)
-					tooltip("Hello world")
 					errorProperty().bind(mainModel.filePathErrorProperty)
 				}
-				button("...")
+				filePathButton = button("...")
 			}
 			field("Mouth slot") {
-				textfield()
+				combobox<String> {
+					itemsProperty().bind(fileModelProperty.select { it!!.slotsProperty })
+					valueProperty().bindBidirectional(fileModelProperty.select { it!!.mouthSlotProperty })
+					errorProperty().bind(fileModelProperty.select { it!!.mouthSlotErrorProperty })
+				}
 			}
 			field("Mouth naming") {
-				datepicker()
+				label {
+					textProperty().bind(
+						fileModelProperty
+							.select { it!!.mouthNamingProperty }
+							.select { SimpleStringProperty(it.displayString) }
+					)
+				}
 			}
 			field("Mouth shapes") {
-				textfield()
+				hbox {
+					label {
+						textProperty().bind(
+							fileModelProperty
+								.select { it!!.mouthShapesProperty }
+								.select {
+									val result = if (it.isEmpty()) "none" else it.joinToString()
+									SimpleStringProperty(result)
+								}
+						)
+					}
+					errorProperty().bind(fileModelProperty.select { it!!.mouthShapesErrorProperty })
+				}
 			}
 		}
 		fieldset("Audio events") {
-			tableview(persons) {
-				column("Event", Person::id)
-				column("Audio file", Person::name)
-				column("Dialog", Person::birthday)
-				column("Status", Person::age)
-				column("", Person::age)
+			tableview<AudioFileModel> {
+				columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+				column("Event", AudioFileModel::eventNameProperty)
+				column("Audio file", AudioFileModel::displayFilePathProperty)
+				column("Dialog", AudioFileModel::dialogProperty)
+				column("Status", AudioFileModel::statusLabelProperty)
+				column("", AudioFileModel::actionLabelProperty).apply {
+					setCellFactory { tableColumn ->
+						return@setCellFactory object : TableCell<AudioFileModel, String>() {
+							override fun updateItem(item: String?, empty: Boolean) {
+								super.updateItem(item, empty)
+								graphic = if (!empty)
+									Button(item).apply {
+										this.maxWidth = Double.MAX_VALUE
+										setOnAction {
+											val audioFileModel = this@tableview.items[index]
+											audioFileModel.performAction()
+										}
+									}
+								else
+									null
+							}
+						}
+					}
+				}
+				itemsProperty().bind(fileModelProperty.select { it!!.audioFileModelsProperty })
 			}
 		}
 
@@ -68,9 +113,27 @@ class MainView : View() {
 		}
 		onDragDropped = EventHandler<DragEvent> { event ->
 			if (event.dragboard.hasFiles()) {
-				filePathField!!.text = event.dragboard.files.firstOrNull()?.path
+				filePathTextField!!.text = event.dragboard.files.firstOrNull()?.path
 				event.isDropCompleted = true
 				event.consume()
+			}
+		}
+
+		filePathButton!!.onAction = EventHandler<ActionEvent> {
+			val fileChooser = FileChooser().apply {
+				title = "Open Spine JSON file"
+				extensionFilters.addAll(
+					FileChooser.ExtensionFilter("Spine JSON file (*.json)", "*.json"),
+					FileChooser.ExtensionFilter("All files (*.*)", "*.*")
+				)
+				val lastDirectory = filePathTextField!!.text?.let { File(it).parentFile }
+				if (lastDirectory != null && lastDirectory.isDirectory) {
+					initialDirectory = lastDirectory
+				}
+			}
+			val file = fileChooser.showOpenDialog(this@MainView.primaryStage)
+			if (file != null) {
+				filePathTextField!!.text = file.path
 			}
 		}
 	}

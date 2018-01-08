@@ -6,13 +6,20 @@ class MouthNaming(val prefix: String, val suffix: String, val mouthShapeCasing: 
 
 	companion object {
 		fun guess(mouthNames: List<String>): MouthNaming {
-			if (mouthNames.isEmpty()) return MouthNaming("", "", guessMouthShapeCasing(""))
+			if (mouthNames.isEmpty()) {
+				return MouthNaming("", "", guessMouthShapeCasing(""))
+			}
 
 			val commonPrefix = mouthNames.commonPrefix
 			val commonSuffix = mouthNames.commonSuffix
-			val shapeName = mouthNames.first().substring(
+			val firstMouthName = mouthNames.first()
+			if (commonPrefix.length + commonSuffix.length >= firstMouthName.length) {
+				return MouthNaming(commonPrefix, "", guessMouthShapeCasing(""))
+			}
+
+			val shapeName = firstMouthName.substring(
 				commonPrefix.length,
-				mouthNames.first().length - commonSuffix.length)
+				firstMouthName.length - commonSuffix.length)
 			val mouthShapeCasing = guessMouthShapeCasing(shapeName)
 			return MouthNaming(commonPrefix, commonSuffix, mouthShapeCasing)
 		}

@@ -6,10 +6,7 @@ import com.beust.klaxon.double
 import com.beust.klaxon.string
 import com.beust.klaxon.Parser as JsonParser
 import org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS
-import java.io.BufferedReader
-import java.io.EOFException
-import java.io.InputStreamReader
-import java.io.StringReader
+import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,7 +18,7 @@ class RhubarbTask(
 	val audioFilePath: Path,
 	val dialog: String?,
 	val extendedMouthShapes: Set<MouthShape>,
-	val progress: Progress
+	val reportProgress: (Double?) -> Unit
 ) : Callable<List<MouthCue>> {
 
 	override fun call(): List<MouthCue> {
@@ -32,24 +29,25 @@ class RhubarbTask(
 			throw IllegalArgumentException("File '$audioFilePath' does not exist.");
 		}
 
-
 		val dialogFile = if (dialog != null) TemporaryTextFile(dialog) else null
-		dialogFile.use {
-			val processBuilder = ProcessBuilder(createProcessBuilderArgs(dialogFile?.filePath))
+		val outputFile = TemporaryTextFile()
+		dialogFile.use { outputFile.use {
+			val processBuilder = ProcessBuilder(createProcessBuilderArgs(dialogFile?.filePath)).apply {
+				// See http://java-monitor.com/forum/showthread.php?t=4067
+				redirectOutput(outputFile.filePath.toFile())
+			}
 			val process: Process = processBuilder.start()
-			val stdout = BufferedReader(InputStreamReader(process.inputStream, StandardCharsets.UTF_8))
 			val stderr = BufferedReader(InputStreamReader(process.errorStream, StandardCharsets.UTF_8))
 			try {
 				while (true) {
 					val line = stderr.interruptibleReadLine()
-
 					val message = parseJsonObject(line)
 					when (message.string("type")!!) {
 						"progress" -> {
-							progress.reportProgress(message.double("value")!!)}
+							reportProgress(message.double("value")!!)}
 						"success" -> {
-							progress.reportProgress(1.0)
-							val resultString = stdout.readText()
+							reportProgress(1.0)
+							val resultString = String(Files.readAllBytes(outputFile.filePath), StandardCharsets.UTF_8)
 							return parseRhubarbResult(resultString)
 						}
 						"failure" -> {
@@ -63,7 +61,7 @@ class RhubarbTask(
 			} catch (e: EOFException) {
 				throw Exception("Rhubarb terminated unexpectedly.")
 			}
-		}
+		}}
 
 		throw Exception("An unexpected error occurred.")
 	}
@@ -127,7 +125,7 @@ class RhubarbTask(
 			+ " Expected to find it in '$guiBinDirectory' or any directory above.")
 	}
 
-	private class TemporaryTextFile(val text: String) : AutoCloseable {
+	private class TemporaryTextFile(text: String = "") : AutoCloseable {
 		val filePath: Path = Files.createTempFile(null, null).also {
 			Files.write(it, text.toByteArray(StandardCharsets.UTF_8))
 		}

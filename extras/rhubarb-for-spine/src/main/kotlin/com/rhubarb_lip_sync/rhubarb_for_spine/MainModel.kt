@@ -10,8 +10,8 @@ import java.nio.file.InvalidPathException
 import java.nio.file.Paths
 
 class MainModel {
-	val filePathStringProperty = SimpleStringProperty(getDefaultPathString()).applyListener { value ->
-		try {
+	val filePathStringProperty = SimpleStringProperty(getDefaultPathString()).alsoListen { value ->
+		filePathError = getExceptionMessage {
 			animationFileModel = null
 			if (value.isNullOrBlank()) {
 				throw Exception("No input file specified.")
@@ -29,13 +29,8 @@ class MainModel {
 			}
 
 			animationFileModel = AnimationFileModel(path)
-
-			filePathError = null
-		} catch (e: Exception) {
-			filePathError = e.message
 		}
 	}
-
 	var filePathString by filePathStringProperty
 
 	val filePathErrorProperty = SimpleStringProperty()

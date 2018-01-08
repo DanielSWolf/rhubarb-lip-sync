@@ -1,6 +1,7 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import com.beust.klaxon.*
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -67,7 +68,7 @@ class SpineJson(val filePath: Path) {
 		return slots.mapNotNull { it.string("name") }
 	}
 
-	val presumedMouthSlot: String? get() {
+	fun guessMouthSlot(): String? {
 		return slots.firstOrNull { it.contains("mouth", ignoreCase = true) }
 			?: slots.firstOrNull()
 	}
@@ -137,5 +138,10 @@ class SpineJson(val filePath: Path) {
 				}
 			)
 		}
+	}
+
+	fun save() {
+		var string = json.toJsonString(prettyPrint = true)
+		Files.write(filePath, listOf(string), StandardCharsets.UTF_8)
 	}
 }
