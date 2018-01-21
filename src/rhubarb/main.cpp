@@ -165,12 +165,14 @@ int main(int platformArgc, char *platformArgv[]) {
 			ProgressForwarder progressSink([](double progress) { logging::log(ProgressEntry(progress)); });
 
 			// Animate the recording
+			logging::info("Starting animation.");
 			JoiningContinuousTimeline<Shape> animation = animateWaveFile(
 				inputFilePath,
 				dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<string>(),
 				targetShapeSet,
 				maxThreadCount.getValue(),
 				progressSink);
+			logging::info("Done animating.");
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
@@ -180,7 +182,9 @@ int main(int platformArgc, char *platformArgv[]) {
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			}
 			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
+			logging::info("Starting export.");
 			exporter->exportAnimation(exporterInput, outputFile ? *outputFile : std::cout);
+			logging::info("Done exporting.");
 
 			logging::log(SuccessEntry());
 		} catch (...) {
