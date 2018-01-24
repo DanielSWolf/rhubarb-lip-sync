@@ -158,44 +158,7 @@ The following command-line options can be helpful in special situations, especia
 You can combine this option with the <<consoleLevel,`consoleLevel`>> option to change the minimum event level that is printed to `stderr`.
 
 | `--machineReadable`
-a| This option is useful if you want to integrate Rhubarb Lip Sync with another (possibly graphical) application. All progress output to `stderr` will be in structured JSON format, allowing your program to parse the output and display a graphical progress bar or something similar.
-
-In this mode, each line printed to `stderr` will be an object in JSON format. Every object contains the following:
-
-* Property `type`: The type of the event. Currently, one of `"start"` (application start), `"progress"` (numeric progress), `"success"` (successful termination), `"failure"` (unsuccessful termination), and `"log"` (a log message without structured information).
-* Event-specific structured data. For instance, a `"progress"` event contains the property `value` with a numeric value between 0.0 and 1.0.
-* Property `log`: A log message describing the event, plus severity information. If you aren't interested in the structured data, you can display this as a fallback. For instance, a `"progress"` event with the structured information `"value": 0.69` may contain the following redundant log message: `"Progress: 69%"`.
-
-You can combine this option with the <<consoleLevel,`consoleLevel`>> option. Note, however, that this only affects unstructured events of type `"log"` (not to be confused with the `log` property each event contains).
-
-The following is an example output from a _successful_ run:
-
-[source,json]
-----
-{ "type": "start", "file": "hi.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"hi.wav\"." } }
-{ "type": "progress", "value": 0.00, "log": { "level": "Trace", "message": "Progress: 0%" } }
-{ "type": "progress", "value": 0.01, "log": { "level": "Trace", "message": "Progress: 1%" } }
-{ "type": "progress", "value": 0.03, "log": { "level": "Trace", "message": "Progress: 3%" } }
-{ "type": "progress", "value": 0.06, "log": { "level": "Trace", "message": "Progress: 6%" } }
-{ "type": "progress", "value": 0.69, "log": { "level": "Trace", "message": "Progress: 68%" } }
-{ "type": "progress", "value": 1.00, "log": { "level": "Trace", "message": "Progress: 100%" } }
-{ "type": "success", "log": { "level": "Info", "message": "Application terminating normally." } }
-----
-
-The following is an example output from a _failed_ run:
-
-[source,json]
-----
-{ "type": "start", "file": "no-such-file.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"no-such-file.wav\"." } }
-{ "type": "failure", "reason": "Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory", "log": { "level": "Fatal", "message": "Application terminating with error: Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory" } }
-----
-
-Note that the output format <<Versioning,adheres to SemVer>>. That means that the JSON output created after a minor upgrade will still be compatible. Note, however, that the following kinds of changes may occur at any time, because I interpret them as compatible:
-
-* Additional types of progress events. Just ignore those events whose types you do not know or use their unstructured `log` property.
-* Additional properties in any object. Just ignore properties you aren't interested in.
-* Changes in JSON formatting, such as a re-ordering of properties or changes in whitespaces (except for line breaks -- every event will remain on a singe line.)
-* Fewer or more events of type `"log"` or changes in the wording of log messages
+a| This option is useful if you want to integrate Rhubarb Lip Sync with another (possibly graphical) application. All status messages to `stderr` will be in structured JSON format, allowing your program to parse them and display a graphical progress bar or something similar. For details, see <<machineReadable,Machine-readable status messages>>.
 
 [[consoleLevel]]
 | `--consoleLevel` _<level>_
@@ -297,6 +260,47 @@ JSON format is very similar to <<xml,XML format>>. The choice mainly depends on 
 ----
 
 There is nothing surprising here; everything said about XML format applies to JSON, too.
+
+[[machineReadable]]
+== Machine-readable status messages
+
+Use the `--machineReadable` command-line option to enable machine-readable status messages. In this mode, each line printed to `stderr` will be an object in JSON format. Every object contains the following:
+
+* Property `type`: The type of the event. Currently, one of `"start"` (application start), `"progress"` (numeric progress), `"success"` (successful termination), `"failure"` (unsuccessful termination), and `"log"` (a log message without structured information).
+* Event-specific structured data. For instance, a `"progress"` event contains the property `value` with a numeric value between 0.0 and 1.0.
+* Property `log`: A log message describing the event, plus severity information. If you aren't interested in the structured data, you can display this as a fallback. For instance, a `"progress"` event with the structured information `"value": 0.69` may contain the following redundant log message: `"Progress: 69%"`.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option. Note, however, that this only affects unstructured events of type `"log"` (not to be confused with the `log` property each event contains).
+
+The following is an example output to `stderr` from a _successful_ run:
+
+[source,json]
+----
+{ "type": "start", "file": "hi.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"hi.wav\"." } }
+{ "type": "progress", "value": 0.00, "log": { "level": "Trace", "message": "Progress: 0%" } }
+{ "type": "progress", "value": 0.01, "log": { "level": "Trace", "message": "Progress: 1%" } }
+{ "type": "progress", "value": 0.03, "log": { "level": "Trace", "message": "Progress: 3%" } }
+{ "type": "progress", "value": 0.06, "log": { "level": "Trace", "message": "Progress: 6%" } }
+{ "type": "progress", "value": 0.69, "log": { "level": "Trace", "message": "Progress: 68%" } }
+{ "type": "progress", "value": 1.00, "log": { "level": "Trace", "message": "Progress: 100%" } }
+// Result data, printed to stdout...
+{ "type": "success", "log": { "level": "Info", "message": "Application terminating normally." } }
+----
+
+The following is an example output to `stderr` from a _failed_ run:
+
+[source,json]
+----
+{ "type": "start", "file": "no-such-file.wav", "log": { "level": "Info", "message": "Application startup. Input file: \"no-such-file.wav\"." } }
+{ "type": "failure", "reason": "Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory", "log": { "level": "Fatal", "message": "Application terminating with error: Error processing file \"no-such-file.wav\".\nCould not open sound file \"no-such-file.wav\".\nNo such file or directory" } }
+----
+
+Note that the output format <<Versioning,adheres to SemVer>>. That means that the JSON output created after a minor upgrade will still be compatible. Note, however, that the following kinds of changes may occur at any time, because I consider them non-breaking:
+
+* Additional types of progress events. Just ignore those events whose types you do not know or use their unstructured `log` property.
+* Additional properties in any object. Just ignore properties you aren't interested in.
+* Changes in JSON formatting, such as a re-ordering of properties or changes in whitespaces (except for line breaks -- every event will remain on a singe line)
+* Fewer or more events of type `"log"` or changes in the wording of log messages
 
 [[versioning]]
 == Versioning (SemVer)
