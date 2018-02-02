@@ -3,12 +3,11 @@ package com.rhubarb_lip_sync.rhubarb_for_spine
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
-import javafx.scene.control.Button
-import javafx.scene.control.TableCell
-import javafx.scene.control.TableView
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
+import javafx.scene.paint.Paint
+import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import tornadofx.*
 import java.io.File
@@ -81,9 +80,22 @@ class MainView : View() {
 				columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
 				column("Event", AudioFileModel::eventNameProperty)
 				column("Audio file", AudioFileModel::displayFilePathProperty)
-				column("Dialog", AudioFileModel::dialogProperty)
+				column("Dialog", AudioFileModel::dialogProperty).apply {
+					// Make dialog column wrap
+					setCellFactory { tableColumn ->
+						return@setCellFactory TableCell<AudioFileModel, String>().also { cell ->
+							cell.graphic = Text().apply {
+								textProperty().bind(cell.itemProperty())
+								fillProperty().bind(cell.textFillProperty())
+								wrappingWidthProperty().bind(tableColumn.widthProperty())
+							}
+							cell.prefHeight = Control.USE_COMPUTED_SIZE
+						}
+					}
+				}
 				column("Status", AudioFileModel::statusLabelProperty)
 				column("", AudioFileModel::actionLabelProperty).apply {
+					// Show button
 					setCellFactory { tableColumn ->
 						return@setCellFactory object : TableCell<AudioFileModel, String>() {
 							override fun updateItem(item: String?, empty: Boolean) {
