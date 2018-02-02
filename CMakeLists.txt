@@ -5,11 +5,10 @@ include(appInfo.cmake)
 # Build and install main executable
 add_subdirectory(rhubarb)
 
-# Install extras
-install(
-	DIRECTORY extras 
-	DESTINATION .
-)
+# Build and install extras
+add_subdirectory("extras/AdobeAfterEffects")
+add_subdirectory("extras/MagixVegas")
+add_subdirectory("extras/rhubarb-for-spine")
 
 # Install misc. files
 install(
