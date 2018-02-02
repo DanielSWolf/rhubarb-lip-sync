@@ -4,27 +4,26 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
-import javafx.scene.paint.Paint
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import tornadofx.*
 import java.io.File
-import java.time.LocalDate
-import java.time.Period
 import java.util.concurrent.Executors
 
 class MainView : View() {
 	private val executor = Executors.newSingleThreadExecutor()
 	private val mainModel = MainModel(executor)
 
-	class Person(val id: Int, val name: String, val birthday: LocalDate) {
-		val age: Int get() = Period.between(birthday, LocalDate.now()).years
-	}
-
 	init {
 		title = "Rhubarb Lip Sync for Spine"
+
+		// Set icon
+		for (iconSize in listOf(16, 32, 48, 256)) {
+			addStageIcon(Image(this.javaClass.getResourceAsStream("/icon-$iconSize.png")))
+		}
 	}
 
 	override val root = form {
