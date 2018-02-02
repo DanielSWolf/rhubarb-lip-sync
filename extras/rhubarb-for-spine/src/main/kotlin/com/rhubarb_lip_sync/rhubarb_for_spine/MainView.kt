@@ -14,10 +14,11 @@ import tornadofx.*
 import java.io.File
 import java.time.LocalDate
 import java.time.Period
+import java.util.concurrent.Executors
 
 class MainView : View() {
-
-	val mainModel = MainModel()
+	private val executor = Executors.newSingleThreadExecutor()
+	private val mainModel = MainModel(executor)
 
 	class Person(val id: Int, val name: String, val birthday: LocalDate) {
 		val age: Int get() = Period.between(birthday, LocalDate.now()).years
@@ -117,6 +118,10 @@ class MainView : View() {
 				event.isDropCompleted = true
 				event.consume()
 			}
+		}
+
+		whenUndocked {
+			executor.shutdownNow()
 		}
 
 		filePathButton!!.onAction = EventHandler<ActionEvent> {

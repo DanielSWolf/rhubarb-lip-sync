@@ -8,8 +8,9 @@ import tornadofx.setValue
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Paths
+import java.util.concurrent.ExecutorService
 
-class MainModel {
+class MainModel(private val executor: ExecutorService) {
 	val filePathStringProperty = SimpleStringProperty(getDefaultPathString()).alsoListen { value ->
 		filePathError = getExceptionMessage {
 			animationFileModel = null
@@ -28,7 +29,7 @@ class MainModel {
 				throw Exception("File does not exist.")
 			}
 
-			animationFileModel = AnimationFileModel(path)
+			animationFileModel = AnimationFileModel(path, executor)
 		}
 	}
 	var filePathString by filePathStringProperty

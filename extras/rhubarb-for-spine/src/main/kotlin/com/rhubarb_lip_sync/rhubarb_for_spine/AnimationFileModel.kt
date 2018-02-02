@@ -8,9 +8,9 @@ import java.nio.file.Path
 import tornadofx.getValue
 import tornadofx.observable
 import tornadofx.setValue
-import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorService
 
-class AnimationFileModel(animationFilePath: Path) {
+class AnimationFileModel(animationFilePath: Path, private val executor: ExecutorService) {
 	val spineJson = SpineJson(animationFilePath)
 
 	val slotsProperty = SimpleObjectProperty<ObservableList<String>>()
@@ -50,7 +50,6 @@ class AnimationFileModel(animationFilePath: Path) {
 	var mouthShapesError by mouthShapesErrorProperty
 		private set
 
-	private val executor = Executors.newSingleThreadExecutor()
 	val audioFileModelsProperty = SimpleListProperty<AudioFileModel>(
 		spineJson.audioEvents
 			.map { event ->
