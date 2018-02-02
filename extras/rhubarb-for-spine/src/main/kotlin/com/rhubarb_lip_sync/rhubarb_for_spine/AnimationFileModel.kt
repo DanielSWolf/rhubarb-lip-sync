@@ -50,10 +50,10 @@ class AnimationFileModel(animationFilePath: Path) {
 	var mouthShapesError by mouthShapesErrorProperty
 		private set
 
+	private val executor = Executors.newSingleThreadExecutor()
 	val audioFileModelsProperty = SimpleListProperty<AudioFileModel>(
 		spineJson.audioEvents
 			.map { event ->
-				val executor = Executors.newSingleThreadExecutor()
 				AudioFileModel(event, this, executor, { result -> saveAnimation(result, event.name) })
 			}
 			.observable()
