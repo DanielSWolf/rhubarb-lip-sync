@@ -76,10 +76,13 @@ class MainView : View() {
 		}
 		fieldset("Audio events") {
 			tableview<AudioFileModel> {
-				columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+				columnResizePolicy = SmartResize.POLICY
 				column("Event", AudioFileModel::eventNameProperty)
+					.weigthedWidth(1.0)
 				column("Audio file", AudioFileModel::displayFilePathProperty)
+					.weigthedWidth(1.0)
 				column("Dialog", AudioFileModel::dialogProperty).apply {
+					weigthedWidth(3.0)
 					// Make dialog column wrap
 					setCellFactory { tableColumn ->
 						return@setCellFactory TableCell<AudioFileModel, String>().also { cell ->
@@ -93,7 +96,9 @@ class MainView : View() {
 					}
 				}
 				column("Status", AudioFileModel::statusLabelProperty)
+					.weigthedWidth(1.0)
 				column("", AudioFileModel::actionLabelProperty).apply {
+					weigthedWidth(1.0)
 					// Show button
 					setCellFactory { tableColumn ->
 						return@setCellFactory object : TableCell<AudioFileModel, String>() {
