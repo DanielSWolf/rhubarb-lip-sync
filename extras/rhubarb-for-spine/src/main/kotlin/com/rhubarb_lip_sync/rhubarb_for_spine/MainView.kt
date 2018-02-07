@@ -1,5 +1,8 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
+import javafx.beans.binding.Bindings
+import javafx.beans.property.Property
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -77,6 +80,7 @@ class MainView : View() {
 		}
 		fieldset("Audio events") {
 			tableview<AudioFileModel> {
+				placeholder = Label("There are no events with associated audio files.")
 				columnResizePolicy = SmartResize.POLICY
 				column("Event", AudioFileModel::eventNameProperty)
 					.weigthedWidth(1.0)
@@ -112,6 +116,10 @@ class MainView : View() {
 											val audioFileModel = this@tableview.items[index]
 											audioFileModel.performAction()
 										}
+										val invalidProperty: Property<Boolean> = fileModelProperty
+											.select { it!!.validProperty }
+											.select { SimpleBooleanProperty(!it) }
+										disableProperty().bind(invalidProperty)
 									}
 								else
 									null

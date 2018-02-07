@@ -27,7 +27,7 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 		mouthShapes = if (mouthSlot != null) {
 			val mouthNames = spineJson.getSlotAttachmentNames(mouthSlot)
 			MouthShape.values().filter { mouthNames.contains(mouthNaming.getName(it)) }
-		} else null
+		} else listOf()
 
 		mouthSlotError = if (mouthSlot != null) null
 		else "No slot with mouth drawings specified."
@@ -75,6 +75,19 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 	}
 	val busy by busyProperty
 
+	val validProperty = SimpleBooleanProperty().apply {
+		val errorProperties = arrayOf(mouthSlotErrorProperty, mouthShapesErrorProperty)
+		bind(object : BooleanBinding() {
+			init {
+				super.bind(*errorProperties)
+			}
+			override fun computeValue(): Boolean {
+				return errorProperties.all { it.value == null }
+			}
+		})
+	}
+	val valid by validProperty
+
 	private fun saveAnimation(mouthCues: List<MouthCue>, audioEventName: String) {
 		val animationName = getAnimationName(audioEventName)
 		spineJson.createOrUpdateAnimation(mouthCues, audioEventName, animationName, mouthSlot, mouthNaming)
@@ -94,8 +107,13 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 		if (missingBasicShapes.isEmpty()) return null
 
 		val result = StringBuilder()
-		result.append("Mouth shapes ${missingBasicShapes.joinToString()}")
-		result.appendln(if (missingBasicShapes.count() > 1) " are missing." else " is missing.")
+		val missingShapesString = missingBasicShapes.joinToString()
+		result.appendln(
+			if (missingBasicShapes.count() > 1)
+				"Mouth shapes $missingShapesString are missing."
+			else
+				"Mouth shape $missingShapesString is missing."
+		)
 
 		val first = MouthShape.basicShapes.first()
 		val last = MouthShape.basicShapes.last()
