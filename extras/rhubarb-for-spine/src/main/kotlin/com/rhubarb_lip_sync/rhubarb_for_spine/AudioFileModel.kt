@@ -145,8 +145,8 @@ class AudioFileModel(
 			} catch (e: Exception) {
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
-						headerText = "Error performing lip-sync for event $eventName."
-						contentText = e.toString()
+						headerText = "Error performing lip-sync for event '$eventName'."
+						contentText = e.message
 						show()
 					}
 				}
