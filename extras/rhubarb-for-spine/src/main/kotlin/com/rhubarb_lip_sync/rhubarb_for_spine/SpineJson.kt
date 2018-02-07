@@ -36,7 +36,7 @@ class SpineJson(val filePath: Path) {
 			?: throw Exception("JSON file is incomplete: Images path is missing."
 				+ "Make sure to check 'Nonessential data' when exporting.")
 
-		val imagesDirectoryPath = fileDirectoryPath.resolve(relativeImagesDirectory)
+		val imagesDirectoryPath = fileDirectoryPath.resolve(relativeImagesDirectory).normalize()
 		if (!Files.exists(imagesDirectoryPath)) {
 			throw Exception("Could not find images directory relative to the JSON file."
 				+ " Make sure the JSON file is in the same directory as the original Spine file.")
@@ -50,7 +50,7 @@ class SpineJson(val filePath: Path) {
 			?: throw Exception("JSON file is incomplete: Audio path is missing."
 			+ "Make sure to check 'Nonessential data' when exporting.")
 
-		val audioDirectoryPath = fileDirectoryPath.resolve(relativeAudioDirectory)
+		val audioDirectoryPath = fileDirectoryPath.resolve(relativeAudioDirectory).normalize()
 		if (!Files.exists(audioDirectoryPath)) {
 			throw Exception("Could not find audio directory relative to the JSON file."
 				+ " Make sure the JSON file is in the same directory as the original Spine file.")
