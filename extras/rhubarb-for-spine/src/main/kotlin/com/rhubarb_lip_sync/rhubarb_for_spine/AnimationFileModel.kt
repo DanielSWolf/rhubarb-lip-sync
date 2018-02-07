@@ -1,5 +1,7 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
+import javafx.beans.binding.BooleanBinding
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -57,6 +59,21 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 			}
 			.observable()
 	)
+	val audioFileModels by audioFileModelsProperty
+
+	val busyProperty = SimpleBooleanProperty().apply {
+		bind(object : BooleanBinding() {
+			init {
+				for (audioFileModel in audioFileModels) {
+					super.bind(audioFileModel.busyProperty)
+				}
+			}
+			override fun computeValue(): Boolean {
+				return audioFileModels.any { it.busy }
+			}
+		})
+	}
+	val busy by busyProperty
 
 	private fun saveAnimation(mouthCues: List<MouthCue>, audioEventName: String) {
 		val animationName = getAnimationName(audioEventName)
@@ -65,8 +82,6 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 	}
 
 	private fun getAnimationName(audioEventName: String): String = "say_$audioEventName"
-
-	val audioFileModels by audioFileModelsProperty
 
 	init {
 		slots = spineJson.slots.observable()

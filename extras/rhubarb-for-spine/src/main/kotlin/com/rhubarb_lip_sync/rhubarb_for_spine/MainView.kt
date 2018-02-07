@@ -35,6 +35,7 @@ class MainView : View() {
 		minWidth = 800.0
 		prefWidth = 1000.0
 		fieldset("Settings") {
+			disableProperty().bind(fileModelProperty.select { it!!.busyProperty })
 			field("Spine JSON file") {
 				filePathTextField = textfield {
 					textProperty().bindBidirectional(mainModel.filePathStringProperty)
@@ -123,13 +124,13 @@ class MainView : View() {
 		}
 
 		onDragOver = EventHandler<DragEvent> { event ->
-			if (event.dragboard.hasFiles()) {
+			if (event.dragboard.hasFiles() && mainModel.animationFileModel?.busy != true) {
 				event.acceptTransferModes(TransferMode.COPY)
 				event.consume()
 			}
 		}
 		onDragDropped = EventHandler<DragEvent> { event ->
-			if (event.dragboard.hasFiles()) {
+			if (event.dragboard.hasFiles() && mainModel.animationFileModel?.busy != true) {
 				filePathTextField!!.text = event.dragboard.files.firstOrNull()?.path
 				event.isDropCompleted = true
 				event.consume()

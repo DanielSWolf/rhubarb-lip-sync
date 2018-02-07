@@ -1,6 +1,7 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import javafx.application.Platform
+import javafx.beans.binding.BooleanBinding
 import javafx.beans.binding.ObjectBinding
 import javafx.beans.binding.StringBinding
 import javafx.beans.property.SimpleBooleanProperty
@@ -65,6 +66,19 @@ class AudioFileModel(
 		})
 	}
 	private val audioFileState by audioFileStateProperty
+
+	val busyProperty = SimpleBooleanProperty().apply {
+		bind(object : BooleanBinding() {
+			init {
+				super.bind(futureProperty)
+			}
+			override fun computeValue(): Boolean {
+				return future != null
+			}
+
+		})
+	}
+	val busy by busyProperty
 
 	val statusLabelProperty = SimpleStringProperty().apply {
 		bind(object : StringBinding() {
