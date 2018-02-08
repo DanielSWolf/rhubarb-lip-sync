@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.control.*
-import javafx.scene.image.Image
 import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.text.Text
@@ -22,11 +21,6 @@ class MainView : View() {
 
 	init {
 		title = "Rhubarb Lip Sync for Spine"
-
-		// Set icon
-		for (iconSize in listOf(16, 32, 48, 256)) {
-			addStageIcon(Image(this.javaClass.getResourceAsStream("/icon-$iconSize.png")))
-		}
 	}
 
 	override val root = form {
