@@ -88,7 +88,10 @@ class MainView : View() {
 							cell.graphic = Text().apply {
 								textProperty().bind(cell.itemProperty())
 								fillProperty().bind(cell.textFillProperty())
-								wrappingWidthProperty().bind(tableColumn.widthProperty())
+								val widthProperty = tableColumn.widthProperty()
+									.minus(cell.paddingLeftProperty)
+									.minus(cell.paddingRightProperty)
+								wrappingWidthProperty().bind(widthProperty)
 							}
 							cell.prefHeight = Control.USE_COMPUTED_SIZE
 						}
