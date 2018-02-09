@@ -29,6 +29,23 @@ class AudioFileModel(
 	val displayFilePathProperty = SimpleStringProperty(audioEvent.relativeAudioFilePath)
 	val displayFilePath by displayFilePathProperty
 
+	val animationNameProperty = SimpleStringProperty().apply {
+		val mainModel = parentModel.parentModel
+		bind(object : ObjectBinding<String>() {
+			init {
+				super.bind(
+					mainModel.animationPrefixProperty,
+					eventNameProperty,
+					mainModel.animationSuffixProperty
+				)
+			}
+			override fun computeValue(): String {
+				return mainModel.animationPrefix + eventName + mainModel.animationSuffix
+			}
+		})
+	}
+	val animationName by animationNameProperty
+
 	val dialogProperty = SimpleStringProperty(audioEvent.dialog)
 	val dialog: String? by dialogProperty
 
@@ -36,8 +53,17 @@ class AudioFileModel(
 	var animationProgress by animationProgressProperty
 		private set
 
-	private val animatedPreviouslyProperty = SimpleBooleanProperty(false) // TODO: Initial value
-	private var animatedPreviously by animatedPreviouslyProperty
+	private val animatedProperty = SimpleBooleanProperty().apply {
+		bind(object : ObjectBinding<Boolean>() {
+			init {
+				super.bind(animationNameProperty, parentModel.spineJson.animationNames)
+			}
+			override fun computeValue(): Boolean {
+				return parentModel.spineJson.animationNames.contains(animationName)
+			}
+		})
+	}
+	private var animated by animatedProperty
 
 	private val futureProperty = SimpleObjectProperty<Future<*>?>()
 	private var future by futureProperty
@@ -45,7 +71,7 @@ class AudioFileModel(
 	private val audioFileStateProperty = SimpleObjectProperty<AudioFileState>().apply {
 		bind(object : ObjectBinding<AudioFileState>() {
 			init {
-				super.bind(animatedPreviouslyProperty, futureProperty, animationProgressProperty)
+				super.bind(animatedProperty, futureProperty, animationProgressProperty)
 			}
 			override fun computeValue(): AudioFileState {
 				return if (future != null) {
@@ -57,7 +83,7 @@ class AudioFileModel(
 					else
 						AudioFileState(AudioFileStatus.Pending)
 				} else {
-					if (animatedPreviously)
+					if (animated)
 						AudioFileState(AudioFileStatus.Done)
 					else
 						AudioFileState(AudioFileStatus.NotAnimated)
@@ -133,7 +159,6 @@ class AudioFileModel(
 					val result = rhubarbTask.call()
 					runAndWait {
 						reportResult(result)
-						animatedPreviously = true
 					}
 				} finally {
 					runAndWait {

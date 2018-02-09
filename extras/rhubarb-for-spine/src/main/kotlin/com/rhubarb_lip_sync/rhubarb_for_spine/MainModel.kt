@@ -29,7 +29,7 @@ class MainModel(private val executor: ExecutorService) {
 				throw Exception("File does not exist.")
 			}
 
-			animationFileModel = AnimationFileModel(path, executor)
+			animationFileModel = AnimationFileModel(this, path, executor)
 		}
 	}
 	var filePathString by filePathStringProperty
@@ -41,6 +41,12 @@ class MainModel(private val executor: ExecutorService) {
 	val animationFileModelProperty = SimpleObjectProperty<AnimationFileModel?>()
 	var animationFileModel by animationFileModelProperty
 		private set
+
+	val animationPrefixProperty = SimpleStringProperty("say_")
+	var animationPrefix by animationPrefixProperty
+
+	val animationSuffixProperty = SimpleStringProperty("")
+	var animationSuffix by animationSuffixProperty
 
 	private fun getDefaultPathString() = FX.application.parameters.raw.firstOrNull()
 }

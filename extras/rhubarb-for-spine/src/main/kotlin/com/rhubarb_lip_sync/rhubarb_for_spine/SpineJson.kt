@@ -1,6 +1,7 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import com.beust.klaxon.*
+import javafx.collections.FXCollections.observableSet
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -94,10 +95,9 @@ class SpineJson(val filePath: Path) {
 		return attachments.map { it.key }
 	}
 
-	fun hasAnimation(animationName: String): Boolean {
-		val animations = json.obj("animations") ?: return false
-		return animations.any { it.key == animationName }
-	}
+	val animationNames = observableSet<String>(
+		json.obj("animations")?.map{ it.key }?.toSet() ?: setOf()
+	)
 
 	fun createOrUpdateAnimation(mouthCues: List<MouthCue>, eventName: String, animationName: String,
 		mouthSlot: String, mouthNaming: MouthNaming
@@ -138,6 +138,8 @@ class SpineJson(val filePath: Path) {
 				}
 			)
 		}
+
+		animationNames.add(animationName)
 	}
 
 	fun save() {

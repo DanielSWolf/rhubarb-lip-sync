@@ -12,7 +12,7 @@ import tornadofx.observable
 import tornadofx.setValue
 import java.util.concurrent.ExecutorService
 
-class AnimationFileModel(animationFilePath: Path, private val executor: ExecutorService) {
+class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, private val executor: ExecutorService) {
 	val spineJson = SpineJson(animationFilePath)
 
 	val slotsProperty = SimpleObjectProperty<ObservableList<String>>()
@@ -55,7 +55,11 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 	val audioFileModelsProperty = SimpleListProperty<AudioFileModel>(
 		spineJson.audioEvents
 			.map { event ->
-				AudioFileModel(event, this, executor, { result -> saveAnimation(result, event.name) })
+				var audioFileModel: AudioFileModel? = null
+				val reportResult: (List<MouthCue>) -> Unit =
+					{ result -> saveAnimation(audioFileModel!!.animationName, event.name, result) }
+				audioFileModel = AudioFileModel(event, this, executor, reportResult)
+				return@map audioFileModel
 			}
 			.observable()
 	)
@@ -88,13 +92,10 @@ class AnimationFileModel(animationFilePath: Path, private val executor: Executor
 	}
 	val valid by validProperty
 
-	private fun saveAnimation(mouthCues: List<MouthCue>, audioEventName: String) {
-		val animationName = getAnimationName(audioEventName)
+	private fun saveAnimation(animationName: String, audioEventName: String, mouthCues: List<MouthCue>) {
 		spineJson.createOrUpdateAnimation(mouthCues, audioEventName, animationName, mouthSlot, mouthNaming)
 		spineJson.save()
 	}
-
-	private fun getAnimationName(audioEventName: String): String = "say_$audioEventName"
 
 	init {
 		slots = spineJson.slots.observable()

@@ -71,12 +71,25 @@ class MainView : View() {
 					errorProperty().bind(fileModelProperty.select { it!!.mouthShapesErrorProperty })
 				}
 			}
+			field("Animation naming") {
+				textfield {
+					maxWidth = 100.0
+					textProperty().bindBidirectional(mainModel.animationPrefixProperty)
+				}
+				label("<audio event name>")
+				textfield {
+					maxWidth = 100.0
+					textProperty().bindBidirectional(mainModel.animationSuffixProperty)
+				}
+			}
 		}
 		fieldset("Audio events") {
 			tableview<AudioFileModel> {
 				placeholder = Label("There are no events with associated audio files.")
 				columnResizePolicy = SmartResize.POLICY
 				column("Event", AudioFileModel::eventNameProperty)
+					.weigthedWidth(1.0)
+				column("Animation name", AudioFileModel::animationNameProperty)
 					.weigthedWidth(1.0)
 				column("Audio file", AudioFileModel::displayFilePathProperty)
 					.weigthedWidth(1.0)
