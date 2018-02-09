@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import tornadofx.getValue
 import tornadofx.setValue
 import java.util.concurrent.ExecutorService
@@ -141,6 +142,17 @@ class AudioFileModel(
 
 	fun performAction() {
 		if (future == null) {
+			if (animated) {
+				Alert(Alert.AlertType.CONFIRMATION).apply {
+					headerText = "Animation '$animationName' already exists."
+					contentText = "Do you want to replace the existing animation?"
+					val result = showAndWait()
+					if (result.get() != ButtonType.OK) {
+						return
+					}
+				}
+			}
+
 			startAnimation()
 		} else {
 			cancelAnimation()
@@ -170,7 +182,7 @@ class AudioFileModel(
 			} catch (e: Exception) {
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
-						headerText = "Error performing lip-sync for event '$eventName'."
+						headerText = "Error performing lip sync for event '$eventName'."
 						contentText = e.message
 						show()
 					}
