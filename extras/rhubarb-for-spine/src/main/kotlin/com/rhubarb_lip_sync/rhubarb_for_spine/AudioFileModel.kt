@@ -114,7 +114,7 @@ class AudioFileModel(
 			}
 			override fun computeValue(): String {
 				return when (audioFileState.status) {
-					AudioFileStatus.NotAnimated -> ""
+					AudioFileStatus.NotAnimated -> "Not animated"
 					AudioFileStatus.Pending -> "Waiting"
 					AudioFileStatus.Animating -> "${((animationProgress ?: 0.0) * 100).toInt()}%"
 					AudioFileStatus.Canceling -> "Canceling"
