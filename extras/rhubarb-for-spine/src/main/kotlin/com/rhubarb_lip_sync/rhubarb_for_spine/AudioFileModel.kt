@@ -69,7 +69,7 @@ class AudioFileModel(
 	private val futureProperty = SimpleObjectProperty<Future<*>?>()
 	private var future by futureProperty
 
-	private val audioFileStateProperty = SimpleObjectProperty<AudioFileState>().apply {
+	val audioFileStateProperty = SimpleObjectProperty<AudioFileState>().apply {
 		bind(object : ObjectBinding<AudioFileState>() {
 			init {
 				super.bind(animatedProperty, futureProperty, animationProgressProperty)
@@ -92,7 +92,7 @@ class AudioFileModel(
 			}
 		})
 	}
-	private val audioFileState by audioFileStateProperty
+	val audioFileState by audioFileStateProperty
 
 	val busyProperty = SimpleBooleanProperty().apply {
 		bind(object : BooleanBinding() {
@@ -106,24 +106,6 @@ class AudioFileModel(
 		})
 	}
 	val busy by busyProperty
-
-	val statusLabelProperty = SimpleStringProperty().apply {
-		bind(object : StringBinding() {
-			init {
-				super.bind(audioFileStateProperty)
-			}
-			override fun computeValue(): String {
-				return when (audioFileState.status) {
-					AudioFileStatus.NotAnimated -> "Not animated"
-					AudioFileStatus.Pending -> "Waiting"
-					AudioFileStatus.Animating -> "${((animationProgress ?: 0.0) * 100).toInt()}%"
-					AudioFileStatus.Canceling -> "Canceling"
-					AudioFileStatus.Done -> "Done"
-				}
-			}
-		})
-	}
-	val statusLabel by statusLabelProperty
 
 	val actionLabelProperty = SimpleStringProperty().apply {
 		bind(object : StringBinding() {

@@ -1,14 +1,18 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
-import javafx.beans.binding.Bindings
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
+import javafx.scene.layout.*
+import javafx.scene.paint.Color
+import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import tornadofx.*
@@ -110,8 +114,45 @@ class MainView : View() {
 						}
 					}
 				}
-				column("Status", AudioFileModel::statusLabelProperty)
-					.weigthedWidth(1.0)
+				column("Status", AudioFileModel::audioFileStateProperty).apply {
+					weigthedWidth(1.0)
+					setCellFactory { tableColumn ->
+						return@setCellFactory object : TableCell<AudioFileModel, AudioFileState>() {
+							override fun updateItem(state: AudioFileState?, empty: Boolean) {
+								super.updateItem(state, empty)
+								graphic = if (state != null) {
+									when (state.status) {
+										AudioFileStatus.NotAnimated -> Text("Not animated").apply {
+											fill = Color.GRAY
+										}
+										AudioFileStatus.Pending -> ProgressBar().apply {
+											progress = -1.0 // Indeterminate
+											maxWidth = Double.MAX_VALUE
+										}
+										AudioFileStatus.Animating -> HBox().apply {
+											val progress = state.progress ?: 0.0
+											val bar = progressbar(progress) {
+												maxWidth = Double.MAX_VALUE
+											}
+											HBox.setHgrow(bar, Priority.ALWAYS)
+											val progressString = "${(progress * 100).toInt()}%"
+											hbox {
+												minWidth = 30.0
+												text(progressString) {
+													alignment = Pos.BASELINE_RIGHT
+												}
+											}
+										}
+										AudioFileStatus.Canceling -> Text("Canceling")
+										AudioFileStatus.Done -> Text("Done").apply {
+											font = Font.font(font.family, FontWeight.BOLD, font.size)
+										}
+									}
+								} else null
+							}
+						}
+					}
+				}
 				column("", AudioFileModel::actionLabelProperty).apply {
 					weigthedWidth(1.0)
 					// Show button
