@@ -133,21 +133,20 @@ class MainView : View() {
 										AudioFileStatus.NotAnimated -> Text("Not animated").apply {
 											fill = Color.GRAY
 										}
-										AudioFileStatus.Pending -> ProgressBar().apply {
-											progress = -1.0 // Indeterminate
-											maxWidth = Double.MAX_VALUE
-										}
+										AudioFileStatus.Pending,
 										AudioFileStatus.Animating -> HBox().apply {
-											val progress = state.progress ?: 0.0
-											val bar = progressbar(progress) {
+											val progress: Double? = state.progress
+											val indeterminate = -1.0
+											val bar = progressbar(progress ?: indeterminate) {
 												maxWidth = Double.MAX_VALUE
 											}
 											HBox.setHgrow(bar, Priority.ALWAYS)
-											val progressString = "${(progress * 100).toInt()}%"
 											hbox {
 												minWidth = 30.0
-												text(progressString) {
-													alignment = Pos.BASELINE_RIGHT
+												if (progress != null) {
+													text("${(progress * 100).toInt()}%") {
+														alignment = Pos.BASELINE_RIGHT
+													}
 												}
 											}
 										}
