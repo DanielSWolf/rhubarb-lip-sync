@@ -13,5 +13,7 @@ enum class MouthShape {
 		val basicShapeCount = 6
 
 		val basicShapes = MouthShape.values().take(basicShapeCount)
+
+		val extendedShapes = MouthShape.values().drop(basicShapeCount)
 	}
 }

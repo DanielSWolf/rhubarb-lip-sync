@@ -2,9 +2,11 @@ package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.input.DragEvent
@@ -62,17 +64,23 @@ class MainView : View() {
 			}
 			field("Mouth shapes") {
 				hbox {
-					label {
-						textProperty().bind(
-							fileModelProperty
-								.select { it!!.mouthShapesProperty }
-								.select {
-									val result = if (it.isEmpty()) "none" else it.joinToString()
-									SimpleStringProperty(result)
-								}
-						)
-					}
 					errorProperty().bind(fileModelProperty.select { it!!.mouthShapesErrorProperty })
+					gridpane {
+						hgap = 10.0
+						vgap = 3.0
+						row {
+							label("Basic:")
+							for (shape in MouthShape.basicShapes) {
+								renderShapeCheckbox(shape, fileModelProperty, this)
+							}
+						}
+						row {
+							label("Extended:")
+							for (shape in MouthShape.extendedShapes) {
+								renderShapeCheckbox(shape, fileModelProperty, this)
+							}
+						}
+					}
 				}
 			}
 			field("Animation naming") {
@@ -216,6 +224,20 @@ class MainView : View() {
 			if (file != null) {
 				filePathTextField!!.text = file.path
 			}
+		}
+	}
+
+	private fun renderShapeCheckbox(shape: MouthShape, fileModelProperty: SimpleObjectProperty<AnimationFileModel?>, parent: EventTarget) {
+		parent.label {
+			textProperty().bind(
+				fileModelProperty
+					.select { it!!.mouthShapesProperty }
+					.select { mouthShapes ->
+						val hairSpace = "\u200A"
+						val result = shape.toString() + hairSpace + if (mouthShapes.contains(shape)) "☑" else "☐"
+						return@select SimpleStringProperty(result)
+					}
+			)
 		}
 	}
 }
