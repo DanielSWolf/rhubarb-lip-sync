@@ -124,7 +124,7 @@ class MainView : View() {
 				}
 				column("Status", AudioFileModel::audioFileStateProperty).apply {
 					weigthedWidth(1.0)
-					setCellFactory { tableColumn ->
+					setCellFactory {
 						return@setCellFactory object : TableCell<AudioFileModel, AudioFileState>() {
 							override fun updateItem(state: AudioFileState?, empty: Boolean) {
 								super.updateItem(state, empty)
@@ -163,7 +163,7 @@ class MainView : View() {
 				column("", AudioFileModel::actionLabelProperty).apply {
 					weigthedWidth(1.0)
 					// Show button
-					setCellFactory { tableColumn ->
+					setCellFactory {
 						return@setCellFactory object : TableCell<AudioFileModel, String>() {
 							override fun updateItem(item: String?, empty: Boolean) {
 								super.updateItem(item, empty)
