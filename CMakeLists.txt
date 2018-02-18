@@ -8,7 +8,7 @@ add_subdirectory(rhubarb)
 # Build and install extras
 add_subdirectory("extras/AdobeAfterEffects")
 add_subdirectory("extras/MagixVegas")
-add_subdirectory("extras/rhubarb-for-spine")
+add_subdirectory("extras/EsotericSoftwareSpine")
 
 # Install misc. files
 install(

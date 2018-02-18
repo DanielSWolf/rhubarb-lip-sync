@@ -9,10 +9,10 @@ add_custom_target(
 
 install(
 	DIRECTORY "build/libs/"
-	DESTINATION "extras/rhubarb-for-spine"
+	DESTINATION "extras/EsotericSoftwareSpine"
 )
 
 install(
 	FILES README.md
-	DESTINATION "extras/rhubarb-for-spine"
+	DESTINATION "extras/EsotericSoftwareSpine"
 )
