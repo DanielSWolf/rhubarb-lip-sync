@@ -44,7 +44,8 @@ class RhubarbTask(
 					val message = parseJsonObject(line)
 					when (message.string("type")!!) {
 						"progress" -> {
-							reportProgress(message.double("value")!!)}
+							reportProgress(message.double("value")!!)
+						}
 						"success" -> {
 							reportProgress(1.0)
 							val resultString = String(Files.readAllBytes(outputFile.filePath), StandardCharsets.UTF_8)
@@ -60,6 +61,8 @@ class RhubarbTask(
 				throw e
 			} catch (e: EOFException) {
 				throw Exception("Rhubarb terminated unexpectedly.")
+			} finally {
+				process.waitFor();
 			}
 		}}
 
