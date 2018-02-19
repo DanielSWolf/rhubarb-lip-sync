@@ -1,0 +1,56 @@
+def getVersion() {
+	// Dynamically read version from CMake file
+	String text = new File('../../appInfo.cmake').getText('UTF-8')
+	String major = (text =~ /appVersionMajor\s+(\d+)/)[0][1]
+	String minor = (text =~ /appVersionMinor\s+(\d+)/)[0][1]
+	String patch = (text =~ /appVersionPatch\s+(\d+)/)[0][1]
+	String suffix = (text =~ /appVersionSuffix\s+"(.*?)"/)[0][1]
+	String result = "${major}.${minor}.${patch}${suffix}"
+	return result
+}
+
+group 'com.rhubarb_lip_sync'
+version = getVersion()
+
+buildscript {
+	ext.kotlin_version = '1.1.60'
+
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+apply plugin: 'kotlin'
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+	compile 'com.beust:klaxon:0.30'
+	compile 'org.apache.commons:commons-lang3:3.7'
+	compile 'no.tornado:tornadofx:1.7.12'
+}
+
+compileKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
+compileTestKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'com.rhubarb_lip_sync.rhubarb_for_spine.MainKt'
+	}
+
+	// This line of code recursively collects and copies all of a project's files
+	// and adds them to the JAR itself. One can extend this task, to skip certain 
+	// files or particular types at will
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
