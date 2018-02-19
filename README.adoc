@@ -19,7 +19,7 @@ image:img/logo.png[align="center"]
 
 https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
-Rhubarb Lip Sync produces text files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). In addition, it comes with integrations for <<afterEffects,Adobe After Effects>> and <<vegas,Magix Vegas>>.
+Rhubarb Lip Sync produces text files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). In addition, it comes with integrations for <<afterEffects,Adobe After Effects>>, <<spine,Spine>>, and <<vegas,Vegas Pro>>.
 
 == Demo video
 
@@ -32,14 +32,21 @@ https://www.youtube.com/watch?v=zzdPSFJRlEo[image:http://img.youtube.com/vi/zzdP
 [[afterEffects]]
 === Adobe After Effects
 
-You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the `extras` directory of the download.
+You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the directory `extras/AdobeAfterEffects` of the download.
 
 image:img/after-effects.png[]
 
-[[vegas]]
-=== Magix Vegas
+[[spine]]
+=== Spine by Esoteric Software
 
-Rhubarb Lip Sync also comes with two plugin scripts for Magix Vegas (previously Sony Vegas). For more information, see the `extras` directory of the download.
+Rhubarb Lip Sync for Spine is a graphical tool that allows you to import a Spine project, perform automatic lip sync, then re-import the result into Spine. For more information, see the directory `extras/EsotericSoftwareSpine` of the download.
+
+image:img/spine.png[]
+
+[[vegas]]
+=== Vegas Pro by Magix
+
+Rhubarb Lip Sync also comes with two plugin scripts for Vegas Pro (previously Sony Vegas).  For more information, see the directory `extras/MagixVegas` of the download.
 
 image:img/vegas.png[]
 
