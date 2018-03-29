@@ -162,6 +162,8 @@ class AudioFileModel(
 				}
 			} catch (e: InterruptedException) {
 			} catch (e: Exception) {
+				e.printStackTrace(System.err);
+
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
 						headerText = "Error performing lip sync for event '$eventName'."

@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* Internal errors in Rhubarb Lip Sync for Spine are logged to stderr
+
 ## Version 1.7.0
 
 * Integration with Spine animation software
