@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.7.1
 
 * Fixed [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34): Generic error message in Rhubarb for Spine
 * More helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine 
