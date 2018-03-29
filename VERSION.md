@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fixed [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34): Generic error message in Rhubarb for Spine
 * More helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine 
 * Internal errors in Rhubarb Lip Sync for Spine are logged to stderr
 

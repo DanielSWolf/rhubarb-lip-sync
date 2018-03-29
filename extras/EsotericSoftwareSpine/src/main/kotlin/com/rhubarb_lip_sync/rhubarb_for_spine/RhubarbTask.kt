@@ -10,8 +10,6 @@ import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.time.Duration
 import java.util.concurrent.Callable
 
 class RhubarbTask(
@@ -106,12 +104,8 @@ class RhubarbTask(
 	}
 
 	private val guiBinDirectory: Path by lazy {
-		var path: String = ClassLoader.getSystemClassLoader().getResource(".")!!.path
-		if (path.length >= 3 && path[2] == ':') {
-			// Workaround for https://stackoverflow.com/questions/9834776/java-nio-file-path-issue
-			path = path.substring(1)
-		}
-		return@lazy Paths.get(path)
+		val path = urlToPath(getLocation(RhubarbTask::class.java))
+		return@lazy if (Files.isDirectory(path)) path.parent else path
 	}
 
 	private val rhubarbBinFilePath: Path by lazy {
