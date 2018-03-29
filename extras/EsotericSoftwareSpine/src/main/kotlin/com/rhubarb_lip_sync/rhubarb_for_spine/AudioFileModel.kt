@@ -167,7 +167,11 @@ class AudioFileModel(
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
 						headerText = "Error performing lip sync for event '$eventName'."
-						contentText = e.message
+						contentText = if (e.message.isNullOrEmpty())
+							// Some exceptions don't have a message
+							"An internal error of type ${e.javaClass.name} occurred."
+						else
+							e.message
 						show()
 					}
 				}

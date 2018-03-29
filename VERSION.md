@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* More helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine 
 * Internal errors in Rhubarb Lip Sync for Spine are logged to stderr
 
 ## Version 1.7.0
