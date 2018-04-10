@@ -32,21 +32,19 @@ class MainModel(private val executor: ExecutorService) {
 			animationFileModel = AnimationFileModel(this, path, executor)
 		}
 	}
-	var filePathString by filePathStringProperty
 
 	val filePathErrorProperty = SimpleStringProperty()
-	var filePathError by filePathErrorProperty
-		private set
+	private var filePathError: String? by filePathErrorProperty
 
 	val animationFileModelProperty = SimpleObjectProperty<AnimationFileModel?>()
 	var animationFileModel by animationFileModelProperty
 		private set
 
 	val animationPrefixProperty = SimpleStringProperty("say_")
-	var animationPrefix by animationPrefixProperty
+	var animationPrefix: String by animationPrefixProperty
 
 	val animationSuffixProperty = SimpleStringProperty("")
-	var animationSuffix by animationSuffixProperty
+	var animationSuffix: String by animationSuffixProperty
 
 	private fun getDefaultPathString() = FX.application.parameters.raw.firstOrNull()
 }

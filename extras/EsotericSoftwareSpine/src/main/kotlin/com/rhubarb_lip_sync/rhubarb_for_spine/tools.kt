@@ -28,7 +28,7 @@ fun <TValue, TProperty : Property<TValue>> TProperty.alsoListen(listener: (TValu
 
 fun getExceptionMessage(action: () -> Unit): String? {
 	try {
-		action();
+		action()
 	} catch (e: Exception) {
 		return e.message
 	}

@@ -24,7 +24,7 @@ class RhubarbTask(
 			throw InterruptedException()
 		}
 		if (!Files.exists(audioFilePath)) {
-			throw EndUserException("File '$audioFilePath' does not exist.");
+			throw EndUserException("File '$audioFilePath' does not exist.")
 		}
 
 		val dialogFile = if (dialog != null) TemporaryTextFile(dialog) else null
@@ -60,7 +60,7 @@ class RhubarbTask(
 			} catch (e: EOFException) {
 				throw EndUserException("Rhubarb terminated unexpectedly.")
 			} finally {
-				process.waitFor();
+				process.waitFor()
 			}
 		}}
 

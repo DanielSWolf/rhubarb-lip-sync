@@ -6,9 +6,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
-class SpineJson(val filePath: Path) {
-	val fileDirectoryPath: Path = filePath.parent
-	val json: JsonObject
+class SpineJson(private val filePath: Path) {
+	private val fileDirectoryPath: Path = filePath.parent
+	private val json: JsonObject
 	private val skeleton: JsonObject
 	private val defaultSkin: JsonObject
 
@@ -32,7 +32,7 @@ class SpineJson(val filePath: Path) {
 		audioDirectoryPath
 	}
 
-	val imagesDirectoryPath: Path get() {
+	private val imagesDirectoryPath: Path get() {
 		val relativeImagesDirectory = skeleton.string("images")
 			?: throw EndUserException("JSON file is incomplete: Images path is missing."
 				+ "Make sure to check 'Nonessential data' when exporting.")

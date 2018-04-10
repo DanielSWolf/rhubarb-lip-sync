@@ -16,41 +16,41 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 	val spineJson = SpineJson(animationFilePath)
 
 	val slotsProperty = SimpleObjectProperty<ObservableList<String>>()
-	var slots by slotsProperty
-		private set
+	private var slots: ObservableList<String> by slotsProperty
 
 	val mouthSlotProperty: SimpleStringProperty = SimpleStringProperty().alsoListen {
-		mouthNaming = if (mouthSlot != null)
+		val mouthSlot = this.mouthSlot
+		val mouthNaming = if (mouthSlot != null)
 			MouthNaming.guess(spineJson.getSlotAttachmentNames(mouthSlot))
 		else null
+		this.mouthNaming = mouthNaming
 
-		mouthShapes = if (mouthSlot != null) {
+		mouthShapes = if (mouthSlot != null && mouthNaming != null) {
 			val mouthNames = spineJson.getSlotAttachmentNames(mouthSlot)
 			MouthShape.values().filter { mouthNames.contains(mouthNaming.getName(it)) }
 		} else listOf()
 
-		mouthSlotError = if (mouthSlot != null) null
-		else "No slot with mouth drawings specified."
+		mouthSlotError = if (mouthSlot != null)
+			null
+		else
+			"No slot with mouth drawings specified."
 	}
-	var mouthSlot by mouthSlotProperty
+	private var mouthSlot: String? by mouthSlotProperty
 
 	val mouthSlotErrorProperty = SimpleStringProperty()
-	var mouthSlotError by mouthSlotErrorProperty
-		private set
+	private var mouthSlotError: String? by mouthSlotErrorProperty
 
 	val mouthNamingProperty = SimpleObjectProperty<MouthNaming>()
-	var mouthNaming by mouthNamingProperty
-		private set
+	private var mouthNaming: MouthNaming? by mouthNamingProperty
 
 	val mouthShapesProperty = SimpleObjectProperty<List<MouthShape>>().alsoListen {
 		mouthShapesError = getMouthShapesErrorString()
 	}
-	var mouthShapes by mouthShapesProperty
+	var mouthShapes: List<MouthShape> by mouthShapesProperty
 		private set
 
 	val mouthShapesErrorProperty = SimpleStringProperty()
-	var mouthShapesError by mouthShapesErrorProperty
-		private set
+	private var mouthShapesError: String? by mouthShapesErrorProperty
 
 	val audioFileModelsProperty = SimpleListProperty<AudioFileModel>(
 		spineJson.audioEvents
@@ -63,7 +63,7 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 			}
 			.observable()
 	)
-	val audioFileModels by audioFileModelsProperty
+	val audioFileModels: ObservableList<AudioFileModel> by audioFileModelsProperty
 
 	val busyProperty = SimpleBooleanProperty().apply {
 		bind(object : BooleanBinding() {
@@ -90,10 +90,9 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 			}
 		})
 	}
-	val valid by validProperty
 
 	private fun saveAnimation(animationName: String, audioEventName: String, mouthCues: List<MouthCue>) {
-		spineJson.createOrUpdateAnimation(mouthCues, audioEventName, animationName, mouthSlot, mouthNaming)
+		spineJson.createOrUpdateAnimation(mouthCues, audioEventName, animationName, mouthSlot!!, mouthNaming!!)
 		spineJson.save()
 	}
 
