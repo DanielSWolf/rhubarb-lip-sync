@@ -96,7 +96,7 @@ class SpineJson(val filePath: Path) {
 	}
 
 	val animationNames = observableSet<String>(
-		json.obj("animations")?.map{ it.key }?.toSet() ?: setOf()
+		json.obj("animations")?.map{ it.key }?.toMutableSet() ?: mutableSetOf()
 	)
 
 	fun createOrUpdateAnimation(mouthCues: List<MouthCue>, eventName: String, animationName: String,
