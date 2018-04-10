@@ -162,21 +162,21 @@ class AudioFileModel(
 				}
 			} catch (e: InterruptedException) {
 			} catch (e: Exception) {
-				e.printStackTrace(System.err);
+				e.printStackTrace(System.err)
 
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
 						headerText = "Error performing lip sync for event '$eventName'."
-						contentText = if (e.message.isNullOrEmpty())
-							// Some exceptions don't have a message
-							"An internal error of type ${e.javaClass.name} occurred."
-						else
+						contentText = if (e is EndUserException)
 							e.message
+						else
+							("An internal error occurred.\n"
+								+ "Please report an issue, including the following information.\n"
+								+ getStackTrace(e))
 						show()
 					}
 				}
 			}
-
 		}
 		future = executor.submit(wrapperTask)
 	}

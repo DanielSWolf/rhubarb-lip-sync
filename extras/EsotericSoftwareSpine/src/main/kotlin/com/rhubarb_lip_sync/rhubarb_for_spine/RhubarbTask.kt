@@ -24,7 +24,7 @@ class RhubarbTask(
 			throw InterruptedException()
 		}
 		if (!Files.exists(audioFilePath)) {
-			throw IllegalArgumentException("File '$audioFilePath' does not exist.");
+			throw EndUserException("File '$audioFilePath' does not exist.");
 		}
 
 		val dialogFile = if (dialog != null) TemporaryTextFile(dialog) else null
@@ -50,7 +50,7 @@ class RhubarbTask(
 							return parseRhubarbResult(resultString)
 						}
 						"failure" -> {
-							throw Exception(message.string("reason"))
+							throw EndUserException(message.string("reason") ?: "Rhubarb failed without reason.")
 						}
 					}
 				}
@@ -58,13 +58,13 @@ class RhubarbTask(
 				process.destroyForcibly()
 				throw e
 			} catch (e: EOFException) {
-				throw Exception("Rhubarb terminated unexpectedly.")
+				throw EndUserException("Rhubarb terminated unexpectedly.")
 			} finally {
 				process.waitFor();
 			}
 		}}
 
-		throw Exception("An unexpected error occurred.")
+		throw EndUserException("Audio file processing terminated in an unexpected way.")
 	}
 
 	private fun parseRhubarbResult(jsonString: String): List<MouthCue> {
@@ -118,7 +118,7 @@ class RhubarbTask(
 			}
 			currentDirectory = currentDirectory.parent
 		}
-		throw Exception("Could not find Rhubarb Lip Sync executable '$rhubarbBinName'."
+		throw EndUserException("Could not find Rhubarb Lip Sync executable '$rhubarbBinName'."
 			+ " Expected to find it in '$guiBinDirectory' or any directory above.")
 	}
 

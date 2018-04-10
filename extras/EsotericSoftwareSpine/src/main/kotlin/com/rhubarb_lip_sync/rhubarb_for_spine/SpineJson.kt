@@ -14,16 +14,16 @@ class SpineJson(val filePath: Path) {
 
 	init {
 		if (!Files.exists(filePath)) {
-			throw Exception("File '$filePath' does not exist.")
+			throw EndUserException("File '$filePath' does not exist.")
 		}
 		try {
 			json = Parser().parse(filePath.toString()) as JsonObject
 		} catch (e: Exception) {
-			throw Exception("Wrong file format. This is not a valid JSON file.")
+			throw EndUserException("Wrong file format. This is not a valid JSON file.")
 		}
-		skeleton = json.obj("skeleton") ?: throw Exception("JSON file is corrupted.")
-		val skins = json.obj("skins") ?: throw Exception("JSON file doesn't contain skins.")
-		defaultSkin = skins.obj("default") ?: throw Exception("JSON file doesn't have a default skin.")
+		skeleton = json.obj("skeleton") ?: throw EndUserException("JSON file is corrupted.")
+		val skins = json.obj("skins") ?: throw EndUserException("JSON file doesn't contain skins.")
+		defaultSkin = skins.obj("default") ?: throw EndUserException("JSON file doesn't have a default skin.")
 		validateProperties()
 	}
 
@@ -34,12 +34,12 @@ class SpineJson(val filePath: Path) {
 
 	val imagesDirectoryPath: Path get() {
 		val relativeImagesDirectory = skeleton.string("images")
-			?: throw Exception("JSON file is incomplete: Images path is missing."
+			?: throw EndUserException("JSON file is incomplete: Images path is missing."
 				+ "Make sure to check 'Nonessential data' when exporting.")
 
 		val imagesDirectoryPath = fileDirectoryPath.resolve(relativeImagesDirectory).normalize()
 		if (!Files.exists(imagesDirectoryPath)) {
-			throw Exception("Could not find images directory relative to the JSON file."
+			throw EndUserException("Could not find images directory relative to the JSON file."
 				+ " Make sure the JSON file is in the same directory as the original Spine file.")
 		}
 
@@ -48,12 +48,12 @@ class SpineJson(val filePath: Path) {
 
 	val audioDirectoryPath: Path get() {
 		val relativeAudioDirectory = skeleton.string("audio")
-			?: throw Exception("JSON file is incomplete: Audio path is missing."
+			?: throw EndUserException("JSON file is incomplete: Audio path is missing."
 			+ "Make sure to check 'Nonessential data' when exporting.")
 
 		val audioDirectoryPath = fileDirectoryPath.resolve(relativeAudioDirectory).normalize()
 		if (!Files.exists(audioDirectoryPath)) {
-			throw Exception("Could not find audio directory relative to the JSON file."
+			throw EndUserException("Could not find audio directory relative to the JSON file."
 				+ " Make sure the JSON file is in the same directory as the original Spine file.")
 		}
 
@@ -80,7 +80,7 @@ class SpineJson(val filePath: Path) {
 		val events = json.obj("events") ?: JsonObject()
 		val result = mutableListOf<AudioEvent>()
 		for ((name, value) in events) {
-			if (value !is JsonObject) throw Exception("Invalid event found.")
+			if (value !is JsonObject) throw EndUserException("Invalid event found.")
 
 			val relativeAudioFilePath = value.string("audio") ?: continue
 

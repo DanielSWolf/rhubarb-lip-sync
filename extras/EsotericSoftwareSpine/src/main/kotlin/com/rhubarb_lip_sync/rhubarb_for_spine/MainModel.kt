@@ -15,18 +15,18 @@ class MainModel(private val executor: ExecutorService) {
 		filePathError = getExceptionMessage {
 			animationFileModel = null
 			if (value.isNullOrBlank()) {
-				throw Exception("No input file specified.")
+				throw EndUserException("No input file specified.")
 			}
 
 			val path = try {
 				val trimmed = value.removeSurrounding("\"")
 				Paths.get(trimmed)
 			} catch (e: InvalidPathException) {
-				throw Exception("Not a valid file path.")
+				throw EndUserException("Not a valid file path.")
 			}
 
 			if (!Files.exists(path)) {
-				throw Exception("File does not exist.")
+				throw EndUserException("File does not exist.")
 			}
 
 			animationFileModel = AnimationFileModel(this, path, executor)

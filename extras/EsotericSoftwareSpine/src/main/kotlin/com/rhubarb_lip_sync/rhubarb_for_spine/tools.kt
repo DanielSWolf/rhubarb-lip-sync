@@ -2,11 +2,10 @@ package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import javafx.application.Platform
 import javafx.beans.property.Property
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-
+import java.io.PrintWriter
+import java.io.StringWriter
 
 val List<String>.commonPrefix: String get() {
 	return if (isEmpty()) "" else this.reduce { result, string -> result.commonPrefixWith(string) }
@@ -35,7 +34,6 @@ fun getExceptionMessage(action: () -> Unit): String? {
 	}
 	return null
 }
-
 
 /**
  * Invokes a Runnable on the JFX thread and waits until it's finished.
@@ -68,4 +66,10 @@ fun runAndWait(action: () -> Unit) {
 			throwable?.let { throw it }
 		}
 	}
+}
+
+fun getStackTrace(e: Exception): String {
+	val stringWriter = StringWriter()
+	e.printStackTrace(PrintWriter(stringWriter))
+	return stringWriter.toString()
 }
