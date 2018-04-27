@@ -15,38 +15,36 @@ class MainModel(private val executor: ExecutorService) {
 		filePathError = getExceptionMessage {
 			animationFileModel = null
 			if (value.isNullOrBlank()) {
-				throw Exception("No input file specified.")
+				throw EndUserException("No input file specified.")
 			}
 
 			val path = try {
 				val trimmed = value.removeSurrounding("\"")
 				Paths.get(trimmed)
 			} catch (e: InvalidPathException) {
-				throw Exception("Not a valid file path.")
+				throw EndUserException("Not a valid file path.")
 			}
 
 			if (!Files.exists(path)) {
-				throw Exception("File does not exist.")
+				throw EndUserException("File does not exist.")
 			}
 
 			animationFileModel = AnimationFileModel(this, path, executor)
 		}
 	}
-	var filePathString by filePathStringProperty
 
 	val filePathErrorProperty = SimpleStringProperty()
-	var filePathError by filePathErrorProperty
-		private set
+	private var filePathError: String? by filePathErrorProperty
 
 	val animationFileModelProperty = SimpleObjectProperty<AnimationFileModel?>()
 	var animationFileModel by animationFileModelProperty
 		private set
 
 	val animationPrefixProperty = SimpleStringProperty("say_")
-	var animationPrefix by animationPrefixProperty
+	var animationPrefix: String by animationPrefixProperty
 
 	val animationSuffixProperty = SimpleStringProperty("")
-	var animationSuffix by animationSuffixProperty
+	var animationSuffix: String by animationSuffixProperty
 
 	private fun getDefaultPathString() = FX.application.parameters.raw.firstOrNull()
 }

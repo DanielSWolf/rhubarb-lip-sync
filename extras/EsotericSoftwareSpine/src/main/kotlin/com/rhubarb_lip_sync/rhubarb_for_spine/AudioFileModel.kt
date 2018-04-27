@@ -11,6 +11,7 @@ import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import tornadofx.getValue
 import tornadofx.setValue
+import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 
@@ -20,15 +21,14 @@ class AudioFileModel(
 	private val executor: ExecutorService,
 	private val reportResult: (List<MouthCue>) -> Unit
 ) {
-	val spineJson = parentModel.spineJson
+	private val spineJson = parentModel.spineJson
 
-	val audioFilePath = spineJson.audioDirectoryPath.resolve(audioEvent.relativeAudioFilePath)
+	private val audioFilePath: Path = spineJson.audioDirectoryPath.resolve(audioEvent.relativeAudioFilePath)
 
 	val eventNameProperty = SimpleStringProperty(audioEvent.name)
-	val eventName by eventNameProperty
+	val eventName: String by eventNameProperty
 
 	val displayFilePathProperty = SimpleStringProperty(audioEvent.relativeAudioFilePath)
-	val displayFilePath by displayFilePathProperty
 
 	val animationNameProperty = SimpleStringProperty().apply {
 		val mainModel = parentModel.parentModel
@@ -45,13 +45,13 @@ class AudioFileModel(
 			}
 		})
 	}
-	val animationName by animationNameProperty
+	val animationName: String by animationNameProperty
 
 	val dialogProperty = SimpleStringProperty(audioEvent.dialog)
-	val dialog: String? by dialogProperty
+	private val dialog: String? by dialogProperty
 
 	val animationProgressProperty = SimpleObjectProperty<Double?>(null)
-	var animationProgress by animationProgressProperty
+	var animationProgress: Double? by animationProgressProperty
 		private set
 
 	private val animatedProperty = SimpleBooleanProperty().apply {
@@ -92,7 +92,6 @@ class AudioFileModel(
 			}
 		})
 	}
-	val audioFileState by audioFileStateProperty
 
 	val busyProperty = SimpleBooleanProperty().apply {
 		bind(object : BooleanBinding() {
@@ -120,7 +119,6 @@ class AudioFileModel(
 			}
 		})
 	}
-	val actionLabel by actionLabelProperty
 
 	fun performAction() {
 		if (future == null) {
@@ -162,21 +160,21 @@ class AudioFileModel(
 				}
 			} catch (e: InterruptedException) {
 			} catch (e: Exception) {
-				e.printStackTrace(System.err);
+				e.printStackTrace(System.err)
 
 				Platform.runLater {
 					Alert(Alert.AlertType.ERROR).apply {
 						headerText = "Error performing lip sync for event '$eventName'."
-						contentText = if (e.message.isNullOrEmpty())
-							// Some exceptions don't have a message
-							"An internal error of type ${e.javaClass.name} occurred."
-						else
+						contentText = if (e is EndUserException)
 							e.message
+						else
+							("An internal error occurred.\n"
+								+ "Please report an issue, including the following information.\n"
+								+ getStackTrace(e))
 						show()
 					}
 				}
 			}
-
 		}
 		future = executor.submit(wrapperTask)
 	}

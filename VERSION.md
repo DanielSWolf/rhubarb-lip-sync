@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* Fixed bug in Rhubarb for Spine where processing failed depending on the number of existing animations. See [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34#issuecomment-378198776).
+
 ## Version 1.7.1
 
 * Fixed [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34): Generic error message in Rhubarb for Spine

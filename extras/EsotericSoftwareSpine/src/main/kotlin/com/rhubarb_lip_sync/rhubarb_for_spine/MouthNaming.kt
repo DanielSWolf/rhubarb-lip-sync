@@ -2,7 +2,7 @@ package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import java.util.*
 
-class MouthNaming(val prefix: String, val suffix: String, val mouthShapeCasing: MouthShapeCasing) {
+class MouthNaming(private val prefix: String, private val suffix: String, private val mouthShapeCasing: MouthShapeCasing) {
 
 	companion object {
 		fun guess(mouthNames: List<String>): MouthNaming {

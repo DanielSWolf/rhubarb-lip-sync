@@ -10,7 +10,7 @@ enum class MouthShape {
 		get() = !this.isBasic
 
 	companion object {
-		val basicShapeCount = 6
+		const val basicShapeCount = 6
 
 		val basicShapes = MouthShape.values().take(basicShapeCount)
 
