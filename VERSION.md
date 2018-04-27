@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.7.2
 
 * Fixed bug in Rhubarb for Spine where processing failed depending on the number of existing animations. See [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34#issuecomment-378198776).
 
