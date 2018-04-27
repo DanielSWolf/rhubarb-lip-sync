@@ -8,8 +8,9 @@
 :H: &#9405;
 :X: &#9421;
 
-image:https://img.shields.io/travis/DanielSWolf/rhubarb-lip-sync/master.svg["Build Status", link="https://travis-ci.org/DanielSWolf/rhubarb-lip-sync"]
 image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&label=Follow["Twitter", link="https://twitter.com/RhubarbLipSync"]
+image:https://img.shields.io/appveyor/ci/DanielSWolf/rhubarb-lip-sync/master.svg?label=Windows%20build["Windows build status", link="https://ci.appveyor.com/project/DanielSWolf/rhubarb-lip-sync"]
+image:https://img.shields.io/travis/DanielSWolf/rhubarb-lip-sync/master.svg?label=OS%20X%20/%20Linux%20build["OS X / Linux build status", link="https://travis-ci.org/DanielSWolf/rhubarb-lip-sync"]
 
 ---
 

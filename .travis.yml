@@ -17,10 +17,26 @@ matrix:
       script:
         - mkdir build
         - cd build
-        - cmake -DCMAKE_CXX_COMPILER=g++-5 .. && make && ./rhubarb/runTests
+        - cmake -DCMAKE_CXX_COMPILER=g++-5 ..
+        - cmake --build . --config Release --target package
+        - ./rhubarb/runTests
     - os: osx
       osx_image: xcode7.3
       script:
         - mkdir build
         - cd build
-        - cmake .. && make && ./rhubarb/runTests
+        - cmake ..
+        - cmake --build . --config Release --target package
+        - ./rhubarb/runTests
+deploy:
+  # Deploy to GitHub releases
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file_glob: true
+  file: "./rhubarb-lip-sync-*.zip"
+  skip_cleanup: true
+  on:
+    tags: true
+  tag_name: $TRAVIS_TAG
+  name: $TRAVIS_COMMIT_MESSAGE
+  draft: true
