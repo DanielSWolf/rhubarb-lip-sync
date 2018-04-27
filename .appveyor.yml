@@ -16,3 +16,13 @@ test_script:
   - build\rhubarb\Release\runTests.exe
 artifacts:
   - path: build\rhubarb-lip-sync-*.zip
+deploy:
+  provider: GitHub
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  description: ''
+  auth_token:
+    secure: Gk7y8Cb9ImDBthgL56W1QMWDEp4oIcbUeKgXnkiBsy7G+V6H59MPXv0ZC7Zht8+3
+  artifact: /.*\.zip/
+  draft: true
+  on:
+    appveyor_repo_tag: true
