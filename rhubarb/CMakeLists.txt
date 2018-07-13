@@ -309,11 +309,15 @@ target_link_libraries(rhubarb-animation
 add_library(rhubarb-audio
 	src/audio/AudioClip.cpp
 	src/audio/AudioClip.h
+	src/audio/audioFileReading.cpp
+	src/audio/audioFileReading.h
 	src/audio/AudioSegment.cpp
 	src/audio/AudioSegment.h
 	src/audio/DcOffset.cpp
 	src/audio/DcOffset.h
 	src/audio/ioTools.h
+	src/audio/OggVorbisFileReader.cpp
+	src/audio/OggVorbisFileReader.h
 	src/audio/processing.cpp
 	src/audio/processing.h
 	src/audio/SampleRateConverter.cpp
@@ -328,6 +332,7 @@ add_library(rhubarb-audio
 target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
+	vorbis
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools
