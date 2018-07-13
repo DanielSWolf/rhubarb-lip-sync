@@ -242,6 +242,36 @@ target_include_directories(ogg SYSTEM PUBLIC "lib/ogg-1.3.3/include")
 target_compile_options(ogg PRIVATE ${disableWarningsFlags})
 set_target_properties(ogg PROPERTIES FOLDER lib)
 
+# ... Vorbis
+add_library(vorbis
+	lib/vorbis-1.3.6/include/vorbis/vorbisfile.h
+	lib/vorbis-1.3.6/lib/bitrate.c
+	lib/vorbis-1.3.6/lib/block.c
+	lib/vorbis-1.3.6/lib/codebook.c
+	lib/vorbis-1.3.6/lib/envelope.c
+	lib/vorbis-1.3.6/lib/floor0.c
+	lib/vorbis-1.3.6/lib/floor1.c
+	lib/vorbis-1.3.6/lib/info.c
+	lib/vorbis-1.3.6/lib/lpc.c
+	lib/vorbis-1.3.6/lib/lsp.c
+	lib/vorbis-1.3.6/lib/mapping0.c
+	lib/vorbis-1.3.6/lib/mdct.c
+	lib/vorbis-1.3.6/lib/psy.c
+	lib/vorbis-1.3.6/lib/registry.c
+	lib/vorbis-1.3.6/lib/res0.c
+	lib/vorbis-1.3.6/lib/sharedbook.c
+	lib/vorbis-1.3.6/lib/smallft.c
+	lib/vorbis-1.3.6/lib/synthesis.c
+	lib/vorbis-1.3.6/lib/vorbisfile.c
+	lib/vorbis-1.3.6/lib/window.c
+)
+target_include_directories(vorbis SYSTEM PUBLIC "lib/vorbis-1.3.6/include")
+target_link_libraries(vorbis
+	ogg
+)
+target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
+set_target_properties(vorbis PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 include_directories("src")
