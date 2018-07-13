@@ -232,6 +232,16 @@ target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2a2f97e1")
 target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
 set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
+# ... Ogg
+add_library(ogg
+	lib/ogg-1.3.3/include/ogg/ogg.h
+	lib/ogg-1.3.3/src/bitwise.c
+	lib/ogg-1.3.3/src/framing.c
+)
+target_include_directories(ogg SYSTEM PUBLIC "lib/ogg-1.3.3/include")
+target_compile_options(ogg PRIVATE ${disableWarningsFlags})
+set_target_properties(ogg PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 include_directories("src")
