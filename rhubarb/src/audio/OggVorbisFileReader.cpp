@@ -98,22 +98,29 @@ SampleReader OggVorbisFileReader::createUnsafeSampleReader() const {
 	return [
 		channelCount = channelCount,
 		file = make_shared<OggVorbisFile>(filePath),
-		currentIndex = size_type(0)
+		buffer = static_cast<value_type**>(nullptr),
+		bufferStart = size_type(0),
+		bufferSize = size_type(0)
 	](size_type index) mutable {
-		// Seek
-		if (index != currentIndex) {
+		if (index < bufferStart || index >= bufferStart + bufferSize) {
+			// Seek
 			throwOnError(ov_pcm_seek(file->get(), index));
-		}
 
-		// Read a single sample
-		value_type** p = nullptr;
-		long readCount = throwOnError(ov_read_float(file->get(), &p, 1, nullptr));
-		if (readCount == 0) {
-			throw std::runtime_error("Unexpected end of file.");
+			// Read a block of samples
+			constexpr int maxSize = 1024;
+			bufferStart = index;
+			bufferSize = throwOnError(ov_read_float(file->get(), &buffer, maxSize, nullptr));
+			if (bufferSize == 0) {
+				throw std::runtime_error("Unexpected end of file.");
+			}
 		}
-		++currentIndex;
 
 		// Downmix channels
-		return std::accumulate(*p, *p + channelCount, 0.0f) / channelCount;
+		size_type bufferIndex = index - bufferStart;
+		value_type sum = 0.0f;
+		for (int channel = 0; channel < channelCount; ++channel) {
+			sum += buffer[channel][bufferIndex];
+		}
+		return sum / channelCount;
 	};
 }
