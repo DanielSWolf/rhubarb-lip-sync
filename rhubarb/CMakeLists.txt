@@ -446,6 +446,8 @@ add_library(rhubarb-tools
 	src/tools/EnumConverter.h
 	src/tools/exceptions.cpp
 	src/tools/exceptions.h
+	src/tools/fileTools.cpp
+	src/tools/fileTools.h
 	src/tools/Lazy.h
 	src/tools/nextCombination.h
 	src/tools/NiceCmdLineOutput.cpp

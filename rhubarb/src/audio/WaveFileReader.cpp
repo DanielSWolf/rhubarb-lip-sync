@@ -1,8 +1,8 @@
 #include <format.h>
-#include <string.h>
 #include "WaveFileReader.h"
 #include "ioTools.h"
 #include "tools/platformTools.h"
+#include "tools/fileTools.h"
 
 using std::runtime_error;
 using fmt::format;
@@ -29,27 +29,6 @@ namespace Codec {
 	constexpr int Pcm = 0x01;
 	constexpr int Float = 0x03;
 };
-
-std::ifstream openFile(path filePath) {
-	try {
-		std::ifstream file;
-		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		file.open(filePath.c_str(), std::ios::binary);
-
-		// Error messages on stream exceptions are mostly useless.
-		// Read some dummy data so that we can throw a decent exception in case the file is missing, locked, etc.
-		file.seekg(0, std::ios_base::end);
-		if (file.tellg()) {
-			file.seekg(0);
-			file.get();
-			file.seekg(0);
-		}
-
-		return std::move(file);
-	} catch (const std::ifstream::failure&) {
-		throw runtime_error(errorNumberToString(errno));
-	}
-}
 
 string codecToString(int codec);
 
