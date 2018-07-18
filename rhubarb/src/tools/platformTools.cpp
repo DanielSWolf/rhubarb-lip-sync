@@ -57,8 +57,7 @@ path getBinDirectory() {
 
 path getTempFilePath() {
 	path tempDirectory = boost::filesystem::temp_directory_path();
-	static auto generateUuid = boost::uuids::random_generator();
-	string fileName = to_string(generateUuid());
+	string fileName = to_string(boost::uuids::random_generator()());
 	return tempDirectory / fileName;
 }
 
