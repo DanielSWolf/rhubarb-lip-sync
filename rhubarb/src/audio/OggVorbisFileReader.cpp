@@ -1,16 +1,16 @@
 #include "OggVorbisFileReader.h"
 
-#include <stdlib.h>
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
 #include "tools/tools.h"
 #include <format.h>
-#include <numeric>
 #include "tools/fileTools.h"
 
 using boost::filesystem::path;
 using std::vector;
 using std::make_shared;
+using std::ifstream;
+using std::ios_base;
 
 std::string vorbisErrorToString(int64_t errorCode) {
 	switch (errorCode) {
@@ -53,34 +53,71 @@ T throwOnError(T code) {
 	return code;
 }
 
+size_t readCallback(void* buffer, size_t elementSize, size_t elementCount, void* dataSource) {
+	assert(elementSize == 1);
+
+	ifstream& stream = *static_cast<ifstream*>(dataSource);
+	stream.read(static_cast<char*>(buffer), elementCount);
+	const std::streamsize bytesRead = stream.gcount();
+	stream.clear(); // In case we read past EOF
+	return static_cast<size_t>(bytesRead);
+}
+
+int seekCallback(void* dataSource, ogg_int64_t offset, int origin) {
+	static const vector<ios_base::seekdir> seekDirections{
+		ios_base::beg, ios_base::cur, ios_base::end
+	};
+
+	ifstream& stream = *static_cast<ifstream*>(dataSource);
+	stream.seekg(offset, seekDirections.at(origin));
+	stream.clear(); // In case we seeked to EOF
+	return 0;
+}
+
+long tellCallback(void* dataSource) {
+	ifstream& stream = *static_cast<ifstream*>(dataSource);
+	const auto position = stream.tellg();
+	assert(position >= 0);
+	return static_cast<long>(position);
+}
+
 // RAII wrapper around OggVorbis_File
 class OggVorbisFile {
 public:
 	OggVorbisFile(const OggVorbisFile&) = delete;
 	OggVorbisFile& operator=(const OggVorbisFile&) = delete;
 
-	OggVorbisFile(const path& filePath) {
-		throwOnError(ov_fopen(filePath.string().c_str(), &file));
+	OggVorbisFile(const path& filePath) :
+		stream(openFile(filePath))
+	{
+		// Throw only on badbit, not on failbit.
+		// Ogg Vorbis expects read operations past the end of the file to
+		// succeed, not to throw.
+		stream.exceptions(ifstream::badbit);
+
+		// Ogg Vorbis normally uses the `FILE` API from the C standard library.
+		// This doesn't handle Unicode paths on Windows.
+		// Use wrapper functions around `ifstream` instead.
+		const ov_callbacks callbacks{readCallback, seekCallback, nullptr, tellCallback};
+		throwOnError(ov_open_callbacks(&stream, &oggVorbisHandle, nullptr, 0, callbacks));
 	}
 
 	OggVorbis_File* get() {
-		return &file;
+		return &oggVorbisHandle;
 	}
 
 	~OggVorbisFile() {
-		ov_clear(&file);
+		ov_clear(&oggVorbisHandle);
 	}
 
 private:
-	OggVorbis_File file;
+	OggVorbis_File oggVorbisHandle;
+	ifstream stream;
 };
 
 OggVorbisFileReader::OggVorbisFileReader(const path& filePath) :
 	filePath(filePath)
 {
-	// Make sure that common error cases result in readable exception messages
-	throwIfNotReadable(filePath);
-
 	OggVorbisFile file(filePath);
 	
 	vorbis_info* vorbisInfo = ov_info(file.get(), -1);
