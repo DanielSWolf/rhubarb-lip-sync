@@ -1,8 +1,9 @@
 # Version history
 
-## Unreleased
+## Version 1.8.0
 
-* Support for Ogg Vorbis (.ogg) files
+* Support for Ogg Vorbis (.ogg) file format ([issue #40](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/40))
+* Fixed build error with some versions of Boost ([issue #41](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/41))
 
 ## Version 1.7.2
 
@@ -11,7 +12,7 @@
 ## Version 1.7.1
 
 * Fixed [issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34): Generic error message in Rhubarb for Spine
-* More helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine 
+* More helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine
 * Internal errors in Rhubarb Lip Sync for Spine are logged to stderr
 
 ## Version 1.7.0

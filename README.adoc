@@ -106,7 +106,7 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 Rhubarb Lip Sync is a command-line tool that is currently available for Windows and OS X.
 
 * Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
-* Call `rhubarb`, passing it a WAVE file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
+* Call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
 * Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
 
 [[options]]
@@ -121,7 +121,7 @@ The following command-line options are the most common:
 | Option | Description
 
 | _<input file>_
-| The audio file (.wav format) to be analyzed. This must be the last command-line argument.
+| The audio file to be analyzed. This must be the last command-line argument. Supported file formats are WAVE (.wav) and Ogg Vorbis (.ogg).
 
 | `-f` _<format>_, `--exportFormat` _<format>_
 | The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>).
