@@ -126,7 +126,7 @@
 
 ## Version 1.0.0
 
-* **Improved** animation algoritym: More realistic animation using new, predictive algorithm.
+* **Improved** animation algorithm: More realistic animation using new, predictive algorithm.
 * **Added** tweening for smoother animation.
 * **Added** support for non-dialog noises (breathing, smacking, etc.)
 * **Improved** processing speed substantially through multithreading.

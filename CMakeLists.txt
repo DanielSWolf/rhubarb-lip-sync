@@ -12,7 +12,7 @@ add_subdirectory("extras/EsotericSoftwareSpine")
 
 # Install misc. files
 install(
-	FILES README.adoc LICENSE.md VERSION.md
+	FILES README.adoc LICENSE.md CHANGELOG.md
 	DESTINATION .
 )
 
