@@ -232,6 +232,46 @@ target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2a2f97e1")
 target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
 set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
+# ... Ogg
+add_library(ogg
+	lib/ogg-1.3.3/include/ogg/ogg.h
+	lib/ogg-1.3.3/src/bitwise.c
+	lib/ogg-1.3.3/src/framing.c
+)
+target_include_directories(ogg SYSTEM PUBLIC "lib/ogg-1.3.3/include")
+target_compile_options(ogg PRIVATE ${disableWarningsFlags})
+set_target_properties(ogg PROPERTIES FOLDER lib)
+
+# ... Vorbis
+add_library(vorbis
+	lib/vorbis-1.3.6/include/vorbis/vorbisfile.h
+	lib/vorbis-1.3.6/lib/bitrate.c
+	lib/vorbis-1.3.6/lib/block.c
+	lib/vorbis-1.3.6/lib/codebook.c
+	lib/vorbis-1.3.6/lib/envelope.c
+	lib/vorbis-1.3.6/lib/floor0.c
+	lib/vorbis-1.3.6/lib/floor1.c
+	lib/vorbis-1.3.6/lib/info.c
+	lib/vorbis-1.3.6/lib/lpc.c
+	lib/vorbis-1.3.6/lib/lsp.c
+	lib/vorbis-1.3.6/lib/mapping0.c
+	lib/vorbis-1.3.6/lib/mdct.c
+	lib/vorbis-1.3.6/lib/psy.c
+	lib/vorbis-1.3.6/lib/registry.c
+	lib/vorbis-1.3.6/lib/res0.c
+	lib/vorbis-1.3.6/lib/sharedbook.c
+	lib/vorbis-1.3.6/lib/smallft.c
+	lib/vorbis-1.3.6/lib/synthesis.c
+	lib/vorbis-1.3.6/lib/vorbisfile.c
+	lib/vorbis-1.3.6/lib/window.c
+)
+target_include_directories(vorbis SYSTEM PUBLIC "lib/vorbis-1.3.6/include")
+target_link_libraries(vorbis
+	ogg
+)
+target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
+set_target_properties(vorbis PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 include_directories("src")
@@ -269,11 +309,15 @@ target_link_libraries(rhubarb-animation
 add_library(rhubarb-audio
 	src/audio/AudioClip.cpp
 	src/audio/AudioClip.h
+	src/audio/audioFileReading.cpp
+	src/audio/audioFileReading.h
 	src/audio/AudioSegment.cpp
 	src/audio/AudioSegment.h
 	src/audio/DcOffset.cpp
 	src/audio/DcOffset.h
 	src/audio/ioTools.h
+	src/audio/OggVorbisFileReader.cpp
+	src/audio/OggVorbisFileReader.h
 	src/audio/processing.cpp
 	src/audio/processing.h
 	src/audio/SampleRateConverter.cpp
@@ -288,6 +332,7 @@ add_library(rhubarb-audio
 target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
+	vorbis
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools
@@ -406,6 +451,8 @@ add_library(rhubarb-tools
 	src/tools/EnumConverter.h
 	src/tools/exceptions.cpp
 	src/tools/exceptions.h
+	src/tools/fileTools.cpp
+	src/tools/fileTools.h
 	src/tools/Lazy.h
 	src/tools/nextCombination.h
 	src/tools/NiceCmdLineOutput.cpp

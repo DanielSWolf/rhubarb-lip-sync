@@ -3,7 +3,7 @@
 #include "recognition/phoneRecognition.h"
 #include "tools/textFiles.h"
 #include "animation/mouthAnimation.h"
-#include "audio/WaveFileReader.h"
+#include "audio/audioFileReading.h"
 
 using boost::optional;
 using std::string;
@@ -22,14 +22,6 @@ JoiningContinuousTimeline<Shape> animateAudioClip(
 	return result;
 }
 
-unique_ptr<AudioClip> createWaveAudioClip(path filePath) {
-	try {
-		return std::make_unique<WaveFileReader>(filePath);
-	} catch (...) {
-		std::throw_with_nested(std::runtime_error(fmt::format("Could not open sound file {}.", filePath)));
-	}
-}
-
 JoiningContinuousTimeline<Shape> animateWaveFile(
 	path filePath,
 	optional<string> dialog,
@@ -37,5 +29,6 @@ JoiningContinuousTimeline<Shape> animateWaveFile(
 	int maxThreadCount,
 	ProgressSink& progressSink)
 {
-	return animateAudioClip(*createWaveAudioClip(filePath), dialog, targetShapeSet, maxThreadCount, progressSink);
+	const auto audioClip = createAudioFileClip(filePath);
+	return animateAudioClip(*audioClip, dialog, targetShapeSet, maxThreadCount, progressSink);
 }
