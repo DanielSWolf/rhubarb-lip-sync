@@ -266,13 +266,10 @@ function selectByTextOrFirst(itemControl, text) {
 	}
 }
 
-function getWaveFileProjectItems() {
+function getAudioFileProjectItems() {
 	var result = toArrayBase1(app.project.items).filter(function(item) {
 		var isAudioFootage = item instanceof FootageItem && item.hasAudio && !item.hasVideo;
-		if (!isAudioFootage) return false;
-
-		var isWaveFile = item.file && item.file.exists && item.file.name.match(/\.wav$/i);
-		return isWaveFile;
+		return isAudioFootage;
 	});
 	return result;
 }
@@ -322,7 +319,7 @@ function createDialogWindow() {
 						}),
 						value: DropDownList({
 							helpTip: 'An audio file containing recorded dialog.\n'
-								+ 'This field shows all audio files of type .wav that exist in '
+								+ 'This field shows all audio files that exist in '
 								+ 'your After Effects project.'
 						})
 					}),
@@ -400,7 +397,7 @@ function createDialogWindow() {
 	});
 
 	// Add audio file options
-	getWaveFileProjectItems().forEach(function(projectItem) {
+	getAudioFileProjectItems().forEach(function(projectItem) {
 		var listItem = controls.audioFile.add('item', getItemPath(projectItem));
 		listItem.projectItem = projectItem;
 	});
@@ -618,8 +615,8 @@ function createDialogWindow() {
 		frameRate)
 	{
 		// Find an unconflicting comp name
-		// ... strip extension .wav, if present
-		var baseName = audioFileFootage.name.match(/^(.*?)(\.wav)?$/i)[1];
+		// ... strip extension, if present
+		var baseName = audioFileFootage.name.match(/^(.*?)(\..*)?$/i)[1];
 		var compName = baseName;
 		// ... add numeric suffix, if needed
 		var existingItems = toArrayBase1(targetProjectFolder.items);

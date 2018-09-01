@@ -26,5 +26,5 @@ On **OS X**, that directory is usually `Applications/Adobe After Effects <versio
 
 ## How to use
 
-In After Effects, select *File > Scripts > Rhubarb Lip Sync.jsx*. That will open a dialog window where you can specify the WAVE file with the dialog recording and a number of other options. To get information about any input field, just hover above it with your mouse and you'll see a tooltip.
+In After Effects, select *File > Scripts > Rhubarb Lip Sync.jsx*. That will open a dialog window where you can specify the audio file with the dialog recording and a number of other options. To get information about any input field, just hover above it with your mouse and you'll see a tooltip.
  
