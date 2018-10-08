@@ -51,7 +51,7 @@ using std::array;
 constexpr int sphinxSampleRate = 16000;
 
 const path& getSphinxModelDirectory() {
-	static path sphinxModelDirectory(getBinDirectory() / "res/sphinx");
+	static path sphinxModelDirectory(getBinDirectory() / "res" / "sphinx");
 	return sphinxModelDirectory;
 }
 
