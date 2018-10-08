@@ -27,6 +27,9 @@
 #include "tools/platformTools.h"
 #include "sinks.h"
 #include "semanticEntries.h"
+#include "RecognizerType.h"
+#include "recognition/PocketSphinxRecognizer.h"
+#include "recognition/PhoneticRecognizer.h"
 
 using std::exception;
 using std::string;
@@ -36,9 +39,6 @@ using std::unique_ptr;
 using std::make_unique;
 using std::shared_ptr;
 using std::make_shared;
-using std::map;
-using std::chrono::duration;
-using std::chrono::duration_cast;
 using std::ofstream;
 using boost::filesystem::path;
 using boost::adaptors::transformed;
@@ -56,6 +56,10 @@ namespace TCLAP {
 	struct ArgTraits<ExportFormat> {
 		typedef ValueLike ValueCategory;
 	};
+	template<>
+	struct ArgTraits<RecognizerType> {
+		typedef ValueLike ValueCategory;
+	};
 }
 
 shared_ptr<logging::Sink> createFileSink(path path, logging::Level minLevel) {
@@ -64,6 +68,17 @@ shared_ptr<logging::Sink> createFileSink(path path, logging::Level minLevel) {
 	file->open(path);
 	auto FileSink = make_shared<logging::StreamSink>(file, make_shared<logging::SimpleFileFormatter>());
 	return make_shared<logging::LevelFilter>(FileSink, minLevel);
+}
+
+unique_ptr<Recognizer> createRecognizer(RecognizerType recognizerType) {
+	switch (recognizerType) {
+	case RecognizerType::PocketSphinx:
+		return make_unique<PocketSphinxRecognizer>();
+	case RecognizerType::Phonetic:
+		return make_unique<PhoneticRecognizer>();
+	default:
+		throw std::runtime_error("Unknown recognizer.");
+	}
 }
 
 unique_ptr<Exporter> createExporter(ExportFormat exportFormat) {
@@ -123,6 +138,9 @@ int main(int platformArgc, char *platformArgv[]) {
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
 	tclap::ValueArg<ExportFormat> exportFormat("f", "exportFormat", "The export format.", false, ExportFormat::Tsv, &exportFormatConstraint, cmd);
+	auto recognizerTypes = vector<RecognizerType>(RecognizerTypeConverter::get().getValues());
+	tclap::ValuesConstraint<RecognizerType> recognizerConstraint(recognizerTypes);
+	tclap::ValueArg<RecognizerType> recognizerType("r", "recognizer", "The dialog recognizer.", false, RecognizerType::PocketSphinx, &recognizerConstraint, cmd);
 	tclap::UnlabeledValueArg<string> inputFileName("inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd);
 
 	try {
@@ -169,6 +187,7 @@ int main(int platformArgc, char *platformArgv[]) {
 			JoiningContinuousTimeline<Shape> animation = animateWaveFile(
 				inputFilePath,
 				dialogFile.isSet() ? readUtf8File(path(dialogFile.getValue())) : boost::optional<string>(),
+				*createRecognizer(recognizerType.getValue()),
 				targetShapeSet,
 				maxThreadCount.getValue(),
 				progressSink);
