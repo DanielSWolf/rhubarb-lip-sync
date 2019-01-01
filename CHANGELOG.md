@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Added** basic support for non-English recordings through phonetic recognition ([issue #45](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/45)).
+
 ## Version 1.8.0
 
 * **Added** support for Ogg Vorbis (.ogg) file format ([issue #40](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/40)).

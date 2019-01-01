@@ -123,6 +123,11 @@ The following command-line options are the most common:
 | _<input file>_
 | The audio file to be analyzed. This must be the last command-line argument. Supported file formats are WAVE (.wav) and Ogg Vorbis (.ogg).
 
+| `-r` _<recognizer>_, `--recognizer` _<recognizer>_
+| Specifies how Rhubarb Lip Sync recognizes speech within the recording. Options: `pocketSphinx` (use for English recordings), `phonetic` (use for non-English recordings). For details, see <<recognizers>>.
+
+_Default value: ``pocketSphinx``_
+
 | `-f` _<format>_, `--exportFormat` _<format>_
 | The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>).
 
@@ -191,6 +196,19 @@ Note that for short audio files, Rhubarb Lip Sync may choose to use fewer thread
 
 _Default value: as many threads as your CPU has cores_
 |===
+
+[[recognizers]]
+== Recognizers
+
+The first step in processing an audio file is determining what is being said. More specifically, Rhubarb Lip Sync uses speech recognition to figure out what sound is being said at what point in time. You can choose between two recognizers:
+
+=== PocketSphinx
+
+PocketSphinx is an open-source speech recognition library that generally gives good results. This is the default recognizer. The downside is that PocketSphinx only recognizes English dialog. So if your recordings are in a language other than English, this is not a good choice.
+
+=== Phonetic
+
+Rhubarb Lip Sync also comes with a phonetic recognizer. _Phonetic_ means that this recognizer won't try to understand entire (English) words and phrases. Instead, it will recognize individual sounds and syllables. The results are usually less precise than those from the PocketSphinx recognizer. The advantage is that this recognizer is language-independent. Use it if your recordings are not in English.
 
 [[outputFormats]]
 == Output formats
