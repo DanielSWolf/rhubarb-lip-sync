@@ -141,11 +141,12 @@ class AudioFileModel(
 
 	private fun startAnimation() {
 		val wrapperTask = Runnable {
+			val recognizer = parentModel.parentModel.recognizer.value
 			val extendedMouthShapes = parentModel.mouthShapes.filter { it.isExtended }.toSet()
 			val reportProgress: (Double?) -> Unit = {
 				progress -> runAndWait { this@AudioFileModel.animationProgress = progress }
 			}
-			val rhubarbTask = RhubarbTask(audioFilePath, dialog, extendedMouthShapes, reportProgress)
+			val rhubarbTask = RhubarbTask(audioFilePath, recognizer, dialog, extendedMouthShapes, reportProgress)
 			try {
 				try {
 					val result = rhubarbTask.call()

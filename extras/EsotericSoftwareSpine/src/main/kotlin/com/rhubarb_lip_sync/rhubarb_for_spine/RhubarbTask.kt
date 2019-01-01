@@ -14,6 +14,7 @@ import java.util.concurrent.Callable
 
 class RhubarbTask(
 	val audioFilePath: Path,
+	val recognizer: String,
 	val dialog: String?,
 	val extendedMouthShapes: Set<MouthShape>,
 	val reportProgress: (Double?) -> Unit
@@ -89,6 +90,7 @@ class RhubarbTask(
 		return mutableListOf(
 			rhubarbBinFilePath.toString(),
 			"--machineReadable",
+			"--recognizer", recognizer,
 			"--exportFormat", "json",
 			"--extendedShapes", extendedMouthShapesString
 		).apply {
@@ -100,7 +102,6 @@ class RhubarbTask(
 		}.apply {
 			add(audioFilePath.toString())
 		}
-
 	}
 
 	private val guiBinDirectory: Path by lazy {

@@ -2,6 +2,8 @@ package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import tornadofx.FX
 import tornadofx.getValue
 import tornadofx.setValue
@@ -40,6 +42,15 @@ class MainModel(private val executor: ExecutorService) {
 	var animationFileModel by animationFileModelProperty
 		private set
 
+	val recognizersProperty = SimpleObjectProperty<ObservableList<Recognizer>>(FXCollections.observableArrayList(
+		Recognizer("pocketSphinx", "PocketSphinx (use for English recordings)"),
+		Recognizer("phonetic", "Phonetic (use for non-English recordings)")
+	))
+	private var recognizers: ObservableList<Recognizer> by recognizersProperty
+
+	val recognizerProperty = SimpleObjectProperty<Recognizer>(recognizers[0])
+	var recognizer: Recognizer by recognizerProperty
+
 	val animationPrefixProperty = SimpleStringProperty("say_")
 	var animationPrefix: String by animationPrefixProperty
 
@@ -48,3 +59,5 @@ class MainModel(private val executor: ExecutorService) {
 
 	private fun getDefaultPathString() = FX.application.parameters.raw.firstOrNull()
 }
+
+class Recognizer(val value: String, val description: String)

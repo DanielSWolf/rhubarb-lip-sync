@@ -17,6 +17,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
+import javafx.util.StringConverter
 import tornadofx.*
 import java.io.File
 import java.util.concurrent.Executors
@@ -81,6 +82,20 @@ class MainView : View() {
 							}
 						}
 					}
+				}
+			}
+			field("Dialog recognizer") {
+				combobox<Recognizer> {
+					itemsProperty().bind(mainModel.recognizersProperty)
+					this.converter = object : StringConverter<Recognizer>() {
+						override fun toString(recognizer: Recognizer?): String {
+							return recognizer?.description ?: ""
+						}
+						override fun fromString(string: String?): Recognizer {
+							throw NotImplementedError()
+						}
+					}
+					valueProperty().bindBidirectional(mainModel.recognizerProperty)
 				}
 			}
 			field("Animation naming") {
