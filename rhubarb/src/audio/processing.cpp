@@ -1,4 +1,5 @@
 #include "processing.h"
+#include <algorithm>
 
 using std::function;
 using std::vector;

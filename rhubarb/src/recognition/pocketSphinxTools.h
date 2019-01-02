@@ -3,7 +3,7 @@
 #include "time/BoundedTimeline.h"
 #include "core/Phone.h"
 #include "audio/AudioClip.h"
-#include "tools/ProgressBar.h"
+#include "tools/progress.h"
 #include <boost/filesystem/path.hpp>
 
 extern "C" {

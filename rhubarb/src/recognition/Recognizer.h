@@ -2,7 +2,7 @@
 
 #include "audio/AudioClip.h"
 #include "core/Phone.h"
-#include "tools/ProgressBar.h"
+#include "tools/progress.h"
 #include "time/BoundedTimeline.h"
 
 class Recognizer {

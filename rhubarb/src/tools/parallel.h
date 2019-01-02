@@ -1,7 +1,8 @@
 #pragma once
 
 #include <functional>
-#include "ProgressBar.h"
+#include <future>
+#include "progress.h"
 #include <gsl_util.h>
 
 template<typename TCollection>
