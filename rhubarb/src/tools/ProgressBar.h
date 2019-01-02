@@ -7,7 +7,8 @@
 
 class ProgressBar : public ProgressSink {
 public:
-	ProgressBar(std::ostream& stream = std::cerr);
+	explicit ProgressBar(double progress = 0.0);
+	ProgressBar(std::ostream& stream, double progress = 0.0);
 	~ProgressBar();
 	void reportProgress(double value) override;
 
@@ -21,6 +22,7 @@ public:
 
 private:
 	void updateLoop();
+	void update();
 	void updateText(const std::string& text);
 
 	std::future<void> updateLoopFuture;
