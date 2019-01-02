@@ -46,7 +46,6 @@ void NiceStderrSink::receive(const logging::Entry& entry) {
 void NiceStderrSink::startProgressIndication() {
 	std::cerr << "Progress: ";
 	progressBar = boost::in_place();
-	progressBar->setClearOnDestruction(false);
 }
 
 void NiceStderrSink::interruptProgressIndication() {
@@ -57,7 +56,6 @@ void NiceStderrSink::interruptProgressIndication() {
 void NiceStderrSink::resumeProgressIndication() {
 	std::cerr << "Progress (cont'd): ";
 	progressBar = boost::in_place(progress);
-	progressBar->setClearOnDestruction(false);
 }
 
 QuietStderrSink::QuietStderrSink(Level minLevel) :

@@ -32,5 +32,5 @@ private:
 	std::ostream& stream;
 	std::string currentText;
 	int animationIndex = 0;
-	bool clearOnDestruction = true;
+	bool clearOnDestruction = false;
 };
