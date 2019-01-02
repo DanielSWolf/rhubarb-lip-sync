@@ -3,55 +3,26 @@
 #include <future>
 #include <chrono>
 #include <format.h>
-#include <iostream>
 #include <boost/algorithm/clamp.hpp>
 #include <cmath>
 
 using std::string;
 
-ProgressForwarder::ProgressForwarder(std::function<void(double progress)> callback) :
-	callback(callback)
+double sanitizeProgress(double progress) {
+	// Make sure value is in [0..1] range
+	return std::isnan(progress)
+		? 0.0
+		: boost::algorithm::clamp(progress, 0.0, 1.0);
+}
+
+ProgressBar::ProgressBar(double progress) :
+	ProgressBar(std::cerr, progress)
 {}
 
-void ProgressForwarder::reportProgress(double value) {
-	callback(value);
-}
-
-ProgressMerger::ProgressMerger(ProgressSink& sink) :
-	sink(sink)
-{}
-
-ProgressSink& ProgressMerger::addSink(double weight) {
-	std::lock_guard<std::mutex> lock(mutex);
-
-	totalWeight += weight;
-	int sinkIndex = weightedValues.size();
-	weightedValues.push_back(0);
-	forwarders.push_back(ProgressForwarder([weight, sinkIndex, this](double progress) {
-		weightedValues[sinkIndex] = progress * weight;
-		report();
-	}));
-	return forwarders.back();
-}
-
-void ProgressMerger::report() {
-	std::lock_guard<std::mutex> lock(mutex);
-
-	if (totalWeight != 0) {
-		double weightedSum = 0;
-		for (double weightedValue : weightedValues) {
-			weightedSum += weightedValue;
-		}
-		double progress = weightedSum / totalWeight;
-		sink.reportProgress(progress);
-	} else {
-		sink.reportProgress(0);
-	}
-}
-
-ProgressBar::ProgressBar(std::ostream& stream) :
+ProgressBar::ProgressBar(std::ostream& stream, double progress) :
 	stream(stream)
 {
+	currentProgress = sanitizeProgress(progress);
 	updateLoopFuture = std::async(std::launch::async, &ProgressBar::updateLoop, this);
 }
 
@@ -61,35 +32,40 @@ ProgressBar::~ProgressBar() {
 }
 
 void ProgressBar::reportProgress(double value) {
-	// Make sure value is in [0..1] range
-	value = boost::algorithm::clamp(value, 0.0, 1.0);
-	if (std::isnan(value)) {
-		value = 0.0;
-	}
-
-	currentProgress = value;
+	currentProgress = sanitizeProgress(value);
 }
 
 void ProgressBar::updateLoop() {
-	const int blockCount = 20;
 	const std::chrono::milliseconds animationInterval(1000 / 8);
-	const string animation = "|/-\\";
 
 	while (!done) {
-		int progressBlockCount = static_cast<int>(currentProgress * blockCount);
-		int percent = static_cast<int>(currentProgress * 100);
-		string text = fmt::format("[{0}{1}] {2:3}% {3}",
-			string(progressBlockCount, '#'), string(blockCount - progressBlockCount, '-'),
-			percent,
-			animation[animationIndex++ % animation.size()]);
-		updateText(text);
-
+		update();
 		std::this_thread::sleep_for(animationInterval);
 	}
 
 	if (clearOnDestruction) {
 		updateText("");
+	} else {
+		update(false);
 	}
+}
+
+void ProgressBar::update(bool showSpinner) {
+	const int blockCount = 20;
+	const string animation = "|/-\\";
+
+	int progressBlockCount = static_cast<int>(currentProgress * blockCount);
+	const double epsilon = 0.0001;
+	int percent = static_cast<int>(currentProgress * 100 + epsilon);
+	const string spinner = showSpinner
+		? string(1, animation[animationIndex++ % animation.size()])
+		: "";
+	string text = fmt::format("[{0}{1}] {2:3}% {3}",
+		string(progressBlockCount, '#'), string(blockCount - progressBlockCount, '-'),
+		percent,
+		spinner
+	);
+	updateText(text);
 }
 
 void ProgressBar::updateText(const string& text) {

@@ -16,6 +16,7 @@ using boost::optional;
 
 NiceStderrSink::NiceStderrSink(Level minLevel) :
 	minLevel(minLevel),
+	progress(0.0),
 	innerSink(make_shared<StdErrSink>(make_shared<SimpleConsoleFormatter>()))
 {}
 
@@ -26,7 +27,8 @@ void NiceStderrSink::receive(const logging::Entry& entry) {
 		startProgressIndication();
 	} else if (const ProgressEntry* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
 		assert(progressBar);
-		progressBar->reportProgress(progressEntry->getProgress());
+		progress = progressEntry->getProgress();
+		progressBar->reportProgress(progress);
 	} else if (dynamic_cast<const SuccessEntry*>(&entry)) {
 		interruptProgressIndication();
 		std::cerr << "Done." << std::endl;
@@ -44,7 +46,6 @@ void NiceStderrSink::receive(const logging::Entry& entry) {
 void NiceStderrSink::startProgressIndication() {
 	std::cerr << "Progress: ";
 	progressBar = boost::in_place();
-	progressBar->setClearOnDestruction(false);
 }
 
 void NiceStderrSink::interruptProgressIndication() {
@@ -54,8 +55,7 @@ void NiceStderrSink::interruptProgressIndication() {
 
 void NiceStderrSink::resumeProgressIndication() {
 	std::cerr << "Progress (cont'd): ";
-	progressBar = boost::in_place();
-	progressBar->setClearOnDestruction(false);
+	progressBar = boost::in_place(progress);
 }
 
 QuietStderrSink::QuietStderrSink(Level minLevel) :

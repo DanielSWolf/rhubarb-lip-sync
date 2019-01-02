@@ -467,6 +467,8 @@ add_library(rhubarb-tools
 	src/tools/parallel.h
 	src/tools/platformTools.cpp
 	src/tools/platformTools.h
+	src/tools/progress.cpp
+	src/tools/progress.h
 	src/tools/ProgressBar.cpp
 	src/tools/ProgressBar.h
 	src/tools/stringTools.cpp

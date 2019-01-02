@@ -3,6 +3,7 @@
 ## Unreleased
 
 * **Added** basic support for non-English recordings through phonetic recognition ([issue #45](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/45)).
+* **Fixed** a bug that prevented the progress bar from reaching 100% ([issue #48](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/48)).
 
 ## Version 1.8.0
 

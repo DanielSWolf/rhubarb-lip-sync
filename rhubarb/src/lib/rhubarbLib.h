@@ -3,7 +3,7 @@
 #include "core/Shape.h"
 #include "time/ContinuousTimeline.h"
 #include "audio/AudioClip.h"
-#include "tools/ProgressBar.h"
+#include "tools/progress.h"
 #include <boost/filesystem.hpp>
 #include "animation/targetShapeSet.h"
 #include "recognition/Recognizer.h"

@@ -17,6 +17,7 @@ private:
 	void resumeProgressIndication();
 
 	logging::Level minLevel;
+	double progress;
 	boost::optional<ProgressBar> progressBar;
 	std::shared_ptr<Sink> innerSink;
 };
