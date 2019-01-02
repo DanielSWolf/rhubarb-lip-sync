@@ -413,8 +413,13 @@ add_library(rhubarb-recognition
 	src/recognition/g2p.h
 	src/recognition/languageModels.cpp
 	src/recognition/languageModels.h
-	src/recognition/phoneRecognition.cpp
-	src/recognition/phoneRecognition.h
+	src/recognition/PhoneticRecognizer.cpp
+	src/recognition/PhoneticRecognizer.h
+	src/recognition/PocketSphinxRecognizer.cpp
+	src/recognition/PocketSphinxRecognizer.h
+	src/recognition/pocketSphinxTools.cpp
+	src/recognition/pocketSphinxTools.h
+	src/recognition/Recognizer.h
 	src/recognition/tokenization.cpp
 	src/recognition/tokenization.h
 )
@@ -487,6 +492,8 @@ add_executable(rhubarb
 	src/rhubarb/main.cpp
 	src/rhubarb/ExportFormat.cpp
 	src/rhubarb/ExportFormat.h
+	src/rhubarb/RecognizerType.cpp
+	src/rhubarb/RecognizerType.h
 	src/rhubarb/semanticEntries.cpp
 	src/rhubarb/semanticEntries.h
 	src/rhubarb/sinks.cpp

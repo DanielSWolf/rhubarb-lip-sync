@@ -323,6 +323,12 @@ function createDialogWindow() {
 								+ 'your After Effects project.'
 						})
 					}),
+					recognizer: Group({
+						label: StaticText({ text: 'Recognizer:' }),
+						value: DropDownList({
+							helpTip: 'The dialog recognizer.'
+						})
+					}),
 					dialogText: Group({
 						label: StaticText({ text: 'Dialog text (optional):' }),
 						value: EditText({
@@ -384,6 +390,7 @@ function createDialogWindow() {
 	var controls = {
 		audioFile: window.settings.audioFile.value,
 		dialogText: window.settings.dialogText.value,
+		recognizer: window.settings.recognizer.value,
 		mouthComp: window.settings.mouthComp.value,
 		targetFolder: window.settings.targetFolder.value,
 		frameRate: window.settings.frameRate.value,
@@ -400,6 +407,16 @@ function createDialogWindow() {
 	getAudioFileProjectItems().forEach(function(projectItem) {
 		var listItem = controls.audioFile.add('item', getItemPath(projectItem));
 		listItem.projectItem = projectItem;
+	});
+
+	// Add recognizer options
+	const recognizerOptions = [
+		{ text: 'PocketSphinx (use for English recordings)', value: 'pocketSphinx' },
+		{ text: 'Phonetic (use for non-English recordings)', value: 'phonetic' }
+	];
+	recognizerOptions.forEach(function(option) {
+		var listItem = controls.recognizer.add('item', option.text);
+		listItem.value = option.value;
 	});
 
 	// Add mouth composition options
@@ -425,6 +442,7 @@ function createDialogWindow() {
 	var settings = readSettingsFile();
 	selectByTextOrFirst(controls.audioFile, settings.audioFile);
 	controls.dialogText.text = settings.dialogText || '';
+	selectByTextOrFirst(controls.recognizer, settings.recognizer);
 	selectByTextOrFirst(controls.mouthComp, settings.mouthComp);
 	extendedMouthShapeNames.forEach(function(shapeName) {
 		controls['mouthShape' + shapeName].value =
@@ -484,6 +502,7 @@ function createDialogWindow() {
 			// Store settings
 			var settings = {
 				audioFile: (controls.audioFile.selection || {}).text,
+				recognizer: (controls.recognizer.selection || {}).text,
 				dialogText: controls.dialogText.text,
 				mouthComp: (controls.mouthComp.selection || {}).text,
 				extendedMouthShapes: {},
@@ -543,7 +562,7 @@ function createDialogWindow() {
 
 		// Check for correct Rhubarb version
 		var version = exec(rhubarbPath + ' --version') || '';
-		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+))/);
+		var match = version.match(/Rhubarb Lip Sync version ((\d+)\.(\d+).(\d+)(-[0-9A-Za-z-.]+)?)/);
 		if (!match) {
 			var instructions = osIsWindows
 				? 'Make sure your PATH environment variable contains the ' + appName + ' '
@@ -555,13 +574,16 @@ function createDialogWindow() {
 		var versionString = match[1];
 		var major = Number(match[2]);
 		var minor = Number(match[3]);
-		if (major != 1 || minor < 6) {
-			return 'This script requires ' + appName + ' 1.6.0 or a later 1.x version. '
+		var requiredMajor = 1;
+		var minRequiredMinor = 9;
+		if (major != requiredMajor || minor < minRequiredMinor) {
+			return 'This script requires ' + appName + ' ' + requiredMajor + '.' + minRequiredMinor
+				+ '.0 or a later ' + requiredMajor + '.x version. '
 				+ 'Your installed version is ' + versionString + ', which is not compatible.';
 		}
 	}
 
-	function generateMouthCues(audioFileFootage, dialogText, mouthComp, extendedMouthShapeNames,
+	function generateMouthCues(audioFileFootage, recognizer, dialogText, mouthComp, extendedMouthShapeNames,
 		targetProjectFolder, frameRate)
 	{
 		var basePath = Folder.temp.fsName + '/' + createGuid();
@@ -575,6 +597,7 @@ function createDialogWindow() {
 			// Create command line
 			var commandLine = rhubarbPath
 				+ ' --dialogFile ' + cliEscape(dialogFile.fsName)
+				+ ' --recognizer ' + recognizer
 				+ ' --exportFormat json'
 				+ ' --extendedShapes ' + cliEscape(extendedMouthShapeNames.join(''))
 				+ ' --logFile ' + cliEscape(logFile.fsName)
@@ -660,11 +683,11 @@ function createDialogWindow() {
 		}
 	}
 
-	function animate(audioFileFootage, dialogText, mouthComp, extendedMouthShapeNames,
+	function animate(audioFileFootage, recognizer, dialogText, mouthComp, extendedMouthShapeNames,
 		targetProjectFolder, frameRate)
 	{
 		try {
-			var mouthCues = generateMouthCues(audioFileFootage, dialogText, mouthComp,
+			var mouthCues = generateMouthCues(audioFileFootage, recognizer, dialogText, mouthComp,
 				extendedMouthShapeNames, targetProjectFolder, frameRate);
 
 			app.beginUndoGroup(appName + ': Animation');
@@ -680,6 +703,7 @@ function createDialogWindow() {
 	// Handle changes
 	update();
 	controls.audioFile.onChange = update;
+	controls.recognizer.onChange = update;
 	controls.dialogText.onChanging = update;
 	controls.mouthComp.onChange = update;
 	extendedMouthShapeNames.forEach(function(shapeName) {
@@ -700,6 +724,7 @@ function createDialogWindow() {
 			window.close();
 			animate(
 				controls.audioFile.selection.projectItem,
+				controls.recognizer.selection.value,
 				controls.dialogText.text || '',
 				controls.mouthComp.selection.projectItem,
 				extendedMouthShapeNames.filter(function(shapeName) {
