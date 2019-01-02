@@ -1,5 +1,35 @@
 # utf8proc release history #
 
+## Version 2.2 ##
+
+2018-07-24
+
+- Unicode 11 support ([#132] and [#140]).
+
+- `utf8proc_NFKC_Casefold` convenience function for `NFKC_Casefold`
+  normalization ([#133]).
+
+- `UTF8PROC_STRIPNA` option to strip unassigned codepoints ([#133]).
+
+- Support building static libraries on Windows (callers need to
+  `#define UTF8PROC_STATIC`) ([#123]).
+
+- `cmake` fix to avoid defining `UTF8PROC_EXPORTS` globally ([#121]).
+
+- `toupper` of ß (U+00df) now yields ẞ (U+1E9E) ([#134]), similar to musl;
+  case-folding still yields the standard "ss" mapping.
+
+- `utf8proc_charwidth` now returns `1` for U+00AD (soft hyphen) and
+  for unassigned/PUA codepoints ([#135]).
+
+## Version 2.1.1 ##
+
+2018-04-27
+
+- Fixed composition bug ([#128]).
+
+- Minor build fixes ([#94], [#99], [#113], [#125]).
+
 ## Version 2.1 ##
 
 2016-12-26:
@@ -297,7 +327,19 @@ Release of version 1.0.1
 [#78]: https://github.com/JuliaLang/utf8proc/issues/78
 [#79]: https://github.com/JuliaLang/utf8proc/issues/79
 [#80]: https://github.com/JuliaLang/utf8proc/issues/80
-[#84]: https://github.com/JuliaLang/utf8proc/pull/84
-[#88]: https://github.com/JuliaLang/utf8proc/pull/88
-[#89]: https://github.com/JuliaLang/utf8proc/pull/89
+[#84]: https://github.com/JuliaLang/utf8proc/issues/84
+[#88]: https://github.com/JuliaLang/utf8proc/issues/88
+[#89]: https://github.com/JuliaLang/utf8proc/issues/89
 [#90]: https://github.com/JuliaLang/utf8proc/issues/90
+[#94]: https://github.com/JuliaLang/utf8proc/issues/94
+[#99]: https://github.com/JuliaLang/utf8proc/issues/99
+[#113]: https://github.com/JuliaLang/utf8proc/issues/113
+[#121]: https://github.com/JuliaLang/utf8proc/issues/121
+[#123]: https://github.com/JuliaLang/utf8proc/issues/123
+[#125]: https://github.com/JuliaLang/utf8proc/issues/125
+[#128]: https://github.com/JuliaLang/utf8proc/issues/128
+[#132]: https://github.com/JuliaLang/utf8proc/issues/132
+[#133]: https://github.com/JuliaLang/utf8proc/issues/133
+[#134]: https://github.com/JuliaLang/utf8proc/issues/134
+[#135]: https://github.com/JuliaLang/utf8proc/issues/135
+[#140]: https://github.com/JuliaLang/utf8proc/issues/140

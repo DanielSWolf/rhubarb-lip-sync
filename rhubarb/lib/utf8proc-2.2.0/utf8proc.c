@@ -1,6 +1,6 @@
 /* -*- mode: c; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil -*- */
 /*
- *  Copyright (c) 2015 Steven G. Johnson, Jiahao Chen, Peter Colberg, Tony Kelman, Scott P. Jones, and other contributors.
+ *  Copyright (c) 2018 Steven G. Johnson, Jiahao Chen, Peter Colberg, Tony Kelman, Scott P. Jones, and other contributors.
  *  Copyright (c) 2009 Public Software Group e. V., Berlin, Germany
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
@@ -42,6 +42,14 @@
 
 
 #include "utf8proc.h"
+
+#ifndef SSIZE_MAX
+#define SSIZE_MAX ((size_t)SIZE_MAX/2)
+#endif
+#ifndef UINT16_MAX
+#  define UINT16_MAX 65535U
+#endif
+
 #include "utf8proc_data.c"
 
 
@@ -271,12 +279,8 @@ static utf8proc_bool grapheme_break_simple(int lbc, int tbc) {
      tbc == UTF8PROC_BOUNDCLASS_ZWJ ||                // ---
      tbc == UTF8PROC_BOUNDCLASS_SPACINGMARK ||        // GB9a
      lbc == UTF8PROC_BOUNDCLASS_PREPEND) ? false :    // GB9b
-    ((lbc == UTF8PROC_BOUNDCLASS_E_BASE ||            // GB10 (requires additional handling below)
-      lbc == UTF8PROC_BOUNDCLASS_E_BASE_GAZ) &&       // ----
-     tbc == UTF8PROC_BOUNDCLASS_E_MODIFIER) ? false : // ----
-    (lbc == UTF8PROC_BOUNDCLASS_ZWJ &&                         // GB11
-     (tbc == UTF8PROC_BOUNDCLASS_GLUE_AFTER_ZWJ ||             // ----
-      tbc == UTF8PROC_BOUNDCLASS_E_BASE_GAZ)) ? false :        // ----
+    (lbc == UTF8PROC_BOUNDCLASS_E_ZWG &&              // GB11 (requires additional handling below)
+     tbc == UTF8PROC_BOUNDCLASS_EXTENDED_PICTOGRAPHIC) ? false : // ----
     (lbc == UTF8PROC_BOUNDCLASS_REGIONAL_INDICATOR &&          // GB12/13 (requires additional handling below)
      tbc == UTF8PROC_BOUNDCLASS_REGIONAL_INDICATOR) ? false :  // ----
     true; // GB999
@@ -284,9 +288,8 @@ static utf8proc_bool grapheme_break_simple(int lbc, int tbc) {
 
 static utf8proc_bool grapheme_break_extended(int lbc, int tbc, utf8proc_int32_t *state)
 {
-  int lbc_override = lbc;
-  if (state && *state != UTF8PROC_BOUNDCLASS_START)
-    lbc_override = *state;
+  int lbc_override = ((state && *state != UTF8PROC_BOUNDCLASS_START)
+                      ? *state : lbc);
   utf8proc_bool break_permitted = grapheme_break_simple(lbc_override, tbc);
   if (state) {
     // Special support for GB 12/13 made possible by GB999. After two RI
@@ -296,12 +299,15 @@ static utf8proc_bool grapheme_break_extended(int lbc, int tbc, utf8proc_int32_t 
     // forbidden by a different rule such as GB9).
     if (*state == tbc && tbc == UTF8PROC_BOUNDCLASS_REGIONAL_INDICATOR)
       *state = UTF8PROC_BOUNDCLASS_OTHER;
-    // Special support for GB10. Fold any EXTEND codepoints into the previous
-    // boundclass if we're dealing with an emoji base boundclass.
-    else if ((*state == UTF8PROC_BOUNDCLASS_E_BASE      ||
-              *state == UTF8PROC_BOUNDCLASS_E_BASE_GAZ) &&
-             tbc == UTF8PROC_BOUNDCLASS_EXTEND)
-      *state = UTF8PROC_BOUNDCLASS_E_BASE;
+    // Special support for GB11 (emoji extend* zwj / emoji)
+    else if (*state == UTF8PROC_BOUNDCLASS_EXTENDED_PICTOGRAPHIC) {
+      if (tbc == UTF8PROC_BOUNDCLASS_EXTEND) // fold EXTEND codepoints into emoji
+        *state = UTF8PROC_BOUNDCLASS_EXTENDED_PICTOGRAPHIC;
+      else if (tbc == UTF8PROC_BOUNDCLASS_ZWJ)
+        *state = UTF8PROC_BOUNDCLASS_E_ZWG; // state to record emoji+zwg combo
+      else
+        *state = tbc;
+    }
     else
       *state = tbc;
   }
@@ -423,6 +429,9 @@ UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_decompose_char(utf8proc_int32_t uc,
   }
   if (options & UTF8PROC_IGNORE) {
     if (property->ignorable) return 0;
+  }
+  if (options & UTF8PROC_STRIPNA) {
+    if (!category) return 0;
   }
   if (options & UTF8PROC_LUMP) {
     if (category == UTF8PROC_CATEGORY_ZS) utf8proc_decompose_lump(0x0020);
@@ -632,9 +641,9 @@ UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_normalize_utf32(utf8proc_int32_t *b
             current_property->comb_index != UINT16_MAX &&
             current_property->comb_index >= 0x8000) {
           int sidx = starter_property->comb_index;
-          int idx = (current_property->comb_index & 0x3FFF) - utf8proc_combinations[sidx];
-          if (idx >= 0 && idx <= utf8proc_combinations[sidx + 1] ) {
-            idx += sidx + 2;
+          int idx = current_property->comb_index & 0x3FFF;
+          if (idx >= utf8proc_combinations[sidx] && idx <= utf8proc_combinations[sidx + 1] ) {
+            idx += sidx + 2 - utf8proc_combinations[sidx];
             if (current_property->comb_index & 0x4000) {
               composition = (utf8proc_combinations[idx] << 16) | utf8proc_combinations[idx+1];
             } else
@@ -751,5 +760,12 @@ UTF8PROC_DLLEXPORT utf8proc_uint8_t *utf8proc_NFKC(const utf8proc_uint8_t *str) 
   utf8proc_uint8_t *retval;
   utf8proc_map(str, 0, &retval, UTF8PROC_NULLTERM | UTF8PROC_STABLE |
     UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  return retval;
+}
+
+UTF8PROC_DLLEXPORT utf8proc_uint8_t *utf8proc_NFKC_Casefold(const utf8proc_uint8_t *str) {
+  utf8proc_uint8_t *retval;
+  utf8proc_map(str, 0, &retval, UTF8PROC_NULLTERM | UTF8PROC_STABLE |
+    UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE);
   return retval;
 }

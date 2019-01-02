@@ -16,11 +16,11 @@ CURLFLAGS = --retry 5 --location
 
 .DELETE_ON_ERROR:
 
-utf8proc_data.c.new: data_generator.rb UnicodeData.txt GraphemeBreakProperty.txt DerivedCoreProperties.txt CompositionExclusions.txt CaseFolding.txt CharWidths.txt
+utf8proc_data.c.new: data_generator.rb UnicodeData.txt GraphemeBreakProperty.txt DerivedCoreProperties.txt CompositionExclusions.txt CaseFolding.txt CharWidths.txt emoji-data.txt
 	$(RUBY) data_generator.rb < UnicodeData.txt > $@
 
 # GNU Unifont version for font metric calculations:
-UNIFONT_VERSION=9.0.04
+UNIFONT_VERSION=11.0.01
 
 unifont.ttf:
 	$(CURL) $(CURLFLAGS) -o $@ $(URLCACHE)https://mirrors.kernel.org/gnu/unifont/unifont-$(UNIFONT_VERSION)/unifont-$(UNIFONT_VERSION).ttf
@@ -35,7 +35,7 @@ CharWidths.txt: charwidths.jl unifont.sfd unifont_upper.sfd EastAsianWidth.txt
 	$(JULIA) charwidths.jl > $@
 
 # Unicode data version
-UNICODE_VERSION=9.0.0
+UNICODE_VERSION=11.0.0
 
 UnicodeData.txt:
 	$(CURL) $(CURLFLAGS) -o $@ -O http://www.unicode.org/Public/$(UNICODE_VERSION)/ucd/UnicodeData.txt
@@ -61,6 +61,9 @@ NormalizationTest.txt:
 GraphemeBreakTest.txt:
 	$(CURL) $(CURLFLAGS) $(URLCACHE)http://www.unicode.org/Public/$(UNICODE_VERSION)/ucd/auxiliary/GraphemeBreakTest.txt | $(PERL) -pe 's,÷,/,g;s,×,+,g' > $@
 
+emoji-data.txt:
+	$(CURL) $(CURLFLAGS) -o $@ -O $(URLCACHE)http://unicode.org/Public/emoji/`echo $(UNICODE_VERSION) | cut -d. -f1-2`/emoji-data.txt
+
 clean:
-	rm -f UnicodeData.txt EastAsianWidth.txt GraphemeBreakProperty.txt DerivedCoreProperties.txt CompositionExclusions.txt CaseFolding.txt NormalizationTest.txt GraphemeBreakTest.txt CharWidths.txt unifont*.ttf unifont*.sfd
+	rm -f UnicodeData.txt EastAsianWidth.txt GraphemeBreakProperty.txt DerivedCoreProperties.txt CompositionExclusions.txt CaseFolding.txt NormalizationTest.txt GraphemeBreakTest.txt CharWidths.txt unifont*.ttf unifont*.sfd emoji-data.txt
 	rm -f utf8proc_data.c.new
