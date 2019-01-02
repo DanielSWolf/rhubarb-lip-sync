@@ -46,21 +46,25 @@ void ProgressBar::updateLoop() {
 	if (clearOnDestruction) {
 		updateText("");
 	} else {
-		update();
+		update(false);
 	}
 }
 
-void ProgressBar::update() {
+void ProgressBar::update(bool showSpinner) {
 	const int blockCount = 20;
 	const string animation = "|/-\\";
 
 	int progressBlockCount = static_cast<int>(currentProgress * blockCount);
 	const double epsilon = 0.0001;
 	int percent = static_cast<int>(currentProgress * 100 + epsilon);
+	const string spinner = showSpinner
+		? string(1, animation[animationIndex++ % animation.size()])
+		: "";
 	string text = fmt::format("[{0}{1}] {2:3}% {3}",
 		string(progressBlockCount, '#'), string(blockCount - progressBlockCount, '-'),
 		percent,
-		animation[animationIndex++ % animation.size()]);
+		spinner
+	);
 	updateText(text);
 }
 

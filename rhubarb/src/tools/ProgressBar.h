@@ -22,7 +22,7 @@ public:
 
 private:
 	void updateLoop();
-	void update();
+	void update(bool showSpinner = true);
 	void updateText(const std::string& text);
 
 	std::future<void> updateLoopFuture;
