@@ -18,9 +18,16 @@ image:img/logo.png[align="center"]
 
 ---
 
-https://github.com/DanielSWolf/rhubarb-lip-sync[Rhubarb Lip Sync] is a command-line tool that automatically creates 2D mouth animation from voice recordings. You can use it for animating speech in computer games, animated cartoons, or any similar project.
+Rhubarb Lip Sync allows you to quickly create 2D mouth animation from voice recordings. It analyzes your audio files, recognizes what is being said, then automatically generates lip sync information. You can use it for animating speech in computer games, animated cartoons, or any similar project.
 
-Rhubarb Lip Sync produces text files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). In addition, it comes with integrations for <<afterEffects,Adobe After Effects>>, <<spine,Spine>>, and <<vegas,Vegas Pro>>.
+Rhubarb Lip Sync integrates with the following applications:
+
+* *Adobe After Effects* (see <<afterEffects,below>>)
+* *Spine* by Esoteric Software (see <<spine,below>>)
+* *Vegas Pro* by Magix (see <<vegas,below>>)
+* *Visionaire Studio* (see https://www.visionaire-studio.net/forum/thread/mouth-animation-using-rhubarb-lip-sync[external link])
+
+In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). 
 
 == Demo video
 
@@ -333,10 +340,14 @@ Note that the output format <<Versioning,adheres to SemVer>>. That means that th
 
 Rhubarb Lip Sync uses Semantic Versioning (SemVer) for its command-line interface. For general information on Semantic Versioning, have a look at the http://semver.org/[official SemVer website].
 
-As a rule of thumb, everything you can use through the command-line interface adheres to SemVer. Everything else (i.e., the source code) does not. Here are some examples and clarifications:
+As a rule of thumb, everything you can use through the command-line interface adheres to SemVer. Everything else (i.e., the source code, integrations with third-party software, etc.) does not.
 
 == I'd love to hear from you!
 
 Have you created something great using Rhubarb Lip Sync? -- *https://twitter.com/RhubarbLipSync[Let me know on Twitter]* or *send me an email* at +++&#100;&#119;&#111;&#108;&#102;&#064;&#100;&#097;&#110;&#110;&#097;&#100;&#046;&#100;&#101;+++!
 
 Do you need help? Have you spotted a bug? Do you have a suggestion? -- *https://github.com/DanielSWolf/rhubarb-lip-sync/issues[Create an issue!]*
+
+'''
+
+https://www.jetbrains.com/[image:img/resharper-cpp.svg[]] https://www.jetbrains.com/[JetBrains] have been kind enough to supply me with a free Open Source license of https://www.jetbrains.com/resharper-cpp/[ReSharper C++].
