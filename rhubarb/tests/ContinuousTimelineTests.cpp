@@ -7,8 +7,8 @@ using boost::optional;
 using std::initializer_list;
 
 TEST(ContinuousTimeline, constructors_initializeState) {
-	TimeRange range(-5_cs, 55_cs);
-	int defaultValue = -1;
+	const TimeRange range(-5_cs, 55_cs);
+	const int defaultValue = -1;
 	auto args = {
 		Timed<int>(-10_cs, 30_cs, 1),
 		Timed<int>(10_cs, 40_cs, 2),
@@ -49,8 +49,8 @@ TEST(ContinuousTimeline, empty) {
 }
 
 TEST(ContinuousTimeline, setAndClear) {
-	TimeRange range(0_cs, 10_cs);
-	int defaultValue = -1;
+	const TimeRange range(0_cs, 10_cs);
+	const int defaultValue = -1;
 	ContinuousTimeline<int> timeline(range, defaultValue);
 
 	// Out of range
@@ -82,8 +82,16 @@ TEST(ContinuousTimeline, setAndClear) {
 }
 
 TEST(ContinuousTimeline, shift) {
-	ContinuousTimeline<int> timeline(TimeRange(0_cs, 10_cs), -1, { { 1_cs, 2_cs, 1 },{ 2_cs, 5_cs, 2 },{ 7_cs, 9_cs, 3 } });
-	ContinuousTimeline<int> expected(TimeRange(2_cs, 12_cs), -1, { { 3_cs, 4_cs, 1 },{ 4_cs, 7_cs, 2 },{ 9_cs, 11_cs, 3 } });
+	ContinuousTimeline<int> timeline(
+		TimeRange(0_cs, 10_cs),
+		-1,
+		{ { 1_cs, 2_cs, 1 }, { 2_cs, 5_cs, 2 }, { 7_cs, 9_cs, 3 } }
+	);
+	ContinuousTimeline<int> expected(
+		TimeRange(2_cs, 12_cs),
+		-1,
+		{ { 3_cs, 4_cs, 1 }, { 4_cs, 7_cs, 2 }, { 9_cs, 11_cs, 3 } }
+	);
 	timeline.shift(2_cs);
 	EXPECT_EQ(expected, timeline);
 }
@@ -99,7 +107,8 @@ TEST(ContinuousTimeline, equality) {
 	for (size_t i = 0; i < timelines.size(); ++i) {
 		for (size_t j = 0; j < timelines.size(); ++j) {
 			if (i == j) {
-				EXPECT_EQ(timelines[i], ContinuousTimeline<int>(timelines[j])) << "i: " << i << ", j: " << j;
+				EXPECT_EQ(timelines[i], ContinuousTimeline<int>(timelines[j]))
+					<< "i: " << i << ", j: " << j;
 			} else {
 				EXPECT_NE(timelines[i], timelines[j]) << "i: " << i << ", j: " << j;
 			}

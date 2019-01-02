@@ -54,13 +54,13 @@ void ProgressBar::update(bool showSpinner) {
 	const int blockCount = 20;
 	const string animation = "|/-\\";
 
-	int progressBlockCount = static_cast<int>(currentProgress * blockCount);
+	const int progressBlockCount = static_cast<int>(currentProgress * blockCount);
 	const double epsilon = 0.0001;
-	int percent = static_cast<int>(currentProgress * 100 + epsilon);
+	const int percent = static_cast<int>(currentProgress * 100 + epsilon);
 	const string spinner = showSpinner
 		? string(1, animation[animationIndex++ % animation.size()])
 		: "";
-	string text = fmt::format("[{0}{1}] {2:3}% {3}",
+	const string text = fmt::format("[{0}{1}] {2:3}% {3}",
 		string(progressBlockCount, '#'), string(blockCount - progressBlockCount, '-'),
 		percent,
 		spinner
@@ -71,7 +71,7 @@ void ProgressBar::update(bool showSpinner) {
 void ProgressBar::updateText(const string& text) {
 	// Get length of common portion
 	int commonPrefixLength = 0;
-	int commonLength = std::min(currentText.size(), text.size());
+	const int commonLength = std::min(currentText.size(), text.size());
 	while (commonPrefixLength < commonLength && text[commonPrefixLength] == currentText[commonPrefixLength]) {
 		commonPrefixLength++;
 	}
@@ -86,7 +86,7 @@ void ProgressBar::updateText(const string& text) {
 	output.append(text, commonPrefixLength, text.size() - commonPrefixLength);
 
 	// ... if the new text is shorter than the old one: delete overlapping characters
-	int overlapCount = currentText.size() - text.size();
+	const int overlapCount = currentText.size() - text.size();
 	if (overlapCount > 0) {
 		output.append(overlapCount, ' ');
 		output.append(overlapCount, '\b');

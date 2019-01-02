@@ -72,7 +72,12 @@ private:
 
 template<typename T>
 std::ostream& operator<<(std::ostream& stream, const Timed<T>& timedValue) {
-	return stream << "Timed(" << timedValue.getStart() << ", " << timedValue.getEnd() << ", " << timedValue.getValue() << ")";
+	return stream
+		<< "Timed("
+		<< timedValue.getStart() << ", "
+		<< timedValue.getEnd() << ", "
+		<< timedValue.getValue()
+		<< ")";
 }
 
 template<>
@@ -130,5 +135,9 @@ private:
 
 template<>
 inline std::ostream& operator<<(std::ostream& stream, const Timed<void>& timedValue) {
-	return stream << "Timed<void>(" << timedValue.getTimeRange().getStart() << ", " << timedValue.getTimeRange().getEnd() << ")";
+	return stream
+		<< "Timed<void>("
+		<< timedValue.getTimeRange().getStart() << ", "
+		<< timedValue.getTimeRange().getEnd()
+		<< ")";
 }

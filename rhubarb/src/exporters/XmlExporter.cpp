@@ -12,11 +12,17 @@ void XmlExporter::exportAnimation(const ExporterInput& input, std::ostream& outp
 
 	// Add metadata
 	tree.put("rhubarbResult.metadata.soundFile", input.inputFilePath.string());
-	tree.put("rhubarbResult.metadata.duration", formatDuration(input.animation.getRange().getDuration()));
+	tree.put(
+		"rhubarbResult.metadata.duration",
+		formatDuration(input.animation.getRange().getDuration())
+	);
 
 	// Add mouth cues
 	for (auto& timedShape : dummyShapeIfEmpty(input.animation, input.targetShapeSet)) {
-		ptree& mouthCueElement = tree.add("rhubarbResult.mouthCues.mouthCue", timedShape.getValue());
+		ptree& mouthCueElement = tree.add(
+			"rhubarbResult.mouthCues.mouthCue",
+			timedShape.getValue()
+		);
 		mouthCueElement.put("<xmlattr>.start", formatDuration(timedShape.getStart()));
 		mouthCueElement.put("<xmlattr>.end", formatDuration(timedShape.getEnd()));
 	}

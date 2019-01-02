@@ -36,7 +36,10 @@ void NiceCmdLineOutput::failure(CmdLineInterface& cli, TCLAP::ArgException& e) {
 		std::cerr << "Short usage:" << endl;
 		printShortUsage(cli, std::cerr);
 
-		std::cerr << endl << "For complete usage and help, type `" << getBinaryName() << " --help`" << endl << endl;
+		std::cerr
+			<< endl
+			<< "For complete usage and help, type `" << getBinaryName() << " --help`" << endl
+			<< endl;
 	} else {
 		usage(cli);
 	}
@@ -76,8 +79,9 @@ void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outS
 	const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
 	for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
 		for (auto arg : xorArgGroup) {
-			if (arg != xorArgGroup[0])
+			if (arg != xorArgGroup[0]) {
 				outStream << "-- or --" << endl;
+			}
 
 			tablePrinter.printRow({ arg->longID(), arg->getDescription() });
 		}

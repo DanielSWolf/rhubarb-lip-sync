@@ -3,9 +3,9 @@
 #include <chrono>
 #include <ostream>
 
-typedef std::chrono::duration<int, std::centi> centiseconds;
+using centiseconds = std::chrono::duration<int, std::centi>;
 
-std::ostream& operator <<(std::ostream& stream, const centiseconds cs);
+std::ostream& operator <<(std::ostream& stream, centiseconds cs);
 
 #pragma warning(push)
 #pragma warning(disable: 4455)

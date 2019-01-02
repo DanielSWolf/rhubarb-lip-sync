@@ -30,7 +30,7 @@ private:
 
 using AudioEffect = std::function<std::unique_ptr<AudioClip>(std::unique_ptr<AudioClip>)>;
 
-std::unique_ptr<AudioClip> operator|(std::unique_ptr<AudioClip> clip, AudioEffect effect);
+std::unique_ptr<AudioClip> operator|(std::unique_ptr<AudioClip> clip, const AudioEffect& effect);
 
 using SampleReader = AudioClip::SampleReader;
 

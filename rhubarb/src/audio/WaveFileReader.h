@@ -12,7 +12,7 @@ enum class SampleFormat {
 
 class WaveFileReader : public AudioClip {
 public:
-	WaveFileReader(boost::filesystem::path filePath);
+	WaveFileReader(const boost::filesystem::path& filePath);
 	std::unique_ptr<AudioClip> clone() const override;
 	int getSampleRate() const override;
 	size_type size() const override;

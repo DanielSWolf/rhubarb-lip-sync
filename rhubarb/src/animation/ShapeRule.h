@@ -11,7 +11,7 @@ struct ShapeRule {
 	boost::optional<Phone> phone;
 	TimeRange phoneTiming;
 
-	ShapeRule(const ShapeSet& shapeSet, const boost::optional<Phone>& phone, TimeRange phoneTiming);
+	ShapeRule(ShapeSet shapeSet, boost::optional<Phone> phone, TimeRange phoneTiming);
 
 	static ShapeRule getInvalid();
 

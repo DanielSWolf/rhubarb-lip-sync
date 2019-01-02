@@ -2,7 +2,9 @@
 #include <vector>
 
 template<typename TCollection>
-std::vector<std::pair<typename TCollection::value_type, typename TCollection::value_type>> getPairs(const TCollection& collection) {
+std::vector<std::pair<typename TCollection::value_type, typename TCollection::value_type>> getPairs(
+	const TCollection& collection
+) {
 	using TElement = typename TCollection::value_type;
 	using TPair = std::pair<TElement, TElement>;
 	using TIterator = typename TCollection::const_iterator;

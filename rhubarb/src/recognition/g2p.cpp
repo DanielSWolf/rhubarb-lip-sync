@@ -64,8 +64,9 @@ Phone charToPhone(wchar_t c) {
 		case L'r': return Phone::R;
 		case L'l': return Phone::L;
 		case L'h': return Phone::HH;
+		default:
+			return Phone::Noise;
 	}
-	return Phone::Noise;
 }
 
 vector<Phone> wordToPhones(const std::string& word) {
@@ -94,8 +95,11 @@ vector<Phone> wordToPhones(const std::string& word) {
 	for (wchar_t c : wideWord) {
 		Phone phone = charToPhone(c);
 		if (phone == Phone::Noise) {
-			logging::errorFormat("G2P error determining pronunciation for '{}': Character '{}' is not a recognized phone shorthand.",
-				word, static_cast<char>(c));
+			logging::errorFormat(
+				"G2P error determining pronunciation for '{}': Character '{}' is not a recognized phone shorthand.",
+				word,
+				static_cast<char>(c)
+			);
 		}
 
 		if (phone != lastPhone) {

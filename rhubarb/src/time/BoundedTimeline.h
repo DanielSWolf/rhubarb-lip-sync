@@ -52,7 +52,10 @@ public:
 
 		// Clip the value's range to bounds
 		TimeRange& valueRange = timedValue.getTimeRange();
-		valueRange.resize(max(range.getStart(), valueRange.getStart()), min(range.getEnd(), valueRange.getEnd()));
+		valueRange.resize(
+			max(range.getStart(), valueRange.getStart()),
+			min(range.getEnd(), valueRange.getEnd())
+		);
 
 		return Timeline<T, AutoJoin>::set(timedValue);
 	}

@@ -9,7 +9,6 @@
 using std::string;
 using std::make_shared;
 using logging::Level;
-using logging::LevelFilter;
 using logging::StdErrSink;
 using logging::SimpleConsoleFormatter;
 using boost::optional;
@@ -21,11 +20,14 @@ NiceStderrSink::NiceStderrSink(Level minLevel) :
 {}
 
 void NiceStderrSink::receive(const logging::Entry& entry) {
-	// For selected semantic entries, print a user-friendly message instead of the technical log message.
-	if (const StartEntry* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
-		std::cerr << fmt::format("Generating lip sync data for {}.", startEntry->getInputFilePath()) << std::endl;
+	// For selected semantic entries, print a user-friendly message instead of
+	// the technical log message.
+	if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
+		std::cerr
+			<< fmt::format("Generating lip sync data for {}.", startEntry->getInputFilePath())
+			<< std::endl;
 		startProgressIndication();
-	} else if (const ProgressEntry* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
+	} else if (const auto* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
 		assert(progressBar);
 		progress = progressEntry->getProgress();
 		progressBar->reportProgress(progress);
@@ -65,7 +67,7 @@ QuietStderrSink::QuietStderrSink(Level minLevel) :
 
 void QuietStderrSink::receive(const logging::Entry& entry) {
 	// Set inputFilePath as soon as we get it
-	if (const StartEntry* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
+	if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
 		inputFilePath = startEntry->getInputFilePath();
 	}
 
@@ -87,26 +89,42 @@ MachineReadableStderrSink::MachineReadableStderrSink(Level minLevel) :
 {}
 
 string formatLogProperty(const logging::Entry& entry) {
-	return fmt::format(R"("log": {{ "level": "{}", "message": "{}" }})", entry.level, escapeJsonString(entry.message));
+	return fmt::format(
+		R"("log": {{ "level": "{}", "message": "{}" }})",
+		entry.level,
+		escapeJsonString(entry.message)
+	);
 }
 
 void MachineReadableStderrSink::receive(const logging::Entry& entry) {
 	optional<string> line;
 	if (dynamic_cast<const SemanticEntry*>(&entry)) {
-		if (const StartEntry* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
+		if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
 			const string file = escapeJsonString(startEntry->getInputFilePath().string());
-			line = fmt::format(R"({{ "type": "start", "file": "{}", {} }})", file, formatLogProperty(entry));
-		} else if (const ProgressEntry* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
+			line = fmt::format(
+				R"({{ "type": "start", "file": "{}", {} }})",
+				file,
+				formatLogProperty(entry)
+			);
+		} else if (const auto* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
 			const int progressPercent = static_cast<int>(progressEntry->getProgress() * 100);
 			if (progressPercent > lastProgressPercent) {
-				line = fmt::format(R"({{ "type": "progress", "value": {:.2f}, {} }})", progressEntry->getProgress(), formatLogProperty(entry));
+				line = fmt::format(
+					R"({{ "type": "progress", "value": {:.2f}, {} }})",
+					progressEntry->getProgress(),
+					formatLogProperty(entry)
+				);
 				lastProgressPercent = progressPercent;
 			}
 		} else if (dynamic_cast<const SuccessEntry*>(&entry)) {
 			line = fmt::format(R"({{ "type": "success", {} }})", formatLogProperty(entry));
-		} else if (const FailureEntry* failureEntry = dynamic_cast<const FailureEntry*>(&entry)) {
+		} else if (const auto* failureEntry = dynamic_cast<const FailureEntry*>(&entry)) {
 			const string reason = escapeJsonString(failureEntry->getReason());
-			line = fmt::format(R"({{ "type": "failure", "reason": "{}", {} }})", reason, formatLogProperty(entry));
+			line = fmt::format(
+				R"({{ "type": "failure", "reason": "{}", {} }})",
+				reason,
+				formatLogProperty(entry)
+			);
 		} else {
 			throw std::runtime_error("Unsupported type of semantic entry.");
 		}

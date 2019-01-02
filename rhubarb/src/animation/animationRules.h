@@ -31,5 +31,6 @@ boost::optional<std::pair<Shape, TweenTiming>> getTween(Shape first, Shape secon
 
 // Returns the shape set(s) to use for a given phone.
 // The resulting timeline will always cover the entire duration of the phone (starting at 0 cs).
-// It may extend into the negative time range if animation is required prior to the sound being heard.
+// It may extend into the negative time range if animation is required prior to the sound being
+// heard.
 Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds previousDuration);

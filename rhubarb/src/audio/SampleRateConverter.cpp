@@ -17,7 +17,10 @@ SampleRateConverter::SampleRateConverter(unique_ptr<AudioClip> inputClip, int ou
 		throw invalid_argument("Sample rate must be positive.");
 	}
 	if (this->inputClip->getSampleRate() < outputSampleRate) {
-		throw invalid_argument(fmt::format("Upsampling not supported. Input sample rate must not be below {}Hz.", outputSampleRate));
+		throw invalid_argument(fmt::format(
+			"Upsampling not supported. Input sample rate must not be below {}Hz.",
+			outputSampleRate
+		));
 	}
 }
 
@@ -30,11 +33,11 @@ float mean(double inputStart, double inputEnd, const SampleReader& read) {
 	double sum = 0;
 
 	// ... first sample (weight <= 1)
-	int64_t startIndex = static_cast<int64_t>(inputStart);
+	const int64_t startIndex = static_cast<int64_t>(inputStart);
 	sum += read(startIndex) * ((startIndex + 1) - inputStart);
 
 	// ... middle samples (weight 1 each)
-	int64_t endIndex = static_cast<int64_t>(inputEnd);
+	const int64_t endIndex = static_cast<int64_t>(inputEnd);
 	for (int64_t index = startIndex + 1; index < endIndex; ++index) {
 		sum += read(index);
 	}
@@ -48,9 +51,14 @@ float mean(double inputStart, double inputEnd, const SampleReader& read) {
 }
 
 SampleReader SampleRateConverter::createUnsafeSampleReader() const {
-	return[read = inputClip->createSampleReader(), downscalingFactor = downscalingFactor, size = inputClip->size()](size_type index) {
-		double inputStart = index * downscalingFactor;
-		double inputEnd = std::min((index + 1) * downscalingFactor, static_cast<double>(size));
+	return [
+		read = inputClip->createSampleReader(),
+		downscalingFactor = downscalingFactor,
+		size = inputClip->size()
+		](size_type index) {
+		const double inputStart = index * downscalingFactor;
+		const double inputEnd =
+			std::min((index + 1) * downscalingFactor, static_cast<double>(size));
 		return mean(inputStart, inputEnd, read);
 	};
 }

@@ -24,6 +24,6 @@ namespace logging {
 
 	std::ostream& operator<<(std::ostream& stream, Level value);
 
-	std::istream& operator >> (std::istream& stream, Level& value);
+	std::istream& operator >>(std::istream& stream, Level& value);
 
 }

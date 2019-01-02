@@ -14,8 +14,6 @@
 
 #ifdef _WIN32
 	#include <Windows.h>
-	#include <io.h>
-	#include <fcntl.h>
 #endif
 
 using boost::filesystem::path;
@@ -26,13 +24,14 @@ path getBinPath() {
 	static const path binPath = [] {
 		try {
 			// Determine path length
-			int pathLength = wai_getExecutablePath(nullptr, 0, nullptr);
+			const int pathLength = wai_getExecutablePath(nullptr, 0, nullptr);
 			if (pathLength == -1) {
 				throw std::runtime_error("Error determining path length.");
 			}
 
 			// Get path
-			// Note: According to documentation, pathLength does *not* include the trailing zero. Actually, it does.
+			// Note: According to documentation, pathLength does *not* include the trailing zero.
+			// Actually, it does.
 			// In case there are situations where it doesn't, we allocate one character more.
 			std::vector<char> buffer(pathLength + 1);
 			if (wai_getExecutablePath(buffer.data(), buffer.size(), nullptr) == -1) {
@@ -41,7 +40,7 @@ path getBinPath() {
 			buffer[pathLength] = 0;
 
 			// Convert to boost::filesystem::path
-			string pathString(buffer.data());
+			const string pathString(buffer.data());
 			path result(boost::filesystem::canonical(pathString).make_preferred());
 			return result;
 		} catch (...) {
@@ -56,14 +55,14 @@ path getBinDirectory() {
 }
 
 path getTempFilePath() {
-	path tempDirectory = boost::filesystem::temp_directory_path();
+	const path tempDirectory = boost::filesystem::temp_directory_path();
 	static boost::uuids::random_generator generateUuid;
-	string fileName = to_string(generateUuid());
+	const string fileName = to_string(generateUuid());
 	return tempDirectory / fileName;
 }
 
 std::tm getLocalTime(const time_t& time) {
-	tm timeInfo;
+	tm timeInfo {};
 #if (__unix || __linux || __APPLE__)
 	localtime_r(&time, &timeInfo);
 #else
@@ -92,7 +91,8 @@ vector<string> argsToUtf8(int argc, char* argv[]) {
 	// Get command-line arguments as UTF16 strings
 	int argumentCount;
 	static_assert(sizeof(wchar_t) == sizeof(char16_t), "Expected wchar_t to be a 16-bit type.");
-	char16_t** args = reinterpret_cast<char16_t**>(CommandLineToArgvW(GetCommandLineW(), &argumentCount));
+	char16_t** args =
+		reinterpret_cast<char16_t**>(CommandLineToArgvW(GetCommandLineW(), &argumentCount));
 	if (!args) {
 		throw std::runtime_error("Error splitting the UTF-16 command line arguments.");
 	}
@@ -134,7 +134,7 @@ private:
 };
 
 void useUtf8ForConsole() {
-// Unix systems already expect UTF-8-encoded data
+	// Unix systems already expect UTF-8-encoded data
 #ifdef _WIN32
 	// Set console code page to UTF-8 so the console knows how to interpret string data
 	SetConsoleOutputCP(CP_UTF8);
@@ -147,7 +147,7 @@ void useUtf8ForConsole() {
 }
 
 void useUtf8ForBoostFilesystem() {
-	std::locale globalLocale = std::locale();
-	std::locale utf8Locale(globalLocale, new boost::filesystem::detail::utf8_codecvt_facet);
+	const std::locale globalLocale = std::locale();
+	const std::locale utf8Locale(globalLocale, new boost::filesystem::detail::utf8_codecvt_facet);
 	path::imbue(utf8Locale);
 }

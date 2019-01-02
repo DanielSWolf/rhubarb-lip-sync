@@ -22,12 +22,13 @@ namespace logging {
 		static int lastThreadId = 0;
 		thread_id threadId = std::this_thread::get_id();
 		if (threadCounters.find(threadId) == threadCounters.end()) {
-			threadCounters.insert({threadId, ++lastThreadId});
+			threadCounters.insert({ threadId, ++lastThreadId });
 		}
 		return threadCounters.find(threadId)->second;
 	}
 
 	Entry::Entry(Level level, const string& message) :
+		timestamp(),
 		level(level),
 		message(message)
 	{

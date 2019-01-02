@@ -15,83 +15,94 @@ using std::vector;
 using std::regex;
 using std::map;
 using std::tuple;
-using std::make_tuple;
 using std::get;
 using std::endl;
 using boost::filesystem::path;
 
-using unigram_t = string;
-using bigram_t = tuple<string, string>;
-using trigram_t = tuple<string, string, string>;
+using Unigram = string;
+using Bigram = tuple<string, string>;
+using Trigram = tuple<string, string, string>;
 
-map<unigram_t, int> getUnigramCounts(const vector<string>& words) {
-	map<unigram_t, int> unigramCounts;
-	for (const unigram_t& unigram : words) {
+map<Unigram, int> getUnigramCounts(const vector<string>& words) {
+	map<Unigram, int> unigramCounts;
+	for (const Unigram& unigram : words) {
 		++unigramCounts[unigram];
 	}
 	return unigramCounts;
 }
 
-map<bigram_t, int> getBigramCounts(const vector<string>& words) {
-	map<bigram_t, int> bigramCounts;
+map<Bigram, int> getBigramCounts(const vector<string>& words) {
+	map<Bigram, int> bigramCounts;
 	for (auto it = words.begin(); it < words.end() - 1; ++it) {
-		++bigramCounts[bigram_t(*it, *(it + 1))];
+		++bigramCounts[Bigram(*it, *(it + 1))];
 	}
 	return bigramCounts;
 }
 
-map<trigram_t, int> getTrigramCounts(const vector<string>& words) {
-	map<trigram_t, int> trigramCounts;
+map<Trigram, int> getTrigramCounts(const vector<string>& words) {
+	map<Trigram, int> trigramCounts;
 	if (words.size() >= 3) {
 		for (auto it = words.begin(); it < words.end() - 2; ++it) {
-			++trigramCounts[trigram_t(*it, *(it + 1), *(it + 2))];
+			++trigramCounts[Trigram(*it, *(it + 1), *(it + 2))];
 		}
 	}
 	return trigramCounts;
 }
 
-map<unigram_t, double> getUnigramProbabilities(const vector<string>& words, const map<unigram_t, int>& unigramCounts, const double deflator) {
-	map<unigram_t, double> unigramProbabilities;
+map<Unigram, double> getUnigramProbabilities(
+	const vector<string>& words,
+	const map<Unigram, int>& unigramCounts,
+	const double deflator
+) {
+	map<Unigram, double> unigramProbabilities;
 	for (const auto& pair : unigramCounts) {
-		unigram_t unigram = get<0>(pair);
-		int unigramCount = get<1>(pair);
+		const Unigram& unigram = get<0>(pair);
+		const int unigramCount = get<1>(pair);
 		unigramProbabilities[unigram] = double(unigramCount) / words.size() * deflator;
 	}
 	return unigramProbabilities;
 }
 
-map<bigram_t, double> getBigramProbabilities(const map<unigram_t, int>& unigramCounts, const map<bigram_t, int>& bigramCounts, const double deflator) {
-	map<bigram_t, double> bigramProbabilities;
+map<Bigram, double> getBigramProbabilities(
+	const map<Unigram, int>& unigramCounts,
+	const map<Bigram, int>& bigramCounts,
+	const double deflator
+) {
+	map<Bigram, double> bigramProbabilities;
 	for (const auto& pair : bigramCounts) {
-		bigram_t bigram = get<0>(pair);
-		int bigramCount = get<1>(pair);
-		int unigramPrefixCount = unigramCounts.at(get<0>(bigram));
+		Bigram bigram = get<0>(pair);
+		const int bigramCount = get<1>(pair);
+		const int unigramPrefixCount = unigramCounts.at(get<0>(bigram));
 		bigramProbabilities[bigram] = double(bigramCount) / unigramPrefixCount * deflator;
 	}
 	return bigramProbabilities;
 }
 
-map<trigram_t, double> getTrigramProbabilities(const map<bigram_t, int>& bigramCounts, const map<trigram_t, int>& trigramCounts, const double deflator) {
-	map<trigram_t, double> trigramProbabilities;
+map<Trigram, double> getTrigramProbabilities(
+	const map<Bigram, int>& bigramCounts,
+	const map<Trigram, int>& trigramCounts,
+	const double deflator
+) {
+	map<Trigram, double> trigramProbabilities;
 	for (const auto& pair : trigramCounts) {
-		trigram_t trigram = get<0>(pair);
-		int trigramCount = get<1>(pair);
-		int bigramPrefixCount = bigramCounts.at(bigram_t(get<0>(trigram), get<1>(trigram)));
+		Trigram trigram = get<0>(pair);
+		const int trigramCount = get<1>(pair);
+		const int bigramPrefixCount = bigramCounts.at(Bigram(get<0>(trigram), get<1>(trigram)));
 		trigramProbabilities[trigram] = double(trigramCount) / bigramPrefixCount * deflator;
 	}
 	return trigramProbabilities;
 }
 
-map<unigram_t, double> getUnigramBackoffWeights(
-	const map<unigram_t, int>& unigramCounts,
-	const map<unigram_t, double>& unigramProbabilities,
-	const map<bigram_t, int>& bigramCounts,
+map<Unigram, double> getUnigramBackoffWeights(
+	const map<Unigram, int>& unigramCounts,
+	const map<Unigram, double>& unigramProbabilities,
+	const map<Bigram, int>& bigramCounts,
 	const double discountMass)
 {
-	map<unigram_t, double> unigramBackoffWeights;
-	for (const unigram_t& unigram : unigramCounts | boost::adaptors::map_keys) {
+	map<Unigram, double> unigramBackoffWeights;
+	for (const Unigram& unigram : unigramCounts | boost::adaptors::map_keys) {
 		double denominator = 1;
-		for (const bigram_t& bigram : bigramCounts | boost::adaptors::map_keys) {
+		for (const Bigram& bigram : bigramCounts | boost::adaptors::map_keys) {
 			if (get<0>(bigram) == unigram) {
 				denominator -= unigramProbabilities.at(get<1>(bigram));
 			}
@@ -101,18 +112,18 @@ map<unigram_t, double> getUnigramBackoffWeights(
 	return unigramBackoffWeights;
 }
 
-map<bigram_t, double> getBigramBackoffWeights(
-	const map<bigram_t, int>& bigramCounts,
-	const map<bigram_t, double>& bigramProbabilities,
-	const map<trigram_t, int>& trigramCounts,
+map<Bigram, double> getBigramBackoffWeights(
+	const map<Bigram, int>& bigramCounts,
+	const map<Bigram, double>& bigramProbabilities,
+	const map<Trigram, int>& trigramCounts,
 	const double discountMass)
 {
-	map<bigram_t, double> bigramBackoffWeights;
-	for (const bigram_t& bigram : bigramCounts | boost::adaptors::map_keys) {
+	map<Bigram, double> bigramBackoffWeights;
+	for (const Bigram& bigram : bigramCounts | boost::adaptors::map_keys) {
 		double denominator = 1;
-		for (const trigram_t& trigram : trigramCounts | boost::adaptors::map_keys) {
-			if (bigram_t(get<0>(trigram), get<1>(trigram)) == bigram) {
-				denominator -= bigramProbabilities.at(bigram_t(get<1>(trigram), get<2>(trigram)));
+		for (const Trigram& trigram : trigramCounts | boost::adaptors::map_keys) {
+			if (Bigram(get<0>(trigram), get<1>(trigram)) == bigram) {
+				denominator -= bigramProbabilities.at(Bigram(get<1>(trigram), get<2>(trigram)));
 			}
 		}
 		bigramBackoffWeights[bigram] = discountMass / denominator;
@@ -120,20 +131,25 @@ map<bigram_t, double> getBigramBackoffWeights(
 	return bigramBackoffWeights;
 }
 
-void createLanguageModelFile(const vector<string>& words, path filePath) {
+void createLanguageModelFile(const vector<string>& words, const path& filePath) {
 	const double discountMass = 0.5;
 	const double deflator = 1.0 - discountMass;
 
-	map<unigram_t, int> unigramCounts = getUnigramCounts(words);
-	map<bigram_t, int> bigramCounts = getBigramCounts(words);
-	map<trigram_t, int> trigramCounts = getTrigramCounts(words);
+	map<Unigram, int> unigramCounts = getUnigramCounts(words);
+	map<Bigram, int> bigramCounts = getBigramCounts(words);
+	map<Trigram, int> trigramCounts = getTrigramCounts(words);
 
-	map<unigram_t, double> unigramProbabilities = getUnigramProbabilities(words, unigramCounts, deflator);
-	map<bigram_t, double> bigramProbabilities = getBigramProbabilities(unigramCounts, bigramCounts, deflator);
-	map<trigram_t, double> trigramProbabilities = getTrigramProbabilities(bigramCounts, trigramCounts, deflator);
+	map<Unigram, double> unigramProbabilities =
+		getUnigramProbabilities(words, unigramCounts, deflator);
+	map<Bigram, double> bigramProbabilities =
+		getBigramProbabilities(unigramCounts, bigramCounts, deflator);
+	map<Trigram, double> trigramProbabilities =
+		getTrigramProbabilities(bigramCounts, trigramCounts, deflator);
 
-	map<unigram_t, double> unigramBackoffWeights = getUnigramBackoffWeights(unigramCounts, unigramProbabilities, bigramCounts, discountMass);
-	map<bigram_t, double> bigramBackoffWeights = getBigramBackoffWeights(bigramCounts, bigramProbabilities, trigramCounts, discountMass);
+	map<Unigram, double> unigramBackoffWeights =
+		getUnigramBackoffWeights(unigramCounts, unigramProbabilities, bigramCounts, discountMass);
+	map<Bigram, double> bigramBackoffWeights =
+		getBigramBackoffWeights(bigramCounts, bigramProbabilities, trigramCounts, discountMass);
 
 	boost::filesystem::ofstream file(filePath);
 	file << "Generated by " << appName << " " << appVersion << endl << endl;
@@ -146,7 +162,7 @@ void createLanguageModelFile(const vector<string>& words, path filePath) {
 	file.setf(std::ios::fixed, std::ios::floatfield);
 	file.precision(4);
 	file << "\\1-grams:" << endl;
-	for (const unigram_t& unigram : unigramCounts | boost::adaptors::map_keys) {
+	for (const Unigram& unigram : unigramCounts | boost::adaptors::map_keys) {
 		file << log10(unigramProbabilities.at(unigram))
 			<< " " << unigram
 			<< " " << log10(unigramBackoffWeights.at(unigram)) << endl;
@@ -154,7 +170,7 @@ void createLanguageModelFile(const vector<string>& words, path filePath) {
 	file << endl;
 
 	file << "\\2-grams:" << endl;
-	for (const bigram_t& bigram : bigramCounts | boost::adaptors::map_keys) {
+	for (const Bigram& bigram : bigramCounts | boost::adaptors::map_keys) {
 		file << log10(bigramProbabilities.at(bigram))
 			<< " " << get<0>(bigram) << " " << get<1>(bigram)
 			<< " " << log10(bigramBackoffWeights.at(bigram)) << endl;
@@ -162,7 +178,7 @@ void createLanguageModelFile(const vector<string>& words, path filePath) {
 	file << endl;
 
 	file << "\\3-grams:" << endl;
-	for (const trigram_t& trigram : trigramCounts | boost::adaptors::map_keys) {
+	for (const Trigram& trigram : trigramCounts | boost::adaptors::map_keys) {
 		file << log10(trigramProbabilities.at(trigram))
 			<< " " << get<0>(trigram) << " " << get<1>(trigram) << " " << get<2>(trigram) << endl;
 	}
@@ -171,7 +187,10 @@ void createLanguageModelFile(const vector<string>& words, path filePath) {
 	file << "\\end\\" << endl;
 }
 
-lambda_unique_ptr<ngram_model_t> createLanguageModel(const vector<string>& words, ps_decoder_t& decoder) {
+lambda_unique_ptr<ngram_model_t> createLanguageModel(
+	const vector<string>& words,
+	ps_decoder_t& decoder
+) {
 	path tempFilePath = getTempFilePath();
 	createLanguageModelFile(words, tempFilePath);
 	auto deleteTempFile = gsl::finally([&]() { boost::filesystem::remove(tempFilePath); });

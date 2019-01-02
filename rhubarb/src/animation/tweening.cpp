@@ -19,21 +19,30 @@ JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Sh
 
 		centiseconds tweenStart, tweenDuration;
 		switch (tweenTiming) {
-		case TweenTiming::Early: {
-			tweenDuration = std::min(firstTimeRange.getDuration() / 3, maxTweenDuration);
-			tweenStart = firstTimeRange.getEnd() - tweenDuration;
-			break;
-		}
-		case TweenTiming::Centered: {
-			tweenDuration = std::min({firstTimeRange.getDuration() / 4, secondTimeRange.getDuration() / 4, maxTweenDuration});
-			tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
-			break;
-		}
-		case TweenTiming::Late: {
-			tweenDuration = std::min(secondTimeRange.getDuration() / 3, maxTweenDuration);
-			tweenStart = secondTimeRange.getStart();
-			break;
-		}
+			case TweenTiming::Early:
+			{
+				tweenDuration = std::min(firstTimeRange.getDuration() / 3, maxTweenDuration);
+				tweenStart = firstTimeRange.getEnd() - tweenDuration;
+				break;
+			}
+			case TweenTiming::Centered:
+			{
+				tweenDuration = std::min({
+					firstTimeRange.getDuration() / 4, secondTimeRange.getDuration() / 4, maxTweenDuration
+				});
+				tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
+				break;
+			}
+			case TweenTiming::Late:
+			{
+				tweenDuration = std::min(secondTimeRange.getDuration() / 3, maxTweenDuration);
+				tweenStart = secondTimeRange.getStart();
+				break;
+			}
+			default:
+			{
+				throw std::runtime_error("Unexpected tween timing.");
+			}
 		}
 
 		if (tweenDuration < minTweenDuration) return;

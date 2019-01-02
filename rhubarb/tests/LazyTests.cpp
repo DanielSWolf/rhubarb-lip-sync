@@ -2,16 +2,15 @@
 #include "tools/Lazy.h"
 
 using namespace testing;
-using std::make_unique;
 
-// Not copyable, no default constrctor, movable
+// Not copyable, no default constructor, movable
 struct Foo {
 	const int value;
 	Foo(int value) : value(value) {}
 
 	Foo() = delete;
 	Foo(const Foo&) = delete;
-	Foo& operator=(const Foo &) = delete;
+	Foo& operator=(const Foo&) = delete;
 
 	Foo(Foo&&) = default;
 	Foo& operator=(Foo&&) = default;
@@ -44,7 +43,7 @@ TEST(Lazy, constUsage) {
 TEST(Lazy, copying) {
 	Lazy<Foo> a;
 	int counter = 0;
-	auto createValue = [&] { return counter++; };
+	const auto createValue = [&] { return counter++; };
 	Lazy<Foo> b(createValue);
 	a = b;
 	EXPECT_EQ(0, counter);

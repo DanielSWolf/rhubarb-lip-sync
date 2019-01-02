@@ -20,7 +20,8 @@ TEST(splitIntoLines, handlesEmptyElements) {
 // wrapSingleLineString
 
 TEST(wrapSingleLineString, basic) {
-	const char* lipsum = "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.";
+	const char* lipsum =
+		"Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.";
 	EXPECT_THAT(wrapSingleLineString(lipsum, 30), ElementsAre("Lorem ipsum dolor sit amet,", "consectetur adipisici elit,", "sed eiusmod tempor incidunt ut", "labore et dolore magna aliqua."));
 }
 
@@ -76,8 +77,10 @@ TEST(wrapString, basic) {
 // latin1ToWide
 
 TEST(latin1ToWide, basic) {
-	string pangramLatin1 = "D\350s No\353l o\371 un z\351phyr ha\357 me v\352t de gla\347ons w\374rmiens, je d\356ne d'exquis r\364tis de boeuf au kir \340 l'a\377 d'\342ge m\373r & c\346tera!";
-	wstring pangramWide = L"Dès Noël où un zéphyr haï me vêt de glaçons würmiens, je dîne d'exquis rôtis de boeuf au kir à l'aÿ d'âge mûr & cætera!";
+	const string pangramLatin1 =
+		"D\350s No\353l o\371 un z\351phyr ha\357 me v\352t de gla\347ons w\374rmiens, je d\356ne d'exquis r\364tis de boeuf au kir \340 l'a\377 d'\342ge m\373r & c\346tera!";
+	wstring pangramWide =
+		L"Dès Noël où un zéphyr haï me vêt de glaçons würmiens, je dîne d'exquis rôtis de boeuf au kir à l'aÿ d'âge mûr & cætera!";
 	EXPECT_EQ(pangramWide, latin1ToWide(pangramLatin1));
 }
 

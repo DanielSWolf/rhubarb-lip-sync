@@ -32,12 +32,12 @@ void runParallel(
 
 	// Before exiting, wait for all running tasks to finish, but don't re-throw exceptions.
 	// This only applies if one task already failed with an exception.
-	auto finishRunning = gsl::finally([&]{
+	auto finishRunning = gsl::finally([&] {
 		std::unique_lock<std::mutex> lock(mutex);
 		elementFinished.wait(lock, [&] { return currentThreadCount == 0; });
 	});
 
-	// Asyncronously run all elements
+	// Asynchronously run all elements
 	for (auto it = collection.begin(); it != collection.end(); ++it) {
 		// This variable will later hold the future, but can be value-captured right now
 		auto future = std::make_shared<future_type>();
@@ -66,7 +66,7 @@ void runParallel(
 		// Wait for threads to finish, if necessary
 		{
 			std::unique_lock<std::mutex> lock(mutex);
-			int targetThreadCount = it == collection.end() ? 0 : maxThreadCount - 1;
+			const int targetThreadCount = it == collection.end() ? 0 : maxThreadCount - 1;
 			while (currentThreadCount > targetThreadCount) {
 				elementFinished.wait(lock);
 				if (finishedElement.valid()) {
@@ -86,7 +86,8 @@ void runParallel(
 	TCollection& collection,
 	int maxThreadCount,
 	ProgressSink& progressSink,
-	std::function<double(const typename TCollection::reference)> getElementProgressWeight = [](typename TCollection::reference) { return 1.0; })
+	std::function<double(typename TCollection::reference)> getElementProgressWeight =
+		[](typename TCollection::reference) { return 1.0; })
 {
 	// Create a collection of wrapper functions that take care of progress handling
 	ProgressMerger progressMerger(progressSink);
@@ -101,7 +102,7 @@ void runParallel(
 }
 
 inline int getProcessorCoreCount() {
-	int coreCount = std::thread::hardware_concurrency();
+	const int coreCount = std::thread::hardware_concurrency();
 
 	// If the number of cores cannot be determined, use a reasonable default
 	return coreCount != 0 ? coreCount : 4;

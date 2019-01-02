@@ -55,7 +55,10 @@ public:
 
 private:
 	void init() const {
-		std::call_once(state->initialized, [&] { state->value = std::make_unique<T>(state->createValue()); });
+		std::call_once(
+			state->initialized,
+			[&] { state->value = std::make_unique<T>(state->createValue()); }
+		);
 	}
 
 	std::shared_ptr<State> state = std::make_shared<State>();

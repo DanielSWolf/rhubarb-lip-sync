@@ -1,26 +1,36 @@
 #include "ShapeRule.h"
 #include <boost/range/adaptor/transformed.hpp>
+#include <utility>
 #include "time/ContinuousTimeline.h"
 
 using boost::optional;
 using boost::adaptors::transformed;
 
 template<typename T, bool AutoJoin>
-ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(const BoundedTimeline<T, AutoJoin>& timeline) {
-	return{
-		timeline.getRange(), boost::none,
-		timeline | transformed([](const Timed<T>& timedValue) { return Timed<optional<T>>(timedValue.getTimeRange(), timedValue.getValue()); })
+ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(
+	const BoundedTimeline<T, AutoJoin>& timeline
+) {
+	return {
+		timeline.getRange(),
+		boost::none,
+		timeline | transformed([](const Timed<T>& timedValue) {
+			return Timed<optional<T>>(timedValue.getTimeRange(), timedValue.getValue());
+		})
 	};
 }
 
-ShapeRule::ShapeRule(const ShapeSet& shapeSet, const optional<Phone>& phone, TimeRange phoneTiming) :
-	shapeSet(shapeSet),
-	phone(phone),
+ShapeRule::ShapeRule(
+	ShapeSet shapeSet,
+	optional<Phone> phone,
+	TimeRange phoneTiming
+) :
+	shapeSet(std::move(shapeSet)),
+	phone(std::move(phone)),
 	phoneTiming(phoneTiming)
 {}
 
 ShapeRule ShapeRule::getInvalid() {
-	return {{}, boost::none,{0_cs, 0_cs}};
+	return { {}, boost::none, { 0_cs, 0_cs } };
 }
 
 bool ShapeRule::operator==(const ShapeRule& rhs) const {
@@ -43,11 +53,14 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 	auto continuousPhones = boundedTimelinetoContinuousOptional(phones);
 
 	// Create timeline of shape rules
-	ContinuousTimeline<ShapeRule> shapeRules(phones.getRange(), {{Shape::X}, boost::none, {0_cs, 0_cs}});
+	ContinuousTimeline<ShapeRule> shapeRules(
+		phones.getRange(),
+		{ { Shape::X }, boost::none, { 0_cs, 0_cs } }
+	);
 	centiseconds previousDuration = 0_cs;
 	for (const auto& timedPhone : continuousPhones) {
 		optional<Phone> phone = timedPhone.getValue();
-		centiseconds duration = timedPhone.getDuration();
+		const centiseconds duration = timedPhone.getDuration();
 
 		if (phone) {
 			// Animate one phone
@@ -59,7 +72,10 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 			// Copy to timeline.
 			// Later shape sets may overwrite earlier ones if overlapping.
 			for (const auto& timedShapeSet : phoneShapeSets) {
-				shapeRules.set(timedShapeSet.getTimeRange(), ShapeRule(timedShapeSet.getValue(), phone, timedPhone.getTimeRange()));
+				shapeRules.set(
+					timedShapeSet.getTimeRange(),
+					ShapeRule(timedShapeSet.getValue(), phone, timedPhone.getTimeRange())
+				);
 			}
 		}
 

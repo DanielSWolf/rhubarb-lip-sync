@@ -1,6 +1,5 @@
 #pragma once
 
-#include <initializer_list>
 #include <utility>
 #include <map>
 #include <vector>
@@ -30,7 +29,9 @@ public:
 		auto result = tryToString(value);
 		if (!result) {
 			auto numericValue = static_cast<typename std::underlying_type<TEnum>::type>(value);
-			throw std::invalid_argument(fmt::format("{} is not a valid {} value.", numericValue, typeName));
+			throw std::invalid_argument(
+				fmt::format("{} is not a valid {} value.", numericValue, typeName)
+			);
 		}
 
 		return *result;

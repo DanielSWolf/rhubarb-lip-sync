@@ -14,7 +14,7 @@ namespace logging {
 
 	void log(Level level, const std::string& message);
 
-	template <typename... Args>
+	template<typename... Args>
 	void logFormat(Level level, fmt::CStringRef format, const Args&... args) {
 		log(level, fmt::format(format, args...));
 	}
