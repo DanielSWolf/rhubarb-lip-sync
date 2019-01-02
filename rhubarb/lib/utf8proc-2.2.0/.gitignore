@@ -21,6 +21,7 @@ test/normtest
 test/graphemetest
 test/printproperty
 test/charwidth
+test/misc
 test/valid
 test/iterate
 test/case

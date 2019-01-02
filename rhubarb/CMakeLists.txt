@@ -225,11 +225,12 @@ set_target_properties(utfcpp PROPERTIES FOLDER lib)
 
 # ... utf8proc
 add_library(utf8proc
-	lib/utf8proc-2a2f97e1/utf8proc.c
-	lib/utf8proc-2a2f97e1/utf8proc.h
+	lib/utf8proc-2.2.0/utf8proc.c
+	lib/utf8proc-2.2.0/utf8proc.h
 )
-target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2a2f97e1")
+target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2.2.0")
 target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
+target_compile_definitions(utf8proc PUBLIC UTF8PROC_STATIC=1) # Compile as static lib
 set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
 # ... Ogg
