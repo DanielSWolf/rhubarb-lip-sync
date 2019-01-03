@@ -33,8 +33,8 @@ JoiningBoundedTimeline<void> webRtcDetectVoiceActivity(
 	if (error) throw runtime_error("Error setting WebRTC VAD aggressiveness.");
 
 	ProgressMerger progressMerger(progressSink);
-	ProgressSink& pass1ProgressSink = progressMerger.addSink(1.0);
-	ProgressSink& pass2ProgressSink = progressMerger.addSink(0.3);
+	ProgressSink& pass1ProgressSink = progressMerger.addSource("VAD pass 1", 1.0);
+	ProgressSink& pass2ProgressSink = progressMerger.addSource("VAD pass 2", 0.3);
 
 	// Detect activity
 	JoiningBoundedTimeline<void> activity(audioClip.getTruncatedRange());
@@ -100,17 +100,23 @@ JoiningBoundedTimeline<void> detectVoiceActivity(
 		);
 		audioSegments.push_back(segmentRange);
 	}
-	runParallel([&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
-		const unique_ptr<AudioClip> audioSegment = audioClip->clone() | segment(segmentRange);
-		JoiningBoundedTimeline<void> activitySegment =
-			webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
+	runParallel(
+		"VAD",
+		[&](const TimeRange& segmentRange, ProgressSink& segmentProgressSink) {
+			const unique_ptr<AudioClip> audioSegment = audioClip->clone() | segment(segmentRange);
+			JoiningBoundedTimeline<void> activitySegment =
+				webRtcDetectVoiceActivity(*audioSegment, segmentProgressSink);
 
-		std::lock_guard<std::mutex> lock(activityMutex);
-		for (auto activityRange : activitySegment) {
-			activityRange.getTimeRange().shift(segmentRange.getStart());
-			activity.set(activityRange);
-		}
-	}, audioSegments, segmentCount, progressSink);
+			std::lock_guard<std::mutex> lock(activityMutex);
+			for (auto activityRange : activitySegment) {
+				activityRange.getTimeRange().shift(segmentRange.getStart());
+				activity.set(activityRange);
+			}
+		},
+		audioSegments,
+		segmentCount,
+		progressSink
+	);
 
 	// Fill small gaps in activity
 	const centiseconds maxGap(5);

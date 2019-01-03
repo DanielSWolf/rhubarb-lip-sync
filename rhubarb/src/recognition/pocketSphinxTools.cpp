@@ -91,8 +91,10 @@ BoundedTimeline<Phone> recognizePhones(
 	ProgressSink& progressSink
 ) {
 	ProgressMerger totalProgressMerger(progressSink);
-	ProgressSink& voiceActivationProgressSink = totalProgressMerger.addSink(1.0);
-	ProgressSink& dialogProgressSink = totalProgressMerger.addSink(15);
+	ProgressSink& voiceActivationProgressSink =
+		totalProgressMerger.addSource("VAD (PocketSphinx tools)", 1.0);
+	ProgressSink& dialogProgressSink =
+		totalProgressMerger.addSource("recognition (PocketSphinx tools)", 15.0);
 
 	// Make sure audio stream has no DC offset
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | removeDcOffset();
@@ -151,6 +153,7 @@ BoundedTimeline<Phone> recognizePhones(
 		}
 		logging::debugFormat("Speech recognition using {} threads -- start", threadCount);
 		runParallel(
+			"speech recognition (PocketSphinx tools)",
 			processUtterance,
 			utterances,
 			threadCount,
@@ -159,7 +162,7 @@ BoundedTimeline<Phone> recognizePhones(
 		);
 		logging::debug("Speech recognition -- end");
 	} catch (...) {
-		std::throw_with_nested(runtime_error("Error performing speech recognition via PocketSphinx."));
+		std::throw_with_nested(runtime_error("Error performing speech recognition via PocketSphinx tools."));
 	}
 
 	return phones;

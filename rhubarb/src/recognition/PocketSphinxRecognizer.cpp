@@ -252,8 +252,10 @@ static Timeline<Phone> utteranceToPhones(
 	ProgressSink& utteranceProgressSink
 ) {
 	ProgressMerger utteranceProgressMerger(utteranceProgressSink);
-	ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
-	ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
+	ProgressSink& wordRecognitionProgressSink =
+		utteranceProgressMerger.addSource("word recognition (PocketSphinx recognizer)", 1.0);
+	ProgressSink& alignmentProgressSink =
+		utteranceProgressMerger.addSource("alignment (PocketSphinx recognizer)", 0.5);
 
 	// Pad time range to give PocketSphinx some breathing room
 	TimeRange paddedTimeRange = utteranceTimeRange;

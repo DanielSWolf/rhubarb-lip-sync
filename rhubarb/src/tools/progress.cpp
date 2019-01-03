@@ -1,6 +1,7 @@
 #include "progress.h"
 
 #include <mutex>
+#include "logging/logging.h"
 
 using std::string;
 
@@ -16,17 +17,36 @@ ProgressMerger::ProgressMerger(ProgressSink& sink) :
 	sink(sink)
 {}
 
-ProgressSink& ProgressMerger::addSink(double weight) {
+ProgressMerger::~ProgressMerger() {
+	for (const auto& source : sources) {
+		if (source.progress < 1.0) {
+			logging::debugFormat(
+				"Progress merger source '{}' never reached 1.0, but stopped at {}.",
+				source.description,
+				source.progress
+			);
+		}
+	}
+}
+
+ProgressSink& ProgressMerger::addSource(const std::string& description, double weight) {
 	std::lock_guard<std::mutex> lock(mutex);
 
 	totalWeight += weight;
-	int sinkIndex = weightedValues.size();
-	weightedValues.push_back(0);
-	forwarders.emplace_back([weight, sinkIndex, this](double progress) {
-		weightedValues[sinkIndex] = progress * weight;
-		report();
+
+	const int sourceIndex = sources.size();
+	sources.push_back({
+		description,
+		weight,
+		std::make_unique<ProgressForwarder>(
+			[sourceIndex, this](double progress) {
+				sources[sourceIndex].progress = progress;
+				report();
+			}
+		),
+		0.0
 	});
-	return forwarders.back();
+	return *sources[sourceIndex].forwarder;
 }
 
 void ProgressMerger::report() {
@@ -34,8 +54,8 @@ void ProgressMerger::report() {
 
 	if (totalWeight != 0) {
 		double weightedSum = 0;
-		for (double weightedValue : weightedValues) {
-			weightedSum += weightedValue;
+		for (const auto& source : sources) {
+			weightedSum += source.weight * source.progress;
 		}
 		const double progress = weightedSum / totalWeight;
 		sink.reportProgress(progress);
