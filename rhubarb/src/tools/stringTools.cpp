@@ -9,7 +9,6 @@ using std::string;
 using std::wstring;
 using std::u32string;
 using std::vector;
-using boost::optional;
 using std::regex;
 using std::regex_replace;
 
@@ -17,7 +16,7 @@ vector<string> splitIntoLines(const string& s) {
 	vector<string> lines;
 	auto p = &s[0];
 	auto lineBegin = p;
-	auto end = p + s.size();
+	const auto end = p + s.size();
 	// Iterate over input string
 	while (p <= end) {
 		// Add a new result line when we hit a \n character or the end of the string
@@ -45,7 +44,7 @@ vector<string> wrapSingleLineString(const string& s, int lineLength, int hanging
 	auto p = &s[0];
 	auto lineBegin = p;
 	auto lineEnd = p;
-	auto end = p + s.size();
+	const auto end = p + s.size();
 	// Iterate over input string
 	while (p <= end) {
 		// If we're at a word boundary: update lineEnd
@@ -54,7 +53,7 @@ vector<string> wrapSingleLineString(const string& s, int lineLength, int hanging
 		}
 
 		// If we've hit lineLength or the end of the string: add a new result line
-		int currentIndent = lines.empty() ? 0 : hangingIndent;
+		const int currentIndent = lines.empty() ? 0 : hangingIndent;
 		if (p == end || p - lineBegin == lineLength - currentIndent) {
 			if (lineEnd == lineBegin) {
 				// The line contains a single word, which is too long. Split mid-word.
@@ -80,7 +79,7 @@ vector<string> wrapSingleLineString(const string& s, int lineLength, int hanging
 
 vector<string> wrapString(const string& s, int lineLength, int hangingIndent) {
 	vector<string> lines;
-	for (string paragraph : splitIntoLines(s)) {
+	for (const string& paragraph : splitIntoLines(s)) {
 		auto paragraphLines = wrapSingleLineString(paragraph, lineLength, hangingIndent);
 		copy(paragraphLines.cbegin(), paragraphLines.cend(), back_inserter(lines));
 	}
@@ -100,7 +99,7 @@ wstring latin1ToWide(const string& s) {
 	return result;
 }
 
-string utf8ToAscii(const string s) {
+string utf8ToAscii(const string& s) {
 	// Normalize string, simplifying it as much as possible
 	const NormalizationOptions options = NormalizationOptions::CompatibilityMode
 		| NormalizationOptions::Decompose
@@ -111,15 +110,15 @@ string utf8ToAscii(const string s) {
 	string simplified = normalizeUnicode(s, options);
 
 	// Replace common Unicode characters with ASCII equivalents
-	static const vector<std::pair<regex, string>> replacements{
-		{regex("«|»|“|”|„|‟"), "\""},
-		{regex("‘|’|‚|‛|‹|›"), "'"},
-		{regex("‐|‑|‒|⁃|⁻|₋|−|➖|–|—|―|﹘|﹣|－"), "-"},
-		{regex("…|⋯"), "..."},
-		{regex("•"), "*"},
-		{regex("†|＋"), "+"},
-		{regex("⁄|∕|⧸|／|/"), "/"},
-		{regex("×"), "x"},
+	static const vector<std::pair<regex, string>> replacements {
+		{ regex("«|»|“|”|„|‟"), "\"" },
+		{ regex("‘|’|‚|‛|‹|›"), "'" },
+		{ regex("‐|‑|‒|⁃|⁻|₋|−|➖|–|—|―|﹘|﹣|－"), "-" },
+		{ regex("…|⋯"), "..." },
+		{ regex("•"), "*" },
+		{ regex("†|＋"), "+" },
+		{ regex("⁄|∕|⧸|／|/"), "/" },
+		{ regex("×"), "x" },
 	};
 	for (const auto& replacement : replacements) {
 		simplified = regex_replace(simplified, replacement.first, replacement.second);
@@ -137,7 +136,7 @@ string utf8ToAscii(const string s) {
 	return result;
 }
 
-string normalizeUnicode(const string s, NormalizationOptions options) {
+string normalizeUnicode(const string& s, NormalizationOptions options) {
 	char* result;
 	const utf8proc_ssize_t charCount = utf8proc_map(
 		reinterpret_cast<const uint8_t*>(s.data()),
@@ -168,22 +167,22 @@ string escapeJsonString(const string& s) {
 	string result;
 	for (char16_t c : utf16String) {
 		switch (c) {
-		case '"':  result += "\\\""; break;
-		case '\\': result += "\\\\"; break;
-		case '\b': result += "\\b"; break;
-		case '\f': result += "\\f"; break;
-		case '\n': result += "\\n"; break;
-		case '\r': result += "\\r"; break;
-		case '\t': result += "\\t"; break;
-		default:
-		{
-			bool needsEscaping = c < '\x20' || c >= 0x80;
-			if (needsEscaping) {
-				result += fmt::format("\\u{0:04x}", c);
-			} else {
-				result += static_cast<char>(c);
+			case '"':	result += "\\\""; break;
+			case '\\':	result += "\\\\"; break;
+			case '\b':	result += "\\b"; break;
+			case '\f':	result += "\\f"; break;
+			case '\n':	result += "\\n"; break;
+			case '\r':	result += "\\r"; break;
+			case '\t':	result += "\\t"; break;
+			default:
+			{
+				const bool needsEscaping = c < '\x20' || c >= 0x80;
+				if (needsEscaping) {
+					result += fmt::format("\\u{0:04x}", c);
+				} else {
+					result += static_cast<char>(c);
+				}
 			}
-		}
 		}
 	}
 	return result;

@@ -29,7 +29,11 @@ public:
 		ContinuousTimeline(range, defaultValue, collection.begin(), collection.end())
 	{}
 
-	ContinuousTimeline(TimeRange range, T defaultValue, std::initializer_list<Timed<T>> initializerList) :
+	ContinuousTimeline(
+		TimeRange range,
+		T defaultValue,
+		std::initializer_list<Timed<T>> initializerList
+	) :
 		ContinuousTimeline(range, defaultValue, initializerList.begin(), initializerList.end())
 	{}
 

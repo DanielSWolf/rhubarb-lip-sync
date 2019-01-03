@@ -22,10 +22,10 @@ ProgressSink& ProgressMerger::addSink(double weight) {
 	totalWeight += weight;
 	int sinkIndex = weightedValues.size();
 	weightedValues.push_back(0);
-	forwarders.push_back(ProgressForwarder([weight, sinkIndex, this](double progress) {
+	forwarders.emplace_back([weight, sinkIndex, this](double progress) {
 		weightedValues[sinkIndex] = progress * weight;
 		report();
-	}));
+	});
 	return forwarders.back();
 }
 
@@ -37,7 +37,7 @@ void ProgressMerger::report() {
 		for (double weightedValue : weightedValues) {
 			weightedSum += weightedValue;
 		}
-		double progress = weightedSum / totalWeight;
+		const double progress = weightedSum / totalWeight;
 		sink.reportProgress(progress);
 	} else {
 		sink.reportProgress(0);

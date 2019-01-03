@@ -2,6 +2,7 @@
 #include "tools/tools.h"
 #include "tools/stringTools.h"
 #include <regex>
+#include <boost/optional/optional.hpp>
 
 extern "C" {
 #include <cst_utt_utils.h>
@@ -21,7 +22,7 @@ lambda_unique_ptr<cst_voice> createDummyVoice() {
 	lambda_unique_ptr<cst_voice> voice(new_voice(), [](cst_voice* voice) { delete_voice(voice); });
 	voice->name = "dummy_voice";
 	usenglish_init(voice.get());
-	cst_lexicon *lexicon = cmu_lex_init();
+	cst_lexicon* lexicon = cmu_lex_init();
 	feat_set(voice->features, "lexicon", lexicon_val(lexicon));
 	return voice;
 }
@@ -37,7 +38,10 @@ vector<string> tokenizeViaFlite(const string& text) {
 	const string asciiText = utf8ToAscii(text);
 
 	// Create utterance object with text
-	lambda_unique_ptr<cst_utterance> utterance(new_utterance(), [](cst_utterance* utterance) { delete_utterance(utterance); });
+	lambda_unique_ptr<cst_utterance> utterance(
+		new_utterance(),
+		[](cst_utterance* utterance) { delete_utterance(utterance); }
+	);
 	utt_set_input_text(utterance.get(), asciiText.c_str());
 	lambda_unique_ptr<cst_voice> voice = createDummyVoice();
 	utt_init(utterance.get(), voice.get());
@@ -48,14 +52,21 @@ vector<string> tokenizeViaFlite(const string& text) {
 	}
 
 	vector<string> result;
-	for (cst_item* item = relation_head(utt_relation(utterance.get(), "Word")); item; item = item_next(item)) {
+	for (
+		cst_item* item = relation_head(utt_relation(utterance.get(), "Word"));
+		item;
+		item = item_next(item)
+	) {
 		const char* word = item_feat_string(item, "name");
-		result.push_back(word);
+		result.emplace_back(word);
 	}
 	return result;
 }
 
-optional<string> findSimilarDictionaryWord(const string& word, function<bool(const string&)> dictionaryContains) {
+optional<string> findSimilarDictionaryWord(
+	const string& word,
+	const function<bool(const string&)>& dictionaryContains
+) {
 	for (bool addPeriod : { false, true }) {
 		for (int apostropheIndex = -1; apostropheIndex <= static_cast<int>(word.size()); ++apostropheIndex) {
 			string modified = word;
@@ -75,12 +86,15 @@ optional<string> findSimilarDictionaryWord(const string& word, function<bool(con
 	return boost::none;
 }
 
-vector<string> tokenizeText(const string& text, function<bool(const string&)> dictionaryContains) {
+vector<string> tokenizeText(
+	const string& text,
+	const function<bool(const string&)>& dictionaryContains
+) {
 	vector<string> words = tokenizeViaFlite(text);
 
-	// Join words separated by apostophes
+	// Join words separated by apostrophes
 	for (int i = words.size() - 1; i > 0; --i) {
-		if (words[i].size() > 0 && words[i][0] == '\'') {
+		if (!words[i].empty() && words[i][0] == '\'') {
 			words[i - 1].append(words[i]);
 			words.erase(words.begin() + i);
 		}
@@ -95,21 +109,24 @@ vector<string> tokenizeText(const string& text, function<bool(const string&)> di
 		{ regex("@"), "at" },
 		{ regex("[^a-z']"), "" }
 	};
-	for (size_t i = 0; i < words.size(); ++i) {
+	for (auto& word : words) {
 		for (const auto& replacement : replacements) {
-			words[i] = regex_replace(words[i], replacement.first, replacement.second);
+			word = regex_replace(word, replacement.first, replacement.second);
 		}
 	}
 
 	// Remove empty words
-	words.erase(std::remove_if(words.begin(), words.end(), [](const string& s) { return s.empty(); }), words.end());
+	words.erase(
+		std::remove_if(words.begin(), words.end(), [](const string& s) { return s.empty(); }),
+		words.end()
+	);
 
 	// Try to replace words that are not in the dictionary with similar ones that are
-	for (size_t i = 0; i < words.size(); ++i) {
-		if (!dictionaryContains(words[i])) {
-			optional<string> modifiedWord = findSimilarDictionaryWord(words[i], dictionaryContains);
+	for (auto& word : words) {
+		if (!dictionaryContains(word)) {
+			optional<string> modifiedWord = findSimilarDictionaryWord(word, dictionaryContains);
 			if (modifiedWord) {
-				words[i] = *modifiedWord;
+				word = *modifiedWord;
 			}
 		}
 	}

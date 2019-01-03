@@ -9,7 +9,7 @@ class Recognizer {
 public:
 	virtual ~Recognizer() = default;
 
-	virtual BoundedTimeline<Phone>recognizePhones(
+	virtual BoundedTimeline<Phone> recognizePhones(
 		const AudioClip& audioClip,
 		boost::optional<std::string> dialog,
 		int maxThreadCount,

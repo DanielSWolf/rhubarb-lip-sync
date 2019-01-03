@@ -36,4 +36,7 @@ const boost::filesystem::path& getSphinxModelDirectory();
 
 JoiningTimeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone>& phones);
 
-BoundedTimeline<std::string> recognizeWords(const std::vector<int16_t>& audioBuffer, ps_decoder_t& decoder);
+BoundedTimeline<std::string> recognizeWords(
+	const std::vector<int16_t>& audioBuffer,
+	ps_decoder_t& decoder
+);

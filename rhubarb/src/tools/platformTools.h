@@ -11,7 +11,7 @@ boost::filesystem::path getTempFilePath();
 std::tm getLocalTime(const time_t& time);
 std::string errorNumberToString(int errorNumber);
 
-std::vector<std::string> argsToUtf8(int argc, char *argv[]);
+std::vector<std::string> argsToUtf8(int argc, char* argv[]);
 
 void useUtf8ForConsole();
 void useUtf8ForBoostFilesystem();

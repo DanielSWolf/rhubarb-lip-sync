@@ -40,15 +40,22 @@ TEST(tokenizeText, numbers) {
 
 TEST(tokenizeText, abbreviations) {
 	EXPECT_THAT(
-		tokenizeText("Prof. Foo lives on Dr. Dolittle Dr.", [](const string& word) { return word == "prof."; }),
+		tokenizeText(
+			"Prof. Foo lives on Dr. Dolittle Dr.",
+			[](const string& word) { return word == "prof."; }
+		),
 		ElementsAre("prof.", "foo", "lives", "on", "doctor", "dolittle", "drive")
 	);
 }
 
 TEST(tokenizeText, apostrophes) {
 	EXPECT_THAT(
-		tokenizeText("'Tis said he'd wish'd for a 'bus 'cause he wouldn't walk.", [](const string& word) { return word == "wouldn't"; }),
-		ElementsAreArray(vector<string>{ "tis", "said", "he'd", "wish'd", "for", "a", "bus", "cause", "he", "wouldn't", "walk" })
+		tokenizeText(
+			"'Tis said he'd wish'd for a 'bus 'cause he wouldn't walk.",
+			[](const string& word) { return word == "wouldn't"; }
+		),
+		ElementsAreArray(
+			vector<string>{ "tis", "said", "he'd", "wish'd", "for", "a", "bus", "cause", "he", "wouldn't", "walk" })
 	);
 }
 
@@ -75,7 +82,7 @@ TEST(tokenizeText, wordsUseLimitedCharacters) {
 		utf8::append(c, back_inserter(input));
 	}
 
-	regex legal("^[a-z']+$");
+	const regex legal("^[a-z']+$");
 	auto words = tokenizeText(input, returnTrue);
 	for (const string& word : words) {
 		EXPECT_TRUE(std::regex_match(word, legal)) << word;

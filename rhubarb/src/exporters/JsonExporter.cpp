@@ -6,7 +6,8 @@ using std::string;
 
 void JsonExporter::exportAnimation(const ExporterInput& input, std::ostream& outputStream) {
 	// Export as JSON.
-	// I'm not using a library because the code is short enough without one and it lets me control the formatting.
+	// I'm not using a library because the code is short enough without one and it lets me control
+	// the formatting.
 	outputStream << "{\n";
 	outputStream << "  \"metadata\": {\n";
 	outputStream << "    \"soundFile\": \"" << escapeJsonString(input.inputFilePath.string()) << "\",\n";

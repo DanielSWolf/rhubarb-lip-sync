@@ -3,7 +3,6 @@
 #include "Sink.h"
 #include <memory>
 #include "Formatter.h"
-#include <mutex>
 
 namespace logging {
 	enum class Level;

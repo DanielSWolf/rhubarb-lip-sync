@@ -10,21 +10,23 @@ using std::invalid_argument;
 using std::vector;
 using std::string;
 
-TablePrinter::TablePrinter(ostream *stream, initializer_list<int> columnWidths, int columnSpacing) :
+TablePrinter::TablePrinter(ostream* stream, initializer_list<int> columnWidths, int columnSpacing) :
 	stream(stream),
 	columnWidths(columnWidths.begin(), columnWidths.end()),
 	columnSpacing(columnSpacing)
 {
 	if (stream == nullptr) throw invalid_argument("stream is null.");
 	if (columnWidths.size() < 1) throw invalid_argument("No columns defined.");
-	if (std::any_of(columnWidths.begin(), columnWidths.end(), [](int width){ return width <= 1; })) {
+	if (std::any_of(columnWidths.begin(), columnWidths.end(), [](int width) { return width <= 1; })) {
 		throw invalid_argument("All columns must have a width of at least 1.");
 	}
 	if (columnSpacing < 0) throw invalid_argument("columnSpacing must not be negative.");
 }
 
 void TablePrinter::printRow(initializer_list<string> columns) const {
-	if (columns.size() != columnWidths.size()) throw invalid_argument("Number of specified strings does not match number of defined columns.");
+	if (columns.size() != columnWidths.size()) {
+		throw invalid_argument("Number of specified strings does not match number of defined columns.");
+	}
 
 	// Some cells may span multiple lines.
 	// Create matrix of text lines in columns.
@@ -50,7 +52,7 @@ void TablePrinter::printRow(initializer_list<string> columns) const {
 
 	// Print lines
 	*stream << std::left;
-	string spacer(columnSpacing, ' ');
+	const string spacer(columnSpacing, ' ');
 	for (size_t rowIndex = 0; rowIndex < lineCount; rowIndex++) {
 		for (size_t columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
 			if (columnIndex != 0) {

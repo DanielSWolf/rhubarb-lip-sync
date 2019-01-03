@@ -4,7 +4,7 @@
 #include <stack>
 #include <mutex>
 
-template <typename value_type, typename pointer_type = std::unique_ptr<value_type>>
+template<typename value_type, typename pointer_type = std::unique_ptr<value_type>>
 class ObjectPool {
 public:
 	using wrapper_type = lambda_unique_ptr<value_type>;

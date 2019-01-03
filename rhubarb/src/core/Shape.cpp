@@ -35,7 +35,7 @@ string ShapeConverter::getTypeName() {
 }
 
 EnumConverter<Shape>::member_data ShapeConverter::getMemberData() {
-	return member_data{
+	return member_data {
 		{ Shape::A, "A" },
 		{ Shape::B, "B" },
 		{ Shape::C, "C" },

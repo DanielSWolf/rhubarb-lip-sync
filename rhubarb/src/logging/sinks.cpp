@@ -3,7 +3,6 @@
 #include "Entry.h"
 
 using std::string;
-using std::lock_guard;
 using std::shared_ptr;
 
 namespace logging {
@@ -25,7 +24,7 @@ namespace logging {
 	{}
 
 	void StreamSink::receive(const Entry& entry) {
-		string line = formatter->format(entry);
+		const string line = formatter->format(entry);
 		*stream << line << std::endl;
 	}
 

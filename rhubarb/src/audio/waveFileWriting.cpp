@@ -12,26 +12,26 @@ void createWaveFile(const AudioClip& audioClip, std::string fileName) {
 
 	// Write RIFF chunk
 	write<uint32_t>(fourcc('R', 'I', 'F', 'F'), file);
-	uint32_t formatChunkSize = 16;
-	uint16_t channelCount = 1;
-	uint16_t frameSize = static_cast<uint16_t>(channelCount * sizeof(float));
-	uint32_t dataChunkSize = static_cast<uint32_t>(audioClip.size() * frameSize);
-	uint32_t riffChunkSize = 4 + (8 + formatChunkSize) + (8 + dataChunkSize);
+	const uint32_t formatChunkSize = 16;
+	const uint16_t channelCount = 1;
+	const uint16_t frameSize = static_cast<uint16_t>(channelCount * sizeof(float));
+	const uint32_t dataChunkSize = static_cast<uint32_t>(audioClip.size() * frameSize);
+	const uint32_t riffChunkSize = 4 + (8 + formatChunkSize) + (8 + dataChunkSize);
 	write<uint32_t>(riffChunkSize, file);
 	write<uint32_t>(fourcc('W', 'A', 'V', 'E'), file);
 
 	// Write format chunk
 	write<uint32_t>(fourcc('f', 'm', 't', ' '), file);
 	write<uint32_t>(formatChunkSize, file);
-	uint16_t codec = 0x03; // 32-bit float
+	const uint16_t codec = 0x03; // 32-bit float
 	write<uint16_t>(codec, file);
 	write<uint16_t>(channelCount, file);
-	uint32_t frameRate = static_cast<uint16_t>(audioClip.getSampleRate());
+	const uint32_t frameRate = static_cast<uint16_t>(audioClip.getSampleRate());
 	write<uint32_t>(frameRate, file);
-	uint32_t bytesPerSecond = frameRate * frameSize;
+	const uint32_t bytesPerSecond = frameRate * frameSize;
 	write<uint32_t>(bytesPerSecond, file);
 	write<uint16_t>(frameSize, file);
-	uint16_t bitsPerSample = 8 * sizeof(float);
+	const uint16_t bitsPerSample = 8 * sizeof(float);
 	write<uint16_t>(bitsPerSample, file);
 
 	// Write data chunk

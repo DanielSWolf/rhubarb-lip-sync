@@ -28,7 +28,11 @@ inline AudioClip::value_type SafeSampleReader::operator()(AudioClip::size_type i
 		throw invalid_argument(fmt::format("Cannot read from sample index {}. Index < 0.", index));
 	}
 	if (index >= size) {
-		throw invalid_argument(fmt::format("Cannot read from sample index {}. Clip size is {}.", index, size));
+		throw invalid_argument(fmt::format(
+			"Cannot read from sample index {}. Clip size is {}.",
+			index,
+			size
+		));
 	}
 	if (index == lastIndex) {
 		return lastSample;
@@ -51,7 +55,7 @@ AudioClip::iterator AudioClip::end() const {
 	return SampleIterator(*this, size());
 }
 
-std::unique_ptr<AudioClip> operator|(std::unique_ptr<AudioClip> clip, AudioEffect effect) {
+std::unique_ptr<AudioClip> operator|(std::unique_ptr<AudioClip> clip, const AudioEffect& effect) {
 	return effect(std::move(clip));
 }
 

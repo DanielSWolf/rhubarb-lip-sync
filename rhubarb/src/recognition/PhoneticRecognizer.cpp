@@ -26,7 +26,8 @@ static lambda_unique_ptr<ps_decoder_t> createDecoder(optional<std::string> dialo
 			// High values (>= 1.0) can lead to imprecise or freezing animation.
 			"-lw", "0.8",
 
-			// The following settings are recommended at http://cmusphinx.sourceforge.net/wiki/phonemerecognition
+			// The following settings are recommended at
+			// http://cmusphinx.sourceforge.net/wiki/phonemerecognition
 
 			// Set beam width applied to every frame in Viterbi search
 			"-beam", "1e-20",
@@ -56,7 +57,9 @@ static Timeline<Phone> utteranceToPhones(
 	paddedTimeRange.grow(padding);
 	paddedTimeRange.trim(audioClip.getTruncatedRange());
 
-	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(paddedTimeRange) | resample(sphinxSampleRate);
+	const unique_ptr<AudioClip> clipSegment = audioClip.clone()
+		| segment(paddedTimeRange)
+		| resample(sphinxSampleRate);
 	const auto audioBuffer = copyTo16bitBuffer(*clipSegment);
 
 	// Detect phones (returned as words)

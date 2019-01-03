@@ -14,13 +14,13 @@ namespace logging {
 	}
 
 	EnumConverter<Level>::member_data LevelConverter::getMemberData() {
-		return member_data{
-			{Level::Trace,		"Trace"},
-			{Level::Debug,		"Debug"},
-			{Level::Info,		"Info"},
-			{Level::Warn,		"Warn"},
-			{Level::Error,		"Error"},
-			{Level::Fatal,		"Fatal"}
+		return member_data {
+			{ Level::Trace,		"Trace" },
+			{ Level::Debug,		"Debug" },
+			{ Level::Info,		"Info" },
+			{ Level::Warn,		"Warn" },
+			{ Level::Error,		"Error" },
+			{ Level::Fatal,		"Fatal" }
 		};
 	}
 
@@ -28,7 +28,7 @@ namespace logging {
 		return LevelConverter::get().write(stream, value);
 	}
 
-	std::istream& operator >> (std::istream& stream, Level& value) {
+	std::istream& operator >>(std::istream& stream, Level& value) {
 		return LevelConverter::get().read(stream, value);
 	}
 

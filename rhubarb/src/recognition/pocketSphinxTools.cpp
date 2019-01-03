@@ -26,18 +26,18 @@ using std::chrono::duration_cast;
 	
 logging::Level convertSphinxErrorLevel(err_lvl_t errorLevel) {
 	switch (errorLevel) {
-	case ERR_DEBUG:
-	case ERR_INFO:
-	case ERR_INFOCONT:
-		return logging::Level::Trace;
-	case ERR_WARN:
-		return logging::Level::Warn;
-	case ERR_ERROR:
-		return logging::Level::Error;
-	case ERR_FATAL:
-		return logging::Level::Fatal;
-	default:
-		throw invalid_argument("Unknown log level.");
+		case ERR_DEBUG:
+		case ERR_INFO:
+		case ERR_INFOCONT:
+			return logging::Level::Trace;
+		case ERR_WARN:
+			return logging::Level::Warn;
+		case ERR_ERROR:
+			return logging::Level::Error;
+		case ERR_FATAL:
+			return logging::Level::Fatal;
+		default:
+			throw invalid_argument("Unknown log level.");
 	}
 }
 
@@ -61,7 +61,8 @@ void sphinxLogCallback(void* user_data, err_lvl_t errorLevel, const char* format
 		if (!success) chars.resize(chars.size() * 2);
 	}
 	const regex waste("^(DEBUG|INFO|INFOCONT|WARN|ERROR|FATAL): ");
-	string message = std::regex_replace(chars.data(), waste, "", std::regex_constants::format_first_only);
+	string message =
+		std::regex_replace(chars.data(), waste, "", std::regex_constants::format_first_only);
 	boost::algorithm::trim(message);
 
 	const logging::Level logLevel = convertSphinxErrorLevel(errorLevel);
@@ -115,8 +116,12 @@ BoundedTimeline<Phone> recognizePhones(
 	const auto processUtterance = [&](Timed<void> timedUtterance, ProgressSink& utteranceProgressSink) {
 		// Detect phones for utterance
 		const auto decoder = decoderPool.acquire();
-		Timeline<Phone> utterancePhones =
-			utteranceToPhones(*audioClip, timedUtterance.getTimeRange(), *decoder, utteranceProgressSink);
+		Timeline<Phone> utterancePhones = utteranceToPhones(
+			*audioClip,
+			timedUtterance.getTimeRange(),
+			*decoder,
+			utteranceProgressSink
+		);
 
 		// Copy phones to result timeline
 		std::lock_guard<std::mutex> lock(resultMutex);
@@ -137,13 +142,21 @@ BoundedTimeline<Phone> recognizePhones(
 			// Don't use more threads than there are utterances to be processed
 			static_cast<int>(utterances.size()),
 			// Don't waste time creating additional threads (and decoders!) if the recording is short
-			static_cast<int>(duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getDuration()).count() / 5)
+			static_cast<int>(
+				duration_cast<std::chrono::seconds>(audioClip->getTruncatedRange().getDuration()).count() / 5
+			)
 		});
 		if (threadCount < 1) {
 			threadCount = 1;
 		}
 		logging::debugFormat("Speech recognition using {} threads -- start", threadCount);
-		runParallel(processUtterance, utterances, threadCount, dialogProgressSink, getUtteranceProgressWeight);
+		runParallel(
+			processUtterance,
+			utterances,
+			threadCount,
+			dialogProgressSink,
+			getUtteranceProgressWeight
+		);
 		logging::debug("Speech recognition -- end");
 	} catch (...) {
 		std::throw_with_nested(runtime_error("Error performing speech recognition via PocketSphinx."));
@@ -200,7 +213,9 @@ BoundedTimeline<string> recognizeWords(const vector<int16_t>& audioBuffer, ps_de
 	error = ps_end_utt(&decoder);
 	if (error) throw runtime_error("Error ending utterance processing for word recognition.");
 
-	BoundedTimeline<string> result(TimeRange(0_cs, centiseconds(100 * audioBuffer.size() / sphinxSampleRate)));
+	BoundedTimeline<string> result(
+		TimeRange(0_cs, centiseconds(100 * audioBuffer.size() / sphinxSampleRate))
+	);
 	const bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
 	if (noWordsRecognized) {
 		return result;

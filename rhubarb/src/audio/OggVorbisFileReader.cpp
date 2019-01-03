@@ -14,30 +14,30 @@ using std::ios_base;
 
 std::string vorbisErrorToString(int64_t errorCode) {
 	switch (errorCode) {
-	case OV_EREAD:
-		return "Read error while fetching compressed data for decode.";
-	case OV_EFAULT:
-		return "Internal logic fault; indicates a bug or heap/stack corruption.";
-	case OV_EIMPL:
-		return "Feature not implemented";
-	case OV_EINVAL:
-		return "Either an invalid argument, or incompletely initialized argument passed to a call.";
-	case OV_ENOTVORBIS:
-		return "The given file/data was not recognized as Ogg Vorbis data.";
-	case OV_EBADHEADER:
-		return "The file/data is apparently an Ogg Vorbis stream, but contains a corrupted or undecipherable header.";
-	case OV_EVERSION:
-		return "The bitstream format revision of the given Vorbis stream is not supported.";
-	case OV_ENOTAUDIO:
-		return "Packet is not an audio packet.";
-	case OV_EBADPACKET:
-		return "Error in packet.";
-	case OV_EBADLINK:
-		return "The given link exists in the Vorbis data stream, but is not decipherable due to garbacge or corruption.";
-	case OV_ENOSEEK:
-		return "The given stream is not seekable.";
-	default:
-		return "An unexpected Vorbis error occurred.";
+		case OV_EREAD:
+			return "Read error while fetching compressed data for decode.";
+		case OV_EFAULT:
+			return "Internal logic fault; indicates a bug or heap/stack corruption.";
+		case OV_EIMPL:
+			return "Feature not implemented";
+		case OV_EINVAL:
+			return "Either an invalid argument, or incompletely initialized argument passed to a call.";
+		case OV_ENOTVORBIS:
+			return "The given file/data was not recognized as Ogg Vorbis data.";
+		case OV_EBADHEADER:
+			return "The file/data is apparently an Ogg Vorbis stream, but contains a corrupted or undecipherable header.";
+		case OV_EVERSION:
+			return "The bitstream format revision of the given Vorbis stream is not supported.";
+		case OV_ENOTAUDIO:
+			return "Packet is not an audio packet.";
+		case OV_EBADPACKET:
+			return "Error in packet.";
+		case OV_EBADLINK:
+			return "The given link exists in the Vorbis data stream, but is not decipherable due to garbage or corruption.";
+		case OV_ENOSEEK:
+			return "The given stream is not seekable.";
+		default:
+			return "An unexpected Vorbis error occurred.";
 	}
 }
 
@@ -64,13 +64,13 @@ size_t readCallback(void* buffer, size_t elementSize, size_t elementCount, void*
 }
 
 int seekCallback(void* dataSource, ogg_int64_t offset, int origin) {
-	static const vector<ios_base::seekdir> seekDirections{
+	static const vector<ios_base::seekdir> seekDirections {
 		ios_base::beg, ios_base::cur, ios_base::end
 	};
 
 	ifstream& stream = *static_cast<ifstream*>(dataSource);
 	stream.seekg(offset, seekDirections.at(origin));
-	stream.clear(); // In case we seeked to EOF
+	stream.clear(); // In case we sought to EOF
 	return 0;
 }
 
@@ -82,25 +82,12 @@ long tellCallback(void* dataSource) {
 }
 
 // RAII wrapper around OggVorbis_File
-class OggVorbisFile {
+class OggVorbisFile final {
 public:
+	OggVorbisFile(const path& filePath);
+
 	OggVorbisFile(const OggVorbisFile&) = delete;
 	OggVorbisFile& operator=(const OggVorbisFile&) = delete;
-
-	OggVorbisFile(const path& filePath) :
-		stream(openFile(filePath))
-	{
-		// Throw only on badbit, not on failbit.
-		// Ogg Vorbis expects read operations past the end of the file to
-		// succeed, not to throw.
-		stream.exceptions(ifstream::badbit);
-
-		// Ogg Vorbis normally uses the `FILE` API from the C standard library.
-		// This doesn't handle Unicode paths on Windows.
-		// Use wrapper functions around `ifstream` instead.
-		const ov_callbacks callbacks{readCallback, seekCallback, nullptr, tellCallback};
-		throwOnError(ov_open_callbacks(&stream, &oggVorbisHandle, nullptr, 0, callbacks));
-	}
 
 	OggVorbis_File* get() {
 		return &oggVorbisHandle;
@@ -114,6 +101,22 @@ private:
 	OggVorbis_File oggVorbisHandle;
 	ifstream stream;
 };
+
+OggVorbisFile::OggVorbisFile(const path& filePath) :
+	oggVorbisHandle(),
+	stream(openFile(filePath))
+{
+	// Throw only on badbit, not on failbit.
+	// Ogg Vorbis expects read operations past the end of the file to
+	// succeed, not to throw.
+	stream.exceptions(ifstream::badbit);
+
+	// Ogg Vorbis normally uses the `FILE` API from the C standard library.
+	// This doesn't handle Unicode paths on Windows.
+	// Use wrapper functions around `ifstream` instead.
+	const ov_callbacks callbacks { readCallback, seekCallback, nullptr, tellCallback };
+	throwOnError(ov_open_callbacks(&stream, &oggVorbisHandle, nullptr, 0, callbacks));
+}
 
 OggVorbisFileReader::OggVorbisFileReader(const path& filePath) :
 	filePath(filePath)
@@ -153,7 +156,7 @@ SampleReader OggVorbisFileReader::createUnsafeSampleReader() const {
 		}
 
 		// Downmix channels
-		size_type bufferIndex = index - bufferStart;
+		const size_type bufferIndex = index - bufferStart;
 		value_type sum = 0.0f;
 		for (int channel = 0; channel < channelCount; ++channel) {
 			sum += buffer[channel][bufferIndex];

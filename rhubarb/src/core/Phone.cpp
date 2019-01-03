@@ -13,7 +13,7 @@ string PhoneConverter::getTypeName() {
 }
 
 EnumConverter<Phone>::member_data PhoneConverter::getMemberData() {
-	return member_data{
+	return member_data {
 		{ Phone::AO,		"AO" },
 		{ Phone::AA,		"AA" },
 		{ Phone::IY,		"IY" },

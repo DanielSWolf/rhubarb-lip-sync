@@ -20,7 +20,11 @@ TimeRange::TimeRange(time_type start, time_type end) :
 	end(end)
 {
 	if (start > end) {
-		throw std::invalid_argument(fmt::format("Time range start must not be less than end. Start: {0}, end: {1}", start, end));
+		throw std::invalid_argument(fmt::format(
+			"Time range start must not be less than end. Start: {0}, end: {1}",
+			start,
+			end
+		));
 	}
 }
 
@@ -88,16 +92,16 @@ void TimeRange::shrink(time_type value) {
 }
 
 void TimeRange::trim(const TimeRange& limits) {
-	TimeRange newRange(std::max(start, limits.start), std::min(end, limits.end));
+	const TimeRange newRange(std::max(start, limits.start), std::min(end, limits.end));
 	resize(newRange);
 }
 
 void TimeRange::trimLeft(time_type value) {
-	trim({value, end});
+	trim({ value, end });
 }
 
 void TimeRange::trimRight(time_type value) {
-	trim({start, value});
+	trim({ start, value });
 }
 
 bool TimeRange::operator==(const TimeRange& rhs) const {

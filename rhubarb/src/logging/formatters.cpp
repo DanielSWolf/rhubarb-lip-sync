@@ -12,7 +12,12 @@ namespace logging {
 	}
 
 	string SimpleFileFormatter::format(const Entry& entry) {
-		return fmt::format("[{0}] {1} {2}", formatTime(entry.timestamp, "%F %H:%M:%S"), entry.threadCounter, consoleFormatter.format(entry));
+		return fmt::format(
+			"[{0}] {1} {2}",
+			formatTime(entry.timestamp, "%F %H:%M:%S"),
+			entry.threadCounter,
+			consoleFormatter.format(entry)
+		);
 	}
 
 }

@@ -36,12 +36,15 @@ private:
 		bool operator()(const Timed<T>& lhs, const Timed<T>& rhs) const {
 			return lhs.getStart() < rhs.getStart();
 		}
+
 		bool operator()(const time_type& lhs, const Timed<T>& rhs) const {
 			return lhs < rhs.getStart();
 		}
+
 		bool operator()(const Timed<T>& lhs, const time_type& rhs) const {
 			return lhs.getStart() < rhs;
 		}
+
 		using is_transparent = int;
 	};
 
@@ -88,7 +91,7 @@ public:
 		time_type time;
 	};
 
-	Timeline() {}
+	Timeline() = default;
 
 	template<typename InputIterator>
 	Timeline(InputIterator first, InputIterator last) {
@@ -107,7 +110,7 @@ public:
 		Timeline(initializerList.begin(), initializerList.end())
 	{}
 
-	virtual ~Timeline() {}
+	virtual ~Timeline() = default;
 
 	bool empty() const {
 		return elements.empty();
@@ -141,35 +144,39 @@ public:
 
 	iterator find(time_type time, FindMode findMode = FindMode::SampleRight) const {
 		switch (findMode) {
-		case FindMode::SampleLeft: {
-			iterator left = find(time, FindMode::SearchLeft);
-			return left != end() && left->getEnd() >= time ? left : end();
-		}
-		case FindMode::SampleRight: {
-			iterator right = find(time, FindMode::SearchRight);
-			return right != end() && right->getStart() <= time ? right : end();
-		}
-		case FindMode::SearchLeft: {
-			// Get first element starting >= time
-			iterator it = elements.lower_bound(time);
-
-			// Go one element back
-			return it != begin() ? --it : end();
-		}
-		case FindMode::SearchRight: {
-			// Get first element starting > time
-			iterator it = elements.upper_bound(time);
-
-			// Go one element back
-			if (it != begin()) {
-				iterator left = it;
-				--left;
-				if (left->getEnd() > time) return left;
+			case FindMode::SampleLeft:
+			{
+				iterator left = find(time, FindMode::SearchLeft);
+				return left != end() && left->getEnd() >= time ? left : end();
 			}
-			return it;
-		}
-		default:
-			throw std::invalid_argument("Unexpected find mode.");
+			case FindMode::SampleRight:
+			{
+				iterator right = find(time, FindMode::SearchRight);
+				return right != end() && right->getStart() <= time ? right : end();
+			}
+			case FindMode::SearchLeft:
+			{
+				// Get first element starting >= time
+				iterator it = elements.lower_bound(time);
+
+				// Go one element back
+				return it != begin() ? --it : end();
+			}
+			case FindMode::SearchRight:
+			{
+				// Get first element starting > time
+				iterator it = elements.upper_bound(time);
+
+				// Go one element back
+				if (it != begin()) {
+					iterator left = it;
+					--left;
+					if (left->getEnd() > time) return left;
+				}
+				return it;
+			}
+			default:
+				throw std::invalid_argument("Unexpected find mode.");
 		}
 	}
 
@@ -187,7 +194,10 @@ public:
 		splitAt(range.getEnd());
 
 		// Erase overlapping elements
-		elements.erase(find(range.getStart(), FindMode::SearchRight), find(range.getEnd(), FindMode::SearchRight));
+		elements.erase(
+			find(range.getStart(), FindMode::SearchRight),
+			find(range.getEnd(), FindMode::SearchRight)
+		);
 	}
 
 	void clear(time_type start, time_type end) {
@@ -220,12 +230,19 @@ public:
 	}
 
 	template<typename TElement = T>
-	iterator set(const TimeRange& timeRange, const std::enable_if_t<!std::is_void<TElement>::value, T>& value) {
+	iterator set(
+		const TimeRange& timeRange,
+		const std::enable_if_t<!std::is_void<TElement>::value, T>& value
+	) {
 		return set(Timed<T>(timeRange, value));
 	}
 
 	template<typename TElement = T>
-	iterator set(time_type start, time_type end, const std::enable_if_t<!std::is_void<TElement>::value, T>& value) {
+	iterator set(
+		time_type start,
+		time_type end,
+		const std::enable_if_t<!std::is_void<TElement>::value, T>& value
+	) {
 		return set(Timed<T>(start, end, value));
 	}
 
@@ -251,13 +268,16 @@ public:
 		for (auto it = copy.begin(); it != copy.end(); ++it) {
 			const auto rangeBegin = it;
 			auto rangeEnd = std::next(rangeBegin);
-			while (rangeEnd != copy.end() && rangeEnd->getStart() == rangeBegin->getEnd() && ::internal::valueEquals(*rangeEnd, *rangeBegin)) {
+			while (rangeEnd != copy.end()
+				&& rangeEnd->getStart() == rangeBegin->getEnd()
+				&& ::internal::valueEquals(*rangeEnd, *rangeBegin)
+			) {
 				++rangeEnd;
 			}
 
 			if (rangeEnd != std::next(rangeBegin)) {
 				Timed<T> combined = *rangeBegin;
-				combined.setTimeRange({rangeBegin->getStart(), rangeEnd->getEnd()});
+				combined.setTimeRange({ rangeBegin->getStart(), rangeEnd->getEnd() });
 				set(combined);
 				it = rangeEnd;
 			}

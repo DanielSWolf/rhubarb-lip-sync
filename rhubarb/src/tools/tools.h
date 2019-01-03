@@ -18,8 +18,8 @@ template<unsigned int n, typename iterator_type>
 void for_each_adjacent(
 	iterator_type begin,
 	iterator_type end,
-	std::function<void(const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>&)> f)
-{
+	std::function<void(const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>&)> f
+) {
 	// Get the first n values
 	iterator_type it = begin;
 	using element_type = std::reference_wrapper<const typename iterator_type::value_type>;
@@ -42,20 +42,28 @@ template<typename iterator_type>
 void for_each_adjacent(
 	iterator_type begin,
 	iterator_type end,
-	std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b)> f)
-{
-	for_each_adjacent<2>(begin, end, [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
-		f(args[0], args[1]);
-	});
+	std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b)> f
+) {
+	for_each_adjacent<2>(
+		begin,
+		end,
+		[&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
+			f(args[0], args[1]);
+		}
+	);
 }
 
 template<typename iterator_type>
 void for_each_adjacent(
 	iterator_type begin,
 	iterator_type end,
-	std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b, const typename iterator_type::reference c)> f)
-{
-	for_each_adjacent<3>(begin, end, [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
-		f(args[0], args[1], args[2]);
-	});
+	std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b, const typename iterator_type::reference c)> f
+) {
+	for_each_adjacent<3>(
+		begin,
+		end,
+		[&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
+			f(args[0], args[1], args[2]);
+		}
+	);
 }

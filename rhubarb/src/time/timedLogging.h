@@ -7,8 +7,13 @@
 
 template<typename TValue>
 void logTimedEvent(const std::string& eventName, const Timed<TValue> timedValue) {
-	logging::debugFormat("##{0}[{1}-{2}]: {3}",
-		eventName, formatDuration(timedValue.getStart()), formatDuration(timedValue.getEnd()), timedValue.getValue());
+	logging::debugFormat(
+		"##{0}[{1}-{2}]: {3}",
+		eventName,
+		formatDuration(timedValue.getStart()),
+		formatDuration(timedValue.getEnd()),
+		timedValue.getValue()
+	);
 }
 
 template<typename TValue>
@@ -17,6 +22,11 @@ void logTimedEvent(const std::string& eventName, const TimeRange& timeRange, con
 }
 
 template<typename TValue>
-void logTimedEvent(const std::string& eventName, centiseconds start, centiseconds end, const TValue& value) {
+void logTimedEvent(
+	const std::string& eventName,
+	centiseconds start,
+	centiseconds end,
+	const TValue& value
+) {
 	logTimedEvent(eventName, Timed<TValue>(start, end, value));
 }

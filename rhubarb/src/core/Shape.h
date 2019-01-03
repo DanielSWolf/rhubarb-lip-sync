@@ -29,8 +29,8 @@ enum class Shape {
 class ShapeConverter : public EnumConverter<Shape> {
 public:
 	static ShapeConverter& get();
-	std::set<Shape> getBasicShapes();
-	std::set<Shape> getExtendedShapes();
+	static std::set<Shape> getBasicShapes();
+	static std::set<Shape> getExtendedShapes();
 protected:
 	std::string getTypeName() override;
 	member_data getMemberData() override;

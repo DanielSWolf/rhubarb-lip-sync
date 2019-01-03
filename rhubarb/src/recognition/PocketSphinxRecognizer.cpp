@@ -67,9 +67,15 @@ lambda_unique_ptr<ngram_model_t> createDefaultLanguageModel(ps_decoder_t& decode
 	return result;
 }
 
-lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(ps_decoder_t& decoder, const string& dialog) {
+lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(
+	ps_decoder_t& decoder,
+	const string& dialog
+) {
 	// Split dialog into normalized words
-	vector<string> words = tokenizeText(dialog, [&](const string& word) { return dictionaryContains(*decoder.dict, word); });
+	vector<string> words = tokenizeText(
+		dialog,
+		[&](const string& word) { return dictionaryContains(*decoder.dict, word); }
+	);
 
 	// Add dialog-specific words to the dictionary
 	addMissingDictionaryWords(words, decoder);
@@ -80,15 +86,27 @@ lambda_unique_ptr<ngram_model_t> createDialogLanguageModel(ps_decoder_t& decoder
 	return createLanguageModel(words, decoder);
 }
 
-lambda_unique_ptr<ngram_model_t> createBiasedLanguageModel(ps_decoder_t& decoder, const string& dialog) {
+lambda_unique_ptr<ngram_model_t> createBiasedLanguageModel(
+	ps_decoder_t& decoder,
+	const string& dialog
+) {
 	auto defaultLanguageModel = createDefaultLanguageModel(decoder);
 	auto dialogLanguageModel = createDialogLanguageModel(decoder, dialog);
 	constexpr int modelCount = 2;
-	array<ngram_model_t*, modelCount> languageModels{ defaultLanguageModel.get(), dialogLanguageModel.get() };
-	array<const char*, modelCount> modelNames{ "defaultLM", "dialogLM" };
-	array<float, modelCount> modelWeights{ 0.1f, 0.9f };
+	array<ngram_model_t*, modelCount> languageModels {
+		defaultLanguageModel.get(),
+		dialogLanguageModel.get()
+	};
+	array<const char*, modelCount> modelNames { "defaultLM", "dialogLM" };
+	array<float, modelCount> modelWeights { 0.1f, 0.9f };
 	lambda_unique_ptr<ngram_model_t> result(
-		ngram_model_set_init(nullptr, languageModels.data(), const_cast<char**>(modelNames.data()), modelWeights.data(), modelCount),
+		ngram_model_set_init(
+			nullptr,
+			languageModels.data(),
+			const_cast<char**>(modelNames.data()),
+			modelWeights.data(),
+			modelCount
+		),
 		[](ngram_model_t* lm) { ngram_model_free(lm); });
 	if (!result) {
 		throw runtime_error("Error creating biased language model.");
@@ -105,7 +123,8 @@ static lambda_unique_ptr<ps_decoder_t> createDecoder(optional<std::string> dialo
 			"-hmm", (getSphinxModelDirectory() / "acoustic-model").string().c_str(),
 			// Set pronunciation dictionary
 			"-dict", (getSphinxModelDirectory() / "cmudict-en-us.dict").string().c_str(),
-			// Add noise against zero silence (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
+			// Add noise against zero silence
+			// (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
 			"-dither", "yes",
 			// Disable VAD -- we're doing that ourselves
 			"-remove_silence", "no",
@@ -184,7 +203,11 @@ optional<Timeline<Phone>> getPhoneAlignment(
 	// Extract phones with timestamps
 	char** phoneNames = decoder.dict->mdef->ciname;
 	Timeline<Phone> result;
-	for (ps_alignment_iter_t* it = ps_alignment_phones(alignment.get()); it; it = ps_alignment_iter_next(it)) {
+	for (
+		ps_alignment_iter_t* it = ps_alignment_phones(alignment.get());
+		it;
+		it = ps_alignment_iter_next(it)
+	) {
 		// Get phone
 		ps_alignment_entry_t* phoneEntry = ps_alignment_iter_get(it);
 		const s3cipid_t phoneId = phoneEntry->id.pid.cipid;
@@ -209,7 +232,7 @@ optional<Timeline<Phone>> getPhoneAlignment(
 // Some words have multiple pronunciations, one of which results in better animation than the others.
 // This function returns the optimal pronunciation for a select set of these words.
 string fixPronunciation(const string& word) {
-	const static map<string, string> replacements{
+	const static map<string, string> replacements {
 		{ "into(2)", "into" },
 		{ "to(2)", "to" },
 		{ "to(3)", "to" },
@@ -238,7 +261,9 @@ static Timeline<Phone> utteranceToPhones(
 	paddedTimeRange.grow(padding);
 	paddedTimeRange.trim(audioClip.getTruncatedRange());
 
-	const unique_ptr<AudioClip> clipSegment = audioClip.clone() | segment(paddedTimeRange) | resample(sphinxSampleRate);
+	const unique_ptr<AudioClip> clipSegment = audioClip.clone()
+		| segment(paddedTimeRange)
+		| resample(sphinxSampleRate);
 	const auto audioBuffer = copyTo16bitBuffer(*clipSegment);
 
 	// Get words
@@ -273,7 +298,7 @@ static Timeline<Phone> utteranceToPhones(
 		const string fixedWord = fixPronunciation(timedWord.getValue());
 		wordIds.push_back(getWordId(fixedWord, *decoder.dict));
 	}
-	if (wordIds.empty()) return{};
+	if (wordIds.empty()) return {};
 
 	// Align the words' phones with speech
 #if BOOST_VERSION < 105600 // Support legacy syntax
@@ -309,5 +334,6 @@ BoundedTimeline<Phone> PocketSphinxRecognizer::recognizePhones(
 	int maxThreadCount,
 	ProgressSink& progressSink
 ) const {
-	return ::recognizePhones(inputAudioClip, dialog, &createDecoder, &utteranceToPhones, maxThreadCount, progressSink);
+	return ::recognizePhones(
+		inputAudioClip, dialog, &createDecoder, &utteranceToPhones, maxThreadCount, progressSink);
 }

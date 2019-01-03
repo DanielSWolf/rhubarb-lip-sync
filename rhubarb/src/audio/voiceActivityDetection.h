@@ -3,4 +3,8 @@
 #include "time/BoundedTimeline.h"
 #include "tools/progress.h"
 
-JoiningBoundedTimeline<void> detectVoiceActivity(const AudioClip& audioClip, int maxThreadCount, ProgressSink& progressSink);
+JoiningBoundedTimeline<void> detectVoiceActivity(
+	const AudioClip& audioClip,
+	int maxThreadCount,
+	ProgressSink& progressSink
+);

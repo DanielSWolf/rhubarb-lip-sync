@@ -3,7 +3,6 @@
 
 using std::function;
 using std::vector;
-using std::unique_ptr;
 
 // Converts a float in the range -1..1 to a signed 16-bit int
 inline int16_t floatSampleToInt16(float sample) {
@@ -12,13 +11,18 @@ inline int16_t floatSampleToInt16(float sample) {
 	return static_cast<int16_t>(((sample + 1) / 2) * (INT16_MAX - INT16_MIN) + INT16_MIN);
 }
 
-void process16bitAudioClip(const AudioClip& audioClip, function<void(const vector<int16_t>&)> processBuffer, size_t bufferCapacity, ProgressSink& progressSink) {
+void process16bitAudioClip(
+	const AudioClip& audioClip,
+	const function<void(const vector<int16_t>&)>& processBuffer,
+	size_t bufferCapacity,
+	ProgressSink& progressSink
+) {
 	// Process entire sound stream
 	vector<int16_t> buffer;
 	buffer.reserve(bufferCapacity);
 	int sampleCount = 0;
 	auto it = audioClip.begin();
-	auto end = audioClip.end();
+	const auto end = audioClip.end();
 	do {
 		// Read to buffer
 		buffer.clear();
@@ -32,10 +36,14 @@ void process16bitAudioClip(const AudioClip& audioClip, function<void(const vecto
 
 		sampleCount += buffer.size();
 		progressSink.reportProgress(static_cast<double>(sampleCount) / audioClip.size());
-	} while (buffer.size());
+	} while (!buffer.empty());
 }
 
-void process16bitAudioClip(const AudioClip& audioClip, function<void(const vector<int16_t>&)> processBuffer, ProgressSink& progressSink) {
+void process16bitAudioClip(
+	const AudioClip& audioClip,
+	const function<void(const vector<int16_t>&)>& processBuffer,
+	ProgressSink& progressSink
+) {
 	const size_t capacity = 1600; // 0.1 second capacity
 	process16bitAudioClip(audioClip, processBuffer, capacity, progressSink);
 }
@@ -46,5 +54,5 @@ vector<int16_t> copyTo16bitBuffer(const AudioClip& audioClip) {
 	for (float sample : audioClip) {
 		result[index++] = floatSampleToInt16(sample);
 	}
-	return std::move(result);
+	return result;
 }
