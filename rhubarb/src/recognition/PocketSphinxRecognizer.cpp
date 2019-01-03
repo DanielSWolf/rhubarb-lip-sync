@@ -154,6 +154,8 @@ optional<Timeline<Phone>> getPhoneAlignment(
 	const vector<int16_t>& audioBuffer,
 	ps_decoder_t& decoder)
 {
+	if (wordIds.empty()) return boost::none;
+
 	// Create alignment list
 	lambda_unique_ptr<ps_alignment_t> alignment(
 		ps_alignment_init(decoder.d2p),
@@ -252,8 +254,10 @@ static Timeline<Phone> utteranceToPhones(
 	ProgressSink& utteranceProgressSink
 ) {
 	ProgressMerger utteranceProgressMerger(utteranceProgressSink);
-	ProgressSink& wordRecognitionProgressSink = utteranceProgressMerger.addSink(1.0);
-	ProgressSink& alignmentProgressSink = utteranceProgressMerger.addSink(0.5);
+	ProgressSink& wordRecognitionProgressSink =
+		utteranceProgressMerger.addSource("word recognition (PocketSphinx recognizer)", 1.0);
+	ProgressSink& alignmentProgressSink =
+		utteranceProgressMerger.addSource("alignment (PocketSphinx recognizer)", 0.5);
 
 	// Pad time range to give PocketSphinx some breathing room
 	TimeRange paddedTimeRange = utteranceTimeRange;
@@ -298,7 +302,6 @@ static Timeline<Phone> utteranceToPhones(
 		const string fixedWord = fixPronunciation(timedWord.getValue());
 		wordIds.push_back(getWordId(fixedWord, *decoder.dict));
 	}
-	if (wordIds.empty()) return {};
 
 	// Align the words' phones with speech
 #if BOOST_VERSION < 105600 // Support legacy syntax
