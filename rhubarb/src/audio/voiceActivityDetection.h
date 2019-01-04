@@ -5,6 +5,5 @@
 
 JoiningBoundedTimeline<void> detectVoiceActivity(
 	const AudioClip& audioClip,
-	int maxThreadCount,
 	ProgressSink& progressSink
 );
