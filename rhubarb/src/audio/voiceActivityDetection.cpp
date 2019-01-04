@@ -83,7 +83,7 @@ JoiningBoundedTimeline<void> detectVoiceActivity(
 ) {
 	// Prepare audio for VAD
 	const unique_ptr<AudioClip> audioClip = inputAudioClip.clone()
-		| resample(16000)
+		| resample(8000) // Convert to the internal sampling rate of WebRTC
 		| removeDcOffset();
 
 	JoiningBoundedTimeline<void> activity(audioClip->getTruncatedRange());
