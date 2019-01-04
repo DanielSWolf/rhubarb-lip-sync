@@ -102,7 +102,7 @@ BoundedTimeline<Phone> recognizePhones(
 	// Split audio into utterances
 	JoiningBoundedTimeline<void> utterances;
 	try {
-		utterances = detectVoiceActivity(*audioClip, maxThreadCount, voiceActivationProgressSink);
+		utterances = detectVoiceActivity(*audioClip, voiceActivationProgressSink);
 	} catch (...) {
 		std::throw_with_nested(runtime_error("Error detecting segments of speech."));
 	}
