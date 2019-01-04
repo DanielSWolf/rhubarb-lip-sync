@@ -38,7 +38,6 @@ using std::unique_ptr;
 using std::make_unique;
 using std::shared_ptr;
 using std::make_shared;
-using std::ofstream;
 using boost::filesystem::path;
 using boost::adaptors::transformed;
 using boost::optional;
@@ -248,7 +247,7 @@ int main(int platformArgc, char* platformArgv[]) {
 
 			// Export animation
 			unique_ptr<Exporter> exporter = createExporter(exportFormat.getValue());
-			optional<ofstream> outputFile;
+			optional<boost::filesystem::ofstream> outputFile;
 			if (outputFileName.isSet()) {
 				outputFile = boost::in_place(outputFileName.getValue());
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
