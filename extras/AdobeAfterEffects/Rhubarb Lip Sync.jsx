@@ -622,7 +622,6 @@ function createDialogWindow() {
 			var result;
 			try {
 				result = JSON.parse(readTextFile(jsonFile));
-				$.writeln(readTextFile(jsonFile));
 			} catch (e) {
 				throw new Error('No animation result. Animation was probably canceled.');
 			}
