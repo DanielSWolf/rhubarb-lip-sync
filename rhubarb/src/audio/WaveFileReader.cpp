@@ -192,7 +192,9 @@ SampleReader WaveFileReader::createUnsafeSampleReader() const {
 		](size_type index) mutable {
 		const std::streampos newFilePos = formatInfo.dataOffset
 			+ static_cast<std::streamoff>(index * formatInfo.bytesPerFrame);
-		file->seekg(newFilePos);
+		if (newFilePos != filePos) {
+			file->seekg(newFilePos);
+		}
 		const value_type result =
 			readSample(*file, formatInfo.sampleFormat, formatInfo.channelCount);
 		filePos = newFilePos + static_cast<std::streamoff>(formatInfo.bytesPerFrame);
