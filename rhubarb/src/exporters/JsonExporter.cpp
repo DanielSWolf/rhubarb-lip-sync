@@ -1,6 +1,7 @@
 #include "JsonExporter.h"
 #include "exporterTools.h"
 #include "tools/stringTools.h"
+#include <boost/filesystem.hpp>
 
 using std::string;
 
@@ -10,7 +11,7 @@ void JsonExporter::exportAnimation(const ExporterInput& input, std::ostream& out
 	// the formatting.
 	outputStream << "{\n";
 	outputStream << "  \"metadata\": {\n";
-	outputStream << "    \"soundFile\": \"" << escapeJsonString(input.inputFilePath.string()) << "\",\n";
+	outputStream << "    \"soundFile\": \"" << escapeJsonString(absolute(input.inputFilePath).string()) << "\",\n";
 	outputStream << "    \"duration\": " << formatDuration(input.animation.getRange().getDuration()) << "\n";
 	outputStream << "  },\n";
 	outputStream << "  \"mouthCues\": [\n";
