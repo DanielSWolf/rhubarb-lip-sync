@@ -25,6 +25,13 @@ static lambda_unique_ptr<ps_decoder_t> createDecoder(optional<std::string> dialo
 			// Low values (<= 0.4) can lead to fluttering animation.
 			// High values (>= 1.0) can lead to imprecise or freezing animation.
 			"-lw", "0.8",
+			// Add noise against zero silence
+			// (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
+			"-dither", "yes",
+			// Disable VAD -- we're doing that ourselves
+			"-remove_silence", "no",
+			// Perform per-utterance cepstral mean normalization
+			"-cmn", "batch",
 
 			// The following settings are recommended at
 			// http://cmusphinx.sourceforge.net/wiki/phonemerecognition
