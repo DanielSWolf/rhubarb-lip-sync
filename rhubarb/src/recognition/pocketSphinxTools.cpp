@@ -219,9 +219,18 @@ BoundedTimeline<string> recognizeWords(const vector<int16_t>& audioBuffer, ps_de
 	BoundedTimeline<string> result(
 		TimeRange(0_cs, centiseconds(100 * audioBuffer.size() / sphinxSampleRate))
 	);
-	const bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
-	if (noWordsRecognized) {
-		return result;
+	const bool phonetic = cmd_ln_boolean_r(decoder.config, "-allphone_ci");
+	if (!phonetic) {
+		// If the decoder is in word mode (as opposed to phonetic recognition), it expects each
+		// utterance to contain speech. If it doesn't, ps_seg_word() logs the annoying error
+		// "Couldn't find <s> in first frame".
+		// Not every utterance does contain speech, however. In this case, we exit early to prevent
+		// the log output.
+		// We *don't* to that in phonetic mode because here, the same code would omit valid phones.
+		const bool noWordsRecognized = reinterpret_cast<ngram_search_t*>(decoder.search)->bpidx == 0;
+		if (noWordsRecognized) {
+			return result;
+		}
 	}
 
 	// Collect words

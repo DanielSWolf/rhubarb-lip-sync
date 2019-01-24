@@ -75,6 +75,14 @@ JoiningBoundedTimeline<void> detectVoiceActivity(
 		}
 	}
 
+	// Discard very short segments of activity
+	const centiseconds minSegmentLength(5);
+	for (const auto& segment : activity) {
+		if (segment.getDuration() < minSegmentLength) {
+			activity.clear(segment.getTimeRange());
+		}
+	}
+
 	logging::debugFormat(
 		"Found {} sections of voice activity: {}",
 		activity.size(),
