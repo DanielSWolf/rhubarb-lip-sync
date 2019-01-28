@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.9.0
 
 * **Added** basic support for non-English recordings through phonetic recognition ([issue #45](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/45)).
 * **Improved** processing speed for WAVE files ([issue #58](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/58)).
