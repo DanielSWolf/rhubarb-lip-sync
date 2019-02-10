@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Fixed** segmentation fault on OS X ([issue #65](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/65)).
+
 ## Version 1.9.0
 
 * **Added** basic support for non-English recordings through phonetic recognition ([issue #45](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/45)).
