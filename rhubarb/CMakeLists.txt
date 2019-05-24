@@ -102,9 +102,13 @@ include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
 add_subdirectory("lib/googletest")
+target_compile_options(gmock PRIVATE ${disableWarningsFlags})
 set_target_properties(gmock PROPERTIES FOLDER lib)
+target_compile_options(gmock_main PRIVATE ${disableWarningsFlags})
 set_target_properties(gmock_main PROPERTIES FOLDER lib)
+target_compile_options(gtest PRIVATE ${disableWarningsFlags})
 set_target_properties(gtest PROPERTIES FOLDER lib)
+target_compile_options(gtest_main PRIVATE ${disableWarningsFlags})
 set_target_properties(gtest_main PROPERTIES FOLDER lib)
 
 # ... GSL

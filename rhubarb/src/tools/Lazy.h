@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <mutex>
+#include <functional>
 
 // Class template for lazy initialization.
 // Copies use reference semantics.

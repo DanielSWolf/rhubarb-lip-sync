@@ -4,6 +4,7 @@
 #include <memory>
 #include <chrono>
 #include <deque>
+#include <string>
 
 #define UNUSED(x) ((void)(x))
 
