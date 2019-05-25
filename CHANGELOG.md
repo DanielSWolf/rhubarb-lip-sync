@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Improved** animation rule for OW sound: animating it as E-F rather than F.
+
 ## Version 1.9.1
 
 * **Fixed** segmentation fault on OS X ([issue #65](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/65)).
