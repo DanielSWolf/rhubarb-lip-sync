@@ -360,6 +360,8 @@ target_link_libraries(rhubarb-core
 
 # ... rhubarb-exporters
 add_library(rhubarb-exporters
+	src/exporters/DatExporter.cpp
+	src/exporters/DatExporter.h
 	src/exporters/Exporter.h
 	src/exporters/exporterTools.cpp
 	src/exporters/exporterTools.h
