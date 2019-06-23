@@ -5,7 +5,7 @@ set(vegasFiles
 	"Debug Rhubarb.cs.config"
 	"Import Rhubarb.cs"
 	"Import Rhubarb.cs.config"
-	"README.md"
+	"README.adoc"
 )
 
 install(

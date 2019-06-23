@@ -13,6 +13,6 @@ install(
 )
 
 install(
-	FILES README.md
+	FILES README.adoc
 	DESTINATION "extras/EsotericSoftwareSpine"
 )
