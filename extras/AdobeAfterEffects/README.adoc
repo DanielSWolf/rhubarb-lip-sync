@@ -6,7 +6,7 @@ The script in this directory generates After Effects compositions with mouth ani
 
 === 1. Download and extract
 
-Download the archive file containing Rhubarb Lip-Sync, then extract in a directory on your computer.
+Download the archive file containing Rhubarb Lip Sync, then extract in a directory on your computer.
 
 === 2. Make Rhubarb available to After Effects
 
