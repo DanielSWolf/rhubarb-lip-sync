@@ -40,21 +40,21 @@ https://www.youtube.com/watch?v=zzdPSFJRlEo[image:http://img.youtube.com/vi/zzdP
 [[afterEffects]]
 === Adobe After Effects
 
-You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, see the directory `extras/AdobeAfterEffects` of the download.
+You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, <<extras/AdobeAfterEffects/README.adoc#,follow this link>> or see the directory `extras/AdobeAfterEffects`.
 
 image:img/after-effects.png[]
 
 [[spine]]
 === Spine by Esoteric Software
 
-Rhubarb Lip Sync for Spine is a graphical tool that allows you to import a Spine project, perform automatic lip sync, then re-import the result into Spine. For more information, see the directory `extras/EsotericSoftwareSpine` of the download.
+Rhubarb Lip Sync for Spine is a graphical tool that allows you to import a Spine project, perform automatic lip sync, then re-import the result into Spine. For more information, <<extras/EsotericSoftwareSpine/README.adoc#,follow this link>> or see the directory `extras/EsotericSoftwareSpine` of the download.
 
 image:img/spine.png[]
 
 [[vegas]]
 === Vegas Pro by Magix
 
-Rhubarb Lip Sync also comes with two plugin scripts for Vegas Pro (previously Sony Vegas).  For more information, see the directory `extras/MagixVegas` of the download.
+Rhubarb Lip Sync also comes with two plugin scripts for Vegas Pro (previously Sony Vegas).  For more information, <<extras/MagixVegas/README.adoc#,follow this link>> or see the directory `extras/MagixVegas` of the download.
 
 image:img/vegas.png[]
 

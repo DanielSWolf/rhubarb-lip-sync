@@ -1,0 +1,29 @@
+= Animation script for Adobe After Effects
+
+The script in this directory generates After Effects compositions with mouth animation.
+
+== How to install
+
+=== 1. Download and extract
+
+Download the archive file containing Rhubarb Lip Sync, then extract in a directory on your computer.
+
+=== 2. Make Rhubarb available to After Effects
+
+On *Windows*, add the Rhubarb directory (the directory containing `rhubarb.exe`) to your `PATH` environment variable.
+
+On *OS X*, create a symbolic link to the executable (`rhubarb`) in `/usr/local/bin/`. You can do that by executing `ln -s /rhubarb-directory/rhubarb /usr/local/bin/` (make sure to replace `rhubarb-directory` with the actual directory).
+
+=== 3. Install After Effects script
+
+Copy (or symlink) the script file `Rhubarb Lip Sync.jsx` into your After Effects scripts directory.
+
+On *Windows*, that directory is usually `C:\Program Files\Adobe\Adobe After Effects <version>\Support Files\Scripts`.
+
+On *OS X*, that directory is usually `Applications/Adobe After Effects <version>/Scripts`.
+
+=== 4. (Re-)start After Effects
+
+== How to use
+
+In After Effects, select _File > Scripts > Rhubarb Lip Sync.jsx_. That will open a dialog window where you can specify the audio file with the dialog recording and a number of other options. To get information about any input field, just hover above it with your mouse and you’ll see a tooltip.

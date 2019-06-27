@@ -1,0 +1,23 @@
+= Scripts for Magix Vegas
+
+If you own a copy of http://www.vegascreativesoftware.com/[Magix Vegas] (previously Sony Vegas), you can use this script to visualize Rhubarb Lip Sync’s output on the timeline. This can be useful for creating lip-synced videos or for debugging.
+
+== Installation
+
+Copy (or symlink) the files in this directory to `<Vegas installation directory>\Script Menu`. When you restart Vegas, you’ll find two new menu items:
+
+* _Tools > Scripting > Import Rhubarb:_ This will create a new Vegas project and add two tracks: a video track with a visualization of Rhubarb Lip Sync’s output and an audio track with the original recording.
+* _Tools > Scripting > Debug Rhubarb:_ This will create markers or regions on the timeline visualizing Rhubarb Lip Sync’s internal data from a log file. You can obtain a log file by redirecting `+stdout+`. I’ve written this script mainly as a debugging aid for myself; feel free to contact me if you’re interested and need a more thorough explanation.
+
+== How to perform lip sync
+
+You cannot perform lip sync directly from the Vegas scripts. Instead, run Rhubarb Lip Sync from the command line, specifying the XML output format.
+
+== How to create an animation
+
+Select _Tools > Scripting > Import Rhubarb_. Fill in at least the following fields:
+
+* One image file: You need a set of image files, one for each mouth shapes. All image files should have the same size and should end with "`-<mouth shape>`", for instance _alison-a.png_, _alison-b.png_, and so on. Click the "`...`" button at the right of this field and select one of these image files. The script will automatically find the other image files.
+* XML file: Click the "`...`" button at the right of this field and select the XML file created by Rhubarb Lip Sync.
+
+Click _OK_ to create the animation.
