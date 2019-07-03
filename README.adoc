@@ -23,6 +23,7 @@ Rhubarb Lip Sync allows you to quickly create 2D mouth animation from voice reco
 Rhubarb Lip Sync integrates with the following applications:
 
 * *Adobe After Effects* (see <<afterEffects,below>>)
+* *Moho* and *OpenToonz* (see <<moho,below>>)
 * *Spine* by Esoteric Software (see <<spine,below>>)
 * *Vegas Pro* by Magix (see <<vegas,below>>)
 * *Visionaire Studio* (see https://www.visionaire-studio.net/forum/thread/mouth-animation-using-rhubarb-lip-sync[external link])
@@ -43,6 +44,13 @@ https://www.youtube.com/watch?v=zzdPSFJRlEo[image:http://img.youtube.com/vi/zzdP
 You can use Rhubarb Lip Sync to animate dialog right from Adobe After Effects. For more information, <<extras/AdobeAfterEffects/README.adoc#,follow this link>> or see the directory `extras/AdobeAfterEffects`.
 
 image:img/after-effects.png[]
+
+[[moho]]
+=== Moho and OpenToonz
+
+Rhubarb Lip Sync can create .dat switch data files, which are understood by Moho and OpenToonz. You can set the frame rate using the `--datFrameRate` option; to control the shape names, use the `--datUsePrestonBlair` flag. For more details, see <<options>>.
+
+image:img/moho.png[]
 
 [[spine]]
 === Spine by Esoteric Software
@@ -123,7 +131,7 @@ Rhubarb Lip Sync is a command-line tool that is currently available for Windows 
 
 The following command-line options are the most common:
 
-[cols="2,5"]
+[cols="2,5a"]
 |===
 | Option | Description
 
@@ -136,7 +144,7 @@ The following command-line options are the most common:
 _Default value: ``pocketSphinx``_
 
 | `-f` _<format>_, `--exportFormat` _<format>_
-| The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>).
+| The export format. Options: `tsv` (tab-separated values, see <<tsv,details>>), `xml` (see <<xml,details>>), `json` (see <<json,details>>), `dat` (see <<moho>>).
 
 _Default value: ``tsv``_
 
@@ -161,6 +169,33 @@ _Default value: ``GHX``_
 
 | `-h`, `--help`
 | Displays usage information and exits.
+
+| `--datFrameRate` _number_
+| Only valid when using the `dat` export format. Controls the frame rate for the output file.
+
+_Default value: 24_
+
+| `--datUsePrestonBlair`
+| Only valid when using the `dat` export format. Uses Preston Blair mouth shapes names instead of the default alphabetical ones. This applies the following mapping:
+
+!===
+! Alphabetic name ! Preston Blair name
+
+! A ! MBP
+! B ! etc
+! C ! E
+! D ! AI
+! E ! O
+! F ! U
+! G ! FV
+! H ! L
+! X ! rest
+!===
+
+CAUTION: This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
+
+TIP: For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
+
 |===
 
 ==== Advanced command-line options ====
