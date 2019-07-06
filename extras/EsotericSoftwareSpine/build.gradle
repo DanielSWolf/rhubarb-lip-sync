@@ -1,3 +1,7 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+}
+
 def getVersion() {
 	// Dynamically read version from CMake file
 	String text = new File('../../appInfo.cmake').getText('UTF-8')
@@ -12,29 +16,16 @@ def getVersion() {
 group 'com.rhubarb_lip_sync'
 version = getVersion()
 
-buildscript {
-	ext.kotlin_version = '1.1.60'
-
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-	}
-}
-
-apply plugin: 'kotlin'
-
 repositories {
 	mavenCentral()
 	jcenter()
 }
 
 dependencies {
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-	compile 'com.beust:klaxon:0.30'
-	compile 'org.apache.commons:commons-lang3:3.7'
-	compile 'no.tornado:tornadofx:1.7.12'
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation 'com.beust:klaxon:5.0.1'
+	implementation 'org.apache.commons:commons-lang3:3.9'
+	implementation 'no.tornado:tornadofx:1.7.19'
 }
 
 compileKotlin {

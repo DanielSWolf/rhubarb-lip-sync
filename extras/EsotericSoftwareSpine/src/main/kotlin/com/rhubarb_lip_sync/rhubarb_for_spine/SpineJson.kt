@@ -17,7 +17,7 @@ class SpineJson(private val filePath: Path) {
 			throw EndUserException("File '$filePath' does not exist.")
 		}
 		try {
-			json = Parser().parse(filePath.toString()) as JsonObject
+			json = Parser.default().parse(filePath.toString()) as JsonObject
 		} catch (e: Exception) {
 			throw EndUserException("Wrong file format. This is not a valid JSON file.")
 		}

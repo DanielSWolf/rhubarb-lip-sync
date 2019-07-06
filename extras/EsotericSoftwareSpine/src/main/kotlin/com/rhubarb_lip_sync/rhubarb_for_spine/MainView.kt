@@ -115,13 +115,13 @@ class MainView : View() {
 				placeholder = Label("There are no events with associated audio files.")
 				columnResizePolicy = SmartResize.POLICY
 				column("Event", AudioFileModel::eventNameProperty)
-					.weigthedWidth(1.0)
+					.weightedWidth(1.0)
 				column("Animation name", AudioFileModel::animationNameProperty)
-					.weigthedWidth(1.0)
+					.weightedWidth(1.0)
 				column("Audio file", AudioFileModel::displayFilePathProperty)
-					.weigthedWidth(1.0)
+					.weightedWidth(1.0)
 				column("Dialog", AudioFileModel::dialogProperty).apply {
-					weigthedWidth(3.0)
+					weightedWidth(3.0)
 					// Make dialog column wrap
 					setCellFactory { tableColumn ->
 						return@setCellFactory TableCell<AudioFileModel, String>().also { cell ->
@@ -138,7 +138,7 @@ class MainView : View() {
 					}
 				}
 				column("Status", AudioFileModel::audioFileStateProperty).apply {
-					weigthedWidth(1.0)
+					weightedWidth(1.0)
 					setCellFactory {
 						return@setCellFactory object : TableCell<AudioFileModel, AudioFileState>() {
 							override fun updateItem(state: AudioFileState?, empty: Boolean) {
@@ -176,7 +176,7 @@ class MainView : View() {
 					}
 				}
 				column("", AudioFileModel::actionLabelProperty).apply {
-					weigthedWidth(1.0)
+					weightedWidth(1.0)
 					// Show button
 					setCellFactory {
 						return@setCellFactory object : TableCell<AudioFileModel, String>() {
