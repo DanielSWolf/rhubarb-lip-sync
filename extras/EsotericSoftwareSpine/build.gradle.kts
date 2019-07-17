@@ -31,18 +31,25 @@ dependencies {
 	implementation("com.beust:klaxon:5.0.1")
 	implementation("org.apache.commons:commons-lang3:3.9")
 	implementation("no.tornado:tornadofx:1.7.19")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.5.0")
+	testCompile("org.assertj:assertj-core:3.11.1")
 }
 
 tasks.withType<KotlinCompile> {
 	kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.jar {
-	manifest {
-		attributes("Main-Class" to "com.rhubarb_lip_sync.rhubarb_for_spine.MainKt")
-	}
+tasks.test {
+	useJUnitPlatform()
 }
 
 tasks.shadowJar {
+	dependsOn(tasks.test)
+
+	// Modified by shadow plugin
 	archiveClassifier.set(null as String?)
+
+	manifest {
+		attributes("Main-Class" to "com.rhubarb_lip_sync.rhubarb_for_spine.MainKt")
+	}
 }
