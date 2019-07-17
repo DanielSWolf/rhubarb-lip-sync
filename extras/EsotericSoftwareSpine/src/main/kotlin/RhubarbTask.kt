@@ -1,9 +1,6 @@
 package com.rhubarb_lip_sync.rhubarb_for_spine
 
 import com.beust.klaxon.JsonObject
-import com.beust.klaxon.array
-import com.beust.klaxon.double
-import com.beust.klaxon.string
 import com.beust.klaxon.Parser as JsonParser
 import org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS
 import java.io.*
@@ -78,7 +75,7 @@ class RhubarbTask(
 		}
 	}
 
-	private val jsonParser = JsonParser()
+	private val jsonParser = JsonParser.default()
 	private fun parseJsonObject(jsonString: String): JsonObject {
 		return jsonParser.parse(StringReader(jsonString)) as JsonObject
 	}

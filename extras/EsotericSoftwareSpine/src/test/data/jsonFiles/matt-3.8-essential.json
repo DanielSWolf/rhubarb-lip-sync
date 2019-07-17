@@ -1,0 +1,72 @@
+{
+"skeleton": { "hash": "rSEJPpMBeapC2jv56cUew+IkQd0", "spine": "3.8.42-beta", "x": -394.13, "y": -0.43, "width": 795, "height": 1249.62 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "torso", "parent": "root", "length": 394.49, "rotation": 90, "y": 100 },
+	{ "name": "head", "parent": "torso", "length": 515.83, "x": 390 },
+	{ "name": "legs", "parent": "torso", "length": 79.85, "rotation": 180, "x": -6 }
+],
+"slots": [
+	{ "name": "legs", "bone": "legs", "attachment": "legs" },
+	{ "name": "torso", "bone": "torso", "attachment": "torso" },
+	{ "name": "head", "bone": "head", "attachment": "head" },
+	{ "name": "mouth", "bone": "head", "attachment": "mouth_c" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"mouth": {
+				"mouth_a": { "x": -53.21, "y": -2.6, "rotation": -90, "width": 118, "height": 27 },
+				"mouth_b": { "x": -38.68, "y": -0.88, "rotation": -90, "width": 170, "height": 59 },
+				"mouth_c": { "x": -45.57, "y": -2.21, "rotation": -90, "width": 145, "height": 71 },
+				"mouth_d": { "x": -50.58, "y": -16.55, "rotation": -90, "width": 122, "height": 91 },
+				"mouth_e": { "x": -47.51, "y": 1.69, "rotation": -90, "width": 105, "height": 73 },
+				"mouth_f": { "x": -42.7, "y": -1.9, "rotation": -90, "width": 55, "height": 54 },
+				"mouth_g": { "x": -42.77, "y": 2.56, "rotation": -90, "width": 141, "height": 37 },
+				"mouth_h": { "x": -44.53, "y": 1.07, "rotation": -90, "width": 141, "height": 71 }
+			},
+			"head": {
+				"head": { "x": 305.19, "y": -3.37, "rotation": -90, "width": 795, "height": 908 }
+			},
+			"legs": {
+				"legs": { "x": 20.93, "y": 9.45, "rotation": 90, "width": 602, "height": 147 }
+			},
+			"torso": {
+				"torso": { "x": 185.9, "y": 0.39, "rotation": -90, "width": 741, "height": 449 }
+			}
+		}
+	}
+],
+"events": {
+	"1-have-you-heard": { "audio": "1-have-you-heard.wav" },
+	"2-it's-a-tool": { "audio": "2-it's-a-tool.wav" },
+	"3-and-now-you-can": { "audio": "3-and-now-you-can.wav" }
+},
+"animations": {
+	"shake_head": {
+		"bones": {
+			"head": {
+				"rotate": [
+					{ "curve": 0.25, "c3": 0.75 },
+					{ "time": 0.1667, "angle": 10.02, "curve": 0.25, "c3": 0.75 },
+					{ "time": 0.5, "angle": -9.37, "curve": 0.25, "c3": 0.75 },
+					{ "time": 0.8333, "angle": 10.39, "curve": 0.574, "c3": 0.666 },
+					{ "time": 1.5 }
+				]
+			}
+		}
+	},
+	"walk": {
+		"bones": {
+			"torso": {
+				"translate": [
+					{ "curve": 0, "c2": 0.5, "c3": 0.75 },
+					{ "time": 0.1333, "y": 30, "curve": 0.25, "c4": 0.49 },
+					{ "time": 0.2667 }
+				]
+			}
+		}
+	}
+}
+}

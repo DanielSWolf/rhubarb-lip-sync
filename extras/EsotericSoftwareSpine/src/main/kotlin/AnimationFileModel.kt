@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
+import tornadofx.asObservable
 import java.nio.file.Path
 import tornadofx.getValue
 import tornadofx.observable
@@ -61,7 +62,7 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 				audioFileModel = AudioFileModel(event, this, executor, reportResult)
 				return@map audioFileModel
 			}
-			.observable()
+			.asObservable()
 	)
 	val audioFileModels: ObservableList<AudioFileModel> by audioFileModelsProperty
 
@@ -97,7 +98,7 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 	}
 
 	init {
-		slots = spineJson.slots.observable()
+		slots = spineJson.slots.asObservable()
 		mouthSlot = spineJson.guessMouthSlot()
 	}
 

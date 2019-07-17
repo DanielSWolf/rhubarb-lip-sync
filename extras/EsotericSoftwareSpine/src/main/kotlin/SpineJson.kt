@@ -17,13 +17,18 @@ class SpineJson(private val filePath: Path) {
 			throw EndUserException("File '$filePath' does not exist.")
 		}
 		try {
-			json = Parser().parse(filePath.toString()) as JsonObject
+			json = Parser.default().parse(filePath.toString()) as JsonObject
 		} catch (e: Exception) {
 			throw EndUserException("Wrong file format. This is not a valid JSON file.")
 		}
 		skeleton = json.obj("skeleton") ?: throw EndUserException("JSON file is corrupted.")
-		val skins = json.obj("skins") ?: throw EndUserException("JSON file doesn't contain skins.")
-		defaultSkin = skins.obj("default") ?: throw EndUserException("JSON file doesn't have a default skin.")
+		val skins = json["skins"] ?: throw EndUserException("JSON file doesn't contain skins.")
+		defaultSkin = when (skins) {
+			is JsonObject -> skins.obj("default")
+			is JsonArray<*> -> (skins as JsonArray<JsonObject>).find { it.string("name") == "default" }
+			else -> null
+		} ?: throw EndUserException("JSON file doesn't have a default skin.")
+
 		validateProperties()
 	}
 
@@ -35,7 +40,7 @@ class SpineJson(private val filePath: Path) {
 	private val imagesDirectoryPath: Path get() {
 		val relativeImagesDirectory = skeleton.string("images")
 			?: throw EndUserException("JSON file is incomplete: Images path is missing."
-				+ "Make sure to check 'Nonessential data' when exporting.")
+				+ " Make sure to check 'Nonessential data' when exporting.")
 
 		val imagesDirectoryPath = fileDirectoryPath.resolve(relativeImagesDirectory).normalize()
 		if (!Files.exists(imagesDirectoryPath)) {
@@ -49,7 +54,7 @@ class SpineJson(private val filePath: Path) {
 	val audioDirectoryPath: Path get() {
 		val relativeAudioDirectory = skeleton.string("audio")
 			?: throw EndUserException("JSON file is incomplete: Audio path is missing."
-			+ "Make sure to check 'Nonessential data' when exporting.")
+			+ " Make sure to check 'Nonessential data' when exporting.")
 
 		val audioDirectoryPath = fileDirectoryPath.resolve(relativeAudioDirectory).normalize()
 		if (!Files.exists(audioDirectoryPath)) {
@@ -91,7 +96,9 @@ class SpineJson(private val filePath: Path) {
 	}
 
 	fun getSlotAttachmentNames(slotName: String): List<String> {
-		val attachments = defaultSkin.obj(slotName) ?: JsonObject()
+		val attachments = defaultSkin.obj(slotName)
+			?: defaultSkin.obj("attachments")?.obj(slotName)
+			?: JsonObject()
 		return attachments.map { it.key }
 	}
 
@@ -142,8 +149,11 @@ class SpineJson(private val filePath: Path) {
 		animationNames.add(animationName)
 	}
 
+	override fun toString(): String {
+		return json.toJsonString(prettyPrint = true)
+	}
+
 	fun save() {
-		var string = json.toJsonString(prettyPrint = true)
-		Files.write(filePath, listOf(string), StandardCharsets.UTF_8)
+		Files.write(filePath, listOf(toString()), StandardCharsets.UTF_8)
 	}
 }

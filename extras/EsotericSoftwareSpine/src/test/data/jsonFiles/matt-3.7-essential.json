@@ -1,0 +1,121 @@
+{
+"skeleton": { "hash": "voNIQumqp3+UQAl32SwHzLMEDaI", "spine": "3.7.04-beta", "width": 795, "height": 1249.62 },
+"bones": [
+	{ "name": "root" },
+	{ "name": "torso", "parent": "root", "length": 394.49, "rotation": 90, "y": 100 },
+	{ "name": "head", "parent": "torso", "length": 515.83, "x": 390 },
+	{ "name": "legs", "parent": "torso", "length": 79.85, "rotation": 180, "x": -6 }
+],
+"slots": [
+	{ "name": "legs", "bone": "legs", "attachment": "legs" },
+	{ "name": "torso", "bone": "torso", "attachment": "torso" },
+	{ "name": "head", "bone": "head", "attachment": "head" },
+	{ "name": "mouth", "bone": "head", "attachment": "mouth_d" }
+],
+"skins": {
+	"default": {
+		"head": {
+			"head": { "x": 305.19, "y": -3.37, "rotation": -90, "width": 795, "height": 908 }
+		},
+		"legs": {
+			"legs": { "x": 20.93, "y": 9.45, "rotation": 90, "width": 602, "height": 147 }
+		},
+		"mouth": {
+			"mouth_a": { "x": -53.21, "y": -2.6, "rotation": -90, "width": 118, "height": 27 },
+			"mouth_b": { "x": -38.68, "y": -0.88, "rotation": -90, "width": 170, "height": 59 },
+			"mouth_c": { "x": -45.57, "y": -2.21, "rotation": -90, "width": 145, "height": 71 },
+			"mouth_d": { "x": -50.58, "y": -16.55, "rotation": -90, "width": 122, "height": 91 },
+			"mouth_e": { "x": -47.51, "y": 1.69, "rotation": -90, "width": 105, "height": 73 },
+			"mouth_f": { "x": -42.7, "y": -1.9, "rotation": -90, "width": 55, "height": 54 },
+			"mouth_g": { "x": -42.77, "y": 2.56, "rotation": -90, "width": 141, "height": 37 },
+			"mouth_h": { "x": -44.53, "y": 1.07, "rotation": -90, "width": 141, "height": 71 }
+		},
+		"torso": {
+			"torso": { "x": 185.9, "y": 0.39, "rotation": -90, "width": 741, "height": 449 }
+		}
+	}
+},
+"events": {
+	"doornail": {
+		"string": "Marley was dead: to begin with. There is no doubt whatever about that. The register of his burial was signed by the clergyman, the clerk, the undertaker, and the chief mourner. Scrooge signed it: and Scrooge's name was good upon 'Change, for anything he chose to put his hand to. Old Marley was as dead as a door-nail.Mind! I don't mean to say that I know, of my own knowledge, what there is particularly dead about a door-nail. I might have been inclined, myself, to regard a coffin-nail as the deadest piece of ironmongery in the trade. But the wisdom of our ancestors is in the simile; and my unhallowed hands shall not disturb it, or the Country's done for. You will therefore permit me to repeat, emphatically, that Marley was as dead as a door-nail.",
+		"audio": "doornail.wav"
+	},
+	"hi": { "audio": "hi.wav" }
+},
+"animations": {
+	"say_test": {
+		"slots": {
+			"mouth": {
+				"attachment": [
+					{ "time": 0, "name": "mouth_a" },
+					{ "time": 0.1, "name": "mouth_b" },
+					{ "time": 0.2, "name": "mouth_c" },
+					{ "time": 0.2667, "name": "mouth_d" },
+					{ "time": 0.3667, "name": "mouth_c" },
+					{ "time": 0.4333, "name": "mouth_a" },
+					{ "time": 0.5333, "name": "mouth_e" },
+					{ "time": 0.6, "name": "mouth_f" },
+					{ "time": 0.7, "name": "mouth_e" },
+					{ "time": 0.8, "name": "mouth_g" },
+					{ "time": 0.8667, "name": "mouth_c" },
+					{ "time": 0.9667, "name": "mouth_h" },
+					{ "time": 1.0667, "name": "mouth_a" }
+				]
+			}
+		},
+		"events": [
+			{ "time": 0.8667, "name": "doornail", "string": "" }
+		]
+	},
+	"shake_head": {
+		"bones": {
+			"head": {
+				"rotate": [
+					{
+						"time": 0,
+						"angle": 0,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.1667,
+						"angle": 10.02,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.5,
+						"angle": -9.37,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.8333,
+						"angle": 10.39,
+						"curve": [ 0.574, 0, 0.666, 1 ]
+					},
+					{ "time": 1.5, "angle": 0 }
+				]
+			}
+		}
+	},
+	"walk": {
+		"bones": {
+			"torso": {
+				"translate": [
+					{
+						"time": 0,
+						"x": 0,
+						"y": 0,
+						"curve": [ 0, 0.5, 0.75, 1 ]
+					},
+					{
+						"time": 0.1333,
+						"x": 0,
+						"y": 30,
+						"curve": [ 0.25, 0, 1, 0.49 ]
+					},
+					{ "time": 0.2667, "x": 0, "y": 0 }
+				]
+			}
+		}
+	}
+}
+}
