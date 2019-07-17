@@ -22,8 +22,13 @@ class SpineJson(private val filePath: Path) {
 			throw EndUserException("Wrong file format. This is not a valid JSON file.")
 		}
 		skeleton = json.obj("skeleton") ?: throw EndUserException("JSON file is corrupted.")
-		val skins = json.obj("skins") ?: throw EndUserException("JSON file doesn't contain skins.")
-		defaultSkin = skins.obj("default") ?: throw EndUserException("JSON file doesn't have a default skin.")
+		val skins = json["skins"] ?: throw EndUserException("JSON file doesn't contain skins.")
+		defaultSkin = when (skins) {
+			is JsonObject -> skins.obj("default")
+			is JsonArray<*> -> (skins as JsonArray<JsonObject>).find { it.string("name") == "default" }
+			else -> null
+		} ?: throw EndUserException("JSON file doesn't have a default skin.")
+
 		validateProperties()
 	}
 
@@ -91,7 +96,9 @@ class SpineJson(private val filePath: Path) {
 	}
 
 	fun getSlotAttachmentNames(slotName: String): List<String> {
-		val attachments = defaultSkin.obj(slotName) ?: JsonObject()
+		val attachments = defaultSkin.obj(slotName)
+			?: defaultSkin.obj("attachments")?.obj(slotName)
+			?: JsonObject()
 		return attachments.map { it.key }
 	}
 
@@ -142,8 +149,11 @@ class SpineJson(private val filePath: Path) {
 		animationNames.add(animationName)
 	}
 
+	override fun toString(): String {
+		return json.toJsonString(prettyPrint = true)
+	}
+
 	fun save() {
-		var string = json.toJsonString(prettyPrint = true)
-		Files.write(filePath, listOf(string), StandardCharsets.UTF_8)
+		Files.write(filePath, listOf(toString()), StandardCharsets.UTF_8)
 	}
 }

@@ -3,6 +3,7 @@
 ## Unreleased
 
 * **Added** switch data file exporter for Moho (formerly Anime Studio) and OpenToonz ([issue #69](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/69))
+* **Added** support for Spine 3.8 beta ([issue #74](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/74))
 * **Improved** animation rule for OW sound: animating it as E-F rather than F.
 
 ## Version 1.9.1
