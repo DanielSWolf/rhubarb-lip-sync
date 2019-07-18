@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.10.0
 
 * **Added** switch data file exporter for Moho (formerly Anime Studio) and OpenToonz ([issue #69](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/69))
 * **Added** support for Spine 3.8 beta ([issue #74](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/74))
