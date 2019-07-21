@@ -1,10 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
 	kotlin("jvm") version "1.3.41"
-	id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 fun getVersion(): String {
@@ -43,13 +41,10 @@ tasks.test {
 	useJUnitPlatform()
 }
 
-tasks.shadowJar {
-	dependsOn(tasks.test)
-
-	// Modified by shadow plugin
-	archiveClassifier.set(null as String?)
-
+tasks.withType<Jar> {
 	manifest {
 		attributes("Main-Class" to "com.rhubarb_lip_sync.rhubarb_for_spine.MainKt")
 	}
+
+	from(configurations.compileClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
 }
