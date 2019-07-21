@@ -1,4 +1,0 @@
-#include "appInfo.h"
-
-const std::string appName = "@appName@";
-const std::string appVersion = "@appVersion@";
