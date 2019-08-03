@@ -21,3 +21,13 @@ deploy:
   tag_name: $TRAVIS_TAG
   name: $TRAVIS_COMMIT_MESSAGE
   draft: true
+
+# Enable caching of dependencies.
+# See https://guides.gradle.org/executing-gradle-builds-on-travisci/#enable_caching_of_downloaded_artifacts
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
