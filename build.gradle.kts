@@ -1,4 +1,8 @@
 plugins {
+	// Build scan plugin should be listed first.
+	// See https://guides.gradle.org/creating-build-scans/#enable_build_scans_on_all_builds_of_your_project
+	id("com.gradle.build-scan") version "2.1"
+
 	// Sets up standard lifecycle tasks like `build` and `assemble`.
 	// Also required for the Zip task to compute its archive file name.
 	base
@@ -21,4 +25,9 @@ tasks {
 	assemble {
 		dependsOn(zip)
 	}
+}
+
+buildScan {
+	termsOfServiceUrl = "https://gradle.com/terms-of-service"
+	termsOfServiceAgree = "yes"
 }
