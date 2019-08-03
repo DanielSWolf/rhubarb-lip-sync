@@ -1,39 +1,20 @@
-language: cpp
+language: java
 
-sudo: required
-dist: trusty
-group: deprecated-2017Q4
+os: linux
+jdk: oraclejdk8
 
-matrix:
-  include:
-    - os: linux
-      compiler: gcc
-      before_install:
-        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-        - sudo apt-get -q update
-      install:
-        - sudo apt-get -y install g++-5
-        - sudo apt-get -y install libboost-all-dev
-      script:
-        - mkdir build
-        - cd build
-        - cmake -DCMAKE_CXX_COMPILER=g++-5 ..
-        - cmake --build . --config Release --target package
-        - ./rhubarb/runTests
-    - os: osx
-      osx_image: xcode7.3
-      script:
-        - mkdir build
-        - cd build
-        - cmake ..
-        - cmake --build . --config Release --target package
-        - ./rhubarb/runTests
+# Don't call `./gradlew assemble`
+install: []
+
+script:
+  - ./gradlew build --scan --stacktrace
+
 deploy:
   # Deploy to GitHub releases
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
   file_glob: true
-  file: "./rhubarb-lip-sync-*.zip"
+  file: "./build/distributions/rhubarb-lip-sync-*.zip"
   skip_cleanup: true
   on:
     tags: true
