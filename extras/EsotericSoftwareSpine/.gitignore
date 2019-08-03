@@ -1,8 +1,0 @@
-# Directory is generated when importing Gradle project
-/.idea/
-
-*.iml
-/.gradle/
-/build/
-/out/
-/tmp/

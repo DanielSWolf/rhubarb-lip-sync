@@ -1,3 +1,6 @@
-.vs/
+.idea/
+.gradle/
+.vscode/
 build/
+out/
 *.user
