@@ -18,9 +18,10 @@ dependencies {
 	testCompile("org.assertj:assertj-core:3.11.1")
 }
 
-tasks {
-	var distDirectory = File(project.buildDir, "distributions")
+val distsDirName = convention.getPlugin(BasePluginConvention::class).distsDirName
+var distDirectory = File(project.buildDir, distsDirName)
 
+tasks {
 	withType<KotlinCompile> {
 		kotlinOptions.jvmTarget = "1.8"
 	}

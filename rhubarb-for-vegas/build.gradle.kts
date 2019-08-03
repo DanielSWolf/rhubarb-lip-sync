@@ -1,7 +1,12 @@
-tasks {
-	var distDirectory = File(project.buildDir, "distributions")
+val distsDirName = convention.getPlugin(BasePluginConvention::class).distsDirName
+var distDirectory = File(project.buildDir, distsDirName)
 
-	val assemble by creating(Copy::class) {
+plugins {
+	base
+}
+
+tasks {
+	val copy by creating(Copy::class) {
 		from(listOf(
 			"Debug Rhubarb.cs",
 			"Debug Rhubarb.cs.config",
@@ -12,7 +17,7 @@ tasks {
 		into(distDirectory)
 	}
 
-	create("build") {
-		dependsOn(assemble)
+	assemble {
+		dependsOn(copy)
 	}
 }

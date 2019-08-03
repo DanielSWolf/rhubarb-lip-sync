@@ -1,12 +1,17 @@
-tasks {
-	var distDirectory = File(project.buildDir, "distributions")
+plugins {
+	base
+}
 
-	val assemble by creating(Copy::class) {
+val distsDirName = convention.getPlugin(BasePluginConvention::class).distsDirName
+var distDirectory = File(project.buildDir, distsDirName)
+
+tasks {
+	val copy by creating(Copy::class) {
 		from(listOf("Rhubarb Lip Sync.jsx", "README.adoc"))
 		into(distDirectory)
 	}
-
-	val build by creating {
-		dependsOn(assemble)
+	
+	assemble {
+		dependsOn(copy)
 	}
 }
