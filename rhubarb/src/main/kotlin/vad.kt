@@ -162,8 +162,8 @@ data class GaussianProbabilityResult(
 	val delta: Int
 )
 
-val kCompVar = 22005;
-val kLog2Exp = 5909; // log2(exp(1)) in Q12.
+val kCompVar = 22005
+val kLog2Exp = 5909 // log2(exp(1)) in Q12.
 
 // Calculates the probability for [input], given that [input] comes from a
 // normal distribution with mean and standard deviation ([mean], [std]).
@@ -235,7 +235,7 @@ fun GaussianProbability(input: Int, mean: Int, std: Int): GaussianProbabilityRes
 		exp_value = 0x0400 or (tmp16 and 0x03FF)
 		tmp16 = tmp16 xor 0xFFFF
 		tmp16 = tmp16 shr 10
-		tmp16 += 1;
+		tmp16 += 1
 		// Get [exp_value] = exp(-[tmp32]) in Q10.
 		exp_value = exp_value shr tmp16
 	}
@@ -397,7 +397,7 @@ fun WeightedAverage(data: IntArray, channel: Int, offset: Int, weights: IntArray
 //
 // - returns              : the VAD decision (0 - noise, 1 - speech).
 fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_length: Int): Int {
-	var vadflag = 0;
+	var vadflag = 0
 	var tmp_s16: Int
 	var tmp1_s16: Int
 	var tmp2_s16: Int
@@ -409,7 +409,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 	val noise_probability = IntArray(kNumGaussians)
 	val speech_probability = IntArray(kNumGaussians)
 
-	assert(frame_length == 80);
+	assert(frame_length == 80)
 
 	if (total_power > kMinEnergy) {
 		// The signal power of current frame is large enough for processing. The
@@ -430,21 +430,21 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 			var h0_test = 0
 			var h1_test = 0
 			for (k in 0 until kNumGaussians) {
-				val gaussian = channel + k * kNumChannels;
+				val gaussian = channel + k * kNumChannels
 
 				// Probability under H0, that is, probability of frame being noise.
 				// Value given in Q27 = Q7 * Q20.
 				val pNoise = GaussianProbability(features[channel], self.noise_means[gaussian], self.noise_stds[gaussian])
 				deltaN[gaussian] = pNoise.delta
 				noise_probability[k] = kNoiseDataWeights[gaussian] * pNoise.probability
-				h0_test += noise_probability[k]; // Q27
+				h0_test += noise_probability[k] // Q27
 
 				// Probability under H1, that is, probability of frame being speech.
 				// Value given in Q27 = Q7 * Q20.
 				val pSpeech = GaussianProbability(features[channel], self.speech_means[gaussian], self.speech_stds[gaussian])
 				speech_probability[k] = kSpeechDataWeights[gaussian] * pSpeech.probability
 				deltaS[gaussian] = pSpeech.delta
-				h1_test += speech_probability[k]; // Q27
+				h1_test += speech_probability[k] // Q27
 			}
 
 			// Calculate the log likelihood ratio: log2(Pr{X|H1} / Pr{X|H1}).
@@ -461,7 +461,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 			// Further, b0 and b1 are independent and on the average the two terms cancel.
 			val shifts_h0 = if (h0_test != 0) NormW32(h0_test) else 31
 			val shifts_h1 = if (h1_test != 0) NormW32(h1_test) else 31
-			val log_likelihood_ratio = shifts_h0 - shifts_h1;
+			val log_likelihood_ratio = shifts_h0 - shifts_h1
 
 			// Update [sum_log_likelihood_ratios] with spectrum weighting. This is
 			// used for the global VAD decision.
@@ -480,22 +480,22 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 				// High probability of noise. Assign conditional probabilities for each
 				// Gaussian in the GMM.
 				val tmp = (noise_probability[0] and 0xFFFFF000u.toInt()) shl 2 // Q29
-				ngprvec[channel] = DivW32W16(tmp, h0); // Q14
-				ngprvec[channel + kNumChannels] = 16384 - ngprvec[channel];
+				ngprvec[channel] = DivW32W16(tmp, h0) // Q14
+				ngprvec[channel + kNumChannels] = 16384 - ngprvec[channel]
 			} else {
 				// Low noise probability. Assign conditional probability 1 to the first
 				// Gaussian and 0 to the rest (which is already set at initialization).
-				ngprvec[channel] = 16384;
+				ngprvec[channel] = 16384
 			}
 
 			// Calculate local speech probabilities used later when updating the GMM.
-			val h1 = (h1_test shr 12); // Q15
+			val h1 = (h1_test shr 12) // Q15
 			if (h1 > 0) {
 				// High probability of speech. Assign conditional probabilities for each
 				// Gaussian in the GMM. Otherwise use the initialized values, i.e., 0.
-				val tmp = (speech_probability[0] and 0xFFFFF000u.toInt()) shl 2; // Q29
+				val tmp = (speech_probability[0] and 0xFFFFF000u.toInt()) shl 2 // Q29
 				sgprvec[channel] = DivW32W16(tmp, h1) // Q14
-				sgprvec[channel + kNumChannels] = 16384 - sgprvec[channel];
+				sgprvec[channel + kNumChannels] = 16384 - sgprvec[channel]
 			}
 		}
 
@@ -515,13 +515,13 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 			for (k in 0 until kNumGaussians) {
 				val gaussian = channel + k * kNumChannels
 
-				val nmk = self.noise_means[gaussian];
-				val smk = self.speech_means[gaussian];
-				var nsk = self.noise_stds[gaussian];
-				var ssk = self.speech_stds[gaussian];
+				val nmk = self.noise_means[gaussian]
+				val smk = self.speech_means[gaussian]
+				var nsk = self.noise_stds[gaussian]
+				var ssk = self.speech_stds[gaussian]
 
 				// Update noise mean vector if the frame consists of noise only.
-				var nmk2 = nmk;
+				var nmk2 = nmk
 				if (vadflag == 0) {
 					// deltaN = (x-mu)/sigma^2
 					// ngprvec[k] = |noise_probability[k]| /
@@ -535,7 +535,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 
 				// Long term correction of the noise mean.
 				// Q8 - Q8 = Q8.
-				val ndelt = (feature_minimum shl 4) - tmp1_s16;
+				val ndelt = (feature_minimum shl 4) - tmp1_s16
 				// Q7 + (Q8 * Q8) shr 9 = Q7.
 				var nmk3 = nmk2 + ((ndelt * kBackEta) shr 9)
 
@@ -548,7 +548,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 				if (nmk3 > tmp_s16) {
 					nmk3 = tmp_s16
 				}
-				self.noise_means[gaussian] = nmk3;
+				self.noise_means[gaussian] = nmk3
 
 				if (vadflag != 0) {
 					// Update speech mean vector:
@@ -561,76 +561,76 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 					// Q14 * Q15 shr 21 = Q8.
 					tmp_s16 = (delt * kSpeechUpdateConst) shr 21
 					// Q7 + (Q8 shr 1) = Q7. With rounding.
-					var smk2 = smk + ((tmp_s16 + 1) shr 1);
+					var smk2 = smk + ((tmp_s16 + 1) shr 1)
 
 					// Control that the speech mean does not drift to much.
-					val maxmu = maxspe + 640;
+					val maxmu = maxspe + 640
 					if (smk2 < kMinimumMean[k]) {
-						smk2 = kMinimumMean[k];
+						smk2 = kMinimumMean[k]
 					}
 					if (smk2 > maxmu) {
-						smk2 = maxmu;
+						smk2 = maxmu
 					}
-					self.speech_means[gaussian] = smk2; // Q7.
+					self.speech_means[gaussian] = smk2 // Q7.
 
 					// (Q7 shr 3) = Q4. With rounding.
-					tmp_s16 = ((smk + 4) shr 3);
+					tmp_s16 = ((smk + 4) shr 3)
 
-					tmp_s16 = features[channel] - tmp_s16; // Q4
+					tmp_s16 = features[channel] - tmp_s16 // Q4
 					// (Q11 * Q4 shr 3) = Q12.
-					var tmp1_s32 = (deltaS[gaussian] * tmp_s16) shr 3;
-					var tmp2_s32 = tmp1_s32 - 4096;
-					tmp_s16 = sgprvec[gaussian] shr 2;
+					var tmp1_s32 = (deltaS[gaussian] * tmp_s16) shr 3
+					var tmp2_s32 = tmp1_s32 - 4096
+					tmp_s16 = sgprvec[gaussian] shr 2
 					// (Q14 shr 2) * Q12 = Q24.
-					tmp1_s32 = tmp_s16 * tmp2_s32;
+					tmp1_s32 = tmp_s16 * tmp2_s32
 
-					tmp2_s32 = tmp1_s32 shr 4; // Q20
+					tmp2_s32 = tmp1_s32 shr 4 // Q20
 
 					// 0.1 * Q20 / Q7 = Q13.
 					if (tmp2_s32 > 0) {
-						tmp_s16 = DivW32W16(tmp2_s32, ssk * 10);
+						tmp_s16 = DivW32W16(tmp2_s32, ssk * 10)
 					} else {
-						tmp_s16 = DivW32W16(-tmp2_s32, ssk * 10);
-						tmp_s16 = -tmp_s16;
+						tmp_s16 = DivW32W16(-tmp2_s32, ssk * 10)
+						tmp_s16 = -tmp_s16
 					}
 					// Divide by 4 giving an update factor of 0.025 (= 0.1 / 4).
 					// Note that division by 4 equals shift by 2, hence,
 					// (Q13 shr 8) = (Q13 shr 6) / 4 = Q7.
-					tmp_s16 += 128; // Rounding.
-					ssk += (tmp_s16 shr 8);
+					tmp_s16 += 128 // Rounding.
+					ssk += (tmp_s16 shr 8)
 					if (ssk < kMinStd) {
-						ssk = kMinStd;
+						ssk = kMinStd
 					}
-					self.speech_stds[gaussian] = ssk;
+					self.speech_stds[gaussian] = ssk
 				} else {
 					// Update GMM variance vectors.
 					// deltaN * (features[channel] - nmk) - 1
 					// Q4 - (Q7 shr 3) = Q4.
-					tmp_s16 = features[channel] - (nmk shr 3);
+					tmp_s16 = features[channel] - (nmk shr 3)
 					// (Q11 * Q4 shr 3) = Q12.
-					var tmp1_s32 = (deltaN[gaussian] * tmp_s16) shr 3;
-					tmp1_s32 -= 4096;
+					var tmp1_s32 = (deltaN[gaussian] * tmp_s16) shr 3
+					tmp1_s32 -= 4096
 
 					// (Q14 shr 2) * Q12 = Q24.
-					tmp_s16 = (ngprvec[gaussian] + 2) shr 2;
-					val tmp2_s32 = tmp_s16 * tmp1_s32;
+					tmp_s16 = (ngprvec[gaussian] + 2) shr 2
+					val tmp2_s32 = tmp_s16 * tmp1_s32
 					// Q20  * approx 0.001 (2^-10=0.0009766), hence,
 					// (Q24 shr 14) = (Q24 shr 4) / 2^10 = Q20.
-					tmp1_s32 = tmp2_s32 shr 14;
+					tmp1_s32 = tmp2_s32 shr 14
 
 					// Q20 / Q7 = Q13.
 					if (tmp1_s32 > 0) {
-						tmp_s16 = DivW32W16(tmp1_s32, nsk);
+						tmp_s16 = DivW32W16(tmp1_s32, nsk)
 					} else {
-						tmp_s16 = DivW32W16(-tmp1_s32, nsk);
-						tmp_s16 = -tmp_s16;
+						tmp_s16 = DivW32W16(-tmp1_s32, nsk)
+						tmp_s16 = -tmp_s16
 					}
-					tmp_s16 += 32; // Rounding
-					nsk += tmp_s16 shr 6; // Q13 shr 6 = Q7.
+					tmp_s16 += 32 // Rounding
+					nsk += tmp_s16 shr 6 // Q13 shr 6 = Q7.
 					if (nsk < kMinStd) {
-						nsk = kMinStd;
+						nsk = kMinStd
 					}
-					self.noise_stds[gaussian] = nsk;
+					self.noise_stds[gaussian] = nsk
 				}
 			}
 
@@ -643,9 +643,9 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 
 			// [diff] = "global" speech mean - "global" noise mean.
 			// (Q14 shr 9) - (Q14 shr 9) = Q5.
-			val diff = (speech_global_mean shr 9) - (noise_global_mean shr 9);
+			val diff = (speech_global_mean shr 9) - (noise_global_mean shr 9)
 			if (diff < kMinimumDifference[channel]) {
-				tmp_s16 = kMinimumDifference[channel] - diff;
+				tmp_s16 = kMinimumDifference[channel] - diff
 
 				// [tmp1_s16] = ~0.8 * (kMinimumDifference - diff) in Q7.
 				// [tmp2_s16] = ~0.2 * (kMinimumDifference - diff) in Q7.
@@ -664,53 +664,53 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 			}
 
 			// Control that the speech & noise means do not drift to much.
-			maxspe = kMaximumSpeech[channel];
+			maxspe = kMaximumSpeech[channel]
 			tmp2_s16 = speech_global_mean shr 7
 			if (tmp2_s16 > maxspe) {
 				// Upper limit of speech model.
-				tmp2_s16 -= maxspe;
+				tmp2_s16 -= maxspe
 
 				for (k in 0 until kNumGaussians) {
-					self.speech_means[channel + k * kNumChannels] -= tmp2_s16;
+					self.speech_means[channel + k * kNumChannels] -= tmp2_s16
 				}
 			}
 
 			tmp2_s16 = noise_global_mean shr 7
 			if (tmp2_s16 > kMaximumNoise[channel]) {
-				tmp2_s16 -= kMaximumNoise[channel];
+				tmp2_s16 -= kMaximumNoise[channel]
 
 				for (k in 0 until kNumGaussians) {
-					self.noise_means[channel + k * kNumChannels] -= tmp2_s16;
+					self.noise_means[channel + k * kNumChannels] -= tmp2_s16
 				}
 			}
 		}
-		self.frame_counter++;
+		self.frame_counter++
 	}
 
 	// Smooth with respect to transition hysteresis.
 	if (vadflag == 0) {
 		if (self.over_hang > 0) {
-			vadflag = 2 + self.over_hang;
-			self.over_hang--;
+			vadflag = 2 + self.over_hang
+			self.over_hang--
 		}
-		self.num_of_speech = 0;
+		self.num_of_speech = 0
 	} else {
-		self.num_of_speech++;
+		self.num_of_speech++
 		if (self.num_of_speech > kMaxSpeechFrames) {
-			self.num_of_speech = kMaxSpeechFrames;
-			self.over_hang = self.over_hang_max_2;
+			self.num_of_speech = kMaxSpeechFrames
+			self.over_hang = self.over_hang_max_2
 		} else {
-			self.over_hang = self.over_hang_max_1;
+			self.over_hang = self.over_hang_max_1
 		}
 	}
-	return vadflag;
+	return vadflag
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // webrtc/common_audio/vad/vad_sp.c
 
-val kSmoothingDown = 6553; // 0.2 in Q15.
-val kSmoothingUp = 32439; // 0.99 in Q15.
+val kSmoothingDown = 6553 // 0.2 in Q15.
+val kSmoothingUp = 32439 // 0.99 in Q15.
 
 // Updates and returns the smoothed feature minimum. As minimum we use the
 // median of the five smallest feature values in a 100 frames long window.
@@ -731,9 +731,9 @@ val kSmoothingUp = 32439; // 0.99 in Q15.
 // of the five smallest values.
 fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	var position = -1
-	var current_median = 1600;
-	var alpha = 0;
-	var tmp32 = 0;
+	var current_median = 1600
+	var alpha = 0
+	var tmp32 = 0
 	val offset = channel shl 4
 
 	// Accessor for the age of each value of the [channel]
@@ -748,21 +748,21 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 		inline operator fun set(i: Int, value: Int) { self.low_value_vector[offset + i] = value }
 	}
 
-	assert(channel < kNumChannels);
+	assert(channel < kNumChannels)
 
 	// Each value in [smallest_values] is getting 1 loop older. Update [age], and
 	// remove old values.
 	for (i in 0 until 16) {
 		if (age[i] != 100) {
-			age[i]++;
+			age[i]++
 		} else {
 			// Too old value. Remove from memory and shift larger values downwards.
 			for (j in i until 16) {
-				smallest_values[j] = smallest_values[j + 1];
-				age[j] = age[j + 1];
+				smallest_values[j] = smallest_values[j + 1]
+				age[j] = age[j + 1]
 			}
-			age[15] = 101;
-			smallest_values[15] = 10000;
+			age[15] = 101
+			smallest_values[15] = 10000
 		}
 	}
 
@@ -773,49 +773,49 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 		if (feature_value < smallest_values[3]) {
 			if (feature_value < smallest_values[1]) {
 				if (feature_value < smallest_values[0]) {
-					position = 0;
+					position = 0
 				} else {
-					position = 1;
+					position = 1
 				}
 			} else if (feature_value < smallest_values[2]) {
-				position = 2;
+				position = 2
 			} else {
-				position = 3;
+				position = 3
 			}
 		} else if (feature_value < smallest_values[5]) {
 			if (feature_value < smallest_values[4]) {
-				position = 4;
+				position = 4
 			} else {
-				position = 5;
+				position = 5
 			}
 		} else if (feature_value < smallest_values[6]) {
-			position = 6;
+			position = 6
 		} else {
-			position = 7;
+			position = 7
 		}
 	} else if (feature_value < smallest_values[15]) {
 		if (feature_value < smallest_values[11]) {
 			if (feature_value < smallest_values[9]) {
 				if (feature_value < smallest_values[8]) {
-					position = 8;
+					position = 8
 				} else {
-					position = 9;
+					position = 9
 				}
 			} else if (feature_value < smallest_values[10]) {
-				position = 10;
+				position = 10
 			} else {
-				position = 11;
+				position = 11
 			}
 		} else if (feature_value < smallest_values[13]) {
 			if (feature_value < smallest_values[12]) {
-				position = 12;
+				position = 12
 			} else {
-				position = 13;
+				position = 13
 			}
 		} else if (feature_value < smallest_values[14]) {
-			position = 14;
+			position = 14
 		} else {
-			position = 15;
+			position = 15
 		}
 	}
 
@@ -823,42 +823,42 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	// and shift larger values up.
 	if (position > -1) {
 		for (i in 15 downTo position + 1) {
-			smallest_values[i] = smallest_values[i - 1];
-			age[i] = age[i - 1];
+			smallest_values[i] = smallest_values[i - 1]
+			age[i] = age[i - 1]
 		}
-		smallest_values[position] = feature_value;
-		age[position] = 1;
+		smallest_values[position] = feature_value
+		age[position] = 1
 	}
 
 	// Get [current_median].
 	if (self.frame_counter > 2) {
-		current_median = smallest_values[2];
+		current_median = smallest_values[2]
 	} else if (self.frame_counter > 0) {
-		current_median = smallest_values[0];
+		current_median = smallest_values[0]
 	}
 
 	// Smooth the median value.
 	if (self.frame_counter > 0) {
 		if (current_median < self.mean_value[channel]) {
-			alpha = kSmoothingDown; // 0.2 in Q15.
+			alpha = kSmoothingDown // 0.2 in Q15.
 		} else {
-			alpha = kSmoothingUp; // 0.99 in Q15.
+			alpha = kSmoothingUp // 0.99 in Q15.
 		}
 	}
-	tmp32 = (alpha + 1) * self.mean_value[channel];
-	tmp32 += (WEBRTC_SPL_WORD16_MAX - alpha) * current_median;
-	tmp32 += 16384;
+	tmp32 = (alpha + 1) * self.mean_value[channel]
+	tmp32 += (WEBRTC_SPL_WORD16_MAX - alpha) * current_median
+	tmp32 += 16384
 	self.mean_value[channel] = tmp32 shr 15
 
-	return self.mean_value[channel];
+	return self.mean_value[channel]
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // webrtc/common_audio/vad/vad_filterbank.c
 
 // Constants used in LogOfEnergy().
-val kLogConst = 24660; // 160*log10(2) in Q9.
-val kLogEnergyIntPart = 14336; // 14 in Q10
+val kLogConst = 24660 // 160*log10(2) in Q9.
+val kLogEnergyIntPart = 14336 // 14 in Q10
 
 // Coefficients used by HighPassFilter, Q14.
 val kHpZeroCoefs = intArrayOf(6631, -13262, 6631)
@@ -893,15 +893,15 @@ fun HighPassFilter(input: AudioBuffer, filter_state: IntArray): AudioBuffer {
 	for (i in 0 until input.size) {
 		// All-zero section (filter coefficients in Q14).
 		var tmp32 = kHpZeroCoefs[0] * input[i]
-		tmp32 += kHpZeroCoefs[1] * filter_state[0];
-		tmp32 += kHpZeroCoefs[2] * filter_state[1];
-		filter_state[1] = filter_state[0];
+		tmp32 += kHpZeroCoefs[1] * filter_state[0]
+		tmp32 += kHpZeroCoefs[2] * filter_state[1]
+		filter_state[1] = filter_state[0]
 		filter_state[0] = input[i].toInt()
 
 		// All-pole section (filter coefficients in Q14).
-		tmp32 -= kHpPoleCoefs[1] * filter_state[2];
-		tmp32 -= kHpPoleCoefs[2] * filter_state[3];
-		filter_state[3] = filter_state[2];
+		tmp32 -= kHpPoleCoefs[1] * filter_state[2]
+		tmp32 -= kHpPoleCoefs[2] * filter_state[3]
+		filter_state[3] = filter_state[2]
 		filter_state[2] = tmp32 shr 14
 		result[i] = filter_state[2].toShort()
 	}
@@ -931,8 +931,8 @@ fun AllPassFilter(input: AudioBuffer, filter_coefficient: Int, filter_state: Mut
 		val tmp32 = state32 + filter_coefficient * input[i]
 		val tmp16 = tmp32 shr 16 // Q(-1)
 		result[i / 2] = tmp16.toShort()
-		state32 = (input[i] * (1 shl 14)) - filter_coefficient * tmp16; // Q14
-		state32 *= 2; // Q15.
+		state32 = (input[i] * (1 shl 14)) - filter_coefficient * tmp16 // Q14
+		state32 *= 2 // Q15.
 	}
 	filter_state.setValue(state32 shr 16) // Q(-1)
 
@@ -989,7 +989,7 @@ fun SplitFilter(input: AudioBuffer, upper_state: MutableInt, lower_state: Mutabl
 //                        [total_energy] <= [kMinEnergy].
 // - log_energy   [o]   : 10 * log10("energy of [data_in]") given in Q4.
 fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int {
-	assert(input.size > 0);
+	assert(input.size > 0)
 
 	val energyResult = Energy(input)
 	// [tot_rshifts] accumulates the number of right shifts performed on [energy].
@@ -1004,13 +1004,13 @@ fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int 
 
 	// By construction, normalizing to 15 bits is equivalent with 17 leading
 	// zeros of an unsigned 32 bit value.
-	val normalizing_rshifts = 17 - NormU32(energy);
+	val normalizing_rshifts = 17 - NormU32(energy)
 	// In a 15 bit representation the leading bit is 2^14. log2(2^14) in Q10 is
 	// (14 shl 10), which is what we initialize [log2_energy] with. For a more
 	// detailed derivations, see below.
-	var log2_energy = kLogEnergyIntPart;
+	var log2_energy = kLogEnergyIntPart
 
-	tot_rshifts += normalizing_rshifts;
+	tot_rshifts += normalizing_rshifts
 	// Normalize [energy] to 15 bits.
 	// [tot_rshifts] is now the total number of right shifts performed on
 	// [energy] after normalization. This means that [energy] is in
@@ -1048,10 +1048,10 @@ fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int 
 	var log_energy = (((kLogConst * log2_energy) shr 19) + (tot_rshifts * kLogConst) shr 9)
 
 	if (log_energy < 0) {
-		log_energy = 0;
+		log_energy = 0
 	}
 
-	log_energy += offset;
+	log_energy += offset
 
 	// Update the approximate [total_energy] with the energy of [data_in], if
 	// [total_energy] has not exceeded [kMinEnergy]. [total_energy] is used as an
@@ -1066,7 +1066,7 @@ fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int 
 			// right shifted [energy] will fit in an Int. In addition, adding the
 			// value to [total_energy] is wrap around safe as long as
 			// [kMinEnergy] < 8192.
-			total_energy.add((energy shr -tot_rshifts).toInt()); // Q0.
+			total_energy.add((energy shr -tot_rshifts).toInt()) // Q0.
 		}
 	}
 
@@ -1108,7 +1108,7 @@ fun CalculateFeatures(self: VadInstT, input: AudioBuffer): FeatureResult {
 	var frequency_band = 0
 	val `0 to 4000 Hz` = input
 	val (`2000 to 4000 Hz`, `0 to 2000 Hz`) =
-		SplitFilter(`0 to 4000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band]);
+		SplitFilter(`0 to 4000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
 	// For the upper band (2000 to 4000 Hz) split at 3000 Hz and downsample.
 	frequency_band = 1
@@ -1116,17 +1116,17 @@ fun CalculateFeatures(self: VadInstT, input: AudioBuffer): FeatureResult {
 		SplitFilter(`2000 to 4000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
 	// For the lower band (0 to 2000 Hz) split at 1000 Hz and downsample.
-	frequency_band = 2;
+	frequency_band = 2
 	val (`1000 to 2000 Hz`, `0 to 1000 Hz`) =
 		SplitFilter(`0 to 2000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
 	// For the lower band (0 to 1000 Hz) split at 500 Hz and downsample.
-	frequency_band = 3;
+	frequency_band = 3
 	val (`500 to 1000 Hz`, `0 to 500 Hz`) =
-		SplitFilter(`0 to 1000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band]);
+		SplitFilter(`0 to 1000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
 	// For the lower band (0 t0 500 Hz) split at 250 Hz and downsample.
-	frequency_band = 4;
+	frequency_band = 4
 	val (`250 to 500 Hz`, `0 to 250 Hz`) =
 		SplitFilter(`0 to 500 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
@@ -1139,7 +1139,7 @@ fun CalculateFeatures(self: VadInstT, input: AudioBuffer): FeatureResult {
 	val `energy in 1000 to 2000 Hz` = LogOfEnergy(`1000 to 2000 Hz`, kOffsetVector[3], total_energy)
 	val `energy in 500 to 1000 Hz` = LogOfEnergy(`500 to 1000 Hz`, kOffsetVector[2], total_energy)
 	val `energy in 250 to 500 Hz` = LogOfEnergy(`250 to 500 Hz`, kOffsetVector[1], total_energy)
-	val `energy in 50 to 250 Hz` = LogOfEnergy(`80 to 250 Hz`, kOffsetVector[0], total_energy);
+	val `energy in 50 to 250 Hz` = LogOfEnergy(`80 to 250 Hz`, kOffsetVector[0], total_energy)
 
 	val features = listOf(
 		`energy in 50 to 250 Hz`,
@@ -1179,12 +1179,12 @@ fun CalculateFeatures(self: VadInstT, input: AudioBuffer): FeatureResult {
  */
 fun CalcVad8khz(inst: VadInstT, speech_frame: AudioBuffer): Int {
 	// Get power in the bands
-	val (features, totalEnergy) = CalculateFeatures(inst, speech_frame);
+	val (features, totalEnergy) = CalculateFeatures(inst, speech_frame)
 
 	// Make a VAD
-	inst.vad = GmmProbability(inst, features, totalEnergy, speech_frame.size);
+	inst.vad = GmmProbability(inst, features, totalEnergy, speech_frame.size)
 
-	return inst.vad;
+	return inst.vad
 }
 
 // Calculates a VAD decision for the [audio_frame]. For valid sampling rates
@@ -1202,6 +1202,6 @@ fun CalcVad8khz(inst: VadInstT, speech_frame: AudioBuffer): Int {
 fun ProcessVad(self: VadInstT, fs: Int, audio_frame: AudioBuffer): Boolean {
 	assert(fs == 8000)
 
-	val vad = CalcVad8khz(self, audio_frame);
+	val vad = CalcVad8khz(self, audio_frame)
 	return vad != 0
 }
