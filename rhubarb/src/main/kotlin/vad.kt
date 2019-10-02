@@ -734,7 +734,7 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	var current_median = 1600
 	var alpha = 0
 	var tmp32 = 0
-	val offset = channel shl 4
+	val offset = channel * 16
 
 	// Accessor for the age of each value of the [channel]
 	val age = object {
