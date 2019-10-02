@@ -1,3 +1,4 @@
+import org.apache.commons.lang3.mutable.MutableInt
 import kotlin.math.absoluteValue
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,13 +65,13 @@ inline fun GetSizeInBits(n: UInt): Int {
 // GetScalingSquare(...)
 //
 // Returns the # of bits required to scale the samples specified in the
-// |in_vector| parameter so that, if the squares of the samples are added the
-// # of times specified by the |times| parameter, the 32-bit addition will not
+// [in_vector] parameter so that, if the squares of the samples are added the
+// # of times specified by the [times] parameter, the 32-bit addition will not
 // overflow (result in Int).
 //
 // Input:
 //      - in_vector         : Input vector to check scaling on
-//      - in_vector_length  : Samples in |in_vector|
+//      - in_vector_length  : Samples in [in_vector]
 //      - times             : Number of additions to be performed
 //
 // Return value             : Number of right bit shifts needed to avoid
@@ -98,9 +99,9 @@ fun GetScalingSquare(buffer: AudioBuffer, times: Int): Int {
 
 data class EnergyResult(
 	// Number of left bit shifts needed to get the physical energy value, i.e, to get the Q0 value
-	val scaleFactor: Int,
+	val rightShifts: Int,
 
-	// Energy value in Q(-|scale_factor|)
+	// Energy value in Q(-[scale_factor])
 	val energy: Int
 )
 
@@ -117,7 +118,7 @@ data class EnergyResult(
 //      - scale_factor  : Number of left bit shifts needed to get the physical
 //                        energy value, i.e, to get the Q0 value
 //
-// Return value         : Energy value in Q(-|scale_factor|)
+// Return value         : Energy value in Q(-[scale_factor])
 //
 fun Energy(buffer: AudioBuffer): EnergyResult {
 	val scaling = GetScalingSquare(buffer, buffer.size)
@@ -136,9 +137,9 @@ fun Energy(buffer: AudioBuffer): EnergyResult {
 //
 // DivW32W16(...)
 //
-// Divides a Int |num| by a Int |den|.
+// Divides a Int [num] by a Int [den].
 //
-// If |den|==0, (Int)0x7FFFFFFF is returned.
+// If [den]==0, (Int)0x7FFFFFFF is returned.
 //
 // Input:
 //      - num       : Numerator
@@ -154,18 +155,18 @@ fun DivW32W16(num: Int, den: Int) =
 // webrtc/common_audio/vad/vad_gmm.c
 
 data class GaussianProbabilityResult(
-	// (probability for |input|) = 1 / |std| * exp(-(|input| - |mean|)^2 / (2 * |std|^2))
+	// (probability for [input]) = 1 / [std] * exp(-([input] - [mean])^2 / (2 * [std]^2))
 	val probability: Int,
 	// Input used when updating the model, Q11.
-	// |delta| = (|input| - |mean|) / |std|^2.
+	// [delta] = ([input] - [mean]) / [std]^2.
 	val delta: Int
 )
 
 val kCompVar = 22005;
 val kLog2Exp = 5909; // log2(exp(1)) in Q12.
 
-// Calculates the probability for |input|, given that |input| comes from a
-// normal distribution with mean and standard deviation (|mean|, |std|).
+// Calculates the probability for [input], given that [input] comes from a
+// normal distribution with mean and standard deviation ([mean], [std]).
 //
 // Inputs:
 //      - input         : input sample in Q4.
@@ -175,22 +176,22 @@ val kLog2Exp = 5909; // log2(exp(1)) in Q12.
 // Output:
 //
 //      - delta         : input used when updating the model, Q11.
-//                        |delta| = (|input| - |mean|) / |std|^2.
+//                        [delta] = ([input] - [mean]) / [std]^2.
 //
 // Return:
-//   (probability for |input|) =
-//    1 / |std| * exp(-(|input| - |mean|)^2 / (2 * |std|^2));
+//   (probability for [input]) =
+//    1 / [std] * exp(-([input] - [mean])^2 / (2 * [std]^2));
 //---------------------------------------------------------------------------------
-// For a normal distribution, the probability of |input| is calculated and
+// For a normal distribution, the probability of [input] is calculated and
 // returned (in Q20). The formula for normal distributed probability is
 //
 // 1 / s * exp(-(x - m)^2 / (2 * s^2))
 //
 // where the parameters are given in the following Q domains:
-// m = |mean| (Q7)
-// s = |std| (Q7)
-// x = |input| (Q4)
-// in addition to the probability we output |delta| (in Q11) used when updating
+// m = [mean] (Q7)
+// s = [std] (Q7)
+// x = [input] (Q4)
+// in addition to the probability we output [delta] (in Q11) used when updating
 // the noise/speech model.
 fun GaussianProbability(input: Int, mean: Int, std: Int): GaussianProbabilityResult {
 	var tmp16 = 0
@@ -199,13 +200,13 @@ fun GaussianProbability(input: Int, mean: Int, std: Int): GaussianProbabilityRes
 	var exp_value = 0
 	var tmp32 = 0
 
-	// Calculate |inv_std| = 1 / s, in Q10.
-	// 131072 = 1 in Q17, and (|std| shr 1) is for rounding instead of truncation.
+	// Calculate [inv_std] = 1 / s, in Q10.
+	// 131072 = 1 in Q17, and ([std] shr 1) is for rounding instead of truncation.
 	// Q-domain: Q17 / Q7 = Q10.
 	tmp32 = 131072 + (std shr 1)
 	inv_std = DivW32W16(tmp32, std)
 
-	// Calculate |inv_std2| = 1 / s^2, in Q14.
+	// Calculate [inv_std2] = 1 / s^2, in Q14.
 	tmp16 = inv_std shr 2 // Q10 -> Q8.
 	// Q-domain: (Q8 * Q8) shr 2 = Q14.
 	inv_std2 = (tmp16 * tmp16) shr 2
@@ -214,20 +215,20 @@ fun GaussianProbability(input: Int, mean: Int, std: Int): GaussianProbabilityRes
 	tmp16 -= mean // Q7 - Q7 = Q7
 
 	// To be used later, when updating noise/speech model.
-	// |delta| = (x - m) / s^2, in Q11.
+	// [delta] = (x - m) / s^2, in Q11.
 	// Q-domain: (Q14 * Q7) shr 10 = Q11.
 	val delta = (inv_std2 * tmp16) shr 10
 
-	// Calculate the exponent |tmp32| = (x - m)^2 / (2 * s^2), in Q10. Replacing
+	// Calculate the exponent [tmp32] = (x - m)^2 / (2 * s^2), in Q10. Replacing
 	// division by two with one shift.
 	// Q-domain: (Q11 * Q7) shr 8 = Q10.
 	tmp32 = (delta * tmp16) shr 9
 
 	// If the exponent is small enough to give a non-zero probability we calculate
-	// |exp_value| ~= exp(-(x - m)^2 / (2 * s^2))
-	//             ~= exp2(-log2(exp(1)) * |tmp32|).
+	// [exp_value] ~= exp(-(x - m)^2 / (2 * s^2))
+	//             ~= exp2(-log2(exp(1)) * [tmp32]).
 	if (tmp32 < kCompVar) {
-		// Calculate |tmp16| = log2(exp(1)) * |tmp32|, in Q10.
+		// Calculate [tmp16] = log2(exp(1)) * [tmp32], in Q10.
 		// Q-domain: (Q12 * Q10) shr 12 = Q10.
 		tmp16 = (kLog2Exp * tmp32) shr 12
 		tmp16 = -tmp16
@@ -235,7 +236,7 @@ fun GaussianProbability(input: Int, mean: Int, std: Int): GaussianProbabilityRes
 		tmp16 = tmp16 xor 0xFFFF
 		tmp16 = tmp16 shr 10
 		tmp16 += 1;
-		// Get |exp_value| = exp(-|tmp32|) in Q10.
+		// Get [exp_value] = exp(-[tmp32]) in Q10.
 		exp_value = exp_value shr tmp16
 	}
 
@@ -310,7 +311,7 @@ enum class Aggressiveness {
 class VadInstT(aggressiveness: Aggressiveness = Aggressiveness.Quality) {
 	// General variables
 	var vad: Int = 1 // Speech active (=1)
-	// TODO(bjornv): Change to |frame_count|.
+	// TODO(bjornv): Change to [frame_count].
 	var frame_counter: Int = 0
 	var over_hang: Int = 0
 	var num_of_speech: Int = 0
@@ -322,21 +323,21 @@ class VadInstT(aggressiveness: Aggressiveness = Aggressiveness.Quality) {
 	var speech_stds = kSpeechDataStds.clone()
 
 	// Index vector
-	// TODO(bjornv): Change to |age_vector|.
+	// TODO(bjornv): Change to [age_vector].
 	var index_vector = IntArray(16 * kNumChannels) { 0 }
 
 	// Minimum value vector
 	var low_value_vector = IntArray(16 * kNumChannels) { 10000 }
 
 	// Splitting filter states
-	var upper_state = IntArray(5) { 0 }
-	var lower_state = IntArray(5) { 0 }
+	var upper_state = List(5) { MutableInt(0) }
+	var lower_state = List(5) { MutableInt(0) }
 
 	// High pass filter states
 	var hp_filter_state = IntArray(4) { 0 }
 
 	// Mean value memory for FindMinimum()
-	// TODO(bjornv): Change to |median|.
+	// TODO(bjornv): Change to [median].
 	var mean_value = IntArray(kNumChannels) { 1600 }
 
 	// Thresholds
@@ -366,22 +367,22 @@ class VadInstT(aggressiveness: Aggressiveness = Aggressiveness.Quality) {
 
 typealias WebRtcVadInst = VadInstT
 
-// Calculates the weighted average w.r.t. number of Gaussians. The |data| are
-// updated with an |offset| before averaging.
+// Calculates the weighted average w.r.t. number of Gaussians. The [data] are
+// updated with an [offset] before averaging.
 //
 // - data     [i/o] : Data to average.
-// - offset   [i]   : An offset added to |data|.
+// - offset   [i]   : An offset to add to each element of [data].
 // - weights  [i]   : Weights used for averaging.
 //
 // returns          : The weighted average.
 fun WeightedAverage(data: IntArray, channel: Int, offset: Int, weights: IntArray): Int {
-	var weighted_average = 0
+	var result = 0
 	for (k in 0 until kNumGaussians) {
 		val index = k * kNumChannels + channel
 		data[index] += offset
-		weighted_average += data[index] * weights[index]
+		result += data[index] * weights[index]
 	}
-	return weighted_average
+	return result
 }
 
 // Calculates the probabilities for both speech and background noise using
@@ -389,13 +390,13 @@ fun WeightedAverage(data: IntArray, channel: Int, offset: Int, weights: IntArray
 // type of signal is most probable.
 //
 // - self           [i/o] : Pointer to VAD instance
-// - features       [i]   : Feature vector of length |kNumChannels|
+// - features       [i]   : Feature vector of length [kNumChannels]
 //                          = log10(energy in frequency band)
 // - total_power    [i]   : Total power in audio frame.
 // - frame_length   [i]   : Number of input samples
 //
 // - returns              : the VAD decision (0 - noise, 1 - speech).
-fun GmmProbability(self: VadInstT, features: IntArray, total_power: Int, frame_length: Int): Int {
+fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_length: Int): Int {
 	var vadflag = 0;
 	var tmp_s16: Int
 	var tmp1_s16: Int
@@ -421,10 +422,10 @@ fun GmmProbability(self: VadInstT, features: IntArray, total_power: Int, frame_l
 		// H1: Speech
 		//
 		// We combine a global LRT with local tests, for each frequency sub-band,
-		// here defined as |channel|.
+		// here defined as [channel].
 		for (channel in 0 until kNumChannels) {
 			// For each channel we model the probability with a GMM consisting of
-			// |kNumGaussians|, with different means and standard deviations depending
+			// [kNumGaussians], with different means and standard deviations depending
 			// on H0 or H1.
 			var h0_test = 0
 			var h1_test = 0
@@ -462,7 +463,7 @@ fun GmmProbability(self: VadInstT, features: IntArray, total_power: Int, frame_l
 			val shifts_h1 = if (h1_test != 0) NormW32(h1_test) else 31
 			val log_likelihood_ratio = shifts_h0 - shifts_h1;
 
-			// Update |sum_log_likelihood_ratios| with spectrum weighting. This is
+			// Update [sum_log_likelihood_ratios] with spectrum weighting. This is
 			// used for the global VAD decision.
 			sum_log_likelihood_ratios += log_likelihood_ratio * kSpectrumWeight[channel]
 
@@ -551,7 +552,7 @@ fun GmmProbability(self: VadInstT, features: IntArray, total_power: Int, frame_l
 
 				if (vadflag != 0) {
 					// Update speech mean vector:
-					// |deltaS| = (x-mu)/sigma^2
+					// [deltaS] = (x-mu)/sigma^2
 					// sgprvec[k] = |speech_probability[k]| /
 					//   (|speech_probability[0]| + |speech_probability[1]|)
 
@@ -634,30 +635,30 @@ fun GmmProbability(self: VadInstT, features: IntArray, total_power: Int, frame_l
 			}
 
 			// Separate models if they are too close.
-			// |noise_global_mean| in Q14 (= Q7 * Q7).
+			// [noise_global_mean] in Q14 (= Q7 * Q7).
 			noise_global_mean = WeightedAverage(self.noise_means, channel, 0, kNoiseDataWeights)
 
-			// |speech_global_mean| in Q14 (= Q7 * Q7).
+			// [speech_global_mean] in Q14 (= Q7 * Q7).
 			var speech_global_mean = WeightedAverage(self.speech_means, channel, 0, kSpeechDataWeights)
 
-			// |diff| = "global" speech mean - "global" noise mean.
+			// [diff] = "global" speech mean - "global" noise mean.
 			// (Q14 shr 9) - (Q14 shr 9) = Q5.
 			val diff = (speech_global_mean shr 9) - (noise_global_mean shr 9);
 			if (diff < kMinimumDifference[channel]) {
 				tmp_s16 = kMinimumDifference[channel] - diff;
 
-				// |tmp1_s16| = ~0.8 * (kMinimumDifference - diff) in Q7.
-				// |tmp2_s16| = ~0.2 * (kMinimumDifference - diff) in Q7.
+				// [tmp1_s16] = ~0.8 * (kMinimumDifference - diff) in Q7.
+				// [tmp2_s16] = ~0.2 * (kMinimumDifference - diff) in Q7.
 				tmp1_s16 = (13 * tmp_s16) shr 2
 				tmp2_s16 = (3 * tmp_s16) shr 2
 
-				// Move Gaussian means for speech model by |tmp1_s16| and update
-				// |speech_global_mean|. Note that |self.speech_means[channel]| is
+				// Move Gaussian means for speech model by [tmp1_s16] and update
+				// [speech_global_mean]. Note that |self.speech_means[channel]| is
 				// changed after the call.
 				speech_global_mean = WeightedAverage(self.speech_means, channel, tmp1_s16, kSpeechDataWeights)
 
-				// Move Gaussian means for noise model by -|tmp2_s16| and update
-				// |noise_global_mean|. Note that |self.noise_means[channel]| is
+				// Move Gaussian means for noise model by -[tmp2_s16] and update
+				// [noise_global_mean]. Note that |self.noise_means[channel]| is
 				// changed after the call.
 				noise_global_mean = WeightedAverage(self.noise_means, channel, -tmp2_s16, kNoiseDataWeights)
 			}
@@ -725,33 +726,38 @@ val kSmoothingUp = 32439; // 0.99 in Q15.
 //
 // Returns:
 //                      : Smoothed minimum value for a moving window.
-// Inserts |feature_value| into |low_value_vector|, if it is one of the 16
+// Inserts [feature_value] into [low_value_vector], if it is one of the 16
 // smallest values the last 100 frames. Then calculates and returns the median
 // of the five smallest values.
 fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
-	var i = 0
-	var j = 0
 	var position = -1
-	// Offset to beginning of the 16 minimum values in memory.
-	val offset = channel shl 4
 	var current_median = 1600;
 	var alpha = 0;
 	var tmp32 = 0;
-	// Pointer to memory for the 16 minimum values and the age of each value of
-	// the |channel|.
-	Int * age = &self.index_vector[offset];
-	Int * smallest_values = &self.low_value_vector[offset];
+	val offset = channel shl 4
+
+	// Accessor for the age of each value of the [channel]
+	val age = object {
+		inline operator fun get(i: Int) = self.index_vector[offset + i]
+		inline operator fun set(i: Int, value: Int) { self.index_vector[offset + i] = value }
+	}
+
+	// Accessor for the 16 minimum values of the [channel]
+	val smallest_values = object {
+		inline operator fun get(i: Int) = self.low_value_vector[offset + i]
+		inline operator fun set(i: Int, value: Int) { self.low_value_vector[offset + i] = value }
+	}
 
 	assert(channel < kNumChannels);
 
-	// Each value in |smallest_values| is getting 1 loop older. Update |age|, and
+	// Each value in [smallest_values] is getting 1 loop older. Update [age], and
 	// remove old values.
-	for (i = 0; i < 16; i++) {
+	for (i in 0 until 16) {
 		if (age[i] != 100) {
 			age[i]++;
 		} else {
 			// Too old value. Remove from memory and shift larger values downwards.
-			for (j = i; j < 16; j++) {
+			for (j in i until 16) {
 				smallest_values[j] = smallest_values[j + 1];
 				age[j] = age[j + 1];
 			}
@@ -760,9 +766,9 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 		}
 	}
 
-	// Check if |feature_value| is smaller than any of the values in
-	// |smallest_values|. If so, find the |position| where to insert the new value
-	// (|feature_value|).
+	// Check if [feature_value] is smaller than any of the values in
+	// [smallest_values]. If so, find the [position] where to insert the new value
+	// ([feature_value]).
 	if (feature_value < smallest_values[7]) {
 		if (feature_value < smallest_values[3]) {
 			if (feature_value < smallest_values[1]) {
@@ -816,7 +822,7 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	// If we have detected a new small value, insert it at the correct position
 	// and shift larger values up.
 	if (position > -1) {
-		for (i = 15; i > position; i--) {
+		for (i in 15 downTo position + 1) {
 			smallest_values[i] = smallest_values[i - 1];
 			age[i] = age[i - 1];
 		}
@@ -824,7 +830,7 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 		age[position] = 1;
 	}
 
-	// Get |current_median|.
+	// Get [current_median].
 	if (self.frame_counter > 2) {
 		current_median = smallest_values[2];
 	} else if (self.frame_counter > 0) {
@@ -842,7 +848,7 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	tmp32 = (alpha + 1) * self.mean_value[channel];
 	tmp32 += (WEBRTC_SPL_WORD16_MAX - alpha) * current_median;
 	tmp32 += 16384;
-	self.mean_value[channel] = (Int)(tmp32 shr 15);
+	self.mean_value[channel] = tmp32 shr 15
 
 	return self.mean_value[channel];
 }
@@ -851,21 +857,22 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 // webrtc/common_audio/vad/vad_filterbank.c
 
 // Constants used in LogOfEnergy().
-val Int kLogConst = 24660; // 160*log10(2) in Q9.
-val Int kLogEnergyIntPart = 14336; // 14 in Q10
+val kLogConst = 24660; // 160*log10(2) in Q9.
+val kLogEnergyIntPart = 14336; // 14 in Q10
 
 // Coefficients used by HighPassFilter, Q14.
-val Int kHpZeroCoefs[3] = { 6631, -13262, 6631 };
-val Int kHpPoleCoefs[3] = { 16384, -7756, 5620 };
+val kHpZeroCoefs = intArrayOf(6631, -13262, 6631)
+val kHpPoleCoefs = intArrayOf(16384, -7756, 5620)
 
 // Allpass filter coefficients, upper and lower, in Q15.
 // Upper: 0.64, Lower: 0.17
-val Int kAllPassCoefsQ15[2] = { 20972, 5571 };
+val kUpperAllPassCoefsQ15 = 20972
+val kLowerAllPassCoefsQ15 = 5571
 
 // Adjustment for division with two in SplitFilter.
-val Int kOffsetVector[6] = { 368, 368, 272, 176, 176, 176 };
+val kOffsetVector = intArrayOf(368, 368, 272, 176, 176, 176)
 
-// High pass filtering, with a cut-off frequency at 80 Hz, if the |data_in| is
+// High pass filtering, with a cut-off frequency at 80 Hz, if the [data_in] is
 // sampled at 500 Hz.
 //
 // - data_in      [i]   : Input audio data sampled at 500 Hz.
@@ -873,13 +880,7 @@ val Int kOffsetVector[6] = { 368, 368, 272, 176, 176, 176 };
 // - filter_state [i/o] : State of the filter.
 // - data_out     [o]   : Output audio data in the frequency interval
 //                        80 - 250 Hz.
-void HighPassFilter(val Sample* data_in, Int data_length, Int* filter_state, Sample* data_out) {
-	Int i;
-	val Sample* in_ptr = data_in;
-	Sample* out_ptr = data_out;
-	Int tmp32 = 0;
-
-
+fun HighPassFilter(input: AudioBuffer, filter_state: IntArray): AudioBuffer {
 	// The sum of the absolute values of the impulse response:
 	// The zero/pole-filter has a max amplification of a single sample of: 1.4546
 	// Impulse response: 0.4047 -0.6179 -0.0266  0.1993  0.1035  -0.0194
@@ -888,194 +889,200 @@ void HighPassFilter(val Sample* data_in, Int data_length, Int* filter_state, Sam
 	// The all-pole section has a max amplification of a single sample of: 1.9931
 	// Impulse response: 1.0000  0.4734 -0.1189 -0.2187 -0.0627   0.04532
 
-	for (i = 0; i < data_length; i++) {
+	val result = SampleArray(input.size)
+	for (i in 0 until input.size) {
 		// All-zero section (filter coefficients in Q14).
-		tmp32 = kHpZeroCoefs[0] * *in_ptr;
+		var tmp32 = kHpZeroCoefs[0] * input[i]
 		tmp32 += kHpZeroCoefs[1] * filter_state[0];
 		tmp32 += kHpZeroCoefs[2] * filter_state[1];
 		filter_state[1] = filter_state[0];
-		filter_state[0] = *in_ptr++;
+		filter_state[0] = input[i].toInt()
 
 		// All-pole section (filter coefficients in Q14).
 		tmp32 -= kHpPoleCoefs[1] * filter_state[2];
 		tmp32 -= kHpPoleCoefs[2] * filter_state[3];
 		filter_state[3] = filter_state[2];
-		filter_state[2] = (Int)(tmp32 shr 14);
-		*out_ptr++ = filter_state[2];
+		filter_state[2] = tmp32 shr 14
+		result[i] = filter_state[2].toShort()
 	}
+
+	return AudioBuffer(result)
 }
 
-// All pass filtering of |data_in|, used before splitting the signal into two
+// All pass filtering of [data_in], used before splitting the signal into two
 // frequency bands (low pass vs high pass).
-// Note that |data_in| and |data_out| can NOT correspond to the same address.
+// Note that [data_in] and [data_out] can NOT correspond to the same address.
 //
 // - data_in            [i]   : Input audio signal given in Q0.
 // - data_length        [i]   : Length of input and output data.
 // - filter_coefficient [i]   : Given in Q15.
 // - filter_state       [i/o] : State of the filter given in Q(-1).
 // - data_out           [o]   : Output audio signal given in Q(-1).
-void AllPassFilter(val Sample* data_in, Int data_length,
-	Int filter_coefficient, Int* filter_state,
-	Sample* data_out) {
+fun AllPassFilter(input: AudioBuffer, filter_coefficient: Int, filter_state: MutableInt): AudioBuffer {
 	// The filter can only cause overflow (in the w16 output variable)
 	// if more than 4 consecutive input numbers are of maximum value and
 	// has the the same sign as the impulse responses first taps.
 	// First 6 taps of the impulse response:
 	// 0.6399 0.5905 -0.3779 0.2418 -0.1547 0.0990
 
-	Int i;
-	Int tmp16 = 0;
-	Int tmp32 = 0;
-	Int state32 = ((Int)(*filter_state) * (1 shl 16)); // Q15
-
-	for (i = 0; i < data_length; i++) {
-		tmp32 = state32 + filter_coefficient * *data_in;
-		tmp16 = (Int)(tmp32 shr 16); // Q(-1)
-		*data_out++ = tmp16;
-		state32 = (*data_in * (1 shl 14)) - filter_coefficient * tmp16; // Q14
+	val result = SampleArray(input.size / 2)
+	var state32 = filter_state.toInt() * (1 shl 16) // Q15
+	for (i in 0 until input.size step 2) {
+		val tmp32 = state32 + filter_coefficient * input[i]
+		val tmp16 = tmp32 shr 16 // Q(-1)
+		result[i / 2] = tmp16.toShort()
+		state32 = (input[i] * (1 shl 14)) - filter_coefficient * tmp16; // Q14
 		state32 *= 2; // Q15.
-		data_in += 2;
 	}
+	filter_state.setValue(state32 shr 16) // Q(-1)
 
-	*filter_state = (Int)(state32 shr 16); // Q(-1)
+	return AudioBuffer(result)
 }
 
-// Splits |data_in| into |hp_data_out| and |lp_data_out| corresponding to
+data class SplitFilterResult(
+	val highPassData: AudioBuffer,
+	val lowPassData: AudioBuffer
+)
+
+// Splits [data_in] into [hp_data_out] and [lp_data_out] corresponding to
 // an upper (high pass) part and a lower (low pass) part respectively.
 //
 // - data_in      [i]   : Input audio data to be split into two frequency bands.
-// - data_length  [i]   : Length of |data_in|.
+// - data_length  [i]   : Length of [data_in].
 // - upper_state  [i/o] : State of the upper filter, given in Q(-1).
 // - lower_state  [i/o] : State of the lower filter, given in Q(-1).
 // - hp_data_out  [o]   : Output audio data of the upper half of the spectrum.
-//                        The length is |data_length| / 2.
+//                        The length is [data_length] / 2.
 // - lp_data_out  [o]   : Output audio data of the lower half of the spectrum.
-//                        The length is |data_length| / 2.
-void SplitFilter(val Sample* data_in, Int data_length,
-	Int* upper_state, Int* lower_state,
-	Sample* hp_data_out, Sample* lp_data_out) {
-	Int i;
-	Int half_length = data_length shr 1; // Downsampling by 2.
-	Int tmp_out;
+//                        The length is [data_length] / 2.
+fun SplitFilter(input: AudioBuffer, upper_state: MutableInt, lower_state: MutableInt): SplitFilterResult {
+	val resultSize = input.size / 2 // Downsampling by 2
 
 	// All-pass filtering upper branch.
-	AllPassFilter(&data_in[0], half_length, kAllPassCoefsQ15[0], upper_state, hp_data_out);
+	val tempHighPass = AllPassFilter(input, kUpperAllPassCoefsQ15, upper_state)
+	assert(tempHighPass.size == resultSize)
 
 	// All-pass filtering lower branch.
-	AllPassFilter(&data_in[1], half_length, kAllPassCoefsQ15[1], lower_state, lp_data_out);
+	val tempLowPass = AllPassFilter(AudioBuffer(input, 1), kLowerAllPassCoefsQ15, lower_state)
+	assert(tempLowPass.size == resultSize)
 
 	// Make LP and HP signals.
-	for (i = 0; i < half_length; i++) {
-		tmp_out = *hp_data_out;
-		*hp_data_out++ -= *lp_data_out;
-		*lp_data_out++ += tmp_out;
+	val highPassData = SampleArray(resultSize)
+	val lowPassData = SampleArray(resultSize)
+	for (i in 0 until resultSize) {
+		highPassData[i] = (tempHighPass[i] - tempLowPass[i]).toShort()
+		lowPassData[i] = (tempLowPass[i] + tempHighPass[i]).toShort()
 	}
+
+	return SplitFilterResult(AudioBuffer(highPassData), AudioBuffer(lowPassData))
 }
 
-// Calculates the energy of |data_in| in dB, and also updates an overall
-// |total_energy| if necessary.
+// Calculates the energy of [data_in] in dB, and also updates an overall
+// [total_energy] if necessary.
 //
 // - data_in      [i]   : Input audio data for energy calculation.
 // - data_length  [i]   : Length of input data.
-// - offset       [i]   : Offset value added to |log_energy|.
+// - offset       [i]   : Offset value added to [log_energy].
 // - total_energy [i/o] : An external energy updated with the energy of
-//                        |data_in|.
-//                        NOTE: |total_energy| is only updated if
-//                        |total_energy| <= |kMinEnergy|.
-// - log_energy   [o]   : 10 * log10("energy of |data_in|") given in Q4.
-void LogOfEnergy(val Sample* data_in, Int data_length,
-	Int offset, Int* total_energy,
-	Int* log_energy) {
-	// |tot_rshifts| accumulates the number of right shifts performed on |energy|.
-	Int tot_rshifts = 0;
-	// The |energy| will be normalized to 15 bits. We use unsigned integer because
+//                        [data_in].
+//                        NOTE: [total_energy] is only updated if
+//                        [total_energy] <= [kMinEnergy].
+// - log_energy   [o]   : 10 * log10("energy of [data_in]") given in Q4.
+fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int {
+	assert(input.size > 0);
+
+	val energyResult = Energy(input)
+	// [tot_rshifts] accumulates the number of right shifts performed on [energy].
+	var tot_rshifts = energyResult.rightShifts
+	// The [energy] will be normalized to 15 bits. We use unsigned integer because
 	// we eventually will mask out the fractional part.
-	UInt energy = 0;
+	var energy = energyResult.energy.toUInt()
 
-	assert(data_in != NULL);
-	assert(data_length > 0);
-
-	energy = (UInt)Energy((Int*)data_in, data_length,
-		&tot_rshifts);
-
-	if (energy != 0) {
-		// By construction, normalizing to 15 bits is equivalent with 17 leading
-		// zeros of an unsigned 32 bit value.
-		Int normalizing_rshifts = 17 - NormU32(energy);
-		// In a 15 bit representation the leading bit is 2^14. log2(2^14) in Q10 is
-		// (14 shl 10), which is what we initialize |log2_energy| with. For a more
-		// detailed derivations, see below.
-		Int log2_energy = kLogEnergyIntPart;
-
-		tot_rshifts += normalizing_rshifts;
-		// Normalize |energy| to 15 bits.
-		// |tot_rshifts| is now the total number of right shifts performed on
-		// |energy| after normalization. This means that |energy| is in
-		// Q(-tot_rshifts).
-		if (normalizing_rshifts < 0) {
-			energy shl= -normalizing_rshifts;
-		} else {
-			energy shr= normalizing_rshifts;
-		}
-
-		// Calculate the energy of |data_in| in dB, in Q4.
-		//
-		// 10 * log10("true energy") in Q4 = 2^4 * 10 * log10("true energy") =
-		// 160 * log10(|energy| * 2^|tot_rshifts|) =
-		// 160 * log10(2) * log2(|energy| * 2^|tot_rshifts|) =
-		// 160 * log10(2) * (log2(|energy|) + log2(2^|tot_rshifts|)) =
-		// (160 * log10(2)) * (log2(|energy|) + |tot_rshifts|) =
-		// |kLogConst| * (|log2_energy| + |tot_rshifts|)
-		//
-		// We know by construction that |energy| is normalized to 15 bits. Hence,
-		// |energy| = 2^14 + frac_Q15, where frac_Q15 is a fractional part in Q15.
-		// Further, we'd like |log2_energy| in Q10
-		// log2(|energy|) in Q10 = 2^10 * log2(2^14 + frac_Q15) =
-		// 2^10 * log2(2^14 * (1 + frac_Q15 * 2^-14)) =
-		// 2^10 * (14 + log2(1 + frac_Q15 * 2^-14)) ~=
-		// (14 shl 10) + 2^10 * (frac_Q15 * 2^-14) =
-		// (14 shl 10) + (frac_Q15 * 2^-4) = (14 shl 10) + (frac_Q15 shr 4)
-		//
-		// Note that frac_Q15 = (|energy| & 0x00003FFF)
-
-		// Calculate and add the fractional part to |log2_energy|.
-		log2_energy += (Int)((energy & 0x00003FFF) shr 4);
-
-		// |kLogConst| is in Q9, |log2_energy| in Q10 and |tot_rshifts| in Q0.
-		// Note that we in our derivation above have accounted for an output in Q4.
-		*log_energy = (Int)(((kLogConst * log2_energy) shr 19) +
-			((tot_rshifts * kLogConst) shr 9));
-
-		if (*log_energy < 0) {
-			*log_energy = 0;
-		}
-	} else {
-		*log_energy = offset;
-		return;
+	if (energy == 0u) {
+		return offset
 	}
 
-	*log_energy += offset;
+	// By construction, normalizing to 15 bits is equivalent with 17 leading
+	// zeros of an unsigned 32 bit value.
+	val normalizing_rshifts = 17 - NormU32(energy);
+	// In a 15 bit representation the leading bit is 2^14. log2(2^14) in Q10 is
+	// (14 shl 10), which is what we initialize [log2_energy] with. For a more
+	// detailed derivations, see below.
+	var log2_energy = kLogEnergyIntPart;
 
-	// Update the approximate |total_energy| with the energy of |data_in|, if
-	// |total_energy| has not exceeded |kMinEnergy|. |total_energy| is used as an
+	tot_rshifts += normalizing_rshifts;
+	// Normalize [energy] to 15 bits.
+	// [tot_rshifts] is now the total number of right shifts performed on
+	// [energy] after normalization. This means that [energy] is in
+	// Q(-tot_rshifts).
+	energy = if (normalizing_rshifts < 0)
+		energy shl -normalizing_rshifts
+	else
+		energy shr normalizing_rshifts
+
+	// Calculate the energy of [data_in] in dB, in Q4.
+	//
+	// 10 * log10("true energy") in Q4 = 2^4 * 10 * log10("true energy") =
+	// 160 * log10([energy] * 2^[tot_rshifts]) =
+	// 160 * log10(2) * log2([energy] * 2^[tot_rshifts]) =
+	// 160 * log10(2) * (log2([energy]) + log2(2^[tot_rshifts])) =
+	// (160 * log10(2)) * (log2([energy]) + [tot_rshifts]) =
+	// [kLogConst] * ([log2_energy] + [tot_rshifts])
+	//
+	// We know by construction that [energy] is normalized to 15 bits. Hence,
+	// [energy] = 2^14 + frac_Q15, where frac_Q15 is a fractional part in Q15.
+	// Further, we'd like [log2_energy] in Q10
+	// log2([energy]) in Q10 = 2^10 * log2(2^14 + frac_Q15) =
+	// 2^10 * log2(2^14 * (1 + frac_Q15 * 2^-14)) =
+	// 2^10 * (14 + log2(1 + frac_Q15 * 2^-14)) ~=
+	// (14 shl 10) + 2^10 * (frac_Q15 * 2^-14) =
+	// (14 shl 10) + (frac_Q15 * 2^-4) = (14 shl 10) + (frac_Q15 shr 4)
+	//
+	// Note that frac_Q15 = ([energy] & 0x00003FFF)
+
+	// Calculate and add the fractional part to [log2_energy].
+	log2_energy += ((energy and 0x00003FFFu) shr 4).toInt()
+
+	// [kLogConst] is in Q9, [log2_energy] in Q10 and [tot_rshifts] in Q0.
+	// Note that we in our derivation above have accounted for an output in Q4.
+	var log_energy = (((kLogConst * log2_energy) shr 19) + (tot_rshifts * kLogConst) shr 9)
+
+	if (log_energy < 0) {
+		log_energy = 0;
+	}
+
+	log_energy += offset;
+
+	// Update the approximate [total_energy] with the energy of [data_in], if
+	// [total_energy] has not exceeded [kMinEnergy]. [total_energy] is used as an
 	// energy indicator in GmmProbability() in vad_core.c.
-	if (*total_energy <= kMinEnergy) {
+	if (total_energy.toInt() <= kMinEnergy) {
 		if (tot_rshifts >= 0) {
-			// We know by construction that the |energy| > |kMinEnergy| in Q0, so add
-			// an arbitrary value such that |total_energy| exceeds |kMinEnergy|.
-			*total_energy += kMinEnergy + 1;
+			// We know by construction that the [energy] > [kMinEnergy] in Q0, so add
+			// an arbitrary value such that [total_energy] exceeds [kMinEnergy].
+			total_energy.add(kMinEnergy + 1)
 		} else {
-			// By construction |energy| is represented by 15 bits, hence any number of
-			// right shifted |energy| will fit in an Int. In addition, adding the
-			// value to |total_energy| is wrap around safe as long as
-			// |kMinEnergy| < 8192.
-			*total_energy += (Int)(energy shr -tot_rshifts); // Q0.
+			// By construction [energy] is represented by 15 bits, hence any number of
+			// right shifted [energy] will fit in an Int. In addition, adding the
+			// value to [total_energy] is wrap around safe as long as
+			// [kMinEnergy] < 8192.
+			total_energy.add((energy shr -tot_rshifts).toInt()); // Q0.
 		}
 	}
+
+	return log_energy
 }
 
-// Takes |data_length| samples of |data_in| and calculates the logarithm of the
-// energy of each of the |kNumChannels| = 6 frequency bands used by the VAD:
+data class FeatureResult(
+	// 10 * log10(energy in each frequency band), Q4
+	val features: List<Int>,
+	// Total energy of the signal
+	// NOTE: This value is not exact. It is only used in a comparison.
+	val totalEnergy: Int
+)
+
+// Takes [data_length] samples of [data_in] and calculates the logarithm of the
+// energy of each of the [kNumChannels] = 6 frequency bands used by the VAD:
 //        80 Hz - 250 Hz
 //        250 Hz - 500 Hz
 //        500 Hz - 1000 Hz
@@ -1083,10 +1090,10 @@ void LogOfEnergy(val Sample* data_in, Int data_length,
 //        2000 Hz - 3000 Hz
 //        3000 Hz - 4000 Hz
 //
-// The values are given in Q4 and written to |features|. Further, an approximate
+// The values are given in Q4 and written to [features]. Further, an approximate
 // overall energy is returned. The return value is used in
 // GmmProbability() as a signal indicator, hence it is arbitrary above
-// the threshold |kMinEnergy|.
+// the threshold [kMinEnergy].
 //
 // - self         [i/o] : State information of the VAD.
 // - data_in      [i]   : Input audio data, for feature extraction.
@@ -1094,91 +1101,56 @@ void LogOfEnergy(val Sample* data_in, Int data_length,
 // - features     [o]   : 10 * log10(energy in each frequency band), Q4.
 // - returns            : Total energy of the signal (NOTE! This value is not
 //                        exact. It is only used in a comparison.)
-Int CalculateFeatures(VadInstT* self, val Sample* data_in, Int data_length, Int* features) {
-	Int total_energy = 0;
-	// We expect |data_length| to be 80, 160 or 240 samples, which corresponds to
-	// 10, 20 or 30 ms in 8 kHz. Therefore, the intermediate downsampled data will
-	// have at most 120 samples after the first split and at most 60 samples after
-	// the second split.
-	Sample hp_120[120], lp_120[120];
-	Sample hp_60[60], lp_60[60];
-	val Int half_data_length = data_length shr 1;
-	Int length = half_data_length; // |data_length| / 2, corresponds to
-									 // bandwidth = 2000 Hz after downsampling.
-
-	// Initialize variables for the first SplitFilter().
-	Int frequency_band = 0;
-	val Sample* in_ptr = data_in; // [0 - 4000] Hz.
-	Sample* hp_out_ptr = hp_120; // [2000 - 4000] Hz.
-	Sample* lp_out_ptr = lp_120; // [0 - 2000] Hz.
-
-	assert(data_length <= 240);
-	assert(4 < kNumChannels - 1); // Checking maximum |frequency_band|.
+fun CalculateFeatures(self: VadInstT, input: AudioBuffer): FeatureResult {
+	assert(input.size == 80)
 
 	// Split at 2000 Hz and downsample.
-	SplitFilter(in_ptr, data_length, &self.upper_state[frequency_band],
-		&self.lower_state[frequency_band], hp_out_ptr, lp_out_ptr);
+	var frequency_band = 0
+	val `0 to 4000 Hz` = input
+	val (`2000 to 4000 Hz`, `0 to 2000 Hz`) =
+		SplitFilter(`0 to 4000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band]);
 
-	// For the upper band (2000 Hz - 4000 Hz) split at 3000 Hz and downsample.
-	frequency_band = 1;
-	in_ptr = hp_120; // [2000 - 4000] Hz.
-	hp_out_ptr = hp_60; // [3000 - 4000] Hz.
-	lp_out_ptr = lp_60; // [2000 - 3000] Hz.
-	SplitFilter(in_ptr, length, &self.upper_state[frequency_band],
-		&self.lower_state[frequency_band], hp_out_ptr, lp_out_ptr);
+	// For the upper band (2000 to 4000 Hz) split at 3000 Hz and downsample.
+	frequency_band = 1
+	val (`3000 to 4000 Hz`, `2000 to 3000 Hz`) =
+		SplitFilter(`2000 to 4000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
-	// Energy in 3000 Hz - 4000 Hz.
-	length shr= 1; // |data_length| / 4 <=> bandwidth = 1000 Hz.
-
-	LogOfEnergy(hp_60, length, kOffsetVector[5], &total_energy, &features[5]);
-
-	// Energy in 2000 Hz - 3000 Hz.
-	LogOfEnergy(lp_60, length, kOffsetVector[4], &total_energy, &features[4]);
-
-	// For the lower band (0 Hz - 2000 Hz) split at 1000 Hz and downsample.
+	// For the lower band (0 to 2000 Hz) split at 1000 Hz and downsample.
 	frequency_band = 2;
-	in_ptr = lp_120; // [0 - 2000] Hz.
-	hp_out_ptr = hp_60; // [1000 - 2000] Hz.
-	lp_out_ptr = lp_60; // [0 - 1000] Hz.
-	length = half_data_length; // |data_length| / 2 <=> bandwidth = 2000 Hz.
-	SplitFilter(in_ptr, length, &self.upper_state[frequency_band],
-		&self.lower_state[frequency_band], hp_out_ptr, lp_out_ptr);
+	val (`1000 to 2000 Hz`, `0 to 1000 Hz`) =
+		SplitFilter(`0 to 2000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
-	// Energy in 1000 Hz - 2000 Hz.
-	length shr= 1; // |data_length| / 4 <=> bandwidth = 1000 Hz.
-	LogOfEnergy(hp_60, length, kOffsetVector[3], &total_energy, &features[3]);
-
-	// For the lower band (0 Hz - 1000 Hz) split at 500 Hz and downsample.
+	// For the lower band (0 to 1000 Hz) split at 500 Hz and downsample.
 	frequency_band = 3;
-	in_ptr = lp_60; // [0 - 1000] Hz.
-	hp_out_ptr = hp_120; // [500 - 1000] Hz.
-	lp_out_ptr = lp_120; // [0 - 500] Hz.
-	SplitFilter(in_ptr, length, &self.upper_state[frequency_band],
-		&self.lower_state[frequency_band], hp_out_ptr, lp_out_ptr);
+	val (`500 to 1000 Hz`, `0 to 500 Hz`) =
+		SplitFilter(`0 to 1000 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band]);
 
-	// Energy in 500 Hz - 1000 Hz.
-	length shr= 1; // |data_length| / 8 <=> bandwidth = 500 Hz.
-	LogOfEnergy(hp_120, length, kOffsetVector[2], &total_energy, &features[2]);
-
-	// For the lower band (0 Hz - 500 Hz) split at 250 Hz and downsample.
+	// For the lower band (0 t0 500 Hz) split at 250 Hz and downsample.
 	frequency_band = 4;
-	in_ptr = lp_120; // [0 - 500] Hz.
-	hp_out_ptr = hp_60; // [250 - 500] Hz.
-	lp_out_ptr = lp_60; // [0 - 250] Hz.
-	SplitFilter(in_ptr, length, &self.upper_state[frequency_band],
-		&self.lower_state[frequency_band], hp_out_ptr, lp_out_ptr);
+	val (`250 to 500 Hz`, `0 to 250 Hz`) =
+		SplitFilter(`0 to 500 Hz`, self.upper_state[frequency_band], self.lower_state[frequency_band])
 
-	// Energy in 250 Hz - 500 Hz.
-	length shr= 1; // |data_length| / 16 <=> bandwidth = 250 Hz.
-	LogOfEnergy(hp_60, length, kOffsetVector[1], &total_energy, &features[1]);
+	// Remove 0 to 80 Hz by high pass filtering the lower band.
+	val `80 to 250 Hz` = HighPassFilter(`0 to 250 Hz`, self.hp_filter_state)
 
-	// Remove 0 Hz - 80 Hz, by high pass filtering the lower band.
-	HighPassFilter(lp_60, length, self.hp_filter_state, hp_120);
+	val total_energy = MutableInt(0)
+	val `energy in 3000 to 4000 Hz` = LogOfEnergy(`3000 to 4000 Hz`, kOffsetVector[5], total_energy)
+	val `energy in 2000 to 3000 Hz` = LogOfEnergy(`2000 to 3000 Hz`, kOffsetVector[4], total_energy)
+	val `energy in 1000 to 2000 Hz` = LogOfEnergy(`1000 to 2000 Hz`, kOffsetVector[3], total_energy)
+	val `energy in 500 to 1000 Hz` = LogOfEnergy(`500 to 1000 Hz`, kOffsetVector[2], total_energy)
+	val `energy in 250 to 500 Hz` = LogOfEnergy(`250 to 500 Hz`, kOffsetVector[1], total_energy)
+	val `energy in 50 to 250 Hz` = LogOfEnergy(`80 to 250 Hz`, kOffsetVector[0], total_energy);
 
-	// Energy in 80 Hz - 250 Hz.
-	LogOfEnergy(hp_120, length, kOffsetVector[0], &total_energy, &features[0]);
-
-	return total_energy;
+	val features = listOf(
+		`energy in 50 to 250 Hz`,
+		`energy in 250 to 500 Hz`,
+		`energy in 500 to 1000 Hz`,
+		`energy in 1000 to 2000 Hz`,
+		`energy in 2000 to 3000 Hz`,
+		`energy in 3000 to 4000 Hz`
+	)
+	assert(features.size == kNumChannels)
+	return FeatureResult(features, total_energy.toInt())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1205,20 +1177,17 @@ Int CalculateFeatures(VadInstT* self, val Sample* data_in, Int data_length, Int*
  *                        0 - No active speech
  *                        1-6 - Active speech
  */
-Int CalcVad8khz(VadInstT* inst, val Sample* speech_frame, Int frame_length) {
-	Int feature_vector[kNumChannels], total_power;
-
+fun CalcVad8khz(inst: VadInstT, speech_frame: AudioBuffer): Int {
 	// Get power in the bands
-	total_power = CalculateFeatures(inst, speech_frame, frame_length,
-		feature_vector);
+	val (features, totalEnergy) = CalculateFeatures(inst, speech_frame);
 
 	// Make a VAD
-	inst->vad = GmmProbability(inst, feature_vector, total_power, frame_length);
+	inst.vad = GmmProbability(inst, features, totalEnergy, speech_frame.size);
 
-	return inst->vad;
+	return inst.vad;
 }
 
-// Calculates a VAD decision for the |audio_frame|. For valid sampling rates
+// Calculates a VAD decision for the [audio_frame]. For valid sampling rates
 // frame lengths, see the description of ValidRatesAndFrameLengths().
 //
 // - handle       [i/o] : VAD Instance. Needs to be initialized by
@@ -1230,26 +1199,9 @@ Int CalcVad8khz(VadInstT* inst, val Sample* speech_frame, Int frame_length) {
 // returns              : 1 - (Active Voice),
 //                        0 - (Non-active Voice),
 //                       -1 - (Error)
-Int ProcessVad(VadInst* handle, Int fs, val Sample* audio_frame, Int frame_length) {
-	Int vad = -1;
-	VadInstT* self = (VadInstT*)handle;
+fun ProcessVad(self: VadInstT, fs: Int, audio_frame: AudioBuffer): Boolean {
+	assert(fs == 8000)
 
-	if (handle == NULL) {
-		return -1;
-	}
-
-	if (self.init_flag != kInitCheck) {
-		return -1;
-	}
-	if (audio_frame == NULL) {
-		return -1;
-	}
-
-	if (fs != 8000) return -1;
-	vad = CalcVad8khz(self, audio_frame, frame_length);
-
-	if (vad > 0) {
-		vad = 1;
-	}
-	return vad;
+	val vad = CalcVad8khz(self, audio_frame);
+	return vad != 0
 }
