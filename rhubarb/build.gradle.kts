@@ -24,6 +24,7 @@ var distDirectory = File(project.buildDir, distsDirName)
 tasks {
 	withType<KotlinCompile> {
 		kotlinOptions.jvmTarget = "1.8"
+		kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
 	}
 
 	test {
