@@ -185,8 +185,6 @@ enum class Aggressiveness {
 
 class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Quality) {
 	private var frameCount: Int = 0
-	private var overhang: Int = 0
-	private var speechFrameCount: Int = 0
 
 	// PDF parameters
 	private val noiseMeans = NOISE_DATA_MEANS.clone()
@@ -208,17 +206,15 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 	private val median = IntArray(CHANNEL_COUNT) { 1600 }
 
 	private data class ThresholdsRecord(
-		val overhangMax1: Int,
-		val overhangMax2: Int,
 		val localThreshold: Int,
 		val globalThreshold: Int
 	)
 
 	private val thresholds = when(aggressiveness) {
-		Aggressiveness.Quality -> ThresholdsRecord(8, 14, 24, 57)
-		Aggressiveness.LowBitrate -> ThresholdsRecord(8, 14, 37, 100)
-		Aggressiveness.Aggressive -> ThresholdsRecord(6, 9, 82, 285)
-		Aggressiveness.VeryAggressive -> ThresholdsRecord(6, 9, 94, 1100)
+		Aggressiveness.Quality -> ThresholdsRecord(24, 57)
+		Aggressiveness.LowBitrate -> ThresholdsRecord(37, 100)
+		Aggressiveness.Aggressive -> ThresholdsRecord(82, 285)
+		Aggressiveness.VeryAggressive -> ThresholdsRecord(94, 1100)
 	}
 
 	/**
@@ -228,10 +224,10 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 	 * @param[features] Feature vector of length [CHANNEL_COUNT] = log10(energy in frequency band)
 	 * @param[totalEnergy] Total energy in audio frame.
 	 * @param[frameLength] Number of input samples.
-	 * @return VAD decision. 0: no active speech; 1-6: active speech
+	 * @return VAD decision. True if frame contains speech, false otherwise.
 	 */
-	private fun getGmmProbability(features: List<Int>, totalEnergy: Int, frameLength: Int): Int {
-		var vadFlag = 0
+	private fun getGmmProbability(features: List<Int>, totalEnergy: Int, frameLength: Int): Boolean {
+		var speech = false
 		var tmp: Int
 		var tmp1: Int
 		var tmp2: Int
@@ -303,7 +299,7 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 
 				// Local VAD decision.
 				if ((logLikelihoodRatio * 4) > thresholds.localThreshold) {
-					vadFlag = 1
+					speech = true
 				}
 
 				// Calculate local noise probabilities used later when updating the GMM.
@@ -332,7 +328,7 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 			}
 
 			// Make a global VAD decision.
-			vadFlag = vadFlag or (if (sumLogLikelihoodRatios >= thresholds.globalThreshold) 1 else 0)
+			speech = speech || (sumLogLikelihoodRatios >= thresholds.globalThreshold)
 
 			// Update the model parameters.
 			var maxspe = 12800
@@ -354,7 +350,7 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 
 					// Update noise mean vector if the frame consists of noise only.
 					var nmk2 = nmk
-					if (vadFlag == 0) {
+					if (!speech) {
 						// deltaN = (x-mu)/sigma^2
 						// ngprvec[k] = noiseProbability[k] / (noiseProbability[0] + noiseProbability[1])
 
@@ -381,7 +377,7 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 					}
 					noiseMeans[gaussian] = nmk3
 
-					if (vadFlag != 0) {
+					if (speech) {
 						// Update speech mean vector:
 						// deltaS = (x-mu)/sigma^2
 						// sgprvec[k] = speechProbability[k] / (speechProbability[0] + speechProbability[1])
@@ -516,23 +512,7 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 			frameCount++
 		}
 
-		// Smooth with respect to transition hysteresis.
-		if (vadFlag == 0) {
-			if (overhang > 0) {
-				vadFlag = 2 + overhang
-				overhang--
-			}
-			speechFrameCount = 0
-		} else {
-			speechFrameCount++
-			if (speechFrameCount > MAX_SPEECH_FRAMES) {
-				speechFrameCount = MAX_SPEECH_FRAMES
-				overhang = thresholds.overhangMax2
-			} else {
-				overhang = thresholds.overhangMax1
-			}
-		}
-		return vadFlag
+		return speech
 	}
 
 	/**
@@ -726,9 +706,8 @@ class VoiceActivityDetector(aggressiveness: Aggressiveness = Aggressiveness.Qual
 		val (features, totalEnergy) = calculateFeatures(audioFrame)
 
 		// Make a VAD
-		val vadResult = getGmmProbability(features, totalEnergy, audioFrame.size)
+		val speech = getGmmProbability(features, totalEnergy, audioFrame.size)
 
-		// return vad != 0
-		return vadResult == 1
+		return speech
 	}
 }
