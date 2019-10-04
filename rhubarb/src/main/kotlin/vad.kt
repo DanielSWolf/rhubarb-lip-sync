@@ -27,7 +27,8 @@ fun CountLeadingZeros32(n: UInt): Int {
 	// Normalize n by rounding up to the nearest number that is a sequence of 0
 	// bits followed by a sequence of 1 bits. This number has the same number of
 	// leading zeros as the original n. There are exactly 33 such values.
-	var normalized = n or (n shr 1)
+	var normalized = n
+	normalized = normalized or (normalized shr 1)
 	normalized = normalized or (normalized shr 2)
 	normalized = normalized or (normalized shr 4)
 	normalized = normalized or (normalized shr 8)
@@ -318,7 +319,7 @@ class VadInstT(aggressiveness: Aggressiveness = Aggressiveness.Quality) {
 
 	// PDF parameters
 	var noise_means = kNoiseDataMeans.clone()
-	var speech_means = kSpeechDataStds.clone()
+	var speech_means = kSpeechDataMeans.clone()
 	var noise_stds = kNoiseDataStds.clone()
 	var speech_stds = kSpeechDataStds.clone()
 
@@ -489,7 +490,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 			}
 
 			// Calculate local speech probabilities used later when updating the GMM.
-			val h1 = (h1_test shr 12) // Q15
+			val h1 = h1_test shr 12 // Q15
 			if (h1 > 0) {
 				// High probability of speech. Assign conditional probabilities for each
 				// Gaussian in the GMM. Otherwise use the initialized values, i.e., 0.
@@ -530,7 +531,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 					// (Q14 * Q11 shr 11) = Q14.
 					val delt = (ngprvec[gaussian] * deltaN[gaussian]) shr 11
 					// Q7 + (Q14 * Q15 shr 22) = Q7.
-					nmk2 = nmk + (delt * kNoiseUpdateConst) shr 22
+					nmk2 = nmk + ((delt * kNoiseUpdateConst) shr 22)
 				}
 
 				// Long term correction of the noise mean.
@@ -574,7 +575,7 @@ fun GmmProbability(self: VadInstT, features: List<Int>, total_power: Int, frame_
 					self.speech_means[gaussian] = smk2 // Q7.
 
 					// (Q7 shr 3) = Q4. With rounding.
-					tmp_s16 = ((smk + 4) shr 3)
+					tmp_s16 = (smk + 4) shr 3
 
 					tmp_s16 = features[channel] - tmp_s16 // Q4
 					// (Q11 * Q4 shr 3) = Q12.
@@ -737,15 +738,15 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 	val offset = channel * 16
 
 	// Accessor for the age of each value of the [channel]
-	val age = object {
-		inline operator fun get(i: Int) = self.index_vector[offset + i]
-		inline operator fun set(i: Int, value: Int) { self.index_vector[offset + i] = value }
+	val age = object { // TODO: Inline?
+		operator fun get(i: Int) = self.index_vector[offset + i]
+		operator fun set(i: Int, value: Int) { self.index_vector[offset + i] = value }
 	}
 
 	// Accessor for the 16 minimum values of the [channel]
-	val smallest_values = object {
-		inline operator fun get(i: Int) = self.low_value_vector[offset + i]
-		inline operator fun set(i: Int, value: Int) { self.low_value_vector[offset + i] = value }
+	val smallest_values = object { // TODO: Inline?
+		operator fun get(i: Int) = self.low_value_vector[offset + i]
+		operator fun set(i: Int, value: Int) { self.low_value_vector[offset + i] = value }
 	}
 
 	assert(channel < kNumChannels)
@@ -757,7 +758,7 @@ fun FindMinimum(self: VadInstT, feature_value: Int, channel: Int): Int {
 			age[i]++
 		} else {
 			// Too old value. Remove from memory and shift larger values downwards.
-			for (j in i until 16) {
+			for (j in i until 15) {
 				smallest_values[j] = smallest_values[j + 1]
 				age[j] = age[j + 1]
 			}
@@ -925,13 +926,13 @@ fun AllPassFilter(input: AudioBuffer, filter_coefficient: Int, filter_state: Mut
 	// First 6 taps of the impulse response:
 	// 0.6399 0.5905 -0.3779 0.2418 -0.1547 0.0990
 
-	val result = SampleArray(input.size / 2)
+	val result = SampleArray((input.size + 1) / 2)
 	var state32 = filter_state.toInt() * (1 shl 16) // Q15
 	for (i in 0 until input.size step 2) {
 		val tmp32 = state32 + filter_coefficient * input[i]
 		val tmp16 = tmp32 shr 16 // Q(-1)
 		result[i / 2] = tmp16.toShort()
-		state32 = (input[i] * (1 shl 14)) - filter_coefficient * tmp16 // Q14
+		state32 = input[i] * (1 shl 14) - filter_coefficient * tmp16 // Q14
 		state32 *= 2 // Q15.
 	}
 	filter_state.setValue(state32 shr 16) // Q(-1)
@@ -1045,7 +1046,7 @@ fun LogOfEnergy(input: AudioBuffer, offset: Int, total_energy: MutableInt): Int 
 
 	// [kLogConst] is in Q9, [log2_energy] in Q10 and [tot_rshifts] in Q0.
 	// Note that we in our derivation above have accounted for an output in Q4.
-	var log_energy = (((kLogConst * log2_energy) shr 19) + (tot_rshifts * kLogConst) shr 9)
+	var log_energy = ((kLogConst * log2_energy) shr 19) + ((tot_rshifts * kLogConst) shr 9)
 
 	if (log_energy < 0) {
 		log_energy = 0
@@ -1203,5 +1204,6 @@ fun ProcessVad(self: VadInstT, fs: Int, audio_frame: AudioBuffer): Boolean {
 	assert(fs == 8000)
 
 	val vad = CalcVad8khz(self, audio_frame)
-	return vad != 0
+	// return vad != 0
+	return vad == 1
 }
