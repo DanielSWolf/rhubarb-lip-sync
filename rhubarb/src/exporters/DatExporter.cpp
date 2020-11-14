@@ -24,7 +24,7 @@ DatExporter::DatExporter(const ShapeSet& targetShapeSet, double frameRate, bool 
 	// Animation works with a fixed frame rate of 100.
 	// Downsampling to much less than 25 fps may result in dropped frames.
 	// Upsampling to more than 100 fps doesn't make sense.
-	const double minFrameRate = 24.0;
+	const double minFrameRate = 10.0;
 	const double maxFrameRate = 100.0;
 
 	if (frameRate < minFrameRate || frameRate > maxFrameRate) {
