@@ -27,6 +27,7 @@ Rhubarb Lip Sync integrates with the following applications:
 * *Spine* by Esoteric Software (see <<spine,below>>)
 * *Vegas Pro* by Magix (see <<vegas,below>>)
 * *Visionaire Studio* (see https://www.visionaire-studio.net/forum/thread/mouth-animation-using-rhubarb-lip-sync[external link])
+* *Cocos Creator* (see https://github.com/wzpan/rhubarb-lip-sync-ccc[wzpan/rhubarb-lip-sync-ccc])
 
 In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). 
 
