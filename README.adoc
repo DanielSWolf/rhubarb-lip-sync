@@ -192,9 +192,9 @@ _Default value: 24_
 ! X ! rest
 !===
 
-CAUTION: This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
+*Caution*: This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
 
-TIP: For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
+*Tip*: For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
 
 |===
 
