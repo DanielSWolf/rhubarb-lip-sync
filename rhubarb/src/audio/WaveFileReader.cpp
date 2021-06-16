@@ -4,6 +4,7 @@
 #include <iostream>
 #include "tools/platformTools.h"
 #include "tools/fileTools.h"
+#include <climits>
 
 using std::runtime_error;
 using fmt::format;
@@ -18,7 +19,7 @@ using std::filesystem::path;
 #define INT24_MAX 8388607
 
 // Converts an int in the range min..max to a float in the range -1..1
-float toNormalizedFloat(int value, int min, int max) {
+float toNormalizedFloat(int64_t value, int64_t min, int64_t max) {
 	return (static_cast<float>(value - min) / (max - min) * 2) - 1;
 }
 
@@ -97,6 +98,9 @@ WaveFileReader::WaveFileReader(const path& filePath) :
 						} else if (bitsPerSample <= 24) {
 							formatInfo.sampleFormat = SampleFormat::Int24;
 							bytesPerSample = 3;
+						} else if (bitsPerSample <= 32) {
+							formatInfo.sampleFormat = SampleFormat::Int32;
+							bytesPerSample = 4;
 						} else {
 							throw runtime_error(
 								format("Unsupported sample format: {}-bit PCM.", bitsPerSample));
@@ -170,6 +174,12 @@ inline AudioClip::value_type readSample(
 				int raw = read<int, 24>(file);
 				if (raw & 0x800000) raw |= 0xFF000000; // Fix two's complement
 				sum += toNormalizedFloat(raw, INT24_MIN, INT24_MAX);
+				break;
+			}
+			case SampleFormat::Int32:
+			{
+				int raw = read<int>(file);
+				sum += toNormalizedFloat(raw, INT_MIN, INT_MAX);
 				break;
 			}
 			case SampleFormat::Float32:
