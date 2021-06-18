@@ -3,6 +3,7 @@ import java.io.File
 
 plugins {
 	kotlin("jvm") version "1.3.41"
+	id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
 fun getVersion(): String {
@@ -22,15 +23,21 @@ version = getVersion()
 repositories {
 	mavenCentral()
 	jcenter()
+	maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 dependencies {
 	implementation(kotlin("stdlib-jdk8"))
 	implementation("com.beust:klaxon:5.0.1")
 	implementation("org.apache.commons:commons-lang3:3.9")
-	implementation("no.tornado:tornadofx:1.7.19")
+	implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
 	testImplementation("org.junit.jupiter:junit-jupiter:5.5.0")
 	testCompile("org.assertj:assertj-core:3.11.1")
+}
+
+javafx {
+    version = "15.0.1"
+    modules("javafx.controls")
 }
 
 tasks.withType<KotlinCompile> {
