@@ -7,9 +7,11 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.8" CACHE STRING "Minimum OS X deployment ver
 
 project(${appName})
 
-# Enable C++14
+# Enable C++17
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 endif()
 
 # Enable POSIX threads
