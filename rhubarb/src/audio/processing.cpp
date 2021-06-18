@@ -20,7 +20,7 @@ void process16bitAudioClip(
 	// Process entire sound stream
 	vector<int16_t> buffer;
 	buffer.reserve(bufferCapacity);
-	int sampleCount = 0;
+	size_t sampleCount = 0;
 	auto it = audioClip.begin();
 	const auto end = audioClip.end();
 	do {
@@ -35,7 +35,7 @@ void process16bitAudioClip(
 		processBuffer(buffer);
 
 		sampleCount += buffer.size();
-		progressSink.reportProgress(static_cast<double>(sampleCount) / audioClip.size());
+		progressSink.reportProgress(static_cast<double>(sampleCount) / static_cast<double>(audioClip.size()));
 	} while (!buffer.empty());
 }
 

@@ -296,7 +296,7 @@ public:
 	}
 
 	Timeline(const Timeline&) = default;
-	Timeline(Timeline&&) = default;
+	Timeline(Timeline&&) noexcept = default;
 	Timeline& operator=(const Timeline&) = default;
 	Timeline& operator=(Timeline&&) = default;
 

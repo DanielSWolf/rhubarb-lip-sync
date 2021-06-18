@@ -70,8 +70,8 @@ void ProgressBar::update(bool showSpinner) {
 
 void ProgressBar::updateText(const string& text) {
 	// Get length of common portion
-	int commonPrefixLength = 0;
-	const int commonLength = std::min(currentText.size(), text.size());
+	size_t commonPrefixLength = 0;
+	const size_t commonLength = std::min(currentText.size(), text.size());
 	while (commonPrefixLength < commonLength && text[commonPrefixLength] == currentText[commonPrefixLength]) {
 		commonPrefixLength++;
 	}
@@ -86,7 +86,7 @@ void ProgressBar::updateText(const string& text) {
 	output.append(text, commonPrefixLength, text.size() - commonPrefixLength);
 
 	// ... if the new text is shorter than the old one: delete overlapping characters
-	const int overlapCount = currentText.size() - text.size();
+	const int overlapCount = static_cast<int>(currentText.size()) - static_cast<int>(text.size());
 	if (overlapCount > 0) {
 		output.append(overlapCount, ' ');
 		output.append(overlapCount, '\b');

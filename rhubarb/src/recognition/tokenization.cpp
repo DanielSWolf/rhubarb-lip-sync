@@ -93,7 +93,7 @@ vector<string> tokenizeText(
 	vector<string> words = tokenizeViaFlite(text);
 
 	// Join words separated by apostrophes
-	for (int i = words.size() - 1; i > 0; --i) {
+	for (int i = static_cast<int>(words.size()) - 1; i > 0; --i) {
 		if (!words[i].empty() && words[i][0] == '\'') {
 			words[i - 1].append(words[i]);
 			words.erase(words.begin() + i);
