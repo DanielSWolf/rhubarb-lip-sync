@@ -34,7 +34,7 @@ path getBinPath() {
 			// Actually, it does.
 			// In case there are situations where it doesn't, we allocate one character more.
 			std::vector<char> buffer(pathLength + 1);
-			if (wai_getExecutablePath(buffer.data(), buffer.size(), nullptr) == -1) {
+			if (wai_getExecutablePath(buffer.data(), static_cast<int>(buffer.size()), nullptr) == -1) {
 				throw std::runtime_error("Error reading path.");
 			}
 			buffer[pathLength] = 0;

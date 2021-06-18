@@ -113,7 +113,7 @@ public:
 	}
 
 	int getStaticSegmentCount() const {
-		return staticSegments.size();
+		return static_cast<int>(staticSegments.size());
 	}
 
 	ContinuousTimeline<ShapeRule> getChangedRules() const {

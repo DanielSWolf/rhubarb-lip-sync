@@ -34,7 +34,7 @@ ProgressSink& ProgressMerger::addSource(const std::string& description, double w
 
 	totalWeight += weight;
 
-	const int sourceIndex = sources.size();
+	const int sourceIndex = static_cast<int>(sources.size());
 	sources.push_back({
 		description,
 		weight,
