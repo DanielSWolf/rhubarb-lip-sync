@@ -1,7 +1,8 @@
 #pragma once
 #include "platformTools.h"
 #include <fstream>
+#include <filesystem>
 
-std::ifstream openFile(boost::filesystem::path filePath);
+std::ifstream openFile(std::filesystem::path filePath);
 
-void throwIfNotReadable(boost::filesystem::path filePath);
+void throwIfNotReadable(std::filesystem::path filePath);

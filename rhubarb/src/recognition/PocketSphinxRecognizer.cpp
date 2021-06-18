@@ -20,7 +20,7 @@ using std::unique_ptr;
 using std::string;
 using std::vector;
 using std::map;
-using boost::filesystem::path;
+using std::filesystem::path;
 using std::regex;
 using std::regex_replace;
 using boost::optional;
@@ -58,10 +58,10 @@ void addMissingDictionaryWords(const vector<string>& words, ps_decoder_t& decode
 lambda_unique_ptr<ngram_model_t> createDefaultLanguageModel(ps_decoder_t& decoder) {
 	path modelPath = getSphinxModelDirectory() / "en-us.lm.bin";
 	lambda_unique_ptr<ngram_model_t> result(
-		ngram_model_read(decoder.config, modelPath.string().c_str(), NGRAM_AUTO, decoder.lmath),
+		ngram_model_read(decoder.config, modelPath.u8string().c_str(), NGRAM_AUTO, decoder.lmath),
 		[](ngram_model_t* lm) { ngram_model_free(lm); });
 	if (!result) {
-		throw runtime_error(fmt::format("Error reading language model from {}.", modelPath));
+		throw runtime_error(fmt::format("Error reading language model from {}.", modelPath.u8string()));
 	}
 
 	return result;
@@ -120,9 +120,9 @@ static lambda_unique_ptr<ps_decoder_t> createDecoder(optional<std::string> dialo
 		cmd_ln_init(
 			nullptr, ps_args(), true,
 			// Set acoustic model
-			"-hmm", (getSphinxModelDirectory() / "acoustic-model").string().c_str(),
+			"-hmm", (getSphinxModelDirectory() / "acoustic-model").u8string().c_str(),
 			// Set pronunciation dictionary
-			"-dict", (getSphinxModelDirectory() / "cmudict-en-us.dict").string().c_str(),
+			"-dict", (getSphinxModelDirectory() / "cmudict-en-us.dict").u8string().c_str(),
 			// Add noise against zero silence
 			// (see http://cmusphinx.sourceforge.net/wiki/faq#qwhy_my_accuracy_is_poor)
 			"-dither", "yes",

@@ -3,7 +3,7 @@
 #include "logging/Entry.h"
 #include "logging/Sink.h"
 #include "tools/ProgressBar.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 // Prints nicely formatted progress to stderr.
 // Non-semantic entries are only printed if their log level at least matches the specified minimum level.
@@ -31,7 +31,7 @@ public:
 private:
 	logging::Level minLevel;
 	bool quietSoFar = true;
-	boost::optional<boost::filesystem::path> inputFilePath;
+	boost::optional<std::filesystem::path> inputFilePath;
 	std::shared_ptr<Sink> innerSink;
 };
 

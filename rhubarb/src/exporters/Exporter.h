@@ -2,19 +2,19 @@
 
 #include "core/Shape.h"
 #include "time/ContinuousTimeline.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 class ExporterInput {
 public:
 	ExporterInput(
-		const boost::filesystem::path& inputFilePath,
+		const std::filesystem::path& inputFilePath,
 		const JoiningContinuousTimeline<Shape>& animation,
 		const ShapeSet& targetShapeSet) :
 		inputFilePath(inputFilePath),
 		animation(animation),
 		targetShapeSet(targetShapeSet) {}
 
-	boost::filesystem::path inputFilePath;
+	std::filesystem::path inputFilePath;
 	JoiningContinuousTimeline<Shape> animation;
 	ShapeSet targetShapeSet;
 };

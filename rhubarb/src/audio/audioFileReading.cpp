@@ -4,7 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include "OggVorbisFileReader.h"
 
-using boost::filesystem::path;
+using std::filesystem::path;
 using std::string;
 using std::runtime_error;
 using fmt::format;
@@ -12,7 +12,7 @@ using fmt::format;
 std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
 	try {
 		const string extension =
-			boost::algorithm::to_lower_copy(boost::filesystem::extension(filePath));
+			boost::algorithm::to_lower_copy(filePath.extension().u8string());
 		if (extension == ".wav") {
 			return std::make_unique<WaveFileReader>(filePath);
 		}
@@ -24,6 +24,6 @@ std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
 			extension
 		));
 	} catch (...) {
-		std::throw_with_nested(runtime_error(format("Could not open sound file {}.", filePath)));
+		std::throw_with_nested(runtime_error(format("Could not open sound file {}.", filePath.u8string())));
 	}
 }

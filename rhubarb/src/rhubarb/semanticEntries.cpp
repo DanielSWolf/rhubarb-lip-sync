@@ -7,12 +7,12 @@ SemanticEntry::SemanticEntry(Level level, const string& message) :
 	Entry(level, message)
 {}
 
-StartEntry::StartEntry(const boost::filesystem::path& inputFilePath) :
-	SemanticEntry(Level::Info, fmt::format("Application startup. Input file: {}.", inputFilePath)),
+StartEntry::StartEntry(const std::filesystem::path& inputFilePath) :
+	SemanticEntry(Level::Info, fmt::format("Application startup. Input file: {}.", inputFilePath.u8string())),
 	inputFilePath(inputFilePath)
 {}
 
-boost::filesystem::path StartEntry::getInputFilePath() const {
+std::filesystem::path StartEntry::getInputFilePath() const {
 	return inputFilePath;
 }
 

@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 
 string getBinaryName() {
-	return getBinPath().filename().string();
+	return getBinPath().filename().u8string();
 }
 
 void NiceCmdLineOutput::version(CmdLineInterface& cli) {

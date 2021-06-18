@@ -9,10 +9,9 @@
 #include <gsl_util.h>
 #include "exporters/Exporter.h"
 #include "time/ContinuousTimeline.h"
-#include <boost/filesystem/operations.hpp>
 #include "tools/stringTools.h"
 #include <boost/range/adaptor/transformed.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <fstream>
 #include "tools/parallel.h"
 #include "tools/exceptions.h"
 #include "tools/textFiles.h"
@@ -39,7 +38,8 @@ using std::unique_ptr;
 using std::make_unique;
 using std::shared_ptr;
 using std::make_shared;
-using boost::filesystem::path;
+using std::filesystem::path;
+using std::filesystem::u8path;
 using boost::adaptors::transformed;
 using boost::optional;
 
@@ -64,7 +64,7 @@ namespace TCLAP {
 }
 
 shared_ptr<logging::Sink> createFileSink(const path& path, logging::Level minLevel) {
-	auto file = make_shared<boost::filesystem::ofstream>();
+	auto file = make_shared<std::ofstream>();
 	file->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	file->open(path);
 	auto FileSink =
@@ -121,9 +121,8 @@ int main(int platformArgc, char* platformArgv[]) {
 	shared_ptr<logging::Sink> defaultSink = make_shared<NiceStderrSink>(defaultMinStderrLevel);
 	logging::addSink(defaultSink);
 
-	// Use UTF-8 throughout
+	// Make sure the console uses UTF-8 on all platforms including Windows
 	useUtf8ForConsole();
-	useUtf8ForBoostFilesystem();
 
 	// Convert command-line arguments to UTF-8
 	const vector<string> args = argsToUtf8(platformArgc, platformArgv);
@@ -229,7 +228,7 @@ int main(int platformArgc, char* platformArgv[]) {
 		logging::removeSink(defaultSink);
 		// ... to log file
 		if (logFileName.isSet()) {
-			auto fileSink = createFileSink(path(logFileName.getValue()), logLevel.getValue());
+			auto fileSink = createFileSink(u8path(logFileName.getValue()), logLevel.getValue());
 			logging::addSink(fileSink);
 		}
 
@@ -237,7 +236,7 @@ int main(int platformArgc, char* platformArgv[]) {
 		if (maxThreadCount.getValue() < 1) {
 			throw std::runtime_error("Thread count must be 1 or higher.");
 		}
-		path inputFilePath(inputFileName.getValue());
+		path inputFilePath = u8path(inputFileName.getValue());
 		ShapeSet targetShapeSet = getTargetShapeSet(extendedShapes.getValue());
 
 		unique_ptr<Exporter> exporter = createExporter(
@@ -262,7 +261,7 @@ int main(int platformArgc, char* platformArgv[]) {
 			JoiningContinuousTimeline<Shape> animation = animateWaveFile(
 				inputFilePath,
 				dialogFile.isSet()
-					? readUtf8File(path(dialogFile.getValue()))
+					? readUtf8File(u8path(dialogFile.getValue()))
 					: boost::optional<string>(),
 				*createRecognizer(recognizerType.getValue()),
 				targetShapeSet,
@@ -271,9 +270,9 @@ int main(int platformArgc, char* platformArgv[]) {
 			logging::info("Done animating.");
 
 			// Export animation
-			optional<boost::filesystem::ofstream> outputFile;
+			optional<std::ofstream> outputFile;
 			if (outputFileName.isSet()) {
-				outputFile = boost::in_place(outputFileName.getValue());
+				outputFile = boost::in_place(u8path(outputFileName.getValue()));
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			}
 			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
@@ -284,7 +283,7 @@ int main(int platformArgc, char* platformArgv[]) {
 			logging::log(SuccessEntry());
 		} catch (...) {
 			std::throw_with_nested(
-				std::runtime_error(fmt::format("Error processing file {}.", inputFilePath))
+				std::runtime_error(fmt::format("Error processing file {}.", inputFilePath.u8string()))
 			);
 		}
 

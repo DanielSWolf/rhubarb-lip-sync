@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include "AudioClip.h"
 
 enum class SampleFormat {
@@ -12,7 +12,7 @@ enum class SampleFormat {
 
 class WaveFileReader : public AudioClip {
 public:
-	WaveFileReader(const boost::filesystem::path& filePath);
+	WaveFileReader(const std::filesystem::path& filePath);
 	std::unique_ptr<AudioClip> clone() const override;
 	int getSampleRate() const override;
 	size_type size() const override;
@@ -29,7 +29,7 @@ private:
 		std::streampos dataOffset;
 	};
 
-	boost::filesystem::path filePath;
+	std::filesystem::path filePath;
 	WaveFormatInfo formatInfo;
 };
 

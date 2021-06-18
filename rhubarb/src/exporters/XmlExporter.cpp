@@ -3,7 +3,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/version.hpp>
 #include "exporterTools.h"
-#include <boost/filesystem.hpp>
 
 using std::string;
 using boost::property_tree::ptree;
@@ -12,7 +11,7 @@ void XmlExporter::exportAnimation(const ExporterInput& input, std::ostream& outp
 	ptree tree;
 
 	// Add metadata
-	tree.put("rhubarbResult.metadata.soundFile", absolute(input.inputFilePath).string());
+	tree.put("rhubarbResult.metadata.soundFile", absolute(input.inputFilePath).u8string());
 	tree.put(
 		"rhubarbResult.metadata.duration",
 		formatDuration(input.animation.getRange().getDuration())
