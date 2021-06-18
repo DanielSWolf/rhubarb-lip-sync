@@ -26,13 +26,12 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Author: wan@google.com (Zhanyong Wan)
-//
-// This is part of the unit test for include/gtest/gtest_prod.h.
 
-#ifndef GTEST_TEST_PRODUCTION_H_
-#define GTEST_TEST_PRODUCTION_H_
+//
+// This is part of the unit test for gtest_prod.h.
+
+#ifndef GOOGLETEST_TEST_PRODUCTION_H_
+#define GOOGLETEST_TEST_PRODUCTION_H_
 
 #include "gtest/gtest_prod.h"
 
@@ -52,4 +51,4 @@ class PrivateCode {
   int x_;
 };
 
-#endif  // GTEST_TEST_PRODUCTION_H_
+#endif  // GOOGLETEST_TEST_PRODUCTION_H_

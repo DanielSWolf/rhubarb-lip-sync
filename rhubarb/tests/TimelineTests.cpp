@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include "time/Timeline.h"
 #include <functional>
+#include <boost/optional/optional_io.hpp>
 
 using namespace testing;
 using std::vector;

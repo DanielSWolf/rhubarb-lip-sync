@@ -5,7 +5,13 @@
 
 using centiseconds = std::chrono::duration<int, std::centi>;
 
-std::ostream& operator <<(std::ostream& stream, centiseconds cs);
+// Needs to be in the same namespace as std::chrono::duration, or googletest won't pick it up.
+// See https://github.com/google/googletest/blob/master/docs/advanced.md#user-content-teaching-googletest-how-to-print-your-values
+namespace std {
+
+	std::ostream& operator <<(std::ostream&, centiseconds cs);
+	
+}
 
 #pragma warning(push)
 #pragma warning(disable: 4455)
