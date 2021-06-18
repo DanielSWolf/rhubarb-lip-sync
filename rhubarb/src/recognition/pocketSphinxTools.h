@@ -4,7 +4,7 @@
 #include "core/Phone.h"
 #include "audio/AudioClip.h"
 #include "tools/progress.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 extern "C" {
 #include <pocketsphinx.h>
@@ -32,7 +32,7 @@ BoundedTimeline<Phone> recognizePhones(
 
 constexpr int sphinxSampleRate = 16000;
 
-const boost::filesystem::path& getSphinxModelDirectory();
+const std::filesystem::path& getSphinxModelDirectory();
 
 JoiningTimeline<void> getNoiseSounds(TimeRange utteranceTimeRange, const Timeline<Phone>& phones);
 

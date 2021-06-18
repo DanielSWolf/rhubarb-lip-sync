@@ -1,5 +1,4 @@
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <format.h>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -9,14 +8,14 @@
 #include <utf8.h>
 #include <gsl_util.h>
 #include "tools.h"
-#include <boost/filesystem/detail/utf8_codecvt_facet.hpp> 
+#include <codecvt>
 #include <iostream>
 
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
 
-using boost::filesystem::path;
+using std::filesystem::path;
 using std::string;
 using std::vector;
 
@@ -39,9 +38,9 @@ path getBinPath() {
 			}
 			buffer[pathLength] = 0;
 
-			// Convert to boost::filesystem::path
+			// Convert to std::filesystem::path
 			const string pathString(buffer.data());
-			path result(boost::filesystem::canonical(pathString).make_preferred());
+			path result(std::filesystem::canonical(pathString).make_preferred());
 			return result;
 		} catch (...) {
 			std::throw_with_nested(std::runtime_error("Could not determine path of bin directory."));
@@ -55,7 +54,7 @@ path getBinDirectory() {
 }
 
 path getTempFilePath() {
-	const path tempDirectory = boost::filesystem::temp_directory_path();
+	const path tempDirectory = std::filesystem::temp_directory_path();
 	static boost::uuids::random_generator generateUuid;
 	const string fileName = to_string(generateUuid());
 	return tempDirectory / fileName;
@@ -144,10 +143,4 @@ void useUtf8ForConsole() {
 	std::cout.rdbuf(new ConsoleBuffer(stdout));
 	std::cerr.rdbuf(new ConsoleBuffer(stderr));
 #endif
-}
-
-void useUtf8ForBoostFilesystem() {
-	const std::locale globalLocale = std::locale();
-	const std::locale utf8Locale(globalLocale, new boost::filesystem::detail::utf8_codecvt_facet);
-	path::imbue(utf8Locale);
 }

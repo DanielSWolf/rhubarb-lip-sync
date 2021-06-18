@@ -1,12 +1,13 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <ctime>
 #include <string>
+#include <vector>
 
-boost::filesystem::path getBinPath();
-boost::filesystem::path getBinDirectory();
-boost::filesystem::path getTempFilePath();
+std::filesystem::path getBinPath();
+std::filesystem::path getBinDirectory();
+std::filesystem::path getTempFilePath();
 
 std::tm getLocalTime(const time_t& time);
 std::string errorNumberToString(int errorNumber);
@@ -14,4 +15,3 @@ std::string errorNumberToString(int errorNumber);
 std::vector<std::string> argsToUtf8(int argc, char* argv[]);
 
 void useUtf8ForConsole();
-void useUtf8ForBoostFilesystem();

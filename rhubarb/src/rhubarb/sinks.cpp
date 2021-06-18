@@ -24,7 +24,7 @@ void NiceStderrSink::receive(const logging::Entry& entry) {
 	// the technical log message.
 	if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
 		std::cerr
-			<< fmt::format("Generating lip sync data for {}.", startEntry->getInputFilePath())
+			<< fmt::format("Generating lip sync data for {}.", startEntry->getInputFilePath().u8string())
 			<< std::endl;
 		startProgressIndication();
 	} else if (const auto* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
@@ -75,7 +75,7 @@ void QuietStderrSink::receive(const logging::Entry& entry) {
 		if (quietSoFar) {
 			// This is the first message we print. Give a bit of context.
 			const string intro = inputFilePath
-				? fmt::format("{} {} processing file {}:", appName, appVersion, *inputFilePath)
+				? fmt::format("{} {} processing file {}:", appName, appVersion, inputFilePath->u8string())
 				: fmt::format("{} {}:", appName, appVersion);
 			std::cerr << intro << std::endl;
 			quietSoFar = false;
@@ -100,7 +100,7 @@ void MachineReadableStderrSink::receive(const logging::Entry& entry) {
 	optional<string> line;
 	if (dynamic_cast<const SemanticEntry*>(&entry)) {
 		if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
-			const string file = escapeJsonString(startEntry->getInputFilePath().string());
+			const string file = escapeJsonString(startEntry->getInputFilePath().u8string());
 			line = fmt::format(
 				R"({{ "type": "start", "file": "{}", {} }})",
 				file,

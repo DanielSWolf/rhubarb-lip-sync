@@ -1,5 +1,5 @@
 #pragma once
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
-std::string readUtf8File(boost::filesystem::path filePath);
+std::string readUtf8File(std::filesystem::path filePath);

@@ -1,18 +1,17 @@
 #include "textFiles.h"
-#include <boost/filesystem/operations.hpp>
 #include <format.h>
-#include <boost/filesystem/fstream.hpp>
+#include <fstream>
 #include "stringTools.h"
 
 using std::string;
-using boost::filesystem::path;
+using std::filesystem::path;
 
 string readUtf8File(path filePath) {
 	if (!exists(filePath)) {
-		throw std::invalid_argument(fmt::format("File {} does not exist.", filePath));
+		throw std::invalid_argument(fmt::format("File {} does not exist.", filePath.u8string()));
 	}
 	try {
-		boost::filesystem::ifstream file;
+		std::ifstream file;
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		file.open(filePath);
 		string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -22,7 +21,7 @@ string readUtf8File(path filePath) {
 
 		return text;
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(fmt::format("Error reading file {0}.", filePath)));
+		std::throw_with_nested(std::runtime_error(fmt::format("Error reading file {0}.", filePath.u8string())));
 	}
 }
 

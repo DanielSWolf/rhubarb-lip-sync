@@ -2,6 +2,6 @@
 
 #include <memory>
 #include "AudioClip.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-std::unique_ptr<AudioClip> createAudioFileClip(boost::filesystem::path filePath);
+std::unique_ptr<AudioClip> createAudioFileClip(std::filesystem::path filePath);

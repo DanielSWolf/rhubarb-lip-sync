@@ -12,7 +12,7 @@ using namespace little_endian;
 using std::unique_ptr;
 using std::make_unique;
 using std::make_shared;
-using boost::filesystem::path;
+using std::filesystem::path;
 
 #define INT24_MIN (-8388608)
 #define INT24_MAX 8388607

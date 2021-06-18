@@ -6,7 +6,7 @@
 #include <format.h>
 #include "tools/fileTools.h"
 
-using boost::filesystem::path;
+using std::filesystem::path;
 using std::vector;
 using std::make_shared;
 using std::ifstream;

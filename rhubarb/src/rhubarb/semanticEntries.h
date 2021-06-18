@@ -1,6 +1,6 @@
 #pragma once
 #include "logging/Entry.h"
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 // Marker class for semantic entries
 class SemanticEntry : public logging::Entry {
@@ -10,10 +10,10 @@ public:
 
 class StartEntry : public SemanticEntry {
 public:
-	StartEntry(const boost::filesystem::path& inputFilePath);
-	boost::filesystem::path getInputFilePath() const;
+	StartEntry(const std::filesystem::path& inputFilePath);
+	std::filesystem::path getInputFilePath() const;
 private:
-	boost::filesystem::path inputFilePath;
+	std::filesystem::path inputFilePath;
 };
 
 class ProgressEntry : public SemanticEntry {

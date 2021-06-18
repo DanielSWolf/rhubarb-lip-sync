@@ -2,7 +2,7 @@
 
 #include <cerrno>
 
-using boost::filesystem::path;
+using std::filesystem::path;
 
 std::ifstream openFile(path filePath) {
 	try {

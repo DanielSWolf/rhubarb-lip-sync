@@ -65,7 +65,7 @@ set(Boost_USE_STATIC_LIBS ON) # Use static libs
 set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
 set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
 set(Boost_NO_BOOST_CMAKE ON) # Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18865
-find_package(Boost 1.54 REQUIRED COMPONENTS filesystem locale system)
+find_package(Boost 1.54 REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_LIBRARIES}) # Just about every project needs Boost
 

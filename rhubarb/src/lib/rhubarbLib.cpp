@@ -6,7 +6,7 @@
 
 using boost::optional;
 using std::string;
-using boost::filesystem::path;
+using std::filesystem::path;
 
 JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,
