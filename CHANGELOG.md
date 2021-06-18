@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Changed** Rhubarb Lip Sync for Spine so that it works with any modern JRE ([issue #97](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/97))
+
 ## Version 1.10.0
 
 * **Added** switch data file exporter for Moho (formerly Anime Studio) and OpenToonz ([issue #69](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/69))
