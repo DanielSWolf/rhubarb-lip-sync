@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Changed** Windows build from 32 bit to 64 bit
+
 ## Version 1.10.0
 
 * **Added** switch data file exporter for Moho (formerly Anime Studio) and OpenToonz ([issue #69](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/69))

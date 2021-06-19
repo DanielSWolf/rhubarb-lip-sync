@@ -1,0 +1,67 @@
+on: push
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - description: Windows / Visual Studio
+            os: windows-2019
+            cmakeOptions: '-G "Visual Studio 16 2019" -A x64'
+            publish: true
+          - description: macOS / Xcode
+            os: macos-10.15
+            cmakeOptions: ""
+            publish: true
+          - description: Linux / GCC
+            os: ubuntu-20.04
+            cmakeOptions: "-D CMAKE_C_COMPILER=gcc-10 -D CMAKE_CXX_COMPILER=g++-10"
+            publish: true
+          - description: Linux / Clang
+            os: ubuntu-20.04
+            cmakeOptions: "-D CMAKE_C_COMPILER=clang-12 -D CMAKE_CXX_COMPILER=clang++-12"
+            publish: false
+    env:
+      BOOST_ROOT: ${{github.workspace}}/lib/boost
+      BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2/download
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Restore Boost from cache
+        uses: actions/cache@v2
+        id: cache-boost
+        with:
+          path: ${{ env.BOOST_ROOT }}
+          key: ${{ env.BOOST_URL }}
+      - name: Download Boost
+        if: steps.cache-boost.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            # use forward slashes only
+            BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+          fi
+          mkdir -p $BOOST_ROOT
+          curl --insecure -L $BOOST_URL | tar -xj --strip-components=1 -C $BOOST_ROOT
+      - name: Build Rhubarb
+        shell: bash
+        run: |
+          JAVA_HOME=$JAVA_HOME_11_X64
+          mkdir build
+          cd build
+          cmake ${{ matrix.cmakeOptions }} ..
+          cmake --build . --config Release --target package
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries
+          path: build/*.zip
+      - name: Run tests
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ./build/rhubarb/Release/runTests.exe
+          else
+            ./build/rhubarb/runTests
+          fi
