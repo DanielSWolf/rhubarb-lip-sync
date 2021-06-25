@@ -9,7 +9,7 @@
 :X: &#9421;
 
 image:https://img.shields.io/twitter/follow/RhubarbLipSync.svg?style=social&label=Follow["Twitter", link="https://twitter.com/RhubarbLipSync"]
-image:https://img.shields.io/github/workflow/status/DanielSWolf/rhubarb-lip-sync/ci["Build status"]
+image:https://github.com/DanielSWolf/rhubarb-lip-sync/actions/workflows/ci.yml/badge.svg["Build status", link="https://github.com/DanielSWolf/rhubarb-lip-sync/actions/workflows/ci.yml"]
 
 ---
 
