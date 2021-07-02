@@ -4,7 +4,6 @@
 #include <iostream>
 #include "tools/platformTools.h"
 #include "tools/fileTools.h"
-#include <climits>
 
 using std::runtime_error;
 using fmt::format;
@@ -179,7 +178,7 @@ inline AudioClip::value_type readSample(
 			case SampleFormat::Int32:
 			{
 				int raw = read<int>(file);
-				sum += toNormalizedFloat(raw, INT_MIN, INT_MAX);
+				sum += toNormalizedFloat(raw, INT32_MIN, INT32_MAX);
 				break;
 			}
 			case SampleFormat::Float32:
