@@ -7,6 +7,7 @@ enum class SampleFormat {
 	UInt8,
 	Int16,
 	Int24,
+	Int32,
 	Float32
 };
 
