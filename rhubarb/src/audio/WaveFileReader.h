@@ -7,7 +7,9 @@ enum class SampleFormat {
 	UInt8,
 	Int16,
 	Int24,
-	Float32
+	Int32,
+	Float32,
+	Float64
 };
 
 struct WaveFormatInfo {
