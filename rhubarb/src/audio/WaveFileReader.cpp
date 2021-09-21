@@ -33,10 +33,9 @@ namespace Codec {
 
 string codecToString(int codec);
 
-WaveFileReader::WaveFileReader(const path& filePath) :
-	filePath(filePath),
-	formatInfo {}
-{
+WaveFormatInfo getWaveFormatInfo(const path& filePath) {
+	WaveFormatInfo formatInfo {};
+
 	auto file = openFile(filePath);
 
 	file.seekg(0, std::ios_base::end);
@@ -139,7 +138,13 @@ WaveFileReader::WaveFileReader(const path& filePath) :
 			}
 		}
 	}
+
+	return formatInfo;
 }
+
+WaveFileReader::WaveFileReader(const path& filePath) :
+	filePath(filePath),
+	formatInfo(getWaveFormatInfo(filePath)) {}
 
 unique_ptr<AudioClip> WaveFileReader::clone() const {
 	return make_unique<WaveFileReader>(*this);

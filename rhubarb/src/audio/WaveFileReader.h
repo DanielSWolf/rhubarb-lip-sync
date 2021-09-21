@@ -10,6 +10,17 @@ enum class SampleFormat {
 	Float32
 };
 
+struct WaveFormatInfo {
+	int bytesPerFrame;
+	SampleFormat sampleFormat;
+	int frameRate;
+	int64_t frameCount;
+	int channelCount;
+	std::streampos dataOffset;
+};
+
+WaveFormatInfo getWaveFormatInfo(const std::filesystem::path& filePath);
+
 class WaveFileReader : public AudioClip {
 public:
 	WaveFileReader(const std::filesystem::path& filePath);
@@ -19,15 +30,6 @@ public:
 
 private:
 	SampleReader createUnsafeSampleReader() const override;
-
-	struct WaveFormatInfo {
-		int bytesPerFrame;
-		SampleFormat sampleFormat;
-		int frameRate;
-		int64_t frameCount;
-		int channelCount;
-		std::streampos dataOffset;
-	};
 
 	std::filesystem::path filePath;
 	WaveFormatInfo formatInfo;
