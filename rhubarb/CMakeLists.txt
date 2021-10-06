@@ -520,6 +520,7 @@ set(TEST_FILES
 	tests/tokenizationTests.cpp
 	tests/g2pTests.cpp
 	tests/LazyTests.cpp
+	tests/WaveFileReaderTests.cpp
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(runTests
@@ -528,6 +529,7 @@ target_link_libraries(runTests
 	gmock_main
 	rhubarb-recognition
 	rhubarb-time
+	rhubarb-audio
 )
 
 # Copies the specified files in a post-build event, then installs them
@@ -555,8 +557,29 @@ function(copy_and_install sourceGlob relativeTargetDirectory)
 	endforeach()
 endfunction()
 
+# Copies the specified files in a post-build event
+function(copy sourceGlob relativeTargetDirectory)
+	# Set `sourcePaths`
+	file(GLOB sourcePaths "${sourceGlob}")
+	
+	foreach(sourcePath ${sourcePaths})
+		if(NOT IS_DIRECTORY ${sourcePath})
+			# Set `fileName`
+			get_filename_component(fileName "${sourcePath}" NAME)
+
+			# Copy file during build
+			add_custom_command(TARGET rhubarb POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
+				COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
+			)
+		endif()
+	endforeach()
+endfunction()
+
 copy_and_install("lib/pocketsphinx-rev13216/model/en-us/*" "res/sphinx")
 copy_and_install("lib/cmusphinx-en-us-5.2/*" "res/sphinx/acoustic-model")
+
+copy_and_install("tests/resources/*" "tests/resources")
 
 install(
 	TARGETS rhubarb
