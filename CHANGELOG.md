@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## Version 1.11.0
+
 * **Added** support for more WAVE file features ([issue #101](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/101))
 * **Changed** Rhubarb Lip Sync for Spine so that it works with any modern JRE ([issue #97](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/97))
 * **Changed** Windows build from 32 bit to 64 bit ([issue #98](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/98))
