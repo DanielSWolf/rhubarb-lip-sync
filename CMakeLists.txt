@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 include(appInfo.cmake)
 
+project(${appName})
+
 # Build and install main executable
 add_subdirectory(rhubarb)
 
