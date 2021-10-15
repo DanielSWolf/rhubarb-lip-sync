@@ -1,3 +1,5 @@
+#include <exception>
+
 #include "exceptions.h"
 
 using std::string;

@@ -1,10 +1,12 @@
 #include "ProgressBar.h"
+
 #include <algorithm>
 #include <future>
 #include <chrono>
 #include <format.h>
 #include <boost/algorithm/clamp.hpp>
 #include <cmath>
+#include <thread>
 
 using std::string;
 

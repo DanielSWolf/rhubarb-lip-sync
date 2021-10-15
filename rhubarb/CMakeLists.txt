@@ -5,8 +5,6 @@ include("../appInfo.cmake")
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
 
-project(${appName})
-
 # Enable C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
