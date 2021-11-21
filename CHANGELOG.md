@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* **Added** support for skinning in Rhubarb for Spine ([issue #108](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/108))
+
 ## Version 1.11.0
 
 * **Added** support for more WAVE file features ([issue #101](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/101))
