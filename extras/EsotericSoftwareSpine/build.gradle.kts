@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 plugins {
-	kotlin("jvm") version "1.3.41"
+	kotlin("jvm") version "1.6.0"
 	id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
@@ -27,12 +27,12 @@ repositories {
 }
 
 dependencies {
-	implementation(kotlin("stdlib-jdk8"))
-	implementation("com.beust:klaxon:5.0.1")
-	implementation("org.apache.commons:commons-lang3:3.9")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0")
+	implementation("com.beust:klaxon:5.5")
+	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-	testImplementation("org.junit.jupiter:junit-jupiter:5.5.0")
-	testCompile("org.assertj:assertj-core:3.11.1")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testImplementation("org.assertj:assertj-core:3.21.0")
 }
 
 javafx {
