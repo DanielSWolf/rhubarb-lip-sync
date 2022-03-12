@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.12.0
 
 * **Added** support for skinning in Rhubarb for Spine ([issue #108](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/108))
 
