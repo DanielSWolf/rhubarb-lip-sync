@@ -10,7 +10,6 @@ class SpineJson(private val filePath: Path) {
 	private val fileDirectoryPath: Path = filePath.parent
 	private val json: JsonObject
 	private val skeleton: JsonObject
-	private val defaultSkin: JsonObject
 
 	init {
 		if (!Files.exists(filePath)) {
@@ -22,12 +21,6 @@ class SpineJson(private val filePath: Path) {
 			throw EndUserException("Wrong file format. This is not a valid JSON file.")
 		}
 		skeleton = json.obj("skeleton") ?: throw EndUserException("JSON file is corrupted.")
-		val skins = json["skins"] ?: throw EndUserException("JSON file doesn't contain skins.")
-		defaultSkin = when (skins) {
-			is JsonObject -> skins.obj("default")
-			is JsonArray<*> -> (skins as JsonArray<JsonObject>).find { it.string("name") == "default" }
-			else -> null
-		} ?: throw EndUserException("JSON file doesn't have a default skin.")
 
 		validateProperties()
 	}
@@ -96,10 +89,21 @@ class SpineJson(private val filePath: Path) {
 	}
 
 	fun getSlotAttachmentNames(slotName: String): List<String> {
-		val attachments = defaultSkin.obj(slotName)
-			?: defaultSkin.obj("attachments")?.obj(slotName)
-			?: JsonObject()
-		return attachments.map { it.key }
+		@Suppress("UNCHECKED_CAST")
+		val skins: Collection<JsonObject> = when (val skinsObject = json["skins"]) {
+			is JsonObject -> skinsObject.values as Collection<JsonObject>
+			is JsonArray<*> -> skinsObject as Collection<JsonObject>
+			else -> emptyList()
+		}
+
+		// Get attachment names for all skins
+		return skins
+			.flatMap { skin ->
+				skin.obj(slotName)?.keys?.toList()
+					?: skin.obj("attachments")?.obj(slotName)?.keys?.toList()
+					?: emptyList<String>()
+			}
+			.distinct()
 	}
 
 	val animationNames = observableSet<String>(
