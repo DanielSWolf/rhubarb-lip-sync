@@ -12,6 +12,7 @@ public:
 	virtual BoundedTimeline<Phone> recognizePhones(
 		const AudioClip& audioClip,
 		boost::optional<std::string> dialog,
+		boost::optional<BoundedTimeline<Phone>> alignedPhones,
 		int maxThreadCount,
 		ProgressSink& progressSink
 	) const = 0;

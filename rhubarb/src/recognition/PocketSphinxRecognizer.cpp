@@ -6,8 +6,10 @@
 #include "languageModels.h"
 #include "tokenization.h"
 #include "g2p.h"
+#include "audio/DcOffset.h"
 #include "time/ContinuousTimeline.h"
 #include "audio/processing.h"
+#include "audio/voiceActivityDetection.h"
 #include "time/timedLogging.h"
 
 extern "C" {
@@ -334,9 +336,41 @@ static Timeline<Phone> utteranceToPhones(
 BoundedTimeline<Phone> PocketSphinxRecognizer::recognizePhones(
 	const AudioClip& inputAudioClip,
 	optional<std::string> dialog,
+	optional<BoundedTimeline<Phone>> alignedPhones,
 	int maxThreadCount,
 	ProgressSink& progressSink
 ) const {
+	if (alignedPhones) {
+		// Make sure audio stream has no DC offset
+		const unique_ptr<AudioClip> audioClip = inputAudioClip.clone() | removeDcOffset();
+
+		// Split audio into utterances
+		JoiningBoundedTimeline<void> utterances;
+		try {
+			utterances = detectVoiceActivity(*audioClip, progressSink);
+		} catch (...) {
+			std::throw_with_nested(runtime_error("Error detecting segments of speech."));
+		}
+
+		BoundedTimeline<Phone> result(utterances.getRange());
+		for (auto& utterance : utterances) {
+			// Copy over utterance phones
+			BoundedTimeline<Phone> utteranceResult(utterance.getTimeRange(), *alignedPhones);
+
+			// Guess positions of noise sounds
+			const JoiningTimeline<void> noiseSounds = getNoiseSounds(utteranceResult.getRange(), utteranceResult);
+			for (const auto& noiseSound : noiseSounds) {
+				utteranceResult.set(noiseSound.getTimeRange(), Phone::Noise);
+			}
+
+			for (const auto& timedValue : utteranceResult) {
+				result.set(timedValue);
+			}
+		}
+
+		return result;
+	}
+
 	return ::recognizePhones(
 		inputAudioClip, dialog, &createDecoder, &utteranceToPhones, maxThreadCount, progressSink);
 }

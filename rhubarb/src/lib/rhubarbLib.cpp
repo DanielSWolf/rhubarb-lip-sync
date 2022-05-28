@@ -11,13 +11,14 @@ using std::filesystem::path;
 JoiningContinuousTimeline<Shape> animateAudioClip(
 	const AudioClip& audioClip,
 	const optional<string>& dialog,
+	const optional<BoundedTimeline<Phone>>& alignedPhones,
 	const Recognizer& recognizer,
 	const ShapeSet& targetShapeSet,
 	int maxThreadCount,
 	ProgressSink& progressSink)
 {
 	const BoundedTimeline<Phone> phones =
-		recognizer.recognizePhones(audioClip, dialog, maxThreadCount, progressSink);
+		recognizer.recognizePhones(audioClip, dialog, alignedPhones, maxThreadCount, progressSink);
 	JoiningContinuousTimeline<Shape> result = animate(phones, targetShapeSet);
 	return result;
 }
@@ -25,11 +26,12 @@ JoiningContinuousTimeline<Shape> animateAudioClip(
 JoiningContinuousTimeline<Shape> animateWaveFile(
 	path filePath,
 	const optional<string>& dialog,
+	const optional<BoundedTimeline<Phone>>& alignedPhones,
 	const Recognizer& recognizer,
 	const ShapeSet& targetShapeSet,
 	int maxThreadCount,
 	ProgressSink& progressSink)
 {
 	const auto audioClip = createAudioFileClip(filePath);
-	return animateAudioClip(*audioClip, dialog, recognizer, targetShapeSet, maxThreadCount, progressSink);
+	return animateAudioClip(*audioClip, dialog, alignedPhones, recognizer, targetShapeSet, maxThreadCount, progressSink);
 }

@@ -106,8 +106,12 @@ static Timeline<Phone> utteranceToPhones(
 BoundedTimeline<Phone> PhoneticRecognizer::recognizePhones(
 	const AudioClip& inputAudioClip,
 	optional<std::string> dialog,
+	optional<BoundedTimeline<Phone>> alignedPhones,
 	int maxThreadCount,
 	ProgressSink& progressSink
 ) const {
+	if (alignedPhones) {
+		throw std::invalid_argument("Phonetic recognizer doesn't support specifying aligned phones in this POC.");
+	}
 	return ::recognizePhones(inputAudioClip, dialog, &createDecoder, &utteranceToPhones, maxThreadCount, progressSink);
 }

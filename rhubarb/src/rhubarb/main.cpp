@@ -115,6 +115,33 @@ ShapeSet getTargetShapeSet(const string& extendedShapesString) {
 	return result;
 }
 
+BoundedTimeline<Phone> readAlignmentFile(const path& filePath) {
+	if (!exists(filePath)) {
+		throw std::invalid_argument(fmt::format("File {} does not exist.", filePath.u8string()));
+	}
+	try {
+		std::ifstream file;
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		file.open(filePath);
+		file.exceptions(0);
+		Timeline<Phone> result;
+		while (file) {
+			double start, end;
+			Phone phone;
+			file >> start >> end >> phone;
+			result.set(
+				centiseconds(static_cast<int>(start * 100)),
+				centiseconds(static_cast<int>(end * 100)),
+				phone
+			);
+		}
+
+		return BoundedTimeline<Phone>(result.getRange(), result);
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(fmt::format("Error reading file {0}.", filePath.u8string())));
+	}
+}
+
 int main(int platformArgc, char* platformArgv[]) {
 	// Set up default logging so early errors are printed to stdout
 	const logging::Level defaultMinStderrLevel = logging::Level::Error;
@@ -172,6 +199,11 @@ int main(int platformArgc, char* platformArgv[]) {
 	tclap::ValueArg<string> extendedShapes(
 		"", "extendedShapes", "All extended, optional shapes to use.",
 		false, "GHX", "string", cmd
+	);
+
+	tclap::ValueArg<string> alignmentFile(
+		"", "alignmentFile", "A .tsv file containing pre-calculated phoneme alignment data.",
+		false, string(), "string", cmd
 	);
 
 	tclap::ValueArg<string> dialogFile(
@@ -263,6 +295,9 @@ int main(int platformArgc, char* platformArgv[]) {
 				dialogFile.isSet()
 					? readUtf8File(u8path(dialogFile.getValue()))
 					: boost::optional<string>(),
+				alignmentFile.isSet()
+					? readAlignmentFile(u8path(alignmentFile.getValue()))
+					: boost::optional<BoundedTimeline<Phone>>(),
 				*createRecognizer(recognizerType.getValue()),
 				targetShapeSet,
 				maxThreadCount.getValue(),
