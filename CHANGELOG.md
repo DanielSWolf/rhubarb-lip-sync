@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Improved** animation rules for "F" sound when using just the basic mouth shapes.
+
 ## Version 1.12.0
 
 * **Added** support for skinning in Rhubarb for Spine ([issue #108](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/108))

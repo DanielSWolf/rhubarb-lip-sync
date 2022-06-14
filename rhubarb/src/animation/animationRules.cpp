@@ -15,7 +15,7 @@ constexpr size_t shapeValueCount = static_cast<size_t>(Shape::EndSentinel);
 
 Shape getBasicShape(Shape shape) {
 	static constexpr array<Shape, shapeValueCount> basicShapes =
-		make_array(A, B, C, D, E, F, B, C, A);
+		make_array(A, B, C, D, E, F, A, C, A);
 	return basicShapes[static_cast<size_t>(shape)];
 }
 
@@ -39,7 +39,7 @@ Shape getClosestShape(Shape reference, ShapeSet shapes) {
 		/* D */ make_array(D, C, H, B, G, A, X, E, F),
 		/* E */ make_array(E, C, H, B, G, A, X, D, F),
 		/* F */ make_array(F, B, G, A, X, C, H, E, D),
-		/* G */ make_array(G, B, C, H, A, X, E, D, F),
+		/* G */ make_array(G, A, B, C, H, X, E, D, F),
 		/* H */ make_array(H, C, B, G, D, A, X, E, F), // Like C
 		/* X */ make_array(X, A, G, B, C, H, E, D, F) // Like A
 	);
