@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.13.0
 
 * **Improved** animation rules for "F" sound when using just the basic mouth shapes.
 
