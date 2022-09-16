@@ -1,4 +1,0 @@
-# Too slow on Dr Memory Full.
-# https://code.google.com/p/webrtc/issues/detail?id=3247
-TestScaler.BiLinearScaleTest
-TestScaler.BoxScaleTest

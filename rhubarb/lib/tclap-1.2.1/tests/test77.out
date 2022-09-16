@@ -1,9 +1,0 @@
-PARSE ERROR: Argument: -b (--btmc)
-             Mutually exclusive argument already set!
-
-Brief USAGE: 
-   ../examples/test20  {-a|-b} [--] [--version] [-h]
-
-For complete USAGE and HELP type: 
-   ../examples/test20 --help
-

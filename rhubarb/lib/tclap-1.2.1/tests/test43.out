@@ -1,7 +1,0 @@
-my usage message:
--A,  --sA  (exist Test A)
--B,  --sB  (exist Test B)
--s <string>,  --Bs <string>  ((required)  string test)
---,  --ignore_rest  (Ignores the rest of the labeled arguments following this flag.)
---version  (Displays version information and exits.)
--h,  --help  (Displays usage information and exits.)

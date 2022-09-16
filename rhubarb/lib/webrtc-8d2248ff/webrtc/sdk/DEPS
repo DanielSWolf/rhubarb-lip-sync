@@ -1,6 +1,0 @@
-include_rules = [
-  "+WebRTC",
-  "+webrtc/api",
-  "+webrtc/media",
-  "+webrtc/system_wrappers",
-]
