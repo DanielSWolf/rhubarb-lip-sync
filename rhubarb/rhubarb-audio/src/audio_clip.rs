@@ -1,7 +1,6 @@
 use crate::audio_error::AudioError;
 use dyn_clone::DynClone;
-use std::fmt::Debug;
-use std::time::Duration;
+use std::{fmt::Debug, time::Duration};
 
 const NANOS_PER_SEC: u32 = 1_000_000_000;
 
