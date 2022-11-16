@@ -1,0 +1,13 @@
+[package]
+name = "rhubarb-audio"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dyn-clone = "1.0.10"
+log = "0.4.17"
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+rstest = "0.15.0"
+speculoos = "0.10.0"

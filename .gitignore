@@ -1,3 +1,6 @@
+.gradle/
 .vs/
 build/
+target/
 *.user
+*.profraw
