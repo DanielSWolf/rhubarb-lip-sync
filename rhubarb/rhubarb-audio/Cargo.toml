@@ -16,3 +16,6 @@ demonstrate = "0.4.5"
 rstest = "0.15.0"
 rstest_reuse = "0.4.0"
 speculoos = "0.10.0"
+
+[build-dependencies]
+cc = "1.0.77"

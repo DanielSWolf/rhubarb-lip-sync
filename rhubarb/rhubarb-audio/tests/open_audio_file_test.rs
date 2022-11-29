@@ -60,6 +60,7 @@ mod open_audio_file {
     #[case::wav_f32_ffmpeg      ("sine-triangle-f32-ffmpeg.wav",        48000,  sine_triangle_1_khz, 2.0f32.powi(-21))]
     #[case::wav_f32_soundforge  ("sine-triangle-f32-soundforge.wav",    48000,  sine_triangle_1_khz, 2.0f32.powi(-21))]
     #[case::wav_f64_ffmpeg      ("sine-triangle-f64-ffmpeg.wav",        48000,  sine_triangle_1_khz, 2.0f32.powi(-21))]
+    #[case::ogg                 ("sine-triangle.ogg",                   48000,  sine_triangle_1_khz, 2.0f32.powi(-3))] // lossy
     fn supported_audio_files(
         #[case] file_name: &str,
         #[case] sampling_rate: u32,
@@ -72,6 +73,10 @@ mod open_audio_file {
         "sine-triangle-i16-audacity.wav",
         "WaveAudioClip { wave_file_info: WaveFileInfo { sample_format: I16, channel_count: 2, sampling_rate: 48000, frame_count: 480000, bytes_per_frame: 4, data_offset: 44 } }"
     )]
+    #[case::ogg(
+        "sine-triangle.ogg",
+        "OggAudioClip { metadata: Metadata { frame_count: 480000, sampling_rate: 48000, channel_count: 2 } }"
+    )]
     fn supports_debug(#[case] file_name: &str, #[case] expected: &str) {
         let path = get_resource_file_path(file_name);
         let audio_clip = open_audio_file(path).unwrap();
@@ -82,6 +87,10 @@ mod open_audio_file {
     #[case::wav(
         "sine-triangle-i16-audacity.wav",
         "WaveFileSampleReader { wave_file_info: WaveFileInfo { sample_format: I16, channel_count: 2, sampling_rate: 48000, frame_count: 480000, bytes_per_frame: 4, data_offset: 44 }, logical_position: 0, physical_position: None }"
+    )]
+    #[case::ogg(
+        "sine-triangle.ogg",
+        "OggFileSampleReader { metadata: Metadata { frame_count: 480000, sampling_rate: 48000, channel_count: 2 }, logical_position: 0, physical_position: 0 }"
     )]
     fn sample_reader_supports_debug(#[case] file_name: &str, #[case] expected: &str) {
         let path = get_resource_file_path(file_name);
@@ -216,7 +225,6 @@ mod open_audio_file {
     }
 
     #[rstest]
-    #[case::ogg("sine-triangle.ogg")]
     #[case::mp3("sine-triangle.mp3")]
     #[case::flac("sine-triangle.flac")]
     fn fails_when_opening_file_of_unsupported_type(#[case] file_name: &str) {
@@ -244,6 +252,7 @@ mod open_audio_file {
 
     #[rstest]
     #[case::wav("no-such-file.wav")]
+    #[case::ogg("no-such-file.ogg")]
     fn fails_if_file_does_not_exist(#[case] file_name: &str) {
         let path = get_resource_file_path(file_name);
         let result = open_audio_file(path);
@@ -262,6 +271,14 @@ mod open_audio_file {
     )]
     #[case::wav_truncated_header("corrupt_truncated_header.wav", "Unexpected end of file.")]
     #[case::wav_truncated_data("corrupt_truncated_data.wav", "Unexpected end of file.")]
+    #[case::ogg_file_type_txt(
+        "corrupt_file_type_txt.ogg",
+        "The given file was not recognized as Ogg Vorbis data."
+    )]
+    #[case::ogg_truncated_header(
+        "corrupt_truncated_header.ogg",
+        "The given file was not recognized as Ogg Vorbis data."
+    )]
     fn fails_if_file_is_corrupt(#[case] file_name: &str, #[case] expected_message: &str) {
         let path = get_resource_file_path(file_name);
         let result = open_audio_file(path)
@@ -280,6 +297,10 @@ mod open_audio_file {
     #[case::wav_ansi("filename-ansi-€…‡‰‘’“”•™©±²½æ.wav")]
     #[case::wav_unicode_bmp("filename-unicode-bmp-①∀⇨.wav")]
     #[case::wav_unicode_wide("filename-unicode-wide-😀🤣🙈🍨.wav")]
+    #[case::ogg_ascii("filename-ascii !#$%&'()+,-.;=@[]^_`{}~.ogg")]
+    #[case::ogg_ansi("filename-ansi-€…‡‰‘’“”•™©±²½æ.ogg")]
+    #[case::ogg_unicode_bmp("filename-unicode-bmp-①∀⇨.ogg")]
+    #[case::ogg_unicode_wide("filename-unicode-wide-😀🤣🙈🍨.ogg")]
     fn supports_special_characters_in_file_names(#[case] file_name: &str) {
         let path = get_resource_file_path(file_name);
         let audio_clip = open_audio_file(path).unwrap();
@@ -291,6 +312,7 @@ mod open_audio_file {
 
     #[rstest]
     #[case::wav("zero-samples.wav")]
+    #[case::wav("zero-samples.ogg")]
     fn supports_zero_sample_files(#[case] file_name: &str) {
         let path = get_resource_file_path(file_name);
         let audio_clip = open_audio_file(path).unwrap();
@@ -344,10 +366,12 @@ mod open_audio_file_with_reader {
 
     #[rstest]
     #[case::wav_not_found("sine-triangle-i16-audacity.wav", io::ErrorKind::NotFound)]
+    #[case::ogg_not_found("sine-triangle.ogg", io::ErrorKind::NotFound)]
     #[case::wav_permission_denied(
         "sine-triangle-i16-audacity.wav",
         io::ErrorKind::PermissionDenied
     )]
+    #[case::ogg_permission_denied("sine-triangle.ogg", io::ErrorKind::PermissionDenied)]
     fn fails_on_io_errors(#[case] file_name: &'static str, #[case] error_kind: io::ErrorKind) {
         let next_error_kind = Rc::new(RefCell::new(None));
         let audio_clip = {

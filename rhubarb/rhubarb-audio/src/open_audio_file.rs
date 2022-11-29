@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::{AudioClip, AudioError, ReadAndSeek, WaveAudioClip};
+use crate::{AudioClip, AudioError, OggAudioClip, ReadAndSeek, WaveAudioClip};
 
 /// Creates an audio clip from the specified file.
 pub fn open_audio_file(path: impl Into<PathBuf>) -> Result<Box<dyn AudioClip>, AudioError> {
@@ -30,6 +30,7 @@ where
         .map(|e| e.to_os_string().into_string().unwrap_or_default());
     match lower_case_extension.as_deref() {
         Some("wav") => Ok(Box::new(WaveAudioClip::new(create_reader)?)),
+        Some("ogg") => Ok(Box::new(OggAudioClip::new(create_reader)?)),
         _ => Err(AudioError::UnsupportedFileType),
     }
 }
