@@ -121,12 +121,38 @@ fn build_vorbis(
     VorbisBuildResult { vorbis_utils_path }
 }
 
+fn build_libsamplerate(parent_dir: impl AsRef<Path>) {
+    let version = "0.2.2";
+    let repo_dir = checkout(
+        &parent_dir,
+        "https://github.com/libsndfile/libsamplerate.git",
+        version,
+        "libsamplerate",
+    );
+    let include_dir = repo_dir.join("include");
+    let src_dir = repo_dir.join("src");
+    cc::Build::new()
+        .define("PACKAGE", "\"libsamplerate\"")
+        .define("VERSION", format!("\"{version}\"").as_str())
+        .define("HAVE_STDBOOL_H", "1")
+        .define("ENABLE_SINC_MEDIUM_CONVERTER", "1")
+        .include(&include_dir)
+        .files(
+            ["samplerate.c", "src_linear.c", "src_sinc.c", "src_zoh.c"]
+                .map(|name| src_dir.join(name)),
+        )
+        .compile("libsamplerate");
+
+    println!("cargo:rustc-link-lib=static=libsamplerate");
+}
+
 fn main() {
     let out_dir = Path::new(&var_os("OUT_DIR").unwrap()).to_path_buf();
     println!("cargo:rustc-link-search=native={}", out_dir.display());
 
     let OggBuildResult { ogg_include_dir } = build_ogg(&out_dir);
     let VorbisBuildResult { vorbis_utils_path } = build_vorbis(&out_dir, ogg_include_dir);
+    build_libsamplerate(out_dir);
 
     println!("cargo:rerun-if-changed={}", vorbis_utils_path.display());
 }

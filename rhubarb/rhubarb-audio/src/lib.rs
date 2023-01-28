@@ -19,6 +19,7 @@ mod memory_audio_clip;
 mod ogg_audio_clip;
 mod open_audio_file;
 mod read_and_seek;
+mod resampled_audio_clip;
 mod sample_reader_assertions;
 mod segment;
 mod wave_audio_clip;
