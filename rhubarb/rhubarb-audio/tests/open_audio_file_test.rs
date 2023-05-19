@@ -1,6 +1,10 @@
+use num::{Float, FromPrimitive};
 use rstest::*;
 use rstest_reuse::{self, *};
 use speculoos::prelude::*;
+use speculoos::{AssertionFailure, Spec};
+use std::fmt::Debug;
+use std::iter::Sum;
 use std::{
     cell::RefCell,
     fs::File,
@@ -128,12 +132,14 @@ mod open_audio_file {
         let mut buffer = [0.0f32; 48 * 2];
         sample_reader.read(&mut buffer).unwrap();
 
-        for (i, sample) in buffer.iter().enumerate() {
-            let expected = signal_fn(i as f64 / sampling_rate as f64);
-            assert_that!(*sample)
-                .named(&i.to_string())
-                .is_close_to(expected, tolerance);
-        }
+        assert_that!(buffer.to_vec()).is_close_to(&[], Tolerance::MaxError(tolerance));
+
+        // for (i, sample) in buffer.iter().enumerate() {
+        //     let expected = signal_fn(i as f64 / sampling_rate as f64);
+        //     assert_that!(*sample)
+        //         .named(&i.to_string())
+        //         .is_close_to(expected, tolerance);
+        // }
     }
 
     #[apply(supported_audio_files)]
@@ -322,6 +328,51 @@ mod open_audio_file {
         sample_reader.read(&mut buffer).unwrap();
 
         sample_reader.set_position(0);
+    }
+}
+
+trait FloatVecAssertions<T: Float> {
+    fn is_close_to(&mut self, expected: &[T], tolerance: Tolerance<T>);
+}
+
+enum Tolerance<T: Float> {
+    MaxError(T),
+    MaxRmsError(T),
+}
+
+impl<'a, T: Float + Sum + FromPrimitive + Debug> FloatVecAssertions<T> for Spec<'a, Vec<T>> {
+    fn is_close_to(&mut self, expected: &[T], tolerance: Tolerance<T>) {
+        self.has_length(expected.len());
+
+        let pairs = expected.iter().zip(self.subject.iter());
+        match tolerance {
+            Tolerance::MaxError(max_error) => {
+                for (i, (expected_item, actual_item)) in pairs.enumerate() {
+                    let error = (*expected_item - *actual_item).abs();
+                    if error > max_error {
+                        AssertionFailure::from_spec(self)
+                            .with_expected(format!(
+                                "vec[{i}] = <{expected_item:?}> ± {max_error:?}"
+                            ))
+                            .with_actual(format!("<{actual_item:?}>"))
+                            .fail();
+                    }
+                }
+            }
+            Tolerance::MaxRmsError(max_rmse) => {
+                let len = self.subject.len();
+                let mse: T =
+                    pairs.map(|(a, b)| (*a - *b).powi(2)).sum::<T>() / T::from_usize(len).unwrap();
+                let rmse = mse.sqrt();
+
+                if rmse > max_rmse {
+                    AssertionFailure::from_spec(self)
+                        .with_expected(format!("maximum RMS error <{max_rmse:?}>"))
+                        .with_actual(format!("<{rmse:?}>"))
+                        .fail();
+                }
+            }
+        }
     }
 }
 

@@ -326,6 +326,7 @@ dependencies = [
  "derivative",
  "dyn-clone",
  "log",
+ "num",
  "once_cell",
  "rstest",
  "rstest_reuse",

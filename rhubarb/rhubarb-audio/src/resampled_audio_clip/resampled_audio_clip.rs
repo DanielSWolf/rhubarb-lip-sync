@@ -173,3 +173,150 @@ unsafe extern "C" fn read(callback_data: *mut c_void, buffer: *mut *const Sample
     *buffer = sample_buffer.as_ptr();
     sample_buffer.len() as c_long
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::{MemoryAudioClip, SampleReader};
+//     use rstest::*;
+//     use speculoos::prelude::*;
+
+//     /// A sine wave
+//     fn sine_440_hz(t: f64) -> Sample {
+//         let f = 440.0;
+//         f64::sin(t * f * 2.0 * std::f64::consts::PI) as f32
+//     }
+
+//     // A half-second clip of a 440 Hz sine wave sampled at 48 kHz
+//     #[fixture]
+//     fn original_clip() -> MemoryAudioClip {
+//         let samples: Vec<Sample> = (0..48000 / 2)
+//             .map(|i| sine_440_hz(i as f64 / 48000.0))
+//             .collect();
+//         MemoryAudioClip::new(&samples, 48000)
+//     }
+
+//     // The original clip resampled to 44.1 kHz
+//     #[fixture]
+//     fn resampled_clip(original_clip: MemoryAudioClip) -> ResampledAudioClip {
+//         ResampledAudioClip::new(Box::new(original_clip), 44100)
+//     }
+
+//     mod can_be_created_via_fluent_syntax {
+//         use super::*;
+//         use crate::AudioFilters;
+
+//         #[rstest]
+//         fn from_value(original_clip: MemoryAudioClip) {
+//             original_clip.resampled(44100);
+//         }
+
+//         #[rstest]
+//         fn from_box(original_clip: MemoryAudioClip) {
+//             let boxed_clip = Box::new(original_clip);
+//             boxed_clip.resampled(44100);
+//         }
+//     }
+
+//     #[rstest]
+//     fn supports_debug(resampled_clip: ResampledAudioClip) {
+//         assert_that!(format!("{resampled_clip:?}"))
+//             .is_equal_to("ResampledAudioClip { inner_clip: MemoryAudioClip { buffer: 11 samples, sampling_rate: 16000 }, start: 1, end: 9 }".to_owned());
+//     }
+
+//     #[rstest]
+//     fn provides_length(resampled_clip: ResampledAudioClip) {
+//         assert_that!(resampled_clip.len()).is_equal_to(22050);
+//     }
+
+//     #[rstest]
+//     fn provides_sampling_rate(resampled_clip: ResampledAudioClip) {
+//         assert_that!(resampled_clip.sampling_rate()).is_equal_to(44100);
+//     }
+
+//     #[rstest]
+//     fn supports_zero_samples() {
+//         let inner_clip = MemoryAudioClip::new(&[], 22025);
+//         let resampled_clip = ResampledAudioClip::new(Box::new(inner_clip), 16000);
+//         assert_that!(resampled_clip.len()).is_equal_to(0);
+//         assert_that!(resampled_clip.sampling_rate()).is_equal_to(16000);
+
+//         let mut sample_reader = resampled_clip.create_sample_reader().unwrap();
+//         let mut buffer = [0.0f32; 0];
+//         sample_reader.read(&mut buffer).unwrap();
+
+//         sample_reader.set_position(0);
+//     }
+
+//     mod sample_reader {
+//         use super::*;
+
+//         #[fixture]
+//         fn reader(resampled_clip: ResampledAudioClip) -> Box<dyn SampleReader> {
+//             resampled_clip.create_sample_reader().unwrap()
+//         }
+
+//         #[rstest]
+//         fn supports_debug(reader: Box<dyn SampleReader>) {
+//             assert_that!(format!("{reader:?}"))
+//                 .is_equal_to("SegmentSampleReader { inner_sample_reader: MemorySampleReader { buffer: 11 samples, position: 1 }, start: 1, end: 9 }".to_owned());
+//         }
+
+//         #[rstest]
+//         fn provides_length(reader: Box<dyn SampleReader>) {
+//             assert_that!(reader.len()).is_equal_to(22050);
+//         }
+
+//         #[rstest]
+//         fn position_is_initially_0(reader: Box<dyn SampleReader>) {
+//             assert_that!(reader.position()).is_equal_to(0);
+//         }
+
+//         #[rstest]
+//         fn reads_samples_up_to_the_end(mut reader: Box<dyn SampleReader>) {
+//             let mut three_samples = [0f32; 3];
+//             reader.read(&mut three_samples).unwrap();
+//             assert_that!(three_samples).is_equal_to([0.1, 0.2, 0.3]);
+
+//             let mut five_samples = [0f32; 5];
+//             reader.read(&mut five_samples).unwrap();
+//             assert_that!(five_samples).is_equal_to([0.4, 0.5, 0.6, 0.7, 0.8]);
+//         }
+
+//         #[rstest]
+//         fn seeks(mut reader: Box<dyn SampleReader>) {
+//             reader.set_position(2);
+//             let mut three_samples = [0f32; 3];
+//             reader.read(&mut three_samples).unwrap();
+//             assert_that!(three_samples).is_equal_to([0.3, 0.4, 0.5]);
+
+//             reader.set_position(1);
+//             reader.read(&mut three_samples).unwrap();
+//             assert_that!(three_samples).is_equal_to([0.2, 0.3, 0.4]);
+
+//             reader.read(&mut three_samples).unwrap();
+//             assert_that!(three_samples).is_equal_to([0.5, 0.6, 0.7]);
+//         }
+
+//         #[rstest]
+//         fn seeks_up_to_the_end(mut reader: Box<dyn SampleReader>) {
+//             reader.set_position(8);
+//             let mut zero_samples = [0f32; 0];
+//             reader.read(&mut zero_samples).unwrap();
+//         }
+
+//         #[rstest]
+//         #[should_panic(expected = "Attempting to read up to position 9 of 8-frame audio clip.")]
+//         fn reading_beyond_the_end(mut reader: Box<dyn SampleReader>) {
+//             reader.set_position(6);
+//             let mut three_samples = [0f32; 3];
+//             reader.read(&mut three_samples).unwrap();
+//         }
+
+//         #[rstest]
+//         #[should_panic(expected = "Attempting to seek to position 9 of 8-frame audio clip.")]
+//         fn seeking_beyond_the_end(mut reader: Box<dyn SampleReader>) {
+//             reader.set_position(9);
+//         }
+//     }
+// }
