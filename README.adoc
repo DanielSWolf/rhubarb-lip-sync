@@ -117,7 +117,7 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 
 === General usage ===
 
-Rhubarb Lip Sync is a command-line tool that is currently available for Windows and OS X.
+Rhubarb Lip Sync is a command-line tool that is currently available for Windows, OS X and Linux.
 
 * Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
 * Call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
