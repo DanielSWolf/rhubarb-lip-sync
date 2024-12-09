@@ -4,5 +4,5 @@
 
 class XmlExporter : public Exporter {
 public:
-	void exportAnimation(const ExporterInput& input, std::ostream& outputStream) override;
+    void exportAnimation(const ExporterInput& input, std::ostream& outputStream) override;
 };

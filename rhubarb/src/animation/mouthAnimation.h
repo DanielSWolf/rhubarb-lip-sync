@@ -6,6 +6,6 @@
 #include "targetShapeSet.h"
 
 JoiningContinuousTimeline<Shape> animate(
-	const BoundedTimeline<Phone>& phones,
-	const ShapeSet& targetShapeSet
+    const BoundedTimeline<Phone>& phones,
+    const ShapeSet& targetShapeSet
 );

@@ -5,6 +5,6 @@
 
 // Makes sure there is at least one mouth shape
 std::vector<Timed<Shape>> dummyShapeIfEmpty(
-	const JoiningTimeline<Shape>& animation,
-	const ShapeSet& targetShapeSet
+    const JoiningTimeline<Shape>& animation,
+    const ShapeSet& targetShapeSet
 );

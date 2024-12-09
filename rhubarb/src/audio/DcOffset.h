@@ -6,24 +6,24 @@
 // to prevent clipping
 class DcOffset : public AudioClip {
 public:
-	DcOffset(std::unique_ptr<AudioClip> inputClip, float offset);
-	std::unique_ptr<AudioClip> clone() const override;
-	int getSampleRate() const override;
-	size_type size() const override;
+    DcOffset(std::unique_ptr<AudioClip> inputClip, float offset);
+    std::unique_ptr<AudioClip> clone() const override;
+    int getSampleRate() const override;
+    size_type size() const override;
 private:
-	SampleReader createUnsafeSampleReader() const override;
+    SampleReader createUnsafeSampleReader() const override;
 
-	std::shared_ptr<AudioClip> inputClip;
-	float offset;
-	float factor;
+    std::shared_ptr<AudioClip> inputClip;
+    float offset;
+    float factor;
 };
 
 inline int DcOffset::getSampleRate() const {
-	return inputClip->getSampleRate();
+    return inputClip->getSampleRate();
 }
 
 inline AudioClip::size_type DcOffset::size() const {
-	return inputClip->size();
+    return inputClip->size();
 }
 
 float getDcOffset(const AudioClip& audioClip);
