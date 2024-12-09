@@ -1,28 +1,26 @@
 #include "DcOffset.h"
+
 #include <cmath>
 
-using std::unique_ptr;
 using std::make_unique;
+using std::unique_ptr;
 
 DcOffset::DcOffset(unique_ptr<AudioClip> inputClip, float offset) :
     inputClip(std::move(inputClip)),
     offset(offset),
-    factor(1 / (1 + std::abs(offset)))
-{}
+    factor(1 / (1 + std::abs(offset))) {}
 
 unique_ptr<AudioClip> DcOffset::clone() const {
     return make_unique<DcOffset>(*this);
 }
 
 SampleReader DcOffset::createUnsafeSampleReader() const {
-    return [
-        read = inputClip->createSampleReader(),
-        factor = factor,
-        offset = offset
-    ](size_type index) {
-        const float sample = read(index);
-        return sample * factor + offset;
-    };
+    return
+        [read = inputClip->createSampleReader(), factor = factor, offset = offset](size_type index
+        ) {
+            const float sample = read(index);
+            return sample * factor + offset;
+        };
 }
 
 float getDcOffset(const AudioClip& audioClip) {

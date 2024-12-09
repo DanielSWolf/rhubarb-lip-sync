@@ -1,17 +1,16 @@
 #pragma once
-#include <memory>
 #include <functional>
-#include <stack>
+#include <memory>
 #include <mutex>
+#include <stack>
 
-template<typename value_type, typename pointer_type = std::unique_ptr<value_type>>
+template <typename value_type, typename pointer_type = std::unique_ptr<value_type>>
 class ObjectPool {
 public:
     using wrapper_type = lambda_unique_ptr<value_type>;
 
     ObjectPool(std::function<pointer_type()> createObject) :
-        createObject(createObject)
-    {}
+        createObject(createObject) {}
 
     wrapper_type acquire() {
         std::lock_guard<std::mutex> lock(poolMutex);

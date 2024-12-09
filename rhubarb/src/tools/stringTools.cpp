@@ -1,16 +1,18 @@
 ﻿#include "stringTools.h"
-#include <boost/algorithm/string/trim.hpp>
+
+#include <format.h>
 #include <utf8.h>
 #include <utf8proc.h>
-#include <regex>
-#include <format.h>
 
-using std::string;
-using std::wstring;
-using std::u32string;
-using std::vector;
+#include <boost/algorithm/string/trim.hpp>
+#include <regex>
+
 using std::regex;
 using std::regex_replace;
+using std::string;
+using std::u32string;
+using std::vector;
+using std::wstring;
 
 vector<string> splitIntoLines(const string& s) {
     vector<string> lines;
@@ -29,16 +31,18 @@ vector<string> splitIntoLines(const string& s) {
         }
         ++p;
     }
-    
+
     return lines;
 }
 
 vector<string> wrapSingleLineString(const string& s, int lineLength, int hangingIndent) {
     if (lineLength <= 0) throw std::invalid_argument("lineLength must be > 0.");
     if (hangingIndent < 0) throw std::invalid_argument("hangingIndent must be >= 0.");
-    if (hangingIndent >= lineLength) throw std::invalid_argument("hangingIndent must be < lineLength.");
+    if (hangingIndent >= lineLength)
+        throw std::invalid_argument("hangingIndent must be < lineLength.");
     if (s.find('\t') != std::string::npos) throw std::invalid_argument("s must not contain tabs.");
-    if (s.find('\n') != std::string::npos) throw std::invalid_argument("s must not contain line breaks.");
+    if (s.find('\n') != std::string::npos)
+        throw std::invalid_argument("s must not contain line breaks.");
 
     vector<string> lines;
     auto p = &s[0];
@@ -67,7 +71,8 @@ vector<string> wrapSingleLineString(const string& s, int lineLength, int hanging
 
             // Resume after the last line, skipping spaces
             p = lineEnd;
-            while (p != end && *p == ' ') ++p;
+            while (p != end && *p == ' ')
+                ++p;
             lineBegin = lineEnd = p;
         }
 
@@ -102,23 +107,21 @@ wstring latin1ToWide(const string& s) {
 string utf8ToAscii(const string& s) {
     // Normalize string, simplifying it as much as possible
     const NormalizationOptions options = NormalizationOptions::CompatibilityMode
-        | NormalizationOptions::Decompose
-        | NormalizationOptions::SimplifyLineBreaks
-        | NormalizationOptions::SimplifyWhiteSpace
-        | NormalizationOptions::StripCharacterMarkings
+        | NormalizationOptions::Decompose | NormalizationOptions::SimplifyLineBreaks
+        | NormalizationOptions::SimplifyWhiteSpace | NormalizationOptions::StripCharacterMarkings
         | NormalizationOptions::StripIgnorableCharacters;
     string simplified = normalizeUnicode(s, options);
 
     // Replace common Unicode characters with ASCII equivalents
-    static const vector<std::pair<regex, string>> replacements {
-        { regex("«|»|“|”|„|‟"), "\"" },
-        { regex("‘|’|‚|‛|‹|›"), "'" },
-        { regex("‐|‑|‒|⁃|⁻|₋|−|➖|–|—|―|﹘|﹣|－"), "-" },
-        { regex("…|⋯"), "..." },
-        { regex("•"), "*" },
-        { regex("†|＋"), "+" },
-        { regex("⁄|∕|⧸|／|/"), "/" },
-        { regex("×"), "x" },
+    static const vector<std::pair<regex, string>> replacements{
+        {regex("«|»|“|”|„|‟"), "\""},
+        {regex("‘|’|‚|‛|‹|›"), "'"},
+        {regex("‐|‑|‒|⁃|⁻|₋|−|➖|–|—|―|﹘|﹣|－"), "-"},
+        {regex("…|⋯"), "..."},
+        {regex("•"), "*"},
+        {regex("†|＋"), "+"},
+        {regex("⁄|∕|⧸|／|/"), "/"},
+        {regex("×"), "x"},
     };
     for (const auto& replacement : replacements) {
         simplified = regex_replace(simplified, replacement.first, replacement.second);
@@ -142,7 +145,8 @@ string normalizeUnicode(const string& s, NormalizationOptions options) {
         reinterpret_cast<const uint8_t*>(s.data()),
         s.length(),
         reinterpret_cast<uint8_t**>(&result),
-        static_cast<utf8proc_option_t>(options));
+        static_cast<utf8proc_option_t>(options)
+    );
 
     if (charCount < 0) {
         const utf8proc_ssize_t errorCode = charCount;
@@ -159,23 +163,22 @@ string normalizeUnicode(const string& s, NormalizationOptions options) {
 }
 
 string escapeJsonString(const string& s) {
-    // JavaScript uses UTF-16 internally. As a result, character escaping in JSON strings is UTF-16-based.
-    // Convert string to UTF-16
+    // JavaScript uses UTF-16 internally. As a result, character escaping in JSON strings is
+    // UTF-16-based. Convert string to UTF-16
     std::u16string utf16String;
     utf8::utf8to16(s.begin(), s.end(), std::back_inserter(utf16String));
 
     string result;
     for (char16_t c : utf16String) {
         switch (c) {
-            case '"':    result += "\\\""; break;
-            case '\\':    result += "\\\\"; break;
-            case '\b':    result += "\\b"; break;
-            case '\f':    result += "\\f"; break;
-            case '\n':    result += "\\n"; break;
-            case '\r':    result += "\\r"; break;
-            case '\t':    result += "\\t"; break;
-            default:
-            {
+            case '"': result += "\\\""; break;
+            case '\\': result += "\\\\"; break;
+            case '\b': result += "\\b"; break;
+            case '\f': result += "\\f"; break;
+            case '\n': result += "\\n"; break;
+            case '\r': result += "\\r"; break;
+            case '\t': result += "\\t"; break;
+            default: {
                 const bool needsEscaping = c < '\x20' || c >= 0x80;
                 if (needsEscaping) {
                     result += fmt::format("\\u{0:04x}", c);

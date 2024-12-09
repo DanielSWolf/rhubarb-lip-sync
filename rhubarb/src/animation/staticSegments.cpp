@@ -1,6 +1,8 @@
 #include "staticSegments.h"
-#include <vector>
+
 #include <numeric>
+#include <vector>
+
 #include "tools/nextCombination.h"
 
 using std::vector;
@@ -49,7 +51,7 @@ vector<TimeRange> getStaticSegments(
             result.push_back(timeRange);
         }
     }
-    
+
     return result;
 }
 
@@ -67,8 +69,8 @@ ShapeRule getChangedShapeRule(const ShapeRule& rule) {
     ShapeRule result(rule);
     // So far, I've only encountered B as a static shape.
     // If there is ever a problem with another static shape, this function can easily be extended.
-    if (rule.shapeSet == ShapeSet { Shape::B }) {
-        result.shapeSet = { Shape::C };
+    if (rule.shapeSet == ShapeSet{Shape::B}) {
+        result.shapeSet = {Shape::C};
     }
     return result;
 }
@@ -78,8 +80,7 @@ using RuleChanges = vector<centiseconds>;
 
 // Replaces the indicated shape rules with slightly different ones, breaking up long static segments
 ContinuousTimeline<ShapeRule> applyChanges(
-    const ContinuousTimeline<ShapeRule>& shapeRules,
-    const RuleChanges& changes
+    const ContinuousTimeline<ShapeRule>& shapeRules, const RuleChanges& changes
 ) {
     ContinuousTimeline<ShapeRule> result(shapeRules);
     for (centiseconds changedRuleStart : changes) {
@@ -99,8 +100,7 @@ public:
     ) :
         changedRules(applyChanges(originalRules, changes)),
         animation(animate(changedRules)),
-        staticSegments(getStaticSegments(changedRules, animation))
-    {}
+        staticSegments(getStaticSegments(changedRules, animation)) {}
 
     bool isBetterThan(const RuleChangeScenario& rhs) const {
         // We want zero static segments
@@ -132,8 +132,9 @@ private:
             0.0,
             [](const double sum, const Timed<Shape>& timedShape) {
                 const double duration = std::chrono::duration_cast<std::chrono::duration<double>>(
-                    timedShape.getDuration()
-                ).count();
+                                            timedShape.getDuration()
+                )
+                                            .count();
                 return sum + duration * duration;
             }
         );
@@ -152,8 +153,7 @@ RuleChanges getPossibleRuleChanges(const ContinuousTimeline<ShapeRule>& shapeRul
 }
 
 ContinuousTimeline<ShapeRule> fixStaticSegmentRules(
-    const ContinuousTimeline<ShapeRule>& shapeRules,
-    const AnimationFunction& animate
+    const ContinuousTimeline<ShapeRule>& shapeRules, const AnimationFunction& animate
 ) {
     // The complexity of this function is exponential with the number of replacements.
     // So let's cap that value.
@@ -164,23 +164,26 @@ ContinuousTimeline<ShapeRule> fixStaticSegmentRules(
 
     // Find best solution. Start with a single replacement, then increase as necessary.
     RuleChangeScenario bestScenario(shapeRules, {}, animate);
-    for (
-        int replacementCount = 1;
-        bestScenario.getStaticSegmentCount() > 0 && replacementCount <= std::min(static_cast<int>(possibleRuleChanges.size()), maxReplacementCount);
-        ++replacementCount
-    ) {
+    for (int replacementCount = 1; bestScenario.getStaticSegmentCount() > 0
+         && replacementCount
+             <= std::min(static_cast<int>(possibleRuleChanges.size()), maxReplacementCount);
+         ++replacementCount) {
         // Only the first <replacementCount> elements of `currentRuleChanges` count
         auto currentRuleChanges(possibleRuleChanges);
         do {
             RuleChangeScenario currentScenario(
                 shapeRules,
-                { currentRuleChanges.begin(), currentRuleChanges.begin() + replacementCount },
+                {currentRuleChanges.begin(), currentRuleChanges.begin() + replacementCount},
                 animate
             );
             if (currentScenario.isBetterThan(bestScenario)) {
                 bestScenario = currentScenario;
             }
-        } while (next_combination(currentRuleChanges.begin(), currentRuleChanges.begin() + replacementCount, currentRuleChanges.end()));
+        } while (next_combination(
+            currentRuleChanges.begin(),
+            currentRuleChanges.begin() + replacementCount,
+            currentRuleChanges.end()
+        ));
     }
 
     return bestScenario.getChangedRules();
@@ -194,8 +197,7 @@ bool isFlexible(const ShapeRule& rule) {
 // Extends the specified time range until it starts and ends with a non-flexible shape rule, if
 // possible
 TimeRange extendToFixedRules(
-    const TimeRange& timeRange,
-    const ContinuousTimeline<ShapeRule>& shapeRules
+    const TimeRange& timeRange, const ContinuousTimeline<ShapeRule>& shapeRules
 ) {
     auto first = shapeRules.find(timeRange.getStart());
     while (first != shapeRules.begin() && isFlexible(first->getValue())) {
@@ -205,12 +207,11 @@ TimeRange extendToFixedRules(
     while (std::next(last) != shapeRules.end() && isFlexible(last->getValue())) {
         ++last;
     }
-    return { first->getStart(), last->getEnd() };
+    return {first->getStart(), last->getEnd()};
 }
 
 JoiningContinuousTimeline<Shape> avoidStaticSegments(
-    const ContinuousTimeline<ShapeRule>& shapeRules,
-    const AnimationFunction& animate
+    const ContinuousTimeline<ShapeRule>& shapeRules, const AnimationFunction& animate
 ) {
     const auto animation = animate(shapeRules);
     const vector<TimeRange> staticSegments = getStaticSegments(shapeRules, animation);
@@ -227,8 +228,7 @@ JoiningContinuousTimeline<Shape> avoidStaticSegments(
 
         // Fix shape rules within the static segment
         const auto fixedSegmentShapeRules = fixStaticSegmentRules(
-            { extendedStaticSegment, ShapeRule::getInvalid(), fixedShapeRules },
-            animate
+            {extendedStaticSegment, ShapeRule::getInvalid(), fixedShapeRules}, animate
         );
         for (const auto& timedShapeRule : fixedSegmentShapeRules) {
             fixedShapeRules.set(timedShapeRule);

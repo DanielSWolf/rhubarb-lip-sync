@@ -1,31 +1,32 @@
 #include "sinks.h"
-#include "logging/sinks.h"
-#include "logging/formatters.h"
-#include "semanticEntries.h"
-#include "tools/stringTools.h"
-#include "core/appInfo.h"
+
 #include <boost/utility/in_place_factory.hpp>
 
-using std::string;
-using std::make_shared;
-using logging::Level;
-using logging::StdErrSink;
-using logging::SimpleConsoleFormatter;
+#include "core/appInfo.h"
+#include "logging/formatters.h"
+#include "logging/sinks.h"
+#include "semanticEntries.h"
+#include "tools/stringTools.h"
+
 using boost::optional;
+using logging::Level;
+using logging::SimpleConsoleFormatter;
+using logging::StdErrSink;
+using std::make_shared;
+using std::string;
 
 NiceStderrSink::NiceStderrSink(Level minLevel) :
     minLevel(minLevel),
     progress(0.0),
-    innerSink(make_shared<StdErrSink>(make_shared<SimpleConsoleFormatter>()))
-{}
+    innerSink(make_shared<StdErrSink>(make_shared<SimpleConsoleFormatter>())) {}
 
 void NiceStderrSink::receive(const logging::Entry& entry) {
     // For selected semantic entries, print a user-friendly message instead of
     // the technical log message.
     if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
-        std::cerr
-            << fmt::format("Generating lip sync data for {}.", startEntry->getInputFilePath().u8string())
-            << std::endl;
+        std::cerr << fmt::format(
+            "Generating lip sync data for {}.", startEntry->getInputFilePath().u8string()
+        ) << std::endl;
         startProgressIndication();
     } else if (const auto* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
         assert(progressBar);
@@ -62,8 +63,7 @@ void NiceStderrSink::resumeProgressIndication() {
 
 QuietStderrSink::QuietStderrSink(Level minLevel) :
     minLevel(minLevel),
-    innerSink(make_shared<StdErrSink>(make_shared<SimpleConsoleFormatter>()))
-{}
+    innerSink(make_shared<StdErrSink>(make_shared<SimpleConsoleFormatter>())) {}
 
 void QuietStderrSink::receive(const logging::Entry& entry) {
     // Set inputFilePath as soon as we get it
@@ -75,7 +75,9 @@ void QuietStderrSink::receive(const logging::Entry& entry) {
         if (quietSoFar) {
             // This is the first message we print. Give a bit of context.
             const string intro = inputFilePath
-                ? fmt::format("{} {} processing file {}:", appName, appVersion, inputFilePath->u8string())
+                ? fmt::format(
+                      "{} {} processing file {}:", appName, appVersion, inputFilePath->u8string()
+                  )
                 : fmt::format("{} {}:", appName, appVersion);
             std::cerr << intro << std::endl;
             quietSoFar = false;
@@ -85,8 +87,7 @@ void QuietStderrSink::receive(const logging::Entry& entry) {
 }
 
 MachineReadableStderrSink::MachineReadableStderrSink(Level minLevel) :
-    minLevel(minLevel)
-{}
+    minLevel(minLevel) {}
 
 string formatLogProperty(const logging::Entry& entry) {
     return fmt::format(
@@ -102,9 +103,7 @@ void MachineReadableStderrSink::receive(const logging::Entry& entry) {
         if (const auto* startEntry = dynamic_cast<const StartEntry*>(&entry)) {
             const string file = escapeJsonString(startEntry->getInputFilePath().u8string());
             line = fmt::format(
-                R"({{ "type": "start", "file": "{}", {} }})",
-                file,
-                formatLogProperty(entry)
+                R"({{ "type": "start", "file": "{}", {} }})", file, formatLogProperty(entry)
             );
         } else if (const auto* progressEntry = dynamic_cast<const ProgressEntry*>(&entry)) {
             const int progressPercent = static_cast<int>(progressEntry->getProgress() * 100);
@@ -121,9 +120,7 @@ void MachineReadableStderrSink::receive(const logging::Entry& entry) {
         } else if (const auto* failureEntry = dynamic_cast<const FailureEntry*>(&entry)) {
             const string reason = escapeJsonString(failureEntry->getReason());
             line = fmt::format(
-                R"({{ "type": "failure", "reason": "{}", {} }})",
-                reason,
-                formatLogProperty(entry)
+                R"({{ "type": "failure", "reason": "{}", {} }})", reason, formatLogProperty(entry)
             );
         } else {
             throw std::runtime_error("Unsupported type of semantic entry.");
@@ -136,7 +133,8 @@ void MachineReadableStderrSink::receive(const logging::Entry& entry) {
 
     if (line) {
         std::cerr << *line << std::endl;
-        // Make sure the stream is flushed so that applications listening to it get the line immediately
+        // Make sure the stream is flushed so that applications listening to it get the line
+        // immediately
         fflush(stderr);
     }
 }

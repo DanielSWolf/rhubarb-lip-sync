@@ -1,4 +1,5 @@
 #include "tweening.h"
+
 #include "animationRules.h"
 
 JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& animation) {
@@ -7,48 +8,50 @@ JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Sh
 
     JoiningContinuousTimeline<Shape> result(animation);
 
-    for_each_adjacent(animation.begin(), animation.end(), [&](const auto& first, const auto& second) {
-        auto pair = getTween(first.getValue(), second.getValue());
-        if (!pair) return;
+    for_each_adjacent(
+        animation.begin(),
+        animation.end(),
+        [&](const auto& first, const auto& second) {
+            auto pair = getTween(first.getValue(), second.getValue());
+            if (!pair) return;
 
-        Shape tweenShape;
-        TweenTiming tweenTiming;
-        std::tie(tweenShape, tweenTiming) = *pair;
-        TimeRange firstTimeRange = first.getTimeRange();
-        TimeRange secondTimeRange = second.getTimeRange();
+            Shape tweenShape;
+            TweenTiming tweenTiming;
+            std::tie(tweenShape, tweenTiming) = *pair;
+            TimeRange firstTimeRange = first.getTimeRange();
+            TimeRange secondTimeRange = second.getTimeRange();
 
-        centiseconds tweenStart, tweenDuration;
-        switch (tweenTiming) {
-            case TweenTiming::Early:
-            {
-                tweenDuration = std::min(firstTimeRange.getDuration() / 3, maxTweenDuration);
-                tweenStart = firstTimeRange.getEnd() - tweenDuration;
-                break;
+            centiseconds tweenStart, tweenDuration;
+            switch (tweenTiming) {
+                case TweenTiming::Early: {
+                    tweenDuration = std::min(firstTimeRange.getDuration() / 3, maxTweenDuration);
+                    tweenStart = firstTimeRange.getEnd() - tweenDuration;
+                    break;
+                }
+                case TweenTiming::Centered: {
+                    tweenDuration = std::min(
+                        {firstTimeRange.getDuration() / 4,
+                         secondTimeRange.getDuration() / 4,
+                         maxTweenDuration}
+                    );
+                    tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
+                    break;
+                }
+                case TweenTiming::Late: {
+                    tweenDuration = std::min(secondTimeRange.getDuration() / 3, maxTweenDuration);
+                    tweenStart = secondTimeRange.getStart();
+                    break;
+                }
+                default: {
+                    throw std::runtime_error("Unexpected tween timing.");
+                }
             }
-            case TweenTiming::Centered:
-            {
-                tweenDuration = std::min({
-                    firstTimeRange.getDuration() / 4, secondTimeRange.getDuration() / 4, maxTweenDuration
-                });
-                tweenStart = firstTimeRange.getEnd() - tweenDuration / 2;
-                break;
-            }
-            case TweenTiming::Late:
-            {
-                tweenDuration = std::min(secondTimeRange.getDuration() / 3, maxTweenDuration);
-                tweenStart = secondTimeRange.getStart();
-                break;
-            }
-            default:
-            {
-                throw std::runtime_error("Unexpected tween timing.");
-            }
+
+            if (tweenDuration < minTweenDuration) return;
+
+            result.set(tweenStart, tweenStart + tweenDuration, tweenShape);
         }
-
-        if (tweenDuration < minTweenDuration) return;
-
-        result.set(tweenStart, tweenStart + tweenDuration, tweenShape);
-    });
+    );
 
     return result;
 }

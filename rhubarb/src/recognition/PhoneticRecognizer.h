@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Recognizer.h"
 #include "pocketSphinxTools.h"
+#include "Recognizer.h"
 
 class PhoneticRecognizer : public Recognizer {
 public:

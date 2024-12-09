@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable POSIX threads
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
 
@@ -59,30 +59,31 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_LIBRARIES}) # Just about every project needs Boost
 
 # ... C++ Format
-FILE(GLOB cppFormatFiles "lib/cppformat/*.cc")
+file(GLOB cppFormatFiles "lib/cppformat/*.cc")
 add_library(cppFormat ${cppFormatFiles})
 target_include_directories(cppFormat SYSTEM PUBLIC "lib/cppformat")
 target_compile_options(cppFormat PRIVATE ${disableWarningsFlags})
 set_target_properties(cppFormat PROPERTIES FOLDER lib)
 
 # ... sphinxbase
-FILE(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-rev13216/src/libsphinxbase/*.c")
+file(GLOB_RECURSE sphinxbaseFiles "lib/sphinxbase-rev13216/src/libsphinxbase/*.c")
 add_library(sphinxbase ${sphinxbaseFiles})
-target_include_directories(sphinxbase SYSTEM PUBLIC
-    "lib/sphinxbase-rev13216/include"
-    "lib/sphinxbase-rev13216/src"
-    "lib/sphinx_config"
+target_include_directories(
+    sphinxbase
+    SYSTEM
+    PUBLIC "lib/sphinxbase-rev13216/include" "lib/sphinxbase-rev13216/src" "lib/sphinx_config"
 )
 target_compile_options(sphinxbase PRIVATE ${disableWarningsFlags})
 target_compile_definitions(sphinxbase PUBLIC __SPHINXBASE_EXPORT_H__=1 SPHINXBASE_EXPORT=) # Compile as static lib
 set_target_properties(sphinxbase PROPERTIES FOLDER lib)
 
 # ... PocketSphinx
-FILE(GLOB pocketSphinxFiles "lib/pocketsphinx-rev13216/src/libpocketsphinx/*.c")
+file(GLOB pocketSphinxFiles "lib/pocketsphinx-rev13216/src/libpocketsphinx/*.c")
 add_library(pocketSphinx ${pocketSphinxFiles})
-target_include_directories(pocketSphinx SYSTEM PUBLIC
-    "lib/pocketsphinx-rev13216/include"
-    "lib/pocketsphinx-rev13216/src/libpocketsphinx"
+target_include_directories(
+    pocketSphinx
+    SYSTEM
+    PUBLIC "lib/pocketsphinx-rev13216/include" "lib/pocketsphinx-rev13216/src/libpocketsphinx"
 )
 target_link_libraries(pocketSphinx sphinxbase)
 target_compile_options(pocketSphinx PRIVATE ${disableWarningsFlags})
@@ -129,10 +130,10 @@ set(webRtcFiles
 add_library(webRtc ${webRtcFiles})
 target_include_directories(webRtc SYSTEM PUBLIC "lib/webrtc-8d2248ff")
 target_compile_options(webRtc PRIVATE ${disableWarningsFlags})
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  target_compile_options(webRtc PRIVATE -pthread -lpthread)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(webRtc PRIVATE -pthread -lpthread)
 endif()
-if (NOT WIN32)
+if(NOT WIN32)
     target_compile_definitions(webRtc PRIVATE WEBRTC_POSIX)
 endif()
 set_target_properties(webRtc PROPERTIES FOLDER lib)
@@ -203,34 +204,26 @@ set(fliteFiles
     lib/flite-1.4/src/utils/cst_val_user.c
 )
 add_library(flite ${fliteFiles})
-target_include_directories(flite SYSTEM PUBLIC
-    "lib/flite-1.4/include"
-    "lib/flite-1.4"
-)
+target_include_directories(flite SYSTEM PUBLIC "lib/flite-1.4/include" "lib/flite-1.4")
 target_compile_options(flite PRIVATE ${disableWarningsFlags})
 set_target_properties(flite PROPERTIES FOLDER lib)
 
 # ... UTF8-CPP
-add_library(utfcpp
-    lib/header-only.c
-    lib/utfcpp-2.3.5/source/utf8.h
-)
+add_library(utfcpp lib/header-only.c lib/utfcpp-2.3.5/source/utf8.h)
 target_include_directories(utfcpp SYSTEM PUBLIC "lib/utfcpp-2.3.5/source")
 target_compile_options(utfcpp PRIVATE ${disableWarningsFlags})
 set_target_properties(utfcpp PROPERTIES FOLDER lib)
 
 # ... utf8proc
-add_library(utf8proc
-    lib/utf8proc-2.2.0/utf8proc.c
-    lib/utf8proc-2.2.0/utf8proc.h
-)
+add_library(utf8proc lib/utf8proc-2.2.0/utf8proc.c lib/utf8proc-2.2.0/utf8proc.h)
 target_include_directories(utf8proc SYSTEM PUBLIC "lib/utf8proc-2.2.0")
 target_compile_options(utf8proc PRIVATE ${disableWarningsFlags})
 target_compile_definitions(utf8proc PUBLIC UTF8PROC_STATIC=1) # Compile as static lib
 set_target_properties(utf8proc PROPERTIES FOLDER lib)
 
 # ... Ogg
-add_library(ogg
+add_library(
+    ogg
     lib/ogg-1.3.3/include/ogg/ogg.h
     lib/ogg-1.3.3/src/bitwise.c
     lib/ogg-1.3.3/src/framing.c
@@ -240,7 +233,8 @@ target_compile_options(ogg PRIVATE ${disableWarningsFlags})
 set_target_properties(ogg PROPERTIES FOLDER lib)
 
 # ... Vorbis
-add_library(vorbis
+add_library(
+    vorbis
     lib/vorbis-1.3.6/include/vorbis/vorbisfile.h
     lib/vorbis-1.3.6/lib/bitrate.c
     lib/vorbis-1.3.6/lib/block.c
@@ -263,9 +257,7 @@ add_library(vorbis
     lib/vorbis-1.3.6/lib/window.c
 )
 target_include_directories(vorbis SYSTEM PUBLIC "lib/vorbis-1.3.6/include")
-target_link_libraries(vorbis
-    ogg
-)
+target_link_libraries(vorbis ogg)
 target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
 set_target_properties(vorbis PROPERTIES FOLDER lib)
 
@@ -274,7 +266,8 @@ set_target_properties(vorbis PROPERTIES FOLDER lib)
 include_directories("src")
 
 # ... rhubarb-animation
-add_library(rhubarb-animation
+add_library(
+    rhubarb-animation
     src/animation/animationRules.cpp
     src/animation/animationRules.h
     src/animation/mouthAnimation.cpp
@@ -296,14 +289,11 @@ add_library(rhubarb-animation
     src/animation/tweening.h
 )
 target_include_directories(rhubarb-animation PRIVATE "src/animation")
-target_link_libraries(rhubarb-animation
-    rhubarb-core
-    rhubarb-logging
-    rhubarb-time
-)
+target_link_libraries(rhubarb-animation rhubarb-core rhubarb-logging rhubarb-time)
 
 # ... rhubarb-audio
-add_library(rhubarb-audio
+add_library(
+    rhubarb-audio
     src/audio/AudioClip.cpp
     src/audio/AudioClip.h
     src/audio/audioFileReading.cpp
@@ -327,7 +317,8 @@ add_library(rhubarb-audio
     src/audio/waveFileWriting.h
 )
 target_include_directories(rhubarb-audio PRIVATE "src/audio")
-target_link_libraries(rhubarb-audio
+target_link_libraries(
+    rhubarb-audio
     webRtc
     vorbis
     rhubarb-logging
@@ -337,7 +328,8 @@ target_link_libraries(rhubarb-audio
 
 # ... rhubarb-core
 configure_file(src/core/appInfo.cpp.in appInfo.cpp ESCAPE_QUOTES)
-add_library(rhubarb-core
+add_library(
+    rhubarb-core
     ${CMAKE_CURRENT_BINARY_DIR}/appInfo.cpp
     src/core/appInfo.h
     src/core/Phone.cpp
@@ -346,12 +338,11 @@ add_library(rhubarb-core
     src/core/Shape.h
 )
 target_include_directories(rhubarb-core PRIVATE "src/core")
-target_link_libraries(rhubarb-core
-    rhubarb-tools
-)
+target_link_libraries(rhubarb-core rhubarb-tools)
 
 # ... rhubarb-exporters
-add_library(rhubarb-exporters
+add_library(
+    rhubarb-exporters
     src/exporters/DatExporter.cpp
     src/exporters/DatExporter.h
     src/exporters/Exporter.h
@@ -365,19 +356,13 @@ add_library(rhubarb-exporters
     src/exporters/XmlExporter.h
 )
 target_include_directories(rhubarb-exporters PRIVATE "src/exporters")
-target_link_libraries(rhubarb-exporters
-    rhubarb-animation
-    rhubarb-core
-    rhubarb-time
-)
+target_link_libraries(rhubarb-exporters rhubarb-animation rhubarb-core rhubarb-time)
 
 # ... rhubarb-lib
-add_library(rhubarb-lib
-    src/lib/rhubarbLib.cpp
-    src/lib/rhubarbLib.h
-)
+add_library(rhubarb-lib src/lib/rhubarbLib.cpp src/lib/rhubarbLib.h)
 target_include_directories(rhubarb-lib PRIVATE "src/lib")
-target_link_libraries(rhubarb-lib
+target_link_libraries(
+    rhubarb-lib
     rhubarb-animation
     rhubarb-audio
     rhubarb-core
@@ -387,7 +372,8 @@ target_link_libraries(rhubarb-lib
 )
 
 # ... rhubarb-logging
-add_library(rhubarb-logging
+add_library(
+    rhubarb-logging
     src/logging/Entry.cpp
     src/logging/Entry.h
     src/logging/Formatter.h
@@ -402,12 +388,11 @@ add_library(rhubarb-logging
     src/logging/sinks.h
 )
 target_include_directories(rhubarb-logging PRIVATE "src/logging")
-target_link_libraries(rhubarb-logging
-    rhubarb-tools
-)
+target_link_libraries(rhubarb-logging rhubarb-tools)
 
 # ... rhubarb-recognition
-add_library(rhubarb-recognition
+add_library(
+    rhubarb-recognition
     src/recognition/g2p.cpp
     src/recognition/g2p.h
     src/recognition/languageModels.cpp
@@ -423,7 +408,8 @@ add_library(rhubarb-recognition
     src/recognition/tokenization.h
 )
 target_include_directories(rhubarb-recognition PRIVATE "src/recognition")
-target_link_libraries(rhubarb-recognition
+target_link_libraries(
+    rhubarb-recognition
     flite
     pocketSphinx
     rhubarb-audio
@@ -432,7 +418,8 @@ target_link_libraries(rhubarb-recognition
 )
 
 # ... rhubarb-time
-add_library(rhubarb-time
+add_library(
+    rhubarb-time
     src/time/BoundedTimeline.h
     src/time/centiseconds.cpp
     src/time/centiseconds.h
@@ -444,13 +431,11 @@ add_library(rhubarb-time
     src/time/TimeRange.h
 )
 target_include_directories(rhubarb-time PRIVATE "src/time")
-target_link_libraries(rhubarb-time
-    cppFormat
-    rhubarb-logging
-)
+target_link_libraries(rhubarb-time cppFormat rhubarb-logging)
 
 # ... rhubarb-tools
-add_library(rhubarb-tools
+add_library(
+    rhubarb-tools
     src/tools/array.h
     src/tools/EnumConverter.h
     src/tools/exceptions.cpp
@@ -481,15 +466,11 @@ add_library(rhubarb-tools
     src/tools/tupleHash.h
 )
 target_include_directories(rhubarb-tools PRIVATE "src/tools")
-target_link_libraries(rhubarb-tools
-    cppFormat
-    whereami
-    utfcpp
-    utf8proc
-)
+target_link_libraries(rhubarb-tools cppFormat whereami utfcpp utf8proc)
 
 # Define Rhubarb executable
-add_executable(rhubarb
+add_executable(
+    rhubarb
     src/rhubarb/main.cpp
     src/rhubarb/ExportFormat.cpp
     src/rhubarb/ExportFormat.h
@@ -501,10 +482,7 @@ add_executable(rhubarb
     src/rhubarb/sinks.h
 )
 target_include_directories(rhubarb PUBLIC "src/rhubarb")
-target_link_libraries(rhubarb
-    rhubarb-exporters
-    rhubarb-lib
-)
+target_link_libraries(rhubarb rhubarb-exporters rhubarb-lib)
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
@@ -521,7 +499,8 @@ set(TEST_FILES
     tests/WaveFileReaderTests.cpp
 )
 add_executable(runTests ${TEST_FILES})
-target_link_libraries(runTests
+target_link_libraries(
+    runTests
     gtest
     gmock
     gmock_main
@@ -534,23 +513,24 @@ target_link_libraries(runTests
 function(copy_and_install sourceGlob relativeTargetDirectory)
     # Set `sourcePaths`
     file(GLOB sourcePaths "${sourceGlob}")
-    
+
     foreach(sourcePath ${sourcePaths})
         if(NOT IS_DIRECTORY ${sourcePath})
             # Set `fileName`
             get_filename_component(fileName "${sourcePath}" NAME)
 
             # Copy file during build
-            add_custom_command(TARGET rhubarb POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
+            add_custom_command(
+                TARGET rhubarb
+                POST_BUILD
+                COMMAND
+                    ${CMAKE_COMMAND} -E copy "${sourcePath}"
+                    "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
                 COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
             )
 
             # Install file
-            install(
-                FILES "${sourcePath}"
-                DESTINATION "${relativeTargetDirectory}"
-            )
+            install(FILES "${sourcePath}" DESTINATION "${relativeTargetDirectory}")
         endif()
     endforeach()
 endfunction()
@@ -559,15 +539,19 @@ endfunction()
 function(copy sourceGlob relativeTargetDirectory)
     # Set `sourcePaths`
     file(GLOB sourcePaths "${sourceGlob}")
-    
+
     foreach(sourcePath ${sourcePaths})
         if(NOT IS_DIRECTORY ${sourcePath})
             # Set `fileName`
             get_filename_component(fileName "${sourcePath}" NAME)
 
             # Copy file during build
-            add_custom_command(TARGET rhubarb POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy "${sourcePath}" "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
+            add_custom_command(
+                TARGET rhubarb
+                POST_BUILD
+                COMMAND
+                    ${CMAKE_COMMAND} -E copy "${sourcePath}"
+                    "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
                 COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
             )
         endif()
@@ -579,8 +563,4 @@ copy_and_install("lib/cmusphinx-en-us-5.2/*" "res/sphinx/acoustic-model")
 
 copy_and_install("tests/resources/*" "tests/resources")
 
-install(
-    TARGETS rhubarb
-    RUNTIME
-    DESTINATION .
-)
+install(TARGETS rhubarb RUNTIME DESTINATION .)

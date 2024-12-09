@@ -1,14 +1,21 @@
 #pragma once
 
-#include "AudioClip.h"
 #include <filesystem>
+
+#include "AudioClip.h"
 
 class OggVorbisFileReader : public AudioClip {
 public:
     OggVorbisFileReader(const std::filesystem::path& filePath);
     std::unique_ptr<AudioClip> clone() const override;
-    int getSampleRate() const override { return sampleRate; }
-    size_type size() const override { return sampleCount; }
+
+    int getSampleRate() const override {
+        return sampleRate;
+    }
+
+    size_type size() const override {
+        return sampleCount;
+    }
 
 private:
     SampleReader createUnsafeSampleReader() const override;

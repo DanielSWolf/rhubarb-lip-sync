@@ -1,26 +1,29 @@
 #include "DatExporter.h"
-#include "animation/targetShapeSet.h"
+
 #include <boost/lexical_cast.hpp>
 
+#include "animation/targetShapeSet.h"
+
+using std::string;
 using std::chrono::duration;
 using std::chrono::duration_cast;
-using std::string;
 
-DatExporter::DatExporter(const ShapeSet& targetShapeSet, double frameRate, bool convertToPrestonBlair) :
+DatExporter::DatExporter(
+    const ShapeSet& targetShapeSet, double frameRate, bool convertToPrestonBlair
+) :
     frameRate(frameRate),
     convertToPrestonBlair(convertToPrestonBlair),
-    prestonBlairShapeNames {
-        { Shape::A, "MBP" },
-        { Shape::B, "etc" },
-        { Shape::C, "E" },
-        { Shape::D, "AI" },
-        { Shape::E, "O" },
-        { Shape::F, "U" },
-        { Shape::G, "FV" },
-        { Shape::H, "L" },
-        { Shape::X, "rest" },
-    }
-{
+    prestonBlairShapeNames{
+        {Shape::A, "MBP"},
+        {Shape::B, "etc"},
+        {Shape::C, "E"},
+        {Shape::D, "AI"},
+        {Shape::E, "O"},
+        {Shape::F, "U"},
+        {Shape::G, "FV"},
+        {Shape::H, "L"},
+        {Shape::X, "rest"},
+    } {
     // Animation works with a fixed frame rate of 100.
     // Downsampling to much less than 25 fps may result in dropped frames.
     // Upsampling to more than 100 fps doesn't make sense.
@@ -28,13 +31,17 @@ DatExporter::DatExporter(const ShapeSet& targetShapeSet, double frameRate, bool 
     const double maxFrameRate = 100.0;
 
     if (frameRate < minFrameRate || frameRate > maxFrameRate) {
-        throw std::runtime_error(fmt::format("Frame rate must be between {} and {} fps.", minFrameRate, maxFrameRate));
+        throw std::runtime_error(
+            fmt::format("Frame rate must be between {} and {} fps.", minFrameRate, maxFrameRate)
+        );
     }
 
     if (convertToPrestonBlair) {
         for (Shape shape : targetShapeSet) {
             if (prestonBlairShapeNames.find(shape) == prestonBlairShapeNames.end()) {
-                throw std::runtime_error(fmt::format("Mouth shape {} cannot be converted to Preston Blair shape names."));
+                throw std::runtime_error(
+                    fmt::format("Mouth shape {} cannot be converted to Preston Blair shape names.")
+                );
             }
         }
     }
@@ -62,9 +69,8 @@ void DatExporter::exportAnimation(const ExporterInput& input, std::ostream& outp
 }
 
 string DatExporter::toString(Shape shape) const {
-    return convertToPrestonBlair
-        ? prestonBlairShapeNames.at(shape)
-        : boost::lexical_cast<std::string>(shape);
+    return convertToPrestonBlair ? prestonBlairShapeNames.at(shape)
+                                 : boost::lexical_cast<std::string>(shape);
 }
 
 int DatExporter::toFrameNumber(centiseconds time) const {

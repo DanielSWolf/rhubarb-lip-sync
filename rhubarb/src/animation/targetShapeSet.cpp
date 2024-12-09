@@ -7,7 +7,8 @@ Shape convertToTargetShapeSet(Shape shape, const ShapeSet& targetShapeSet) {
     const Shape basicShape = getBasicShape(shape);
     if (targetShapeSet.find(basicShape) == targetShapeSet.end()) {
         throw std::invalid_argument(
-            fmt::format("Target shape set must contain basic shape {}.", basicShape));
+            fmt::format("Target shape set must contain basic shape {}.", basicShape)
+        );
     }
     return basicShape;
 }
@@ -21,8 +22,7 @@ ShapeSet convertToTargetShapeSet(const ShapeSet& shapes, const ShapeSet& targetS
 }
 
 ContinuousTimeline<ShapeRule> convertToTargetShapeSet(
-    const ContinuousTimeline<ShapeRule>& shapeRules,
-    const ShapeSet& targetShapeSet
+    const ContinuousTimeline<ShapeRule>& shapeRules, const ShapeSet& targetShapeSet
 ) {
     ContinuousTimeline<ShapeRule> result(shapeRules);
     for (const auto& timedShapeRule : shapeRules) {
@@ -34,8 +34,7 @@ ContinuousTimeline<ShapeRule> convertToTargetShapeSet(
 }
 
 JoiningContinuousTimeline<Shape> convertToTargetShapeSet(
-    const JoiningContinuousTimeline<Shape>& animation,
-    const ShapeSet& targetShapeSet
+    const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet
 ) {
     JoiningContinuousTimeline<Shape> result(animation);
     for (const auto& timedShape : animation) {

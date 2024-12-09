@@ -1,23 +1,26 @@
-#include <filesystem>
+#include "platformTools.h"
+
 #include <format.h>
+#include <gsl_util.h>
+#include <utf8.h>
+#include <whereami.h>
+
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include "platformTools.h"
-#include <whereami.h>
-#include <utf8.h>
-#include <gsl_util.h>
-#include "tools.h"
 #include <codecvt>
+#include <filesystem>
 #include <iostream>
 
+#include "tools.h"
+
 #ifdef _WIN32
-    #include <Windows.h>
+#include <Windows.h>
 #endif
 
-using std::filesystem::path;
 using std::string;
 using std::vector;
+using std::filesystem::path;
 
 path getBinPath() {
     static const path binPath = [] {
@@ -33,7 +36,8 @@ path getBinPath() {
             // Actually, it does.
             // In case there are situations where it doesn't, we allocate one character more.
             std::vector<char> buffer(pathLength + 1);
-            if (wai_getExecutablePath(buffer.data(), static_cast<int>(buffer.size()), nullptr) == -1) {
+            if (wai_getExecutablePath(buffer.data(), static_cast<int>(buffer.size()), nullptr)
+                == -1) {
                 throw std::runtime_error("Error reading path.");
             }
             buffer[pathLength] = 0;
@@ -43,7 +47,8 @@ path getBinPath() {
             path result(std::filesystem::canonical(pathString).make_preferred());
             return result;
         } catch (...) {
-            std::throw_with_nested(std::runtime_error("Could not determine path of bin directory."));
+            std::throw_with_nested(std::runtime_error("Could not determine path of bin directory.")
+            );
         }
     }();
     return binPath;
@@ -61,7 +66,7 @@ path getTempFilePath() {
 }
 
 std::tm getLocalTime(const time_t& time) {
-    tm timeInfo {};
+    tm timeInfo{};
 #if (__unix || __linux || __APPLE__)
     localtime_r(&time, &timeInfo);
 #else
@@ -119,8 +124,8 @@ vector<string> argsToUtf8(int argc, char* argv[]) {
 
 class ConsoleBuffer : public std::stringbuf {
 public:
-    explicit ConsoleBuffer(FILE* file)
-        : file(file) {}
+    explicit ConsoleBuffer(FILE* file) :
+        file(file) {}
 
     int sync() override {
         fputs(str().c_str(), file);
@@ -139,7 +144,8 @@ void useUtf8ForConsole() {
     SetConsoleOutputCP(CP_UTF8);
 
     // Prevent default stream buffer from chopping up UTF-8 byte sequences.
-    // See https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
+    // See
+    // https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
     std::cout.rdbuf(new ConsoleBuffer(stdout));
     std::cerr.rdbuf(new ConsoleBuffer(stderr));
 #endif

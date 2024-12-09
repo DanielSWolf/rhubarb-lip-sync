@@ -1,14 +1,15 @@
 #pragma once
 
 #include <functional>
-#include <mutex>
-#include <vector>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <vector>
 
 class ProgressSink {
 public:
     virtual ~ProgressSink() {}
+
     virtual void reportProgress(double value) = 0;
 };
 
@@ -21,6 +22,7 @@ class ProgressForwarder : public ProgressSink {
 public:
     ProgressForwarder(std::function<void(double progress)> callback);
     void reportProgress(double value) override;
+
 private:
     std::function<void(double progress)> callback;
 };
@@ -39,6 +41,7 @@ public:
     ProgressMerger(ProgressSink& sink);
     ~ProgressMerger();
     ProgressSink& addSource(const std::string& description, double weight);
+
 private:
     void report();
 

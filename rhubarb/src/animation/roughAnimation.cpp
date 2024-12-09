@@ -1,4 +1,5 @@
 #include "roughAnimation.h"
+
 #include <boost/optional.hpp>
 
 // Create timeline of shapes using a bidirectional algorithm.
@@ -22,9 +23,8 @@ JoiningContinuousTimeline<Shape> animateRough(const ContinuousTimeline<ShapeRule
         const ShapeRule shapeRule = it->getValue();
         const Shape shape = getClosestShape(referenceShape, shapeRule.shapeSet);
         animation.set(it->getTimeRange(), shape);
-        const bool anticipateShape = shapeRule.phone
-            && isVowel(*shapeRule.phone)
-            && shapeRule.shapeSet.size() == 1;
+        const bool anticipateShape =
+            shapeRule.phone && isVowel(*shapeRule.phone) && shapeRule.shapeSet.size() == 1;
         if (anticipateShape) {
             // Animate backwards a little
             const Shape anticipatedShape = shape;

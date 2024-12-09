@@ -1,6 +1,7 @@
 #pragma once
-#include "logging/Entry.h"
 #include <filesystem>
+
+#include "logging/Entry.h"
 
 // Marker class for semantic entries
 class SemanticEntry : public logging::Entry {
@@ -12,6 +13,7 @@ class StartEntry : public SemanticEntry {
 public:
     StartEntry(const std::filesystem::path& inputFilePath);
     std::filesystem::path getInputFilePath() const;
+
 private:
     std::filesystem::path inputFilePath;
 };
@@ -20,6 +22,7 @@ class ProgressEntry : public SemanticEntry {
 public:
     ProgressEntry(double progress);
     double getProgress() const;
+
 private:
     double progress;
 };
@@ -33,6 +36,7 @@ class FailureEntry : public SemanticEntry {
 public:
     FailureEntry(const std::string& reason);
     std::string getReason() const;
+
 private:
     std::string reason;
 };

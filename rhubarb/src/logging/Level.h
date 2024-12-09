@@ -4,26 +4,19 @@
 
 namespace logging {
 
-    enum class Level {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Fatal,
-        EndSentinel
-    };
+enum class Level { Trace, Debug, Info, Warn, Error, Fatal, EndSentinel };
 
-    class LevelConverter : public EnumConverter<Level> {
-    public:
-        static LevelConverter& get();
-    protected:
-        std::string getTypeName() override;
-        member_data getMemberData() override;
-    };
+class LevelConverter : public EnumConverter<Level> {
+public:
+    static LevelConverter& get();
 
-    std::ostream& operator<<(std::ostream& stream, Level value);
+protected:
+    std::string getTypeName() override;
+    member_data getMemberData() override;
+};
 
-    std::istream& operator >>(std::istream& stream, Level& value);
+std::ostream& operator<<(std::ostream& stream, Level value);
 
-}
+std::istream& operator>>(std::istream& stream, Level& value);
+
+} // namespace logging

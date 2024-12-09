@@ -1,3 +1,8 @@
 .vs/
-build/
+.vscode/
 *.user
+build/
+venv/
+
+__pycache__
+.doit.db.*

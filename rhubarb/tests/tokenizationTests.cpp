@@ -1,14 +1,16 @@
 ﻿#include <gmock/gmock.h>
-#include "recognition/tokenization.h"
-#include <regex>
-#include <unordered_set>
 #include <utf8.h>
 
+#include <regex>
+#include <unordered_set>
+
+#include "recognition/tokenization.h"
+
 using namespace testing;
+using std::regex;
 using std::string;
 using std::u32string;
 using std::vector;
-using std::regex;
 
 bool returnTrue(const string&) {
     return true;
@@ -54,8 +56,9 @@ TEST(tokenizeText, apostrophes) {
             "'Tis said he'd wish'd for a 'bus 'cause he wouldn't walk.",
             [](const string& word) { return word == "wouldn't"; }
         ),
-        ElementsAreArray(
-            vector<string>{ "tis", "said", "he'd", "wish'd", "for", "a", "bus", "cause", "he", "wouldn't", "walk" })
+        ElementsAreArray(vector<string>{
+            "tis", "said", "he'd", "wish'd", "for", "a", "bus", "cause", "he", "wouldn't", "walk"
+        })
     );
 }
 
@@ -69,7 +72,9 @@ TEST(tokenizeText, math) {
 TEST(tokenizeText, unicodeCharacters) {
     EXPECT_THAT(
         tokenizeText("A naïve man called 晨 had piña colada and crème brûlée.", returnTrue),
-        ElementsAre("a", "naive", "man", "called", "had", "pina", "colada", "and", "creme", "brulee")
+        ElementsAre(
+            "a", "naive", "man", "called", "had", "pina", "colada", "and", "creme", "brulee"
+        )
     );
 }
 

@@ -2,16 +2,12 @@
 
 #include "tools/EnumConverter.h"
 
-enum class ExportFormat {
-    Dat,
-    Tsv,
-    Xml,
-    Json
-};
+enum class ExportFormat { Dat, Tsv, Xml, Json };
 
 class ExportFormatConverter : public EnumConverter<ExportFormat> {
 public:
     static ExportFormatConverter& get();
+
 protected:
     std::string getTypeName() override;
     member_data getMemberData() override;

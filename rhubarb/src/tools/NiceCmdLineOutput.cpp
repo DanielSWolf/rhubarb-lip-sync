@@ -1,13 +1,14 @@
-#include "regex"
 #include "NiceCmdLineOutput.h"
+
 #include "platformTools.h"
+#include "regex"
 #include "TablePrinter.h"
 
+using std::cout;
+using std::endl;
 using std::string;
 using std::vector;
 using TCLAP::CmdLineInterface;
-using std::cout;
-using std::endl;
 
 string getBinaryName() {
     return getBinPath().filename().u8string();
@@ -36,10 +37,9 @@ void NiceCmdLineOutput::failure(CmdLineInterface& cli, TCLAP::ArgException& e) {
         std::cerr << "Short usage:" << endl;
         printShortUsage(cli, std::cerr);
 
-        std::cerr
-            << endl
-            << "For complete usage and help, type `" << getBinaryName() << " --help`" << endl
-            << endl;
+        std::cerr << endl
+                  << "For complete usage and help, type `" << getBinaryName() << " --help`" << endl
+                  << endl;
     } else {
         usage(cli);
     }
@@ -53,8 +53,9 @@ void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& out
     const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
     for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
         shortUsage += " {";
-        
-        for (auto arg : xorArgGroup) shortUsage += arg->shortID() + "|";
+
+        for (auto arg : xorArgGroup)
+            shortUsage += arg->shortID() + "|";
         shortUsage.pop_back();
 
         shortUsage += '}';
@@ -64,7 +65,7 @@ void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& out
     std::list<TCLAP::Arg*> argList = cli.getArgList();
     for (auto arg : argList) {
         if (xorHandler.contains(arg)) continue;
-        
+
         shortUsage += " " + arg->shortID();
     }
 
@@ -72,7 +73,7 @@ void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& out
 }
 
 void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outStream) const {
-    TablePrinter tablePrinter(&outStream, { 20, 56 });
+    TablePrinter tablePrinter(&outStream, {20, 56});
 
     // Print XOR arguments
     TCLAP::XorHandler xorHandler = cli.getXorHandler();
@@ -83,7 +84,7 @@ void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outS
                 outStream << "-- or --" << endl;
             }
 
-            tablePrinter.printRow({ arg->longID(), arg->getDescription() });
+            tablePrinter.printRow({arg->longID(), arg->getDescription()});
         }
         outStream << endl;
     }
@@ -93,6 +94,6 @@ void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outS
     for (auto arg : argList) {
         if (xorHandler.contains(arg)) continue;
 
-        tablePrinter.printRow({ arg->longID(), arg->getDescription() });
+        tablePrinter.printRow({arg->longID(), arg->getDescription()});
     }
 }

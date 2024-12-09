@@ -1,11 +1,13 @@
 #include <gmock/gmock.h>
+
 #include "audio/WaveFileReader.h"
 #include "tools/platformTools.h"
 
 using namespace testing;
 
 TEST(getWaveFormatInfo, float32FromAudacity) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-audacity.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-audacity.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -15,7 +17,8 @@ TEST(getWaveFormatInfo, float32FromAudacity) {
 }
 
 TEST(getWaveFormatInfo, float32FromAudition) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-audition.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-audition.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -25,7 +28,8 @@ TEST(getWaveFormatInfo, float32FromAudition) {
 }
 
 TEST(getWaveFormatInfo, float32FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -35,7 +39,9 @@ TEST(getWaveFormatInfo, float32FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, float32FromSoundforge) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float32-soundforge.wav");
+    auto formatInfo = getWaveFormatInfo(
+        getBinDirectory() / "tests/resources/sine-triangle-float32-soundforge.wav"
+    );
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -45,7 +51,8 @@ TEST(getWaveFormatInfo, float32FromSoundforge) {
 }
 
 TEST(getWaveFormatInfo, float64FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float64-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-float64-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -55,7 +62,8 @@ TEST(getWaveFormatInfo, float64FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, int16FromAudacity) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-audacity.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-audacity.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -65,7 +73,8 @@ TEST(getWaveFormatInfo, int16FromAudacity) {
 }
 
 TEST(getWaveFormatInfo, int16FromAudition) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-audition.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-audition.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -75,7 +84,8 @@ TEST(getWaveFormatInfo, int16FromAudition) {
 }
 
 TEST(getWaveFormatInfo, int16FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -85,7 +95,8 @@ TEST(getWaveFormatInfo, int16FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, int16FromSoundforge) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-soundforge.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int16-soundforge.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -95,7 +106,8 @@ TEST(getWaveFormatInfo, int16FromSoundforge) {
 }
 
 TEST(getWaveFormatInfo, int24FromAudacity) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-audacity.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-audacity.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -105,7 +117,8 @@ TEST(getWaveFormatInfo, int24FromAudacity) {
 }
 
 TEST(getWaveFormatInfo, int24FromAudition) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-audition.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-audition.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -115,7 +128,8 @@ TEST(getWaveFormatInfo, int24FromAudition) {
 }
 
 TEST(getWaveFormatInfo, int24FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -125,7 +139,8 @@ TEST(getWaveFormatInfo, int24FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, int24FromSoundforge) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-soundforge.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int24-soundforge.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -135,7 +150,8 @@ TEST(getWaveFormatInfo, int24FromSoundforge) {
 }
 
 TEST(getWaveFormatInfo, int32FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int32-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int32-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -145,7 +161,8 @@ TEST(getWaveFormatInfo, int32FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, int32FromSoundforge) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int32-soundforge.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-int32-soundforge.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -155,7 +172,8 @@ TEST(getWaveFormatInfo, int32FromSoundforge) {
 }
 
 TEST(getWaveFormatInfo, uint8FromAudition) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-audition.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-audition.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -165,7 +183,8 @@ TEST(getWaveFormatInfo, uint8FromAudition) {
 }
 
 TEST(getWaveFormatInfo, uint8FromFfmpeg) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-ffmpeg.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-ffmpeg.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -175,7 +194,8 @@ TEST(getWaveFormatInfo, uint8FromFfmpeg) {
 }
 
 TEST(getWaveFormatInfo, uint8FromSoundforge) {
-    auto formatInfo = getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-soundforge.wav");
+    auto formatInfo =
+        getWaveFormatInfo(getBinDirectory() / "tests/resources/sine-triangle-uint8-soundforge.wav");
     EXPECT_EQ(formatInfo.frameRate, 48000);
     EXPECT_EQ(formatInfo.frameCount, 480000);
     EXPECT_EQ(formatInfo.channelCount, 2);
@@ -183,4 +203,3 @@ TEST(getWaveFormatInfo, uint8FromSoundforge) {
     EXPECT_EQ(formatInfo.bytesPerFrame, 2 * 1);
     EXPECT_EQ(formatInfo.dataOffset, 44);
 }
-

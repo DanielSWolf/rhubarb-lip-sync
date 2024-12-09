@@ -1,0 +1,11 @@
+# Config file for Prettier, a JavaScript/TypeScript code formatter.
+
+tabWidth: 2
+printWidth: 100
+singleQuote: true
+arrowParens: avoid
+
+overrides:
+  - files: '*.jsx' # Adobe JSX, not React
+    options:
+      trailingComma: none

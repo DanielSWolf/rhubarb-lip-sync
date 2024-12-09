@@ -1,7 +1,9 @@
 #include "TimeRange.h"
-#include <stdexcept>
-#include <ostream>
+
 #include <format.h>
+
+#include <ostream>
+#include <stdexcept>
 
 using time_type = TimeRange::time_type;
 
@@ -12,18 +14,14 @@ TimeRange TimeRange::zero() {
 
 TimeRange::TimeRange() :
     start(0_cs),
-    end(0_cs)
-{}
+    end(0_cs) {}
 
 TimeRange::TimeRange(time_type start, time_type end) :
     start(start),
-    end(end)
-{
+    end(end) {
     if (start > end) {
         throw std::invalid_argument(fmt::format(
-            "Time range start must not be less than end. Start: {0}, end: {1}",
-            start,
-            end
+            "Time range start must not be less than end. Start: {0}, end: {1}", start, end
         ));
     }
 }
@@ -97,11 +95,11 @@ void TimeRange::trim(const TimeRange& limits) {
 }
 
 void TimeRange::trimLeft(time_type value) {
-    trim({ value, end });
+    trim({value, end});
 }
 
 void TimeRange::trimRight(time_type value) {
-    trim({ start, value });
+    trim({start, value});
 }
 
 bool TimeRange::operator==(const TimeRange& rhs) const {

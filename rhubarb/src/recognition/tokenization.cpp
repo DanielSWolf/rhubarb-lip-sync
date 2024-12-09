@@ -1,22 +1,24 @@
 #include "tokenization.h"
-#include "tools/tools.h"
-#include "tools/stringTools.h"
-#include <regex>
+
 #include <boost/optional/optional.hpp>
+#include <regex>
+
+#include "tools/stringTools.h"
+#include "tools/tools.h"
 
 extern "C" {
 #include <cst_utt_utils.h>
-#include <lang/usenglish/usenglish.h>
 #include <lang/cmulex/cmu_lex.h>
+#include <lang/usenglish/usenglish.h>
 }
 
+using boost::optional;
+using std::function;
+using std::pair;
+using std::regex;
 using std::runtime_error;
 using std::string;
 using std::vector;
-using std::regex;
-using std::pair;
-using boost::optional;
-using std::function;
 
 lambda_unique_ptr<cst_voice> createDummyVoice() {
     lambda_unique_ptr<cst_voice> voice(new_voice(), [](cst_voice* voice) { delete_voice(voice); });
@@ -28,9 +30,9 @@ lambda_unique_ptr<cst_voice> createDummyVoice() {
 }
 
 static const cst_synth_module synth_method_normalize[] = {
-    { "tokenizer_func", default_tokenization },        // split text into tokens
-    { "textanalysis_func", default_textanalysis },    // transform tokens into words
-    { nullptr, nullptr }
+    {"tokenizer_func", default_tokenization},    // split text into tokens
+    {"textanalysis_func", default_textanalysis}, // transform tokens into words
+    {nullptr, nullptr}
 };
 
 vector<string> tokenizeViaFlite(const string& text) {
@@ -38,10 +40,9 @@ vector<string> tokenizeViaFlite(const string& text) {
     const string asciiText = utf8ToAscii(text);
 
     // Create utterance object with text
-    lambda_unique_ptr<cst_utterance> utterance(
-        new_utterance(),
-        [](cst_utterance* utterance) { delete_utterance(utterance); }
-    );
+    lambda_unique_ptr<cst_utterance> utterance(new_utterance(), [](cst_utterance* utterance) {
+        delete_utterance(utterance);
+    });
     utt_set_input_text(utterance.get(), asciiText.c_str());
     lambda_unique_ptr<cst_voice> voice = createDummyVoice();
     utt_init(utterance.get(), voice.get());
@@ -52,11 +53,8 @@ vector<string> tokenizeViaFlite(const string& text) {
     }
 
     vector<string> result;
-    for (
-        cst_item* item = relation_head(utt_relation(utterance.get(), "Word"));
-        item;
-        item = item_next(item)
-    ) {
+    for (cst_item* item = relation_head(utt_relation(utterance.get(), "Word")); item;
+         item = item_next(item)) {
         const char* word = item_feat_string(item, "name");
         result.emplace_back(word);
     }
@@ -64,11 +62,11 @@ vector<string> tokenizeViaFlite(const string& text) {
 }
 
 optional<string> findSimilarDictionaryWord(
-    const string& word,
-    const function<bool(const string&)>& dictionaryContains
+    const string& word, const function<bool(const string&)>& dictionaryContains
 ) {
-    for (bool addPeriod : { false, true }) {
-        for (int apostropheIndex = -1; apostropheIndex <= static_cast<int>(word.size()); ++apostropheIndex) {
+    for (bool addPeriod : {false, true}) {
+        for (int apostropheIndex = -1; apostropheIndex <= static_cast<int>(word.size());
+             ++apostropheIndex) {
             string modified = word;
             if (apostropheIndex != -1) {
                 modified.insert(apostropheIndex, "'");
@@ -87,8 +85,7 @@ optional<string> findSimilarDictionaryWord(
 }
 
 vector<string> tokenizeText(
-    const string& text,
-    const function<bool(const string&)>& dictionaryContains
+    const string& text, const function<bool(const string&)>& dictionaryContains
 ) {
     vector<string> words = tokenizeViaFlite(text);
 
@@ -101,13 +98,13 @@ vector<string> tokenizeText(
     }
 
     // Turn some symbols into words, remove the rest
-    const static vector<pair<regex, string>> replacements {
-        { regex("&"), "and" },
-        { regex("\\*"), "times" },
-        { regex("\\+"), "plus" },
-        { regex("="), "equals" },
-        { regex("@"), "at" },
-        { regex("[^a-z']"), "" }
+    const static vector<pair<regex, string>> replacements{
+        {regex("&"), "and"},
+        {regex("\\*"), "times"},
+        {regex("\\+"), "plus"},
+        {regex("="), "equals"},
+        {regex("@"), "at"},
+        {regex("[^a-z']"), ""}
     };
     for (auto& word : words) {
         for (const auto& replacement : replacements) {

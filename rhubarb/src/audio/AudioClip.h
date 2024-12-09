@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
-#include "time/TimeRange.h"
 #include <functional>
+#include <memory>
+
+#include "time/TimeRange.h"
 #include "tools/Lazy.h"
 
 class AudioClip;
@@ -17,6 +18,7 @@ public:
     using SampleReader = std::function<value_type(size_type)>;
 
     virtual ~AudioClip() {}
+
     virtual std::unique_ptr<AudioClip> clone() const = 0;
     virtual int getSampleRate() const = 0;
     virtual size_type size() const = 0;
@@ -24,6 +26,7 @@ public:
     SampleReader createSampleReader() const;
     iterator begin() const;
     iterator end() const;
+
 private:
     virtual SampleReader createUnsafeSampleReader() const = 0;
 };
@@ -137,6 +140,8 @@ inline SampleIterator operator-(const SampleIterator& it, SampleIterator::differ
     return result;
 }
 
-inline SampleIterator::difference_type operator-(const SampleIterator& lhs, const SampleIterator& rhs) {
+inline SampleIterator::difference_type operator-(
+    const SampleIterator& lhs, const SampleIterator& rhs
+) {
     return lhs.getSampleIndex() - rhs.getSampleIndex();
 }

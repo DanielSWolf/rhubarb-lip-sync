@@ -1,12 +1,14 @@
 #include "ShapeRule.h"
+
 #include <boost/range/adaptor/transformed.hpp>
 #include <utility>
+
 #include "time/ContinuousTimeline.h"
 
 using boost::optional;
 using boost::adaptors::transformed;
 
-template<typename T, bool AutoJoin>
+template <typename T, bool AutoJoin>
 ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(
     const BoundedTimeline<T, AutoJoin>& timeline
 ) {
@@ -19,18 +21,13 @@ ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(
     };
 }
 
-ShapeRule::ShapeRule(
-    ShapeSet shapeSet,
-    optional<Phone> phone,
-    TimeRange phoneTiming
-) :
+ShapeRule::ShapeRule(ShapeSet shapeSet, optional<Phone> phone, TimeRange phoneTiming) :
     shapeSet(std::move(shapeSet)),
     phone(std::move(phone)),
-    phoneTiming(phoneTiming)
-{}
+    phoneTiming(phoneTiming) {}
 
 ShapeRule ShapeRule::getInvalid() {
-    return { {}, boost::none, { 0_cs, 0_cs } };
+    return {{}, boost::none, {0_cs, 0_cs}};
 }
 
 bool ShapeRule::operator==(const ShapeRule& rhs) const {
@@ -42,8 +39,7 @@ bool ShapeRule::operator!=(const ShapeRule& rhs) const {
 }
 
 bool ShapeRule::operator<(const ShapeRule& rhs) const {
-    return shapeSet < rhs.shapeSet
-        || phone < rhs.phone
+    return shapeSet < rhs.shapeSet || phone < rhs.phone
         || phoneTiming.getStart() < rhs.phoneTiming.getStart()
         || phoneTiming.getEnd() < rhs.phoneTiming.getEnd();
 }
@@ -54,8 +50,7 @@ ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones
 
     // Create timeline of shape rules
     ContinuousTimeline<ShapeRule> shapeRules(
-        phones.getRange(),
-        { { Shape::X }, boost::none, { 0_cs, 0_cs } }
+        phones.getRange(), {{Shape::X}, boost::none, {0_cs, 0_cs}}
     );
     centiseconds previousDuration = 0_cs;
     for (const auto& timedPhone : continuousPhones) {

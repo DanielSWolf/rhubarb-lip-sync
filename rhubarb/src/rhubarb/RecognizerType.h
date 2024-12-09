@@ -2,14 +2,12 @@
 
 #include "tools/EnumConverter.h"
 
-enum class RecognizerType {
-    PocketSphinx,
-    Phonetic
-};
+enum class RecognizerType { PocketSphinx, Phonetic };
 
 class RecognizerTypeConverter : public EnumConverter<RecognizerType> {
 public:
     static RecognizerTypeConverter& get();
+
 protected:
     std::string getTypeName() override;
     member_data getMemberData() override;

@@ -2,8 +2,8 @@
 
 #include "audio/AudioClip.h"
 #include "core/Phone.h"
-#include "tools/progress.h"
 #include "time/BoundedTimeline.h"
+#include "tools/progress.h"
 
 class Recognizer {
 public:

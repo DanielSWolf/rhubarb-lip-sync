@@ -1,67 +1,68 @@
-#include <iostream>
 #include <format.h>
-#include <tclap/CmdLine.h>
-#include "core/appInfo.h"
-#include "tools/NiceCmdLineOutput.h"
-#include "logging/logging.h"
-#include "logging/sinks.h"
-#include "logging/formatters.h"
 #include <gsl_util.h>
-#include "exporters/Exporter.h"
-#include "time/ContinuousTimeline.h"
-#include "tools/stringTools.h"
+#include <tclap/CmdLine.h>
+
 #include <boost/range/adaptor/transformed.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include <fstream>
-#include "tools/parallel.h"
-#include "tools/exceptions.h"
-#include "tools/textFiles.h"
-#include "lib/rhubarbLib.h"
-#include "ExportFormat.h"
+#include <iostream>
+
+#include "animation/targetShapeSet.h"
+#include "core/appInfo.h"
 #include "exporters/DatExporter.h"
+#include "exporters/Exporter.h"
+#include "exporters/JsonExporter.h"
 #include "exporters/TsvExporter.h"
 #include "exporters/XmlExporter.h"
-#include "exporters/JsonExporter.h"
-#include "animation/targetShapeSet.h"
-#include <boost/utility/in_place_factory.hpp>
-#include "tools/platformTools.h"
-#include "sinks.h"
-#include "semanticEntries.h"
-#include "RecognizerType.h"
-#include "recognition/PocketSphinxRecognizer.h"
+#include "ExportFormat.h"
+#include "lib/rhubarbLib.h"
+#include "logging/formatters.h"
+#include "logging/logging.h"
+#include "logging/sinks.h"
 #include "recognition/PhoneticRecognizer.h"
+#include "recognition/PocketSphinxRecognizer.h"
+#include "RecognizerType.h"
+#include "semanticEntries.h"
+#include "sinks.h"
+#include "time/ContinuousTimeline.h"
+#include "tools/exceptions.h"
+#include "tools/NiceCmdLineOutput.h"
+#include "tools/parallel.h"
+#include "tools/platformTools.h"
+#include "tools/stringTools.h"
+#include "tools/textFiles.h"
 
+using boost::optional;
+using boost::adaptors::transformed;
 using std::exception;
-using std::string;
-using std::string;
-using std::vector;
-using std::unique_ptr;
+using std::make_shared;
 using std::make_unique;
 using std::shared_ptr;
-using std::make_shared;
+using std::string;
+using std::unique_ptr;
+using std::vector;
 using std::filesystem::path;
 using std::filesystem::u8path;
-using boost::adaptors::transformed;
-using boost::optional;
 
 namespace tclap = TCLAP;
 
 // Tell TCLAP how to handle our types
 namespace TCLAP {
-    template<>
-    struct ArgTraits<logging::Level> {
-        typedef ValueLike ValueCategory;
-    };
+template <>
+struct ArgTraits<logging::Level> {
+    typedef ValueLike ValueCategory;
+};
 
-    template<>
-    struct ArgTraits<ExportFormat> {
-        typedef ValueLike ValueCategory;
-    };
+template <>
+struct ArgTraits<ExportFormat> {
+    typedef ValueLike ValueCategory;
+};
 
-    template<>
-    struct ArgTraits<RecognizerType> {
-        typedef ValueLike ValueCategory;
-    };
-}
+template <>
+struct ArgTraits<RecognizerType> {
+    typedef ValueLike ValueCategory;
+};
+} // namespace TCLAP
 
 shared_ptr<logging::Sink> createFileSink(const path& path, logging::Level minLevel) {
     auto file = make_shared<std::ofstream>();
@@ -74,12 +75,9 @@ shared_ptr<logging::Sink> createFileSink(const path& path, logging::Level minLev
 
 unique_ptr<Recognizer> createRecognizer(RecognizerType recognizerType) {
     switch (recognizerType) {
-        case RecognizerType::PocketSphinx:
-            return make_unique<PocketSphinxRecognizer>();
-        case RecognizerType::Phonetic:
-            return make_unique<PhoneticRecognizer>();
-        default:
-            throw std::runtime_error("Unknown recognizer.");
+        case RecognizerType::PocketSphinx: return make_unique<PocketSphinxRecognizer>();
+        case RecognizerType::Phonetic: return make_unique<PhoneticRecognizer>();
+        default: throw std::runtime_error("Unknown recognizer.");
     }
 }
 
@@ -92,14 +90,10 @@ unique_ptr<Exporter> createExporter(
     switch (exportFormat) {
         case ExportFormat::Dat:
             return make_unique<DatExporter>(targetShapeSet, datFrameRate, datUsePrestonBlair);
-        case ExportFormat::Tsv:
-            return make_unique<TsvExporter>();
-        case ExportFormat::Xml:
-            return make_unique<XmlExporter>();
-        case ExportFormat::Json:
-            return make_unique<JsonExporter>();
-        default:
-            throw std::runtime_error("Unknown export format.");
+        case ExportFormat::Tsv: return make_unique<TsvExporter>();
+        case ExportFormat::Xml: return make_unique<XmlExporter>();
+        case ExportFormat::Json: return make_unique<JsonExporter>();
+        default: throw std::runtime_error("Unknown export format.");
     }
 }
 
@@ -134,78 +128,118 @@ int main(int platformArgc, char* platformArgv[]) {
     cmd.setOutput(new NiceCmdLineOutput());
 
     tclap::ValueArg<string> outputFileName(
-        "o", "output", "The output file path.",
-        false, string(), "string", cmd
+        "o", "output", "The output file path.", false, string(), "string", cmd
     );
 
     auto logLevels = vector<logging::Level>(logging::LevelConverter::get().getValues());
     tclap::ValuesConstraint<logging::Level> logLevelConstraint(logLevels);
     tclap::ValueArg<logging::Level> logLevel(
-        "", "logLevel", "The minimum log level that will be written to the log file",
-        false, logging::Level::Debug, &logLevelConstraint, cmd
+        "",
+        "logLevel",
+        "The minimum log level that will be written to the log file",
+        false,
+        logging::Level::Debug,
+        &logLevelConstraint,
+        cmd
     );
 
     tclap::ValueArg<string> logFileName(
-        "", "logFile", "The log file path.",
-        false, string(), "string", cmd
+        "", "logFile", "The log file path.", false, string(), "string", cmd
     );
     tclap::ValueArg<logging::Level> consoleLevel(
-        "", "consoleLevel", "The minimum log level that will be printed on the console (stderr)",
-        false, defaultMinStderrLevel, &logLevelConstraint, cmd
+        "",
+        "consoleLevel",
+        "The minimum log level that will be printed on the console (stderr)",
+        false,
+        defaultMinStderrLevel,
+        &logLevelConstraint,
+        cmd
     );
 
     tclap::SwitchArg machineReadableMode(
-        "", "machineReadable", "Formats all output to stderr in a structured JSON format.",
-        cmd, false
+        "",
+        "machineReadable",
+        "Formats all output to stderr in a structured JSON format.",
+        cmd,
+        false
     );
 
     tclap::SwitchArg quietMode(
-        "q", "quiet", "Suppresses all output to stderr except for warnings and error messages.",
-        cmd, false
+        "q",
+        "quiet",
+        "Suppresses all output to stderr except for warnings and error messages.",
+        cmd,
+        false
     );
 
     tclap::ValueArg<int> maxThreadCount(
-        "", "threads", "The maximum number of worker threads to use.",
-        false, getProcessorCoreCount(), "number", cmd
+        "",
+        "threads",
+        "The maximum number of worker threads to use.",
+        false,
+        getProcessorCoreCount(),
+        "number",
+        cmd
     );
 
     tclap::ValueArg<string> extendedShapes(
-        "", "extendedShapes", "All extended, optional shapes to use.",
-        false, "GHX", "string", cmd
+        "", "extendedShapes", "All extended, optional shapes to use.", false, "GHX", "string", cmd
     );
 
     tclap::ValueArg<string> dialogFile(
-        "d", "dialogFile", "A file containing the text of the dialog.",
-        false, string(), "string", cmd
+        "d",
+        "dialogFile",
+        "A file containing the text of the dialog.",
+        false,
+        string(),
+        "string",
+        cmd
     );
 
     tclap::SwitchArg datUsePrestonBlair(
-        "", "datUsePrestonBlair", "Only for dat exporter: uses the Preston Blair mouth shape names.",
-        cmd, false
+        "",
+        "datUsePrestonBlair",
+        "Only for dat exporter: uses the Preston Blair mouth shape names.",
+        cmd,
+        false
     );
 
     tclap::ValueArg<double> datFrameRate(
-        "", "datFrameRate", "Only for dat exporter: the desired frame rate.",
-        false, 24.0, "number", cmd
+        "",
+        "datFrameRate",
+        "Only for dat exporter: the desired frame rate.",
+        false,
+        24.0,
+        "number",
+        cmd
     );
 
     auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
     tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
     tclap::ValueArg<ExportFormat> exportFormat(
-        "f", "exportFormat", "The export format.",
-        false, ExportFormat::Tsv, &exportFormatConstraint, cmd
+        "f",
+        "exportFormat",
+        "The export format.",
+        false,
+        ExportFormat::Tsv,
+        &exportFormatConstraint,
+        cmd
     );
 
     auto recognizerTypes = vector<RecognizerType>(RecognizerTypeConverter::get().getValues());
     tclap::ValuesConstraint<RecognizerType> recognizerConstraint(recognizerTypes);
     tclap::ValueArg<RecognizerType> recognizerType(
-        "r", "recognizer", "The dialog recognizer.",
-        false, RecognizerType::PocketSphinx, &recognizerConstraint, cmd
+        "r",
+        "recognizer",
+        "The dialog recognizer.",
+        false,
+        RecognizerType::PocketSphinx,
+        &recognizerConstraint,
+        cmd
     );
 
     tclap::UnlabeledValueArg<string> inputFileName(
-        "inputFile", "The input file. Must be a sound file in WAVE format.",
-        true, "", "string", cmd
+        "inputFile", "The input file. Must be a sound file in WAVE format.", true, "", "string", cmd
     );
 
     try {
@@ -247,8 +281,10 @@ int main(int platformArgc, char* platformArgv[]) {
         );
 
         logging::log(StartEntry(inputFilePath));
-        logging::debugFormat("Command line: {}",
-            join(args | transformed([](string arg) { return fmt::format("\"{}\"", arg); }), " "));
+        logging::debugFormat(
+            "Command line: {}",
+            join(args | transformed([](string arg) { return fmt::format("\"{}\"", arg); }), " ")
+        );
 
         try {
             // On progress change: Create log message
@@ -260,13 +296,13 @@ int main(int platformArgc, char* platformArgv[]) {
             logging::info("Starting animation.");
             JoiningContinuousTimeline<Shape> animation = animateWaveFile(
                 inputFilePath,
-                dialogFile.isSet()
-                    ? readUtf8File(u8path(dialogFile.getValue()))
-                    : boost::optional<string>(),
+                dialogFile.isSet() ? readUtf8File(u8path(dialogFile.getValue()))
+                                   : boost::optional<string>(),
                 *createRecognizer(recognizerType.getValue()),
                 targetShapeSet,
                 maxThreadCount.getValue(),
-                progressSink);
+                progressSink
+            );
             logging::info("Done animating.");
 
             // Export animation
@@ -282,9 +318,9 @@ int main(int platformArgc, char* platformArgv[]) {
 
             logging::log(SuccessEntry());
         } catch (...) {
-            std::throw_with_nested(
-                std::runtime_error(fmt::format("Error processing file {}.", inputFilePath.u8string()))
-            );
+            std::throw_with_nested(std::runtime_error(
+                fmt::format("Error processing file {}.", inputFilePath.u8string())
+            ));
         }
 
         return 0;

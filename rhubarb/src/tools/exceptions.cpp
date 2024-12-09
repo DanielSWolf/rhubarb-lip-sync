@@ -1,9 +1,9 @@
-#include <exception>
-
 #include "exceptions.h"
 
-using std::string;
+#include <exception>
+
 using std::exception;
+using std::string;
 
 string getMessage(const exception& e) {
     string result(e.what());
@@ -11,7 +11,8 @@ string getMessage(const exception& e) {
         rethrow_if_nested(e);
     } catch (const exception& innerException) {
         result += "\n" + getMessage(innerException);
-    } catch (...) {}
+    } catch (...) {
+    }
 
     return result;
 }

@@ -1,16 +1,18 @@
 #pragma once
 
-#include <functional>
-#include <future>
-#include "progress.h"
 #include <gsl_util.h>
 
-template<typename TCollection>
+#include <functional>
+#include <future>
+
+#include "progress.h"
+
+template <typename TCollection>
 void runParallel(
     std::function<void(typename TCollection::reference)> processElement,
     TCollection& collection,
-    int maxThreadCount)
-{
+    int maxThreadCount
+) {
     if (maxThreadCount < 1) {
         throw std::invalid_argument(fmt::format("maxThreadCount cannot be {}.", maxThreadCount));
     }
@@ -77,10 +79,9 @@ void runParallel(
             }
         }
     }
-
 }
 
-template<typename TCollection>
+template <typename TCollection>
 void runParallel(
     const std::string& description,
     std::function<void(typename TCollection::reference, ProgressSink&)> processElement,
@@ -88,8 +89,8 @@ void runParallel(
     int maxThreadCount,
     ProgressSink& progressSink,
     std::function<double(typename TCollection::reference)> getElementProgressWeight =
-        [](typename TCollection::reference) { return 1.0; })
-{
+        [](typename TCollection::reference) { return 1.0; }
+) {
     // Create a collection of wrapper functions that take care of progress handling
     ProgressMerger progressMerger(progressSink);
     std::vector<std::function<void()>> functions;

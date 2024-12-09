@@ -1,35 +1,23 @@
 #include <gmock/gmock.h>
+
 #include "time/BoundedTimeline.h"
 
 using namespace testing;
-using std::vector;
 using boost::optional;
 using std::initializer_list;
+using std::vector;
 
 TEST(BoundedTimeline, constructors_initializeState) {
     const TimeRange range(-5_cs, 55_cs);
     auto args = {
-        Timed<int>(-10_cs, 30_cs, 1),
-        Timed<int>(10_cs, 40_cs, 2),
-        Timed<int>(50_cs, 60_cs, 3)
+        Timed<int>(-10_cs, 30_cs, 1), Timed<int>(10_cs, 40_cs, 2), Timed<int>(50_cs, 60_cs, 3)
     };
     auto expected = {
-        Timed<int>(-5_cs, 10_cs, 1),
-        Timed<int>(10_cs, 40_cs, 2),
-        Timed<int>(50_cs, 55_cs, 3)
+        Timed<int>(-5_cs, 10_cs, 1), Timed<int>(10_cs, 40_cs, 2), Timed<int>(50_cs, 55_cs, 3)
     };
-    EXPECT_THAT(
-        BoundedTimeline<int>(range, args.begin(), args.end()),
-        ElementsAreArray(expected)
-    );
-    EXPECT_THAT(
-        BoundedTimeline<int>(range, vector<Timed<int>>(args)),
-        ElementsAreArray(expected)
-    );
-    EXPECT_THAT(
-        BoundedTimeline<int>(range, args),
-        ElementsAreArray(expected)
-    );
+    EXPECT_THAT(BoundedTimeline<int>(range, args.begin(), args.end()), ElementsAreArray(expected));
+    EXPECT_THAT(BoundedTimeline<int>(range, vector<Timed<int>>(args)), ElementsAreArray(expected));
+    EXPECT_THAT(BoundedTimeline<int>(range, args), ElementsAreArray(expected));
 }
 
 TEST(BoundedTimeline, empty) {
@@ -37,7 +25,7 @@ TEST(BoundedTimeline, empty) {
     EXPECT_TRUE(empty.empty());
     EXPECT_THAT(empty, IsEmpty());
 
-    BoundedTimeline<int> nonEmpty(TimeRange(0_cs, 10_cs), { Timed<int>(1_cs, 2_cs, 1) });
+    BoundedTimeline<int> nonEmpty(TimeRange(0_cs, 10_cs), {Timed<int>(1_cs, 2_cs, 1)});
     EXPECT_FALSE(nonEmpty.empty());
     EXPECT_THAT(nonEmpty, Not(IsEmpty()));
 }
@@ -47,7 +35,7 @@ TEST(BoundedTimeline, getRange) {
     BoundedTimeline<int> empty(range);
     EXPECT_EQ(range, empty.getRange());
 
-    BoundedTimeline<int> nonEmpty(range, { Timed<int>(1_cs, 2_cs, 1) });
+    BoundedTimeline<int> nonEmpty(range, {Timed<int>(1_cs, 2_cs, 1)});
     EXPECT_EQ(range, nonEmpty.getRange());
 }
 
@@ -84,12 +72,10 @@ TEST(BoundedTimeline, setAndClear) {
 
 TEST(BoundedTimeline, shift) {
     BoundedTimeline<int> timeline(
-        TimeRange(0_cs, 10_cs),
-        { { 1_cs, 2_cs, 1 }, { 2_cs, 5_cs, 2 }, { 7_cs, 9_cs, 3 } }
+        TimeRange(0_cs, 10_cs), {{1_cs, 2_cs, 1}, {2_cs, 5_cs, 2}, {7_cs, 9_cs, 3}}
     );
     BoundedTimeline<int> expected(
-        TimeRange(2_cs, 12_cs),
-        { { 3_cs, 4_cs, 1 }, { 4_cs, 7_cs, 2 }, { 9_cs, 11_cs, 3 } }
+        TimeRange(2_cs, 12_cs), {{3_cs, 4_cs, 1}, {4_cs, 7_cs, 2}, {9_cs, 11_cs, 3}}
     );
     timeline.shift(2_cs);
     EXPECT_EQ(expected, timeline);
@@ -98,8 +84,8 @@ TEST(BoundedTimeline, shift) {
 TEST(BoundedTimeline, equality) {
     vector<BoundedTimeline<int>> timelines = {
         BoundedTimeline<int>(TimeRange(0_cs, 10_cs)),
-        BoundedTimeline<int>(TimeRange(0_cs, 10_cs), { { 1_cs, 2_cs, 1 } }),
-        BoundedTimeline<int>(TimeRange(1_cs, 10_cs), { { 1_cs, 2_cs, 1 } })
+        BoundedTimeline<int>(TimeRange(0_cs, 10_cs), {{1_cs, 2_cs, 1}}),
+        BoundedTimeline<int>(TimeRange(1_cs, 10_cs), {{1_cs, 2_cs, 1}})
     };
 
     for (size_t i = 0; i < timelines.size(); ++i) {
@@ -108,8 +94,7 @@ TEST(BoundedTimeline, equality) {
                 EXPECT_EQ(timelines[i], BoundedTimeline<int>(timelines[j]))
                     << "i: " << i << ", j: " << j;
             } else {
-                EXPECT_NE(timelines[i], timelines[j])
-                    << "i: " << i << ", j: " << j;
+                EXPECT_NE(timelines[i], timelines[j]) << "i: " << i << ", j: " << j;
             }
         }
     }

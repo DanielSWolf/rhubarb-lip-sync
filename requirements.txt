@@ -1,0 +1,5 @@
+doit==0.36.0
+clang-format==19.1.5
+gersemi==0.17.1
+gitignore_parser==0.1.11
+ruff==0.8.3

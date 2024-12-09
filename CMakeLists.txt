@@ -13,14 +13,11 @@ add_subdirectory("extras/MagixVegas")
 add_subdirectory("extras/EsotericSoftwareSpine")
 
 # Install misc. files
-install(
-    FILES README.adoc LICENSE.md CHANGELOG.md
-    DESTINATION .
-)
+install(FILES README.adoc LICENSE.md CHANGELOG.md DESTINATION .)
 
 # Configure CPack
 function(get_short_system_name variable)
-    if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
         set(${variable} "macOS" PARENT_SCOPE)
     else()
         set(${variable} "${CMAKE_SYSTEM_NAME}" PARENT_SCOPE)

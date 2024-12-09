@@ -1,22 +1,25 @@
 #include "languageModels.h"
-#include <boost/range/adaptor/map.hpp>
-#include <vector>
-#include <regex>
-#include <map>
-#include <tuple>
-#include "tools/platformTools.h"
-#include <fstream>
-#include "core/appInfo.h"
-#include <cmath>
+
 #include <gsl_util.h>
 
-using std::string;
-using std::vector;
-using std::regex;
-using std::map;
-using std::tuple;
-using std::get;
+#include <boost/range/adaptor/map.hpp>
+#include <cmath>
+#include <fstream>
+#include <map>
+#include <regex>
+#include <tuple>
+#include <vector>
+
+#include "core/appInfo.h"
+#include "tools/platformTools.h"
+
 using std::endl;
+using std::get;
+using std::map;
+using std::regex;
+using std::string;
+using std::tuple;
+using std::vector;
 using std::filesystem::path;
 
 using Unigram = string;
@@ -50,9 +53,7 @@ map<Trigram, int> getTrigramCounts(const vector<string>& words) {
 }
 
 map<Unigram, double> getUnigramProbabilities(
-    const vector<string>& words,
-    const map<Unigram, int>& unigramCounts,
-    const double deflator
+    const vector<string>& words, const map<Unigram, int>& unigramCounts, const double deflator
 ) {
     map<Unigram, double> unigramProbabilities;
     for (const auto& pair : unigramCounts) {
@@ -97,8 +98,8 @@ map<Unigram, double> getUnigramBackoffWeights(
     const map<Unigram, int>& unigramCounts,
     const map<Unigram, double>& unigramProbabilities,
     const map<Bigram, int>& bigramCounts,
-    const double discountMass)
-{
+    const double discountMass
+) {
     map<Unigram, double> unigramBackoffWeights;
     for (const Unigram& unigram : unigramCounts | boost::adaptors::map_keys) {
         double denominator = 1;
@@ -116,8 +117,8 @@ map<Bigram, double> getBigramBackoffWeights(
     const map<Bigram, int>& bigramCounts,
     const map<Bigram, double>& bigramProbabilities,
     const map<Trigram, int>& trigramCounts,
-    const double discountMass)
-{
+    const double discountMass
+) {
     map<Bigram, double> bigramBackoffWeights;
     for (const Bigram& bigram : bigramCounts | boost::adaptors::map_keys) {
         double denominator = 1;
@@ -163,24 +164,22 @@ void createLanguageModelFile(const vector<string>& words, const path& filePath) 
     file.precision(4);
     file << "\\1-grams:" << endl;
     for (const Unigram& unigram : unigramCounts | boost::adaptors::map_keys) {
-        file << log10(unigramProbabilities.at(unigram))
-            << " " << unigram
-            << " " << log10(unigramBackoffWeights.at(unigram)) << endl;
+        file << log10(unigramProbabilities.at(unigram)) << " " << unigram << " "
+             << log10(unigramBackoffWeights.at(unigram)) << endl;
     }
     file << endl;
 
     file << "\\2-grams:" << endl;
     for (const Bigram& bigram : bigramCounts | boost::adaptors::map_keys) {
-        file << log10(bigramProbabilities.at(bigram))
-            << " " << get<0>(bigram) << " " << get<1>(bigram)
-            << " " << log10(bigramBackoffWeights.at(bigram)) << endl;
+        file << log10(bigramProbabilities.at(bigram)) << " " << get<0>(bigram) << " "
+             << get<1>(bigram) << " " << log10(bigramBackoffWeights.at(bigram)) << endl;
     }
     file << endl;
 
     file << "\\3-grams:" << endl;
     for (const Trigram& trigram : trigramCounts | boost::adaptors::map_keys) {
-        file << log10(trigramProbabilities.at(trigram))
-            << " " << get<0>(trigram) << " " << get<1>(trigram) << " " << get<2>(trigram) << endl;
+        file << log10(trigramProbabilities.at(trigram)) << " " << get<0>(trigram) << " "
+             << get<1>(trigram) << " " << get<2>(trigram) << endl;
     }
     file << endl;
 
@@ -188,14 +187,16 @@ void createLanguageModelFile(const vector<string>& words, const path& filePath) 
 }
 
 lambda_unique_ptr<ngram_model_t> createLanguageModel(
-    const vector<string>& words,
-    ps_decoder_t& decoder
+    const vector<string>& words, ps_decoder_t& decoder
 ) {
     path tempFilePath = getTempFilePath();
     createLanguageModelFile(words, tempFilePath);
     auto deleteTempFile = gsl::finally([&]() { std::filesystem::remove(tempFilePath); });
 
     return lambda_unique_ptr<ngram_model_t>(
-        ngram_model_read(decoder.config, tempFilePath.u8string().c_str(), NGRAM_ARPA, decoder.lmath),
-        [](ngram_model_t* lm) { ngram_model_free(lm); });
+        ngram_model_read(
+            decoder.config, tempFilePath.u8string().c_str(), NGRAM_ARPA, decoder.lmath
+        ),
+        [](ngram_model_t* lm) { ngram_model_free(lm); }
+    );
 }

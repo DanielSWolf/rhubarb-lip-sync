@@ -1,19 +1,18 @@
 #pragma once
 
-#include "time/TimeRange.h"
 #include <iostream>
 
-template<typename TValue>
+#include "time/TimeRange.h"
+
+template <typename TValue>
 class Timed {
 public:
     Timed(TimeRange::time_type start, TimeRange::time_type end, const TValue& value) :
-        Timed(TimeRange(start, end), value)
-    {}
+        Timed(TimeRange(start, end), value) {}
 
     Timed(const TimeRange& timeRange, const TValue& value) :
         timeRange(timeRange),
-        value(value)
-    {}
+        value(value) {}
 
     Timed(const Timed&) = default;
     Timed(Timed&&) = default;
@@ -70,26 +69,20 @@ private:
     TValue value;
 };
 
-template<typename T>
+template <typename T>
 std::ostream& operator<<(std::ostream& stream, const Timed<T>& timedValue) {
-    return stream
-        << "Timed("
-        << timedValue.getStart() << ", "
-        << timedValue.getEnd() << ", "
-        << timedValue.getValue()
-        << ")";
+    return stream << "Timed(" << timedValue.getStart() << ", " << timedValue.getEnd() << ", "
+                  << timedValue.getValue() << ")";
 }
 
-template<>
+template <>
 class Timed<void> {
 public:
     Timed(TimeRange::time_type start, TimeRange::time_type end) :
-        Timed(TimeRange(start, end))
-    {}
+        Timed(TimeRange(start, end)) {}
 
     Timed(const TimeRange& timeRange) :
-        timeRange(timeRange)
-    {}
+        timeRange(timeRange) {}
 
     Timed(const Timed&) = default;
     Timed(Timed&&) = default;
@@ -133,11 +126,8 @@ private:
     TimeRange timeRange;
 };
 
-template<>
+template <>
 inline std::ostream& operator<<(std::ostream& stream, const Timed<void>& timedValue) {
-    return stream
-        << "Timed<void>("
-        << timedValue.getTimeRange().getStart() << ", "
-        << timedValue.getTimeRange().getEnd()
-        << ")";
+    return stream << "Timed<void>(" << timedValue.getTimeRange().getStart() << ", "
+                  << timedValue.getTimeRange().getEnd() << ")";
 }

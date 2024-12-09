@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-template<typename TCollection>
+template <typename TCollection>
 std::vector<std::pair<typename TCollection::value_type, typename TCollection::value_type>> getPairs(
     const TCollection& collection
 ) {

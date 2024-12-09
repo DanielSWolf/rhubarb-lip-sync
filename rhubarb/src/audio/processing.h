@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
+
 #include "AudioClip.h"
 #include "tools/progress.h"
 

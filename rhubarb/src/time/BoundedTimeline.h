@@ -2,7 +2,7 @@
 
 #include "Timeline.h"
 
-template<typename T, bool AutoJoin = false>
+template <typename T, bool AutoJoin = false>
 class BoundedTimeline : public Timeline<T, AutoJoin> {
     using typename Timeline<T, AutoJoin>::time_type;
     using Timeline<T, AutoJoin>::equals;
@@ -12,31 +12,26 @@ public:
     using Timeline<T, AutoJoin>::end;
 
     BoundedTimeline() :
-        range(TimeRange::zero())
-    {}
+        range(TimeRange::zero()) {}
 
     explicit BoundedTimeline(TimeRange range) :
-        range(range)
-    {}
+        range(range) {}
 
-    template<typename InputIterator>
+    template <typename InputIterator>
     BoundedTimeline(TimeRange range, InputIterator first, InputIterator last) :
-        range(range)
-    {
+        range(range) {
         for (auto it = first; it != last; ++it) {
             // Virtual function call in constructor. Derived constructors shouldn't call this one!
             BoundedTimeline::set(*it);
         }
     }
 
-    template<typename collection_type>
+    template <typename collection_type>
     BoundedTimeline(TimeRange range, collection_type collection) :
-        BoundedTimeline(range, collection.begin(), collection.end())
-    {}
+        BoundedTimeline(range, collection.begin(), collection.end()) {}
 
     BoundedTimeline(TimeRange range, std::initializer_list<Timed<T>> initializerList) :
-        BoundedTimeline(range, initializerList.begin(), initializerList.end())
-    {}
+        BoundedTimeline(range, initializerList.begin(), initializerList.end()) {}
 
     TimeRange getRange() const override {
         return range;
@@ -53,8 +48,7 @@ public:
         // Clip the value's range to bounds
         TimeRange& valueRange = timedValue.getTimeRange();
         valueRange.resize(
-            max(range.getStart(), valueRange.getStart()),
-            min(range.getEnd(), valueRange.getEnd())
+            max(range.getStart(), valueRange.getStart()), min(range.getEnd(), valueRange.getEnd())
         );
 
         return Timeline<T, AutoJoin>::set(timedValue);
@@ -77,5 +71,5 @@ private:
     TimeRange range;
 };
 
-template<typename T>
+template <typename T>
 using JoiningBoundedTimeline = BoundedTimeline<T, true>;

@@ -1,23 +1,25 @@
 #include <g2p.h>
-#include <regex>
-#include "tools/stringTools.h"
-#include "logging/logging.h"
 
-using std::vector;
-using std::wstring;
-using std::regex;
-using std::wregex;
+#include <regex>
+
+#include "logging/logging.h"
+#include "tools/stringTools.h"
+
 using std::invalid_argument;
 using std::pair;
+using std::regex;
+using std::vector;
+using std::wregex;
+using std::wstring;
 
 const vector<pair<wregex, wstring>>& getReplacementRules() {
-    static vector<pair<wregex, wstring>> rules {
-        #include "g2pRules.cpp"
+    static vector<pair<wregex, wstring>> rules{
+#include "g2pRules.cpp"
 
         // Turn bigrams into unigrams for easier conversion
-        { wregex(L"ôw"), L"Ω" },
-        { wregex(L"öy"), L"ω" },
-        { wregex(L"@r"), L"ɝ" }
+        {wregex(L"ôw"), L"Ω"},
+        {wregex(L"öy"), L"ω"},
+        {wregex(L"@r"), L"ɝ"}
     };
     return rules;
 }
@@ -64,8 +66,7 @@ Phone charToPhone(wchar_t c) {
         case L'r': return Phone::R;
         case L'l': return Phone::L;
         case L'h': return Phone::HH;
-        default:
-            return Phone::Noise;
+        default: return Phone::Noise;
     }
 }
 

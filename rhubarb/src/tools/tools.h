@@ -1,25 +1,26 @@
 #pragma once
 
-#include <functional>
-#include <memory>
 #include <chrono>
 #include <deque>
+#include <functional>
+#include <memory>
 #include <string>
 
 #define UNUSED(x) ((void)(x))
 
-template<typename T>
+template <typename T>
 using lambda_unique_ptr = std::unique_ptr<T, std::function<void(T*)>>;
 
 std::string formatDuration(std::chrono::duration<double> seconds);
 
 std::string formatTime(time_t time, const std::string& format);
 
-template<unsigned int n, typename iterator_type>
+template <unsigned int n, typename iterator_type>
 void for_each_adjacent(
     iterator_type begin,
     iterator_type end,
-    std::function<void(const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>&)> f
+    std::function<
+        void(const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>&)> f
 ) {
     // Get the first n values
     iterator_type it = begin;
@@ -39,32 +40,36 @@ void for_each_adjacent(
     }
 }
 
-template<typename iterator_type>
+template <typename iterator_type>
 void for_each_adjacent(
     iterator_type begin,
     iterator_type end,
-    std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b)> f
+    std::function<
+        void(const typename iterator_type::reference a, const typename iterator_type::reference b)>
+        f
 ) {
     for_each_adjacent<2>(
         begin,
         end,
-        [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
-            f(args[0], args[1]);
-        }
+        [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args
+        ) { f(args[0], args[1]); }
     );
 }
 
-template<typename iterator_type>
+template <typename iterator_type>
 void for_each_adjacent(
     iterator_type begin,
     iterator_type end,
-    std::function<void(const typename iterator_type::reference a, const typename iterator_type::reference b, const typename iterator_type::reference c)> f
+    std::function<void(
+        const typename iterator_type::reference a,
+        const typename iterator_type::reference b,
+        const typename iterator_type::reference c
+    )> f
 ) {
     for_each_adjacent<3>(
         begin,
         end,
-        [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args) {
-            f(args[0], args[1], args[2]);
-        }
+        [&](const std::deque<std::reference_wrapper<const typename iterator_type::value_type>>& args
+        ) { f(args[0], args[1], args[2]); }
     );
 }

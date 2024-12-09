@@ -1,8 +1,9 @@
 #include "rhubarbLib.h"
-#include "core/Phone.h"
-#include "tools/textFiles.h"
+
 #include "animation/mouthAnimation.h"
 #include "audio/audioFileReading.h"
+#include "core/Phone.h"
+#include "tools/textFiles.h"
 
 using boost::optional;
 using std::string;
@@ -14,8 +15,8 @@ JoiningContinuousTimeline<Shape> animateAudioClip(
     const Recognizer& recognizer,
     const ShapeSet& targetShapeSet,
     int maxThreadCount,
-    ProgressSink& progressSink)
-{
+    ProgressSink& progressSink
+) {
     const BoundedTimeline<Phone> phones =
         recognizer.recognizePhones(audioClip, dialog, maxThreadCount, progressSink);
     JoiningContinuousTimeline<Shape> result = animate(phones, targetShapeSet);
@@ -28,8 +29,10 @@ JoiningContinuousTimeline<Shape> animateWaveFile(
     const Recognizer& recognizer,
     const ShapeSet& targetShapeSet,
     int maxThreadCount,
-    ProgressSink& progressSink)
-{
+    ProgressSink& progressSink
+) {
     const auto audioClip = createAudioFileClip(filePath);
-    return animateAudioClip(*audioClip, dialog, recognizer, targetShapeSet, maxThreadCount, progressSink);
+    return animateAudioClip(
+        *audioClip, dialog, recognizer, targetShapeSet, maxThreadCount, progressSink
+    );
 }

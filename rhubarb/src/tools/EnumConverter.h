@@ -1,27 +1,25 @@
 #pragma once
 
-#include <utility>
-#include <map>
-#include <vector>
-#include <boost/algorithm/string.hpp>
-#include <boost/optional.hpp>
 #include <format.h>
 
-template<typename TEnum>
+#include <boost/algorithm/string.hpp>
+#include <boost/optional.hpp>
+#include <map>
+#include <utility>
+#include <vector>
+
+template <typename TEnum>
 class EnumConverter {
 public:
     EnumConverter() :
-        initialized(false)
-    {}
+        initialized(false) {}
 
     virtual ~EnumConverter() = default;
 
     virtual boost::optional<std::string> tryToString(TEnum value) {
         initialize();
         auto it = valueToNameMap.find(value);
-        return it != valueToNameMap.end()
-            ? it->second
-            : boost::optional<std::string>();
+        return it != valueToNameMap.end() ? it->second : boost::optional<std::string>();
     }
 
     std::string toString(TEnum value) {
@@ -40,9 +38,7 @@ public:
     virtual boost::optional<TEnum> tryParse(const std::string& s) {
         initialize();
         auto it = lowerCaseNameToValueMap.find(boost::algorithm::to_lower_copy(s));
-        return it != lowerCaseNameToValueMap.end()
-            ? it->second
-            : boost::optional<TEnum>();
+        return it != lowerCaseNameToValueMap.end() ? it->second : boost::optional<TEnum>();
     }
 
     TEnum parse(const std::string& s) {

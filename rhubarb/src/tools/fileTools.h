@@ -1,7 +1,8 @@
 #pragma once
-#include "platformTools.h"
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+
+#include "platformTools.h"
 
 std::ifstream openFile(std::filesystem::path filePath);
 

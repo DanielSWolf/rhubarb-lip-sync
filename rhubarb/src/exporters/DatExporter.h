@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Exporter.h"
-#include "core/Shape.h"
 #include <map>
 #include <string>
+
+#include "core/Shape.h"
+#include "Exporter.h"
 
 // Exporter for Moho's switch data file format
 class DatExporter : public Exporter {

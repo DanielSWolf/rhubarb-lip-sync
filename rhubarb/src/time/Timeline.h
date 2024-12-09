@@ -1,32 +1,28 @@
 #pragma once
-#include "Timed.h"
-#include <set>
 #include <boost/optional.hpp>
+#include <set>
 #include <type_traits>
+
+#include "Timed.h"
 #include "tools/tools.h"
 
-enum class FindMode {
-    SampleLeft,
-    SampleRight,
-    SearchLeft,
-    SearchRight
-};
+enum class FindMode { SampleLeft, SampleRight, SearchLeft, SearchRight };
 
 namespace internal {
-    template<typename T>
-    bool valueEquals(const Timed<T>& lhs, const Timed<T>& rhs) {
-        return lhs.getValue() == rhs.getValue();
-    }
-
-    template<>
-    inline bool valueEquals<void>(const Timed<void>& lhs, const Timed<void>& rhs) {
-        UNUSED(lhs);
-        UNUSED(rhs);
-        return true;
-    }
+template <typename T>
+bool valueEquals(const Timed<T>& lhs, const Timed<T>& rhs) {
+    return lhs.getValue() == rhs.getValue();
 }
 
-template<typename T, bool AutoJoin = false>
+template <>
+inline bool valueEquals<void>(const Timed<void>& lhs, const Timed<void>& rhs) {
+    UNUSED(lhs);
+    UNUSED(rhs);
+    return true;
+}
+} // namespace internal
+
+template <typename T, bool AutoJoin = false>
 class Timeline {
 public:
     using time_type = TimeRange::time_type;
@@ -84,8 +80,7 @@ public:
 
         ReferenceWrapper(Timeline& timeline, time_type time) :
             timeline(timeline),
-            time(time)
-        {}
+            time(time) {}
 
         Timeline& timeline;
         time_type time;
@@ -93,7 +88,7 @@ public:
 
     Timeline() = default;
 
-    template<typename InputIterator>
+    template <typename InputIterator>
     Timeline(InputIterator first, InputIterator last) {
         for (auto it = first; it != last; ++it) {
             // Virtual function call in constructor. Derived constructors don't call this one.
@@ -101,14 +96,12 @@ public:
         }
     }
 
-    template<typename collection_type>
+    template <typename collection_type>
     explicit Timeline(collection_type collection) :
-        Timeline(collection.begin(), collection.end())
-    {}
+        Timeline(collection.begin(), collection.end()) {}
 
     explicit Timeline(std::initializer_list<Timed<T>> initializerList) :
-        Timeline(initializerList.begin(), initializerList.end())
-    {}
+        Timeline(initializerList.begin(), initializerList.end()) {}
 
     virtual ~Timeline() = default;
 
@@ -121,9 +114,8 @@ public:
     }
 
     virtual TimeRange getRange() const {
-        return empty()
-            ? TimeRange(time_type::zero(), time_type::zero())
-            : TimeRange(begin()->getStart(), rbegin()->getEnd());
+        return empty() ? TimeRange(time_type::zero(), time_type::zero())
+                       : TimeRange(begin()->getStart(), rbegin()->getEnd());
     }
 
     iterator begin() const {
@@ -144,26 +136,22 @@ public:
 
     iterator find(time_type time, FindMode findMode = FindMode::SampleRight) const {
         switch (findMode) {
-            case FindMode::SampleLeft:
-            {
+            case FindMode::SampleLeft: {
                 iterator left = find(time, FindMode::SearchLeft);
                 return left != end() && left->getEnd() >= time ? left : end();
             }
-            case FindMode::SampleRight:
-            {
+            case FindMode::SampleRight: {
                 iterator right = find(time, FindMode::SearchRight);
                 return right != end() && right->getStart() <= time ? right : end();
             }
-            case FindMode::SearchLeft:
-            {
+            case FindMode::SearchLeft: {
                 // Get first element starting >= time
                 iterator it = elements.lower_bound(time);
 
                 // Go one element back
                 return it != begin() ? --it : end();
             }
-            case FindMode::SearchRight:
-            {
+            case FindMode::SearchRight: {
                 // Get first element starting > time
                 iterator it = elements.upper_bound(time);
 
@@ -175,8 +163,7 @@ public:
                 }
                 return it;
             }
-            default:
-                throw std::invalid_argument("Unexpected find mode.");
+            default: throw std::invalid_argument("Unexpected find mode.");
         }
     }
 
@@ -229,15 +216,14 @@ public:
         return elements.insert(timedValue).first;
     }
 
-    template<typename TElement = T>
+    template <typename TElement = T>
     iterator set(
-        const TimeRange& timeRange,
-        const std::enable_if_t<!std::is_void<TElement>::value, T>& value
+        const TimeRange& timeRange, const std::enable_if_t<!std::is_void<TElement>::value, T>& value
     ) {
         return set(Timed<T>(timeRange, value));
     }
 
-    template<typename TElement = T>
+    template <typename TElement = T>
     iterator set(
         time_type start,
         time_type end,
@@ -246,9 +232,8 @@ public:
         return set(Timed<T>(start, end, value));
     }
 
-    template<typename TElement = T>
-    std::enable_if_t<std::is_void<TElement>::value, iterator>
-    set(time_type start, time_type end) {
+    template <typename TElement = T>
+    std::enable_if_t<std::is_void<TElement>::value, iterator> set(time_type start, time_type end) {
         return set(Timed<void>(start, end));
     }
 
@@ -262,22 +247,20 @@ public:
     }
 
     // Combines adjacent equal elements into one
-    template<bool autoJoin = AutoJoin, typename = std::enable_if_t<!autoJoin>>
+    template <bool autoJoin = AutoJoin, typename = std::enable_if_t<!autoJoin>>
     void joinAdjacent() {
         Timeline copy(*this);
         for (auto it = copy.begin(); it != copy.end(); ++it) {
             const auto rangeBegin = it;
             auto rangeEnd = std::next(rangeBegin);
-            while (rangeEnd != copy.end()
-                && rangeEnd->getStart() == rangeBegin->getEnd()
-                && ::internal::valueEquals(*rangeEnd, *rangeBegin)
-            ) {
+            while (rangeEnd != copy.end() && rangeEnd->getStart() == rangeBegin->getEnd()
+                   && ::internal::valueEquals(*rangeEnd, *rangeBegin)) {
                 ++rangeEnd;
             }
 
             if (rangeEnd != std::next(rangeBegin)) {
                 Timed<T> combined = *rangeBegin;
-                combined.setTimeRange({ rangeBegin->getStart(), rangeEnd->getEnd() });
+                combined.setTimeRange({rangeBegin->getStart(), rangeEnd->getEnd()});
                 set(combined);
                 it = rangeEnd;
             }
@@ -318,7 +301,7 @@ private:
         iterator elementBefore = find(splitTime - time_type(1));
         iterator elementAfter = find(splitTime);
         if (elementBefore != elementAfter || elementBefore == end()) return;
-        
+
         Timed<T> first = *elementBefore;
         Timed<T> second = *elementBefore;
         elements.erase(elementBefore);
@@ -331,10 +314,10 @@ private:
     set_type elements;
 };
 
-template<typename T>
+template <typename T>
 using JoiningTimeline = Timeline<T, true>;
 
-template<typename T, bool AutoJoin>
+template <typename T, bool AutoJoin>
 std::ostream& operator<<(std::ostream& stream, const Timeline<T, AutoJoin>& timeline) {
     stream << "Timeline{";
     bool isFirst = true;
