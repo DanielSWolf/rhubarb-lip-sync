@@ -7,30 +7,30 @@
 
 class ProgressBar : public ProgressSink {
 public:
-	explicit ProgressBar(double progress = 0.0);
-	ProgressBar(std::ostream& stream, double progress = 0.0);
-	~ProgressBar();
-	void reportProgress(double value) override;
+    explicit ProgressBar(double progress = 0.0);
+    ProgressBar(std::ostream& stream, double progress = 0.0);
+    ~ProgressBar();
+    void reportProgress(double value) override;
 
-	bool getClearOnDestruction() const {
-		return clearOnDestruction;
-	}
+    bool getClearOnDestruction() const {
+        return clearOnDestruction;
+    }
 
-	void setClearOnDestruction(bool value) {
-		clearOnDestruction = value;
-	}
+    void setClearOnDestruction(bool value) {
+        clearOnDestruction = value;
+    }
 
 private:
-	void updateLoop();
-	void update(bool showSpinner = true);
-	void updateText(const std::string& text);
+    void updateLoop();
+    void update(bool showSpinner = true);
+    void updateText(const std::string& text);
 
-	std::future<void> updateLoopFuture;
-	std::atomic<double> currentProgress { 0 };
-	std::atomic<bool> done { false };
+    std::future<void> updateLoopFuture;
+    std::atomic<double> currentProgress { 0 };
+    std::atomic<bool> done { false };
 
-	std::ostream& stream;
-	std::string currentText;
-	int animationIndex = 0;
-	bool clearOnDestruction = false;
+    std::ostream& stream;
+    std::string currentText;
+    int animationIndex = 0;
+    bool clearOnDestruction = false;
 };

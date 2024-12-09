@@ -16,14 +16,14 @@ Shape getClosestShape(Shape reference, ShapeSet shapes);
 
 // Indicates how to time a tween between two mouth shapes
 enum class TweenTiming {
-	// Tween should end at the original transition
-	Early,
+    // Tween should end at the original transition
+    Early,
 
-	// Tween should overlap both original mouth shapes equally
-	Centered,
+    // Tween should overlap both original mouth shapes equally
+    Centered,
 
-	// Tween should begin at the original transition
-	Late
+    // Tween should begin at the original transition
+    Late
 };
 
 // Returns the tween shape and timing to use to transition between the specified two mouth shapes.

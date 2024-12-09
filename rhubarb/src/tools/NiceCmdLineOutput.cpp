@@ -10,89 +10,89 @@ using std::cout;
 using std::endl;
 
 string getBinaryName() {
-	return getBinPath().filename().u8string();
+    return getBinPath().filename().u8string();
 }
 
 void NiceCmdLineOutput::version(CmdLineInterface& cli) {
-	cout << endl << cli.getMessage() << " version " << cli.getVersion() << endl << endl;
+    cout << endl << cli.getMessage() << " version " << cli.getVersion() << endl << endl;
 }
 
 void NiceCmdLineOutput::usage(CmdLineInterface& cli) {
-	cout << endl << "Short usage:" << endl;
-	printShortUsage(cli, cout);
-	cout << endl;
+    cout << endl << "Short usage:" << endl;
+    printShortUsage(cli, cout);
+    cout << endl;
 
-	cout << "Long usage:" << endl << endl;
-	printLongUsage(cli, cout);
+    cout << "Long usage:" << endl << endl;
+    printLongUsage(cli, cout);
 
-	cout << endl;
+    cout << endl;
 }
 
 void NiceCmdLineOutput::failure(CmdLineInterface& cli, TCLAP::ArgException& e) {
-	std::cerr << "Invalid command-line arguments. " << e.argId() << endl;
-	std::cerr << e.error() << endl << endl;
+    std::cerr << "Invalid command-line arguments. " << e.argId() << endl;
+    std::cerr << e.error() << endl << endl;
 
-	if (cli.hasHelpAndVersion()) {
-		std::cerr << "Short usage:" << endl;
-		printShortUsage(cli, std::cerr);
+    if (cli.hasHelpAndVersion()) {
+        std::cerr << "Short usage:" << endl;
+        printShortUsage(cli, std::cerr);
 
-		std::cerr
-			<< endl
-			<< "For complete usage and help, type `" << getBinaryName() << " --help`" << endl
-			<< endl;
-	} else {
-		usage(cli);
-	}
+        std::cerr
+            << endl
+            << "For complete usage and help, type `" << getBinaryName() << " --help`" << endl
+            << endl;
+    } else {
+        usage(cli);
+    }
 }
 
 void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& outStream) const {
-	string shortUsage = getBinaryName() + " ";
+    string shortUsage = getBinaryName() + " ";
 
-	// Print XOR arguments
-	TCLAP::XorHandler xorHandler = cli.getXorHandler();
-	const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
-	for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
-		shortUsage += " {";
-		
-		for (auto arg : xorArgGroup) shortUsage += arg->shortID() + "|";
-		shortUsage.pop_back();
+    // Print XOR arguments
+    TCLAP::XorHandler xorHandler = cli.getXorHandler();
+    const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
+    for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
+        shortUsage += " {";
+        
+        for (auto arg : xorArgGroup) shortUsage += arg->shortID() + "|";
+        shortUsage.pop_back();
 
-		shortUsage += '}';
-	}
+        shortUsage += '}';
+    }
 
-	// Print regular arguments
-	std::list<TCLAP::Arg*> argList = cli.getArgList();
-	for (auto arg : argList) {
-		if (xorHandler.contains(arg)) continue;
-		
-		shortUsage += " " + arg->shortID();
-	}
+    // Print regular arguments
+    std::list<TCLAP::Arg*> argList = cli.getArgList();
+    for (auto arg : argList) {
+        if (xorHandler.contains(arg)) continue;
+        
+        shortUsage += " " + arg->shortID();
+    }
 
-	outStream << shortUsage << endl;
+    outStream << shortUsage << endl;
 }
 
 void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outStream) const {
-	TablePrinter tablePrinter(&outStream, { 20, 56 });
+    TablePrinter tablePrinter(&outStream, { 20, 56 });
 
-	// Print XOR arguments
-	TCLAP::XorHandler xorHandler = cli.getXorHandler();
-	const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
-	for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
-		for (auto arg : xorArgGroup) {
-			if (arg != xorArgGroup[0]) {
-				outStream << "-- or --" << endl;
-			}
+    // Print XOR arguments
+    TCLAP::XorHandler xorHandler = cli.getXorHandler();
+    const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
+    for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
+        for (auto arg : xorArgGroup) {
+            if (arg != xorArgGroup[0]) {
+                outStream << "-- or --" << endl;
+            }
 
-			tablePrinter.printRow({ arg->longID(), arg->getDescription() });
-		}
-		outStream << endl;
-	}
+            tablePrinter.printRow({ arg->longID(), arg->getDescription() });
+        }
+        outStream << endl;
+    }
 
-	// Print regular arguments
-	std::list<TCLAP::Arg*> argList = cli.getArgList();
-	for (auto arg : argList) {
-		if (xorHandler.contains(arg)) continue;
+    // Print regular arguments
+    std::list<TCLAP::Arg*> argList = cli.getArgList();
+    for (auto arg : argList) {
+        if (xorHandler.contains(arg)) continue;
 
-		tablePrinter.printRow({ arg->longID(), arg->getDescription() });
-	}
+        tablePrinter.printRow({ arg->longID(), arg->getDescription() });
+    }
 }

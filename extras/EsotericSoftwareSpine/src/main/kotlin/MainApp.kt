@@ -8,18 +8,18 @@ import java.lang.reflect.Method
 import javax.swing.ImageIcon
 
 class MainApp : App(MainView::class) {
-	override fun start(stage: Stage) {
-		super.start(stage)
-		setIcon()
-	}
+    override fun start(stage: Stage) {
+        super.start(stage)
+        setIcon()
+    }
 
-	private fun setIcon() {
-		// Set icon for windows
-		for (iconSize in listOf(16, 32, 48, 256)) {
-			addStageIcon(Image(this.javaClass.getResourceAsStream("/icon-$iconSize.png")))
-		}
+    private fun setIcon() {
+        // Set icon for windows
+        for (iconSize in listOf(16, 32, 48, 256)) {
+            addStageIcon(Image(this.javaClass.getResourceAsStream("/icon-$iconSize.png")))
+        }
 
-		// OS X requires the dock icon to be changed separately.
+        // OS X requires the dock icon to be changed separately.
         // Not all JDKs contain the class com.apple.eawt.Application, so we have to use reflection.
         val classLoader = this.javaClass.classLoader
         try {
@@ -37,6 +37,6 @@ class MainApp : App(MainView::class) {
         } catch (e: Exception) {
             // Works only on OS X
         }
-	}
+    }
 
 }

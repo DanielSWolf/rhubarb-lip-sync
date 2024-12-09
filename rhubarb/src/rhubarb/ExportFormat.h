@@ -3,18 +3,18 @@
 #include "tools/EnumConverter.h"
 
 enum class ExportFormat {
-	Dat,
-	Tsv,
-	Xml,
-	Json
+    Dat,
+    Tsv,
+    Xml,
+    Json
 };
 
 class ExportFormatConverter : public EnumConverter<ExportFormat> {
 public:
-	static ExportFormatConverter& get();
+    static ExportFormatConverter& get();
 protected:
-	std::string getTypeName() override;
-	member_data getMemberData() override;
+    std::string getTypeName() override;
+    member_data getMemberData() override;
 };
 
 std::ostream& operator<<(std::ostream& stream, ExportFormat value);
