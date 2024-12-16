@@ -3,7 +3,7 @@
 #include <boost/optional/optional.hpp>
 #include <regex>
 
-#include "tools/stringTools.h"
+#include "tools/string-tools.h"
 #include "tools/tools.h"
 
 extern "C" {

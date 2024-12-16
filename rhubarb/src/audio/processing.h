@@ -3,7 +3,7 @@
 #include <functional>
 #include <vector>
 
-#include "AudioClip.h"
+#include "audio-clip.h"
 #include "tools/progress.h"
 
 void process16bitAudioClip(

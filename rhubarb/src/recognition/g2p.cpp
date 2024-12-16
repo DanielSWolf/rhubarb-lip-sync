@@ -3,7 +3,7 @@
 #include <regex>
 
 #include "logging/logging.h"
-#include "tools/stringTools.h"
+#include "tools/string-tools.h"
 
 using std::invalid_argument;
 using std::pair;
@@ -14,7 +14,7 @@ using std::wstring;
 
 const vector<pair<wregex, wstring>>& getReplacementRules() {
     static vector<pair<wregex, wstring>> rules{
-#include "g2pRules.cpp"
+#include "g2p-rules.cpp"
 
         // Turn bigrams into unigrams for easier conversion
         {wregex(L"ôw"), L"Ω"},

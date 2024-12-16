@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Formatter.h"
+#include "formatter.h"
 
 namespace logging {
 

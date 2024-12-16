@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Level.h"
-#include "Sink.h"
-#include "tools/EnumConverter.h"
+#include "level.h"
+#include "sink.h"
+#include "tools/enum-converter.h"
 
 namespace logging {
 

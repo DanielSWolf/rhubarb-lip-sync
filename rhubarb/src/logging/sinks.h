@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "Formatter.h"
-#include "Sink.h"
+#include "formatter.h"
+#include "sink.h"
 
 namespace logging {
 enum class Level;

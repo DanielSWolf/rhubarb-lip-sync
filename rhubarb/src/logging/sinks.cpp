@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "Entry.h"
+#include "entry.h"
 
 using std::shared_ptr;
 using std::string;

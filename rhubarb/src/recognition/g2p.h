@@ -2,6 +2,6 @@
 
 #include <vector>
 
-#include "core/Phone.h"
+#include "core/phone.h"
 
 std::vector<Phone> wordToPhones(const std::string& word);
