@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-include(appInfo.cmake)
+include(app-info.cmake)
 
 project(${appName})
 
@@ -8,9 +8,9 @@ project(${appName})
 add_subdirectory(rhubarb)
 
 # Build and install extras
-add_subdirectory("extras/AdobeAfterEffects")
-add_subdirectory("extras/MagixVegas")
-add_subdirectory("extras/EsotericSoftwareSpine")
+add_subdirectory("extras/adobe-after-effects")
+add_subdirectory("extras/magix-vegas")
+add_subdirectory("extras/esoteric-software-spine")
 
 # Install misc. files
 install(FILES README.adoc LICENSE.md CHANGELOG.md DESTINATION .)

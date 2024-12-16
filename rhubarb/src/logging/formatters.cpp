@@ -2,7 +2,7 @@
 
 #include <format.h>
 
-#include "Entry.h"
+#include "entry.h"
 #include "tools/tools.h"
 
 using std::string;

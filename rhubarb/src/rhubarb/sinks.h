@@ -2,9 +2,9 @@
 
 #include <filesystem>
 
-#include "logging/Entry.h"
-#include "logging/Sink.h"
-#include "tools/ProgressBar.h"
+#include "logging/entry.h"
+#include "logging/sink.h"
+#include "tools/progress-bar.h"
 
 // Prints nicely formatted progress to stderr.
 // Non-semantic entries are only printed if their log level at least matches the specified minimum

@@ -2,11 +2,11 @@
 
 #include <boost/utility/in_place_factory.hpp>
 
-#include "core/appInfo.h"
+#include "core/app-info.h"
 #include "logging/formatters.h"
 #include "logging/sinks.h"
-#include "semanticEntries.h"
-#include "tools/stringTools.h"
+#include "semantic-entries.h"
+#include "tools/string-tools.h"
 
 using boost::optional;
 using logging::Level;

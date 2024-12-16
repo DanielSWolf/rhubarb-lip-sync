@@ -5,7 +5,7 @@
 #include <chrono>
 #include <vector>
 
-#include "platformTools.h"
+#include "platform-tools.h"
 
 using std::string;
 using std::chrono::duration;

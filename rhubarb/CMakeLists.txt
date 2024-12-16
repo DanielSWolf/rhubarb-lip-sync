@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-include("../appInfo.cmake")
+include("../app-info.cmake")
 
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
@@ -268,23 +268,23 @@ include_directories("src")
 # ... rhubarb-animation
 add_library(
     rhubarb-animation
-    src/animation/animationRules.cpp
-    src/animation/animationRules.h
-    src/animation/mouthAnimation.cpp
-    src/animation/mouthAnimation.h
-    src/animation/pauseAnimation.cpp
-    src/animation/pauseAnimation.h
-    src/animation/roughAnimation.cpp
-    src/animation/roughAnimation.h
-    src/animation/ShapeRule.cpp
-    src/animation/ShapeRule.h
-    src/animation/shapeShorthands.h
-    src/animation/staticSegments.cpp
-    src/animation/staticSegments.h
-    src/animation/targetShapeSet.cpp
-    src/animation/targetShapeSet.h
-    src/animation/timingOptimization.cpp
-    src/animation/timingOptimization.h
+    src/animation/animation-rules.cpp
+    src/animation/animation-rules.h
+    src/animation/mouth-animation.cpp
+    src/animation/mouth-animation.h
+    src/animation/pause-animation.cpp
+    src/animation/pause-animation.h
+    src/animation/rough-animation.cpp
+    src/animation/rough-animation.h
+    src/animation/shape-rule.cpp
+    src/animation/shape-rule.h
+    src/animation/shape-shorthands.h
+    src/animation/static-segments.cpp
+    src/animation/static-segments.h
+    src/animation/target-shape-set.cpp
+    src/animation/target-shape-set.h
+    src/animation/timing-optimization.cpp
+    src/animation/timing-optimization.h
     src/animation/tweening.cpp
     src/animation/tweening.h
 )
@@ -294,27 +294,27 @@ target_link_libraries(rhubarb-animation rhubarb-core rhubarb-logging rhubarb-tim
 # ... rhubarb-audio
 add_library(
     rhubarb-audio
-    src/audio/AudioClip.cpp
-    src/audio/AudioClip.h
-    src/audio/audioFileReading.cpp
-    src/audio/audioFileReading.h
-    src/audio/AudioSegment.cpp
-    src/audio/AudioSegment.h
-    src/audio/DcOffset.cpp
-    src/audio/DcOffset.h
-    src/audio/ioTools.h
-    src/audio/OggVorbisFileReader.cpp
-    src/audio/OggVorbisFileReader.h
+    src/audio/audio-clip.cpp
+    src/audio/audio-clip.h
+    src/audio/audio-file-reading.cpp
+    src/audio/audio-file-reading.h
+    src/audio/audio-segment.cpp
+    src/audio/audio-segment.h
+    src/audio/dc-offset.cpp
+    src/audio/dc-offset.h
+    src/audio/io-tools.h
+    src/audio/ogg-vorbis-file-reader.cpp
+    src/audio/ogg-vorbis-file-reader.h
     src/audio/processing.cpp
     src/audio/processing.h
-    src/audio/SampleRateConverter.cpp
-    src/audio/SampleRateConverter.h
-    src/audio/voiceActivityDetection.cpp
-    src/audio/voiceActivityDetection.h
-    src/audio/WaveFileReader.cpp
-    src/audio/WaveFileReader.h
-    src/audio/waveFileWriting.cpp
-    src/audio/waveFileWriting.h
+    src/audio/sample-rate-converter.cpp
+    src/audio/sample-rate-converter.h
+    src/audio/voice-activity-detection.cpp
+    src/audio/voice-activity-detection.h
+    src/audio/wave-file-reader.cpp
+    src/audio/wave-file-reader.h
+    src/audio/wave-file-writing.cpp
+    src/audio/wave-file-writing.h
 )
 target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(
@@ -327,15 +327,15 @@ target_link_libraries(
 )
 
 # ... rhubarb-core
-configure_file(src/core/appInfo.cpp.in appInfo.cpp ESCAPE_QUOTES)
+configure_file(src/core/app-info.cpp.in app-info.cpp ESCAPE_QUOTES)
 add_library(
     rhubarb-core
-    ${CMAKE_CURRENT_BINARY_DIR}/appInfo.cpp
-    src/core/appInfo.h
-    src/core/Phone.cpp
-    src/core/Phone.h
-    src/core/Shape.cpp
-    src/core/Shape.h
+    ${CMAKE_CURRENT_BINARY_DIR}/app-info.cpp
+    src/core/app-info.h
+    src/core/phone.cpp
+    src/core/phone.h
+    src/core/shape.cpp
+    src/core/shape.h
 )
 target_include_directories(rhubarb-core PRIVATE "src/core")
 target_link_libraries(rhubarb-core rhubarb-tools)
@@ -343,23 +343,23 @@ target_link_libraries(rhubarb-core rhubarb-tools)
 # ... rhubarb-exporters
 add_library(
     rhubarb-exporters
-    src/exporters/DatExporter.cpp
-    src/exporters/DatExporter.h
-    src/exporters/Exporter.h
-    src/exporters/exporterTools.cpp
-    src/exporters/exporterTools.h
-    src/exporters/JsonExporter.cpp
-    src/exporters/JsonExporter.h
-    src/exporters/TsvExporter.cpp
-    src/exporters/TsvExporter.h
-    src/exporters/XmlExporter.cpp
-    src/exporters/XmlExporter.h
+    src/exporters/dat-exporter.cpp
+    src/exporters/dat-exporter.h
+    src/exporters/exporter.h
+    src/exporters/exporter-tools.cpp
+    src/exporters/exporter-tools.h
+    src/exporters/json-exporter.cpp
+    src/exporters/json-exporter.h
+    src/exporters/tsv-exporter.cpp
+    src/exporters/tsv-exporter.h
+    src/exporters/xml-exporter.cpp
+    src/exporters/xml-exporter.h
 )
 target_include_directories(rhubarb-exporters PRIVATE "src/exporters")
 target_link_libraries(rhubarb-exporters rhubarb-animation rhubarb-core rhubarb-time)
 
 # ... rhubarb-lib
-add_library(rhubarb-lib src/lib/rhubarbLib.cpp src/lib/rhubarbLib.h)
+add_library(rhubarb-lib src/lib/rhubarb-lib.cpp src/lib/rhubarb-lib.h)
 target_include_directories(rhubarb-lib PRIVATE "src/lib")
 target_link_libraries(
     rhubarb-lib
@@ -374,16 +374,16 @@ target_link_libraries(
 # ... rhubarb-logging
 add_library(
     rhubarb-logging
-    src/logging/Entry.cpp
-    src/logging/Entry.h
-    src/logging/Formatter.h
+    src/logging/entry.cpp
+    src/logging/entry.h
+    src/logging/formatter.h
     src/logging/formatters.cpp
     src/logging/formatters.h
-    src/logging/Level.cpp
-    src/logging/Level.h
+    src/logging/level.cpp
+    src/logging/level.h
     src/logging/logging.cpp
     src/logging/logging.h
-    src/logging/Sink.h
+    src/logging/sink.h
     src/logging/sinks.cpp
     src/logging/sinks.h
 )
@@ -395,15 +395,15 @@ add_library(
     rhubarb-recognition
     src/recognition/g2p.cpp
     src/recognition/g2p.h
-    src/recognition/languageModels.cpp
-    src/recognition/languageModels.h
-    src/recognition/PhoneticRecognizer.cpp
-    src/recognition/PhoneticRecognizer.h
-    src/recognition/PocketSphinxRecognizer.cpp
-    src/recognition/PocketSphinxRecognizer.h
-    src/recognition/pocketSphinxTools.cpp
-    src/recognition/pocketSphinxTools.h
-    src/recognition/Recognizer.h
+    src/recognition/language-models.cpp
+    src/recognition/language-models.h
+    src/recognition/phonetic-recognizer.cpp
+    src/recognition/phonetic-recognizer.h
+    src/recognition/pocket-sphinx-recognizer.cpp
+    src/recognition/pocket-sphinx-recognizer.h
+    src/recognition/pocket-sphinx-tools.cpp
+    src/recognition/pocket-sphinx-tools.h
+    src/recognition/recognizer.h
     src/recognition/tokenization.cpp
     src/recognition/tokenization.h
 )
@@ -420,15 +420,15 @@ target_link_libraries(
 # ... rhubarb-time
 add_library(
     rhubarb-time
-    src/time/BoundedTimeline.h
+    src/time/bounded-timeline.h
     src/time/centiseconds.cpp
     src/time/centiseconds.h
-    src/time/ContinuousTimeline.h
-    src/time/Timed.h
-    src/time/timedLogging.h
-    src/time/Timeline.h
-    src/time/TimeRange.cpp
-    src/time/TimeRange.h
+    src/time/continuous-timeline.h
+    src/time/timed.h
+    src/time/timed-logging.h
+    src/time/timeline.h
+    src/time/time-range.cpp
+    src/time/time-range.h
 )
 target_include_directories(rhubarb-time PRIVATE "src/time")
 target_link_libraries(rhubarb-time cppFormat rhubarb-logging)
@@ -437,33 +437,33 @@ target_link_libraries(rhubarb-time cppFormat rhubarb-logging)
 add_library(
     rhubarb-tools
     src/tools/array.h
-    src/tools/EnumConverter.h
+    src/tools/enum-converter.h
     src/tools/exceptions.cpp
     src/tools/exceptions.h
-    src/tools/fileTools.cpp
-    src/tools/fileTools.h
-    src/tools/Lazy.h
-    src/tools/nextCombination.h
-    src/tools/NiceCmdLineOutput.cpp
-    src/tools/NiceCmdLineOutput.h
-    src/tools/ObjectPool.h
+    src/tools/file-tools.cpp
+    src/tools/file-tools.h
+    src/tools/lazy.h
+    src/tools/next-combination.h
+    src/tools/nice-cmd-line-output.cpp
+    src/tools/nice-cmd-line-output.h
+    src/tools/object-pool.h
     src/tools/pairs.h
     src/tools/parallel.h
-    src/tools/platformTools.cpp
-    src/tools/platformTools.h
+    src/tools/platform-tools.cpp
+    src/tools/platform-tools.h
     src/tools/progress.cpp
     src/tools/progress.h
-    src/tools/ProgressBar.cpp
-    src/tools/ProgressBar.h
-    src/tools/stringTools.cpp
-    src/tools/stringTools.h
-    src/tools/TablePrinter.cpp
-    src/tools/TablePrinter.h
-    src/tools/textFiles.cpp
-    src/tools/textFiles.h
+    src/tools/progress-bar.cpp
+    src/tools/progress-bar.h
+    src/tools/string-tools.cpp
+    src/tools/string-tools.h
+    src/tools/table-printer.cpp
+    src/tools/table-printer.h
+    src/tools/text-files.cpp
+    src/tools/text-files.h
     src/tools/tools.cpp
     src/tools/tools.h
-    src/tools/tupleHash.h
+    src/tools/tuple-hash.h
 )
 target_include_directories(rhubarb-tools PRIVATE "src/tools")
 target_link_libraries(rhubarb-tools cppFormat whereami utfcpp utf8proc)
@@ -472,12 +472,12 @@ target_link_libraries(rhubarb-tools cppFormat whereami utfcpp utf8proc)
 add_executable(
     rhubarb
     src/rhubarb/main.cpp
-    src/rhubarb/ExportFormat.cpp
-    src/rhubarb/ExportFormat.h
-    src/rhubarb/RecognizerType.cpp
-    src/rhubarb/RecognizerType.h
-    src/rhubarb/semanticEntries.cpp
-    src/rhubarb/semanticEntries.h
+    src/rhubarb/export-format.cpp
+    src/rhubarb/export-format.h
+    src/rhubarb/recognizer-type.cpp
+    src/rhubarb/recognizer-type.h
+    src/rhubarb/semantic-entries.cpp
+    src/rhubarb/semantic-entries.h
     src/rhubarb/sinks.cpp
     src/rhubarb/sinks.h
 )
@@ -488,15 +488,15 @@ target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 # Define test project
 #include_directories("${gtest_SOURCE_DIR}/include")
 set(TEST_FILES
-    tests/stringToolsTests.cpp
-    tests/TimelineTests.cpp
-    tests/BoundedTimelineTests.cpp
-    tests/ContinuousTimelineTests.cpp
-    tests/pairsTests.cpp
-    tests/tokenizationTests.cpp
-    tests/g2pTests.cpp
-    tests/LazyTests.cpp
-    tests/WaveFileReaderTests.cpp
+    tests/string-tools-tests.cpp
+    tests/timeline-tests.cpp
+    tests/bounded-timeline-tests.cpp
+    tests/continuous-timeline-tests.cpp
+    tests/pairs-tests.cpp
+    tests/tokenization-tests.cpp
+    tests/g2p-tests.cpp
+    tests/lazy-tests.cpp
+    tests/wave-file-reader-tests.cpp
 )
 add_executable(runTests ${TEST_FILES})
 target_link_libraries(
