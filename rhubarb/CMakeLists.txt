@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
-include("../app-info.cmake")
+# Parse app info
+file(READ "../app-info.toml" tomlContent)
+string(REGEX MATCH "appName *= *\"[^\"]+\"" appName "${tomlContent}")
+string(REGEX REPLACE ".*\"([^\"]+)\"" "\\1" appName "${appName}")
+string(REGEX MATCH "appVersion *= *\"[^\"]+\"" appVersion "${tomlContent}")
+string(REGEX REPLACE ".*\"([^\"]+)\"" "\\1" appVersion "${appVersion}")
+
+project("${appName}")
 
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
@@ -94,6 +101,7 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
+set(INSTALL_GTEST OFF) # Prevent library files from ending up in our artifacts
 add_subdirectory("lib/googletest")
 target_compile_options(gmock PRIVATE ${disableWarningsFlags})
 set_target_properties(gmock PROPERTIES FOLDER lib)
@@ -327,7 +335,7 @@ target_link_libraries(
 )
 
 # ... rhubarb-core
-configure_file(src/core/app-info.cpp.in app-info.cpp ESCAPE_QUOTES)
+configure_file(src/core/app-info.cpp.in app-info.cpp)
 add_library(
     rhubarb-core
     ${CMAKE_CURRENT_BINARY_DIR}/app-info.cpp
@@ -560,7 +568,4 @@ endfunction()
 
 copy_and_install("lib/pocketsphinx-rev13216/model/en-us/*" "res/sphinx")
 copy_and_install("lib/cmusphinx-en-us-5.2/*" "res/sphinx/acoustic-model")
-
-copy_and_install("tests/resources/*" "tests/resources")
-
 install(TARGETS rhubarb RUNTIME DESTINATION .)

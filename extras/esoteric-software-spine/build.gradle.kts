@@ -8,13 +8,9 @@ plugins {
 
 fun getVersion(): String {
 	// Dynamically read version from CMake file
-	val file = File(rootDir.parentFile.parentFile, "app-info.cmake")
+	val file = File(rootDir.parentFile.parentFile, "app-info.toml")
 	val text = file.readText()
-	val major = Regex("""appVersionMajor\s+(\d+)""").find(text)!!.groupValues[1]
-	val minor = Regex("""appVersionMinor\s+(\d+)""").find(text)!!.groupValues[1]
-	val patch = Regex("""appVersionPatch\s+(\d+)""").find(text)!!.groupValues[1]
-	val suffix = Regex("""appVersionSuffix\s+"(.*?)"""").find(text)!!.groupValues[1]
-	return "$major.$minor.$patch$suffix"
+	return Regex("""appVersion\s*=\s*"(.*?)"(?:)""").find(text)!!.groupValues[1]
 }
 
 group = "com.rhubarb_lip_sync"

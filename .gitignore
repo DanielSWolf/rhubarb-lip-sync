@@ -1,6 +1,7 @@
 .vs/
 .vscode/
 *.user
+artifacts/
 build/
 venv/
 

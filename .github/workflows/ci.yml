@@ -29,16 +29,33 @@ jobs:
       BOOST_ROOT: ${{ github.workspace }}/lib/boost
       BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.86.0/boost_1_86_0.tar.bz2/download
     steps:
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+      - name: Deactivate EOL conversion
+        shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Python wheels
+        shell: bash
+        run: pip install -r requirements.txt
       - name: Restore Boost from cache
         uses: actions/cache@v4
         id: cache-boost
         with:
           path: ${{ env.BOOST_ROOT }}
           key: ${{ env.BOOST_URL }}
+      - name: Lint
+        shell: bash
+        run: doit check-formatted
       - name: Download Boost
         if: steps.cache-boost.outputs.cache-hit != 'true'
         shell: bash
@@ -49,28 +66,29 @@ jobs:
           fi
           mkdir -p $BOOST_ROOT
           curl --insecure -L $BOOST_URL | tar -xj --strip-components=1 -C $BOOST_ROOT
-      - name: Build Rhubarb
+      - name: Build and package
         shell: bash
         run: |
           JAVA_HOME=$JAVA_HOME_11_X64
-          mkdir build
-          cd build
-          cmake ${{ matrix.cmakeOptions }} ..
-          cmake --build . --config Release --target package
+          mkdir rhubarb/build
+          (cd rhubarb/build && cmake ${{ matrix.cmakeOptions }} ..)
+          doit package
       - name: Run tests
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            ./build/rhubarb/Release/runTests.exe
+            ./rhubarb/build/Release/runTests.exe
           else
-            ./build/rhubarb/runTests
+            ./rhubarb/build/runTests
           fi
       - name: Upload artifacts
         if: ${{ matrix.publish }}
         uses: actions/upload-artifact@v4
         with:
           name: 'binaries ${{ matrix.description }}'
-          path: build/*.zip
+          path: |
+            artifacts/*.zip
+            artifacts/*.tar.gz
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -82,6 +100,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          files: '*.zip'
+          files: |
+            '*.zip'
+            '*.tar.gz'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
