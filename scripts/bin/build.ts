@@ -1,12 +1,12 @@
 // Builds Rhubarb Lip Sync or part of it, depending on the provided options.
 
-import { join as joinPath, dirname } from 'path';
+import { join as joinPath, dirname, extname } from 'path';
 import lodash from 'lodash';
 import { execa } from 'execa';
 import { emptyDirSync, ensureDir, ensureDirSync } from 'fs-extra';
-import { device } from '../util/device';
+import { device, asciidocToHtml, markdownToHtml, throwError } from '../util';
 import { glob } from 'glob';
-import { copyFile, rm } from 'fs/promises';
+import { copyFile, readFile, writeFile, rm } from 'fs/promises';
 import { repoDir } from '../repo-dir';
 import { path7z } from '7zip-bin-full';
 import { readFileSync } from 'fs';
@@ -114,20 +114,32 @@ async function buildPackage(options: BuildOptions) {
   // Copy files to package directory
 
   // ... global files
-  await copy(repoDir, packageBuildDir, '{CHANGELOG.md,LICENSE.md,README.adoc,img/*}');
+  await copyAsHtml(joinPath(repoDir, 'CHANGELOG.md'), joinPath(packageBuildDir, 'CHANGELOG.html'));
+  await copyAsHtml(joinPath(repoDir, 'LICENSE.md'), joinPath(packageBuildDir, 'LICENSE.html'));
+  await copyAsHtml(joinPath(repoDir, 'README.adoc'), joinPath(packageBuildDir, 'README.html'));
+  await copy(repoDir, packageBuildDir, 'img/*');
   await copy(rhubarbBuildDir, packageBuildDir, 'rhubarb?(.exe)');
 
   // ... Rhubarb for After Effects
+  await copyAsHtml(
+    joinPath(repoDir, 'extras/after-effects/README.adoc'),
+    joinPath(packageBuildDir, 'extras/after-effects/README.html'),
+  );
   await copy(
     joinPath(repoDir, 'extras/after-effects'),
     joinPath(packageBuildDir, 'extras/after-effects'),
+    '{*.jsx,demo/**/*}',
   );
 
   // ... Rhubarb for Spine
+  await copyAsHtml(
+    joinPath(repoDir, 'extras/spine/README.adoc'),
+    joinPath(packageBuildDir, 'extras/spine/README.html'),
+  );
   await copy(
     joinPath(repoDir, 'extras/spine'),
     joinPath(packageBuildDir, 'extras/spine'),
-    '{README.adoc,demo/**/*}',
+    'demo/**/*',
   );
   await copy(
     joinPath(repoDir, 'extras/spine/build/libs'),
@@ -136,7 +148,15 @@ async function buildPackage(options: BuildOptions) {
   );
 
   // ... Rhubarb for Vegas Pro
-  await copy(joinPath(repoDir, 'extras/vegas-pro'), joinPath(packageBuildDir, 'extras/vegas-pro'));
+  await copy(
+    joinPath(repoDir, 'extras/vegas-pro'),
+    joinPath(packageBuildDir, 'extras/vegas-pro'),
+    '{*.cs,*.cs.config}',
+  );
+  await copyAsHtml(
+    joinPath(repoDir, 'extras/vegas-pro/README.adoc'),
+    joinPath(packageBuildDir, 'extras/vegas-pro/README.html'),
+  );
 
   // Create archive
   const version = getAppVersion();
@@ -160,6 +180,18 @@ async function copy(sourceDir: string, targetDir: string, pattern: string = '**/
     await ensureDir(dirname(targetPath));
     await copyFile(sourcePath, targetPath);
   }
+}
+
+async function copyAsHtml(sourcePath: string, targetPath: string) {
+  const markup = await readFile(sourcePath, 'utf-8');
+  const extension = extname(sourcePath).toLowerCase();
+  const html =
+    extension === '.md' ? markdownToHtml(markup)
+    : extension === '.adoc' ? asciidocToHtml(markup)
+    : extension === '.html' ? markup
+    : throwError(`Unsupported markup format: ${sourcePath}`);
+  await ensureDir(dirname(targetPath));
+  await writeFile(targetPath, html);
 }
 
 async function compressDir(sourceDir: string, targetArchivePath: string): Promise<void> {

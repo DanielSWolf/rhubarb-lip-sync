@@ -19,6 +19,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.3.0",
+    "asciidoctor": "^3.0.4",
     "cli-progress": "^3.12.0",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.1",
