@@ -1,3 +1,5 @@
+= Rhubarb Lip Sync
+
 :A: &#9398;
 :B: &#9399;
 :C: &#9400;
@@ -27,7 +29,7 @@ Rhubarb Lip Sync integrates with the following applications:
 * *Vegas Pro* by Magix (see <<vegas,below>>)
 * *Visionaire Studio* (see https://www.visionaire-studio.net/forum/thread/mouth-animation-using-rhubarb-lip-sync[external link])
 
-In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). 
+In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>).
 
 == Demo video
 
@@ -117,11 +119,11 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 
 === General usage ===
 
-Rhubarb Lip Sync is a command-line tool that is currently available for Windows and OS X.
+Rhubarb Lip Sync is a command-line tool that is currently available for Windows, macOS, and Linux.
 
-* Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
-* Call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
-* Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
+* Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] for your operating system and unpack the file anywhere on your computer.
+* On the command-line, call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
+* Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, it will instead print an error message to `stderr` and exit with a non-zero exit code.
 
 [[options]]
 === Command-line options ===
