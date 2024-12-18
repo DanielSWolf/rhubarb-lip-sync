@@ -9,6 +9,7 @@ from enum import Enum
 from shutil import rmtree, copy, copytree, make_archive
 import platform
 import tomllib
+import re
 
 root_dir = Path(__file__).parent
 rhubarb_dir = root_dir / 'rhubarb'
@@ -128,9 +129,9 @@ def task_package():
 
     def collect_artifacts():
         # Misc. files
-        copy(root_dir / 'README.adoc', tree_dir)
-        copy(root_dir / 'LICENSE.md', tree_dir)
-        copy(root_dir / 'CHANGELOG.md', tree_dir)
+        asciidoc_to_html(root_dir / 'README.adoc', tree_dir / 'README.html')
+        markdown_to_html(root_dir / 'LICENSE.md', tree_dir / 'LICENSE.html')
+        markdown_to_html(root_dir / 'CHANGELOG.md', tree_dir / 'CHANGELOG.html')
         copytree(root_dir / 'img', tree_dir / 'img')
 
         # Rhubarb
@@ -142,20 +143,20 @@ def task_package():
         src = extras_dir / 'adobe-after-effects'
         dst_extras_dir = ensure_dir(tree_dir / 'extras')
         dst = ensure_dir(dst_extras_dir / 'adobe-after-effects')
-        copy(src / 'README.adoc', dst)
+        asciidoc_to_html(src / 'README.adoc', dst / 'README.html')
         copy(src / 'Rhubarb Lip Sync.jsx', dst)
 
         # Rhubarb for Spine
         src = extras_dir / 'esoteric-software-spine'
         dst = ensure_dir(dst_extras_dir / 'esoteric-software-spine')
-        copy(src / 'README.adoc', dst)
+        asciidoc_to_html(src / 'README.adoc', dst / 'README.html')
         for file in (src / 'build' / 'libs').iterdir():
             copy(file, dst)
 
         # Magix Vegas
         src = extras_dir / 'magix-vegas'
         dst = ensure_dir(dst_extras_dir / 'magix-vegas')
-        copy(src / 'README.adoc', dst)
+        asciidoc_to_html(src / 'README.adoc', dst / 'README.html')
         copy(src / 'Debug Rhubarb.cs', dst)
         copy(src / 'Debug Rhubarb.cs.config', dst)
         copy(src / 'Import Rhubarb.cs', dst)
@@ -216,6 +217,50 @@ def get_formatter(path: Path) -> Optional[Formatter]:
             return Formatter.PRETTIER
         case '.py':
             return Formatter.RUFF
+
+
+def asciidoc_to_html(src: Path, dst: Path):
+    subprocess.run(
+        ['deno', 'run', '-A', 'npm:asciidoctor@3.0.0', '-a', 'toc=left', '-o', dst, src], check=True
+    )
+
+
+def markdown_to_html(src: Path, dst: Path):
+    tmp = dst.parent.joinpath(f'{src.stem}-tmp.adoc')
+    try:
+        markdown_to_asciidoc(src, tmp)
+        asciidoc_to_html(tmp, dst)
+    finally:
+        tmp.unlink()
+
+
+def markdown_to_asciidoc(src: Path, dst: Path):
+    """Cheap best-effort heuristics for converting Markdown to AsciiDoc"""
+
+    markup = src.read_text()
+
+    # Convert headings
+    markup = re.sub('^#+', lambda match: '=' * len(match[0]), markup, flags=re.MULTILINE)
+
+    # Convert italics
+    markup = re.sub(
+        r'(?<![*_])[*_]((?!\s)[^*_\n]+(?<!\s))[*_](?![*_])', lambda match: f'_{match[1]}_', markup
+    )
+
+    # Convert boldface
+    markup = re.sub(
+        r'(?<![*_])[*_]{2}((?!\s)[^*_\n]+(?<!\s))[*_]{2}(?![*_])',
+        lambda match: f'*{match[1]}*',
+        markup,
+    )
+
+    # Convert links
+    markup = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', lambda match: f'{match[2]}[{match[1]}]', markup)
+
+    # Convert continuations
+    markup = re.sub(r'\n\n\s+', '\n+\n', markup)
+
+    dst.write_text(markup)
 
 
 def ensure_dir(dir: Path) -> Path:
