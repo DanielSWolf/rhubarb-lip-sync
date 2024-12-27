@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 4.3)
 
 include(FetchContent)
+
+# Use static runtime
+cmake_policy(SET CMP0091 NEW)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Read version from package.json
 file(READ "../package.json" jsonContent)
@@ -27,6 +31,22 @@ if(RHUBARB_ARTIFACT_DIR)
     endif()
 endif()
 
+# Store compiler information
+if(
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
+    OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+    OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
+)
+    set(compilerIsGccOrClang true)
+else()
+    set(compilerIsGccOrClang false)
+endif()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(compilerIsMsvc true)
+else()
+    set(compilerIsMsvc false)
+endif()
+
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 
@@ -35,20 +55,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable POSIX threads
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(compilerIsGccOrClang)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
 
-# Use static run-time
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_compile_options(/MT$<$<CONFIG:Debug>:d>)
-endif()
-
-# Set global flags and define flags variables for later use
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+# Set global warning flags and define flags variables for later use
+if(compilerIsGccOrClang)
     set(enableWarningsFlags "-Wall;-Wextra")
     set(disableWarningsFlags "-w")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif(compilerIsMsvc)
     set(enableWarningsFlags "/W4")
     set(disableWarningsFlags "/W0")
 
@@ -56,16 +71,16 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # I'm doing that on purpose.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
 
-    # Assume UTF-8 encoding for source files and encode string constants in UTF-8
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
-
     # Ignore warnings we can't fix right now
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING")
 endif()
 
-# Use UTF-8 throughout
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_compile_options("/utf-8")
+if(compilerIsMsvc)
+    # Assume UTF-8 encoding for source files and encode string constants in UTF-8
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+
+    # Use multi-processor compilation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
 if(${UNIX})
