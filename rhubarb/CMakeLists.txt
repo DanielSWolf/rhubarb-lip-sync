@@ -28,9 +28,16 @@ endif()
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
 
-# Enable C++17
-set(CMAKE_CXX_STANDARD 17)
+# Enable C++23
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Disable char8_t support (see https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1423r3.html)
+if(compilerIsGccOrClang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-char8_t")
+elseif(compilerIsMsvc)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:char8_t-")
+endif()
 
 # Enable POSIX threads
 if(compilerIsGccOrClang)
