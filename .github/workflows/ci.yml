@@ -9,32 +9,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - description: Windows / Visual Studio
-            os: windows-2019
-            cmakeOptions: '-G "Visual Studio 16 2019" -A x64'
+          - description: Windows - Visual Studio
+            os: windows-2022
+            cmakeOptions: '-G "Visual Studio 17 2022" -A x64'
             publish: true
-          - description: macOS / Xcode
-            os: macos-10.15
-            cmakeOptions: ""
+          - description: macOS - Xcode
+            os: macos-14
+            cmakeOptions: ''
             publish: true
-          - description: Linux / GCC
-            os: ubuntu-20.04
-            cmakeOptions: "-D CMAKE_C_COMPILER=gcc-10 -D CMAKE_CXX_COMPILER=g++-10"
+          - description: Linux - GCC
+            os: ubuntu-24.04
+            cmakeOptions: '-D CMAKE_C_COMPILER=gcc-14 -D CMAKE_CXX_COMPILER=g++-14'
             publish: true
-          - description: Linux / Clang
-            os: ubuntu-20.04
-            cmakeOptions: "-D CMAKE_C_COMPILER=clang-12 -D CMAKE_CXX_COMPILER=clang++-12"
+          - description: Linux - Clang
+            os: ubuntu-24.04
+            cmakeOptions: '-D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18'
             publish: false
     env:
       BOOST_ROOT: ${{ github.workspace }}/lib/boost
-      BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2/download
+      BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.86.0/boost_1_86_0.tar.bz2/download
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           lfs: true
       - name: Restore Boost from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: cache-boost
         with:
           path: ${{ env.BOOST_ROOT }}
@@ -57,11 +57,6 @@ jobs:
           cd build
           cmake ${{ matrix.cmakeOptions }} ..
           cmake --build . --config Release --target package
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: binaries
-          path: build/*.zip
       - name: Run tests
         shell: bash
         run: |
@@ -70,19 +65,23 @@ jobs:
           else
             ./build/rhubarb/runTests
           fi
+      - name: Upload artifacts
+        if: ${{ matrix.publish }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'binaries ${{ matrix.description }}'
+          path: build/*.zip
   release:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: binaries
+        uses: actions/download-artifact@v4
       - name: Create GitHub release draft
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
-          files: "*.zip"
+          files: '*.zip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
