@@ -9,6 +9,22 @@ string(REGEX REPLACE ".*\"([^\"]+)\"" "\\1" appVersion "${appVersion}")
 
 project("${appName}")
 
+# Store compiler information
+if(
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
+    OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+    OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"
+)
+    set(compilerIsGccOrClang true)
+else()
+    set(compilerIsGccOrClang false)
+endif()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(compilerIsMsvc true)
+else()
+    set(compilerIsMsvc false)
+endif()
+
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
 
@@ -17,34 +33,31 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable POSIX threads
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(compilerIsGccOrClang)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
 
 # Use static run-time
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if(compilerIsMsvc)
     add_compile_options(/MT$<$<CONFIG:Debug>:d>)
 endif()
 
-# Set global flags and define flags variables for later use
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+# Set global warning flags and define flags variables for later use
+if(compilerIsGccOrClang)
     set(enableWarningsFlags "-Wall;-Wextra")
     set(disableWarningsFlags "-w")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif(compilerIsMsvc)
     set(enableWarningsFlags "/W4")
     set(disableWarningsFlags "/W0")
 
     # Disable warning C4456: declaration of '...' hides previous local declaration
     # I'm doing that on purpose.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458")
-
-    # Assume UTF-8 encoding for source files and encode string constants in UTF-8
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 endif()
 
-# Use UTF-8 throughout
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_compile_options("/utf-8")
+# Assume UTF-8 encoding for source files and encode string constants in UTF-8
+if(compilerIsMsvc)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 endif()
 
 if(${UNIX})
