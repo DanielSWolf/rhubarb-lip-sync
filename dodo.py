@@ -79,12 +79,13 @@ def format(files: List[Path], formatter: Formatter, *, check_only: bool = False)
             raise ValueError(f'Unknown formatter: {formatter}')
 
 
+def configure_rhubarb():
+    ensure_dir(rhubarb_build_dir)
+    subprocess.run(['cmake', '..'], cwd=rhubarb_build_dir, check=True)
+
+
 def task_configure_rhubarb():
     """Configure CMake for the Rhubarb binary"""
-
-    def configure_rhubarb():
-        ensure_dir(rhubarb_build_dir)
-        subprocess.run(['cmake', '..'], cwd=rhubarb_build_dir, check=True)
 
     return {'basename': 'configure-rhubarb', 'actions': [configure_rhubarb]}
 
@@ -93,6 +94,9 @@ def task_build_rhubarb():
     """Build the Rhubarb binary"""
 
     def build_rhubarb():
+        if not rhubarb_build_dir.exists():
+            configure_rhubarb()
+
         subprocess.run(
             ['cmake', '--build', '.', '--config', 'Release'], cwd=rhubarb_build_dir, check=True
         )

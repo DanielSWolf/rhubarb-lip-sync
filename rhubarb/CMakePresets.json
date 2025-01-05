@@ -1,0 +1,10 @@
+{
+  "version": 8,
+  "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+  "configurePresets": [
+    {
+      "name": "vs22-msvc",
+      "description": "Visual Studio 2022 solution compiled with Visual C++"
+    }
+  ]
+}
