@@ -1,3 +1,7 @@
+= Rhubarb Lip Sync
+:toc:
+:icons: font
+
 :A: &#9398;
 :B: &#9399;
 :C: &#9400;
@@ -27,7 +31,7 @@ Rhubarb Lip Sync integrates with the following applications:
 * *Vegas Pro* by Magix (see <<vegas,below>>)
 * *Visionaire Studio* (see https://www.visionaire-studio.net/forum/thread/mouth-animation-using-rhubarb-lip-sync[external link])
 
-In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>). 
+In addition, you can use Rhubarb Lip Sync's command line interface (*CLI*) to generate files in various <<outputFormats,output formats>> (<<tsv,TSV>>/<<xml,XML>>/<<json,JSON>>).
 
 == Demo video
 
@@ -117,11 +121,11 @@ This shape is also used as an in-between when animating from {C} or {D} to {F}. 
 
 === General usage ===
 
-Rhubarb Lip Sync is a command-line tool that is currently available for Windows and OS X.
+Rhubarb Lip Sync is a command-line tool that is currently available for Windows, macOS, and Linux.
 
-* Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] and unzip the file anywhere on your computer.
-* Call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
-* Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, Rhubarb Lip Sync will instead print an error message to `stderr` and exit with a non-zero exit code.
+* Download the https://github.com/DanielSWolf/rhubarb-lip-sync/releases[latest release] for your operating system and unpack the file anywhere on your computer.
+* On the command-line, call `rhubarb`, passing it an audio file as argument and telling it where to create the output file. In its simplest form, this might look like this: `rhubarb -o output.txt my-recording.wav`. There are additional <<options,command-line options>> you can specify in order to get better results.
+* Rhubarb Lip Sync will analyze the sound file, animate it, and create an output file containing the animation. If an error occurs, it will instead print an error message to `stderr` and exit with a non-zero exit code.
 
 [[options]]
 === Command-line options ===
@@ -191,9 +195,9 @@ _Default value: 24_
 ! X ! rest
 !===
 
-*Caution*: This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
+*Caution:* This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
 
-*Tip*: For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
+*Tip:* For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
 
 |===
 
@@ -376,12 +380,29 @@ Rhubarb Lip Sync uses Semantic Versioning (SemVer) for its command-line interfac
 
 As a rule of thumb, everything you can use through the command-line interface adheres to SemVer. Everything else (i.e., the source code, integrations with third-party software, etc.) does not.
 
+[[building-from-source]]
+== Building from source
+
+To use Rhubarb Lip Sync on Windows, macOS, or Linux, you can just download the binary release for your operating system. If you want to modify the code or use Rhubarb on a less-common operating system, this section describes how to build it yourself.
+
+You'll need the following software installed:
+
+* CMake 3.10+
+* A C{plus}{plus} compiler that supports C{plus}{plus}17 +
+(Rhubarb Lip Sync is regularly built using Visual Studio 2019, Xcode 14, GCC 10, and Clang 12.)
+* A current version of Boost
+* JDK 8.x (for building Rhubarb for Spine)
+
+Then, follow these steps:
+
+. Create an empty directory `/build` within the Rhubarb repository
+. Move to the new `/build` directory
+. Configure CMake by running `cmake ..` +
+Optionally, pass flags for setting the generator, compiler etc.. For working examples, see `.github\workflows\ci.yml`.
+. Build Rhubarb Lip Sync by running `cmake --build . --config Release`
+
 == I'd love to hear from you!
 
 Have you created something great using Rhubarb Lip Sync? -- *https://twitter.com/RhubarbLipSync[Let me know on Twitter]* or *send me an email* at +++&#100;&#119;&#111;&#108;&#102;&#064;&#100;&#097;&#110;&#110;&#097;&#100;&#046;&#100;&#101;+++!
 
 Do you need help? Have you spotted a bug? Do you have a suggestion? -- *https://github.com/DanielSWolf/rhubarb-lip-sync/issues[Create an issue!]*
-
-'''
-
-https://www.jetbrains.com/[image:img/resharper-cpp.svg[]] https://www.jetbrains.com/[JetBrains] have been kind enough to supply me with a free Open Source license of https://www.jetbrains.com/resharper-cpp/[ReSharper C++].
