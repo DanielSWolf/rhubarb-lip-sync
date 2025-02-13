@@ -3,6 +3,7 @@
 #include "WaveFileReader.h"
 #include <boost/algorithm/string.hpp>
 #include "OggVorbisFileReader.h"
+#include "OggOpusFileReader.h"
 
 using std::filesystem::path;
 using std::string;
@@ -19,8 +20,11 @@ std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
 		if (extension == ".ogg") {
 			return std::make_unique<OggVorbisFileReader>(filePath);
 		}
+		if (extension == ".opus") {
+			return std::make_unique<OggOpusFileReader>(filePath);
+		}
 		throw runtime_error(format(
-			"Unsupported file extension '{}'. Supported extensions are '.wav' and '.ogg'.",
+			"Unsupported file extension '{}'. Supported extensions are '.wav', '.ogg', and '.opus'`.",
 			extension
 		));
 	} catch (...) {
