@@ -1,0 +1,13 @@
+{
+  "name": "rhubarb-lip-sync",
+  "version": "1.0.0",
+  "description": "Build tooling for Rhubarb Lip Sync",
+  "scripts": {
+    "rhubarb": "ts-node tasks/index.ts"
+  },
+  "dependencies": {
+    "change-case": "^5.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

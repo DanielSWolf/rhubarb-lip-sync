@@ -3,6 +3,7 @@
 *.user
 artifacts/
 build/
+node_modules/
 venv/
 
 __pycache__
