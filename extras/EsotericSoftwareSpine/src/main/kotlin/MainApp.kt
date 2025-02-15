@@ -15,7 +15,7 @@ class MainApp : App(MainView::class) {
 
 	private fun setIcon() {
 		// Set icon for windows
-		for (iconSize in listOf(16, 32, 48, 256)) {
+		for (iconSize in listOf(16, 20, 24, 32, 48, 64, 256)) {
 			addStageIcon(Image(this.javaClass.getResourceAsStream("/icon-$iconSize.png")))
 		}
 
