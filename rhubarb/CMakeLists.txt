@@ -50,13 +50,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Define libraries
 
 # ... Boost
-set(Boost_USE_STATIC_LIBS ON) # Use static libs
-set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
-set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-set(Boost_NO_BOOST_CMAKE ON) # Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18865
+cmake_policy(SET CMP0167 OLD)  # Use the legacy Boost CMake integration
 find_package(Boost 1.54 REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-link_libraries(${Boost_LIBRARIES}) # Just about every project needs Boost
+link_libraries(Boost::headers) # Just about every project needs Boost, but just the headers
 
 # ... C++ Format
 FILE(GLOB cppFormatFiles "lib/cppformat/*.cc")
@@ -534,7 +531,7 @@ target_link_libraries(runTests
 function(copy_and_install sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
 	file(GLOB sourcePaths "${sourceGlob}")
-	
+
 	foreach(sourcePath ${sourcePaths})
 		if(NOT IS_DIRECTORY ${sourcePath})
 			# Set `fileName`
@@ -559,7 +556,7 @@ endfunction()
 function(copy sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
 	file(GLOB sourcePaths "${sourceGlob}")
-	
+
 	foreach(sourcePath ${sourcePaths})
 		if(NOT IS_DIRECTORY ${sourcePath})
 			# Set `fileName`
