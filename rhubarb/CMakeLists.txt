@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
+include(FetchContent)
 include("../appInfo.cmake")
 
 # Support legacy OS X versions
@@ -90,7 +91,13 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
-add_subdirectory("lib/googletest")
+FetchContent_Declare(googletest
+	GIT_REPOSITORY https://github.com/google/googletest.git
+	GIT_TAG v1.16.0
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 target_compile_options(gmock PRIVATE ${disableWarningsFlags})
 set_target_properties(gmock PROPERTIES FOLDER lib)
 target_compile_options(gmock_main PRIVATE ${disableWarningsFlags})
@@ -505,7 +512,6 @@ target_link_libraries(rhubarb
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
-#include_directories("${gtest_SOURCE_DIR}/include")
 set(TEST_FILES
 	tests/stringToolsTests.cpp
 	tests/TimelineTests.cpp
