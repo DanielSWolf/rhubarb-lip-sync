@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.24)
 
+include(FetchContent)
 include("../appInfo.cmake")
 
 # Support legacy OS X versions
@@ -33,6 +34,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 	# Assume UTF-8 encoding for source files and encode string constants in UTF-8
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+
+	# Ignore warnings we can't fix right now
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING")
 endif()
 
 # Use UTF-8 throughout
@@ -50,13 +54,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Define libraries
 
 # ... Boost
-set(Boost_USE_STATIC_LIBS ON) # Use static libs
-set(Boost_USE_MULTITHREADED ON) # Enable multithreading support
-set(Boost_USE_STATIC_RUNTIME ON) # Use static C++ runtime
-set(Boost_NO_BOOST_CMAKE ON) # Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18865
+cmake_policy(SET CMP0167 OLD)  # Use the legacy Boost CMake integration
 find_package(Boost 1.54 REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-link_libraries(${Boost_LIBRARIES}) # Just about every project needs Boost
+link_libraries(Boost::headers) # Just about every project needs Boost, but just the headers
 
 # ... C++ Format
 FILE(GLOB cppFormatFiles "lib/cppformat/*.cc")
@@ -93,7 +94,13 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
-add_subdirectory("lib/googletest")
+FetchContent_Declare(googletest
+	GIT_REPOSITORY https://github.com/google/googletest.git
+	GIT_TAG v1.16.0
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 target_compile_options(gmock PRIVATE ${disableWarningsFlags})
 set_target_properties(gmock PROPERTIES FOLDER lib)
 target_compile_options(gmock_main PRIVATE ${disableWarningsFlags})
@@ -508,7 +515,6 @@ target_link_libraries(rhubarb
 target_compile_options(rhubarb PUBLIC ${enableWarningsFlags})
 
 # Define test project
-#include_directories("${gtest_SOURCE_DIR}/include")
 set(TEST_FILES
 	tests/stringToolsTests.cpp
 	tests/TimelineTests.cpp
@@ -534,7 +540,7 @@ target_link_libraries(runTests
 function(copy_and_install sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
 	file(GLOB sourcePaths "${sourceGlob}")
-	
+
 	foreach(sourcePath ${sourcePaths})
 		if(NOT IS_DIRECTORY ${sourcePath})
 			# Set `fileName`
@@ -559,7 +565,7 @@ endfunction()
 function(copy sourceGlob relativeTargetDirectory)
 	# Set `sourcePaths`
 	file(GLOB sourcePaths "${sourceGlob}")
-	
+
 	foreach(sourcePath ${sourcePaths})
 		if(NOT IS_DIRECTORY ${sourcePath})
 			# Set `fileName`
