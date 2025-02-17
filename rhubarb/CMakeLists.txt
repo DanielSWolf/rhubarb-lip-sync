@@ -34,6 +34,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 	# Assume UTF-8 encoding for source files and encode string constants in UTF-8
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+
+	# Ignore warnings we can't fix right now
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING")
 endif()
 
 # Use UTF-8 throughout
