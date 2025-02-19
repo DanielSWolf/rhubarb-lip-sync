@@ -498,6 +498,12 @@ target_link_libraries(rhubarb-tools
 
 # Define Rhubarb executable
 add_executable(rhubarb
+	src/rhubarb/sinks/MachineReadableStderrSink.cpp
+	src/rhubarb/sinks/MachineReadableStderrSink.h
+	src/rhubarb/sinks/NiceStderrSink.cpp
+	src/rhubarb/sinks/NiceStderrSink.h
+	src/rhubarb/sinks/QuietStderrSink.cpp
+	src/rhubarb/sinks/QuietStderrSink.h
 	src/rhubarb/main.cpp
 	src/rhubarb/ExportFormat.cpp
 	src/rhubarb/ExportFormat.h
@@ -505,8 +511,6 @@ add_executable(rhubarb
 	src/rhubarb/RecognizerType.h
 	src/rhubarb/semanticEntries.cpp
 	src/rhubarb/semanticEntries.h
-	src/rhubarb/sinks.cpp
-	src/rhubarb/sinks.h
 )
 target_include_directories(rhubarb PUBLIC "src/rhubarb")
 target_link_libraries(rhubarb
