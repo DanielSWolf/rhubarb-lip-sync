@@ -276,6 +276,38 @@ target_link_libraries(vorbis
 target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
 set_target_properties(vorbis PROPERTIES FOLDER lib)
 
+# ... opus
+# lickily the complex build of libopus is managed by upstream itself.
+# The project is cmake based here. So it can support add_subdirectory().
+# the final static library is in the `opus*` subdir unfortunately.
+set(OPUS_BUILD_SHARED_LIBRARY OFF)
+set(OPUS_BUILD_TESTING OFF)
+set(OPUS_BUILD_PROGRAMS OFF)
+set(OPUS_CUSTOM_MODES ON)
+add_subdirectory(lib/opus-1.5.2)
+# *.a is build in the subdir
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/rhubarb/lib/opus-1.5.2)
+
+# ... opusfile
+add_library(opusfile
+	lib/opusfile-0.12/include/opusfile.h
+        lib/opusfile-0.12/src/winerrno.h
+        lib/opusfile-0.12/src/internal.h
+        lib/opusfile-0.12/src/http.c
+        lib/opusfile-0.12/src/wincerts.c
+        lib/opusfile-0.12/src/opusfile.c
+        lib/opusfile-0.12/src/internal.c
+        lib/opusfile-0.12/src/info.c
+        lib/opusfile-0.12/src/stream.c
+)
+target_include_directories(opusfile SYSTEM PUBLIC "lib/opusfile-0.12/include")
+# No idea why - but I have to add these includes directly
+include_directories("lib/opusfile-0.12/include" "lib/opus-1.5.2/include")
+target_compile_options(opusfile PRIVATE ${disableWarningsFlags})
+target_link_libraries(opusfile PRIVATE opus)
+set_target_properties(opusfile PROPERTIES FOLDER lib)
+
+
 # Define Rhubarb libraries
 
 include_directories("src")
@@ -322,6 +354,8 @@ add_library(rhubarb-audio
 	src/audio/ioTools.h
 	src/audio/OggVorbisFileReader.cpp
 	src/audio/OggVorbisFileReader.h
+	src/audio/OggOpusFileReader.cpp
+	src/audio/OggOpusFileReader.h
 	src/audio/processing.cpp
 	src/audio/processing.h
 	src/audio/SampleRateConverter.cpp
@@ -337,6 +371,7 @@ target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
 	vorbis
+	opusfile
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools
