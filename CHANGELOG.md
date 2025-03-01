@@ -1,5 +1,10 @@
 # Version history
 
+## Unreleased
+
+* **Fixed** After Effects script on macOS ([issue #77](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/77), [issue #128](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/128))
+* **Changed** the way you make Rhubarb available to After Effects on macOS. This used to be a `/usr/local/bin/` symlink but is now a `PATH` entry ([issue #143](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/143)). For details, see the README file for Rhubarb for After Effects.
+
 ## Version 1.13.0
 
 * **Improved** animation rules for "F" sound when using just the basic mouth shapes.
