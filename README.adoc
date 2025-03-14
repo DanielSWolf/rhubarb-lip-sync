@@ -354,7 +354,7 @@ The following is an example output to `stderr` from a _successful_ run:
 { "type": "progress", "value": 0.06, "log": { "level": "Trace", "message": "Progress: 6%" } }
 { "type": "progress", "value": 0.69, "log": { "level": "Trace", "message": "Progress: 68%" } }
 { "type": "progress", "value": 1.00, "log": { "level": "Trace", "message": "Progress: 100%" } }
-// Result data, printed to stdout...
+# This is the moment that result data is printed to stdout (not stderr)
 { "type": "success", "log": { "level": "Info", "message": "Application terminating normally." } }
 ----
 
