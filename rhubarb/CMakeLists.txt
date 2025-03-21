@@ -94,6 +94,7 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
+set(INSTALL_GTEST OFF) # Prevent library files from ending up in our artifacts
 FetchContent_Declare(googletest
 	GIT_REPOSITORY https://github.com/google/googletest.git
 	GIT_TAG v1.16.0
