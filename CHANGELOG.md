@@ -2,7 +2,9 @@
 
 ## Unreleased
 
+* **Added** demo projects for Spine and After Effects.
 * **Fixed** After Effects script on macOS ([issue #77](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/77), [issue #128](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/128))
+* **Fixed** Rhubarb for Spine when used on non-Windows systems without extended mouth shapes ([issue #125](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/125))
 * **Changed** the way you make Rhubarb available to After Effects on macOS. This used to be a `/usr/local/bin/` symlink but is now a `PATH` entry ([issue #143](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/143)). For details, see the README file for Rhubarb for After Effects.
 
 ## Version 1.13.0
