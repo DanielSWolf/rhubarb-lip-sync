@@ -12,6 +12,8 @@ To create lip sync animation, you'll need Spine 3.7 or better.
 
 == Preparing your Spine project
 
+This section describes how to prepare your Spine project for lip sync animation. To get you started, you can use the demo project that comes with Rhubarb Lip Sync. It's located in the `extras/EsotericSoftwareSpine/demo` directory. Open it in Spine to see how it's set up.
+
 You can add lip-sync'ed dialog to any Spine skeleton. First, make sure it has a dedicated slot for its mouth. I'm naming the slot `mouth`, but you can choose any name you like.
 
 Next, add image attachments to the mouth slot, one attachment per mouth shape. For details about the expected mouth shapes, https://github.com/DanielSWolf/rhubarb-lip-sync#user-content-mouth-shapes[refer to the Rhubarb Lip Sync documentation]. You'll need at least the six basic mouth shapes A-F. If you add any of the extended mouth shapes, Rhubarb will automatically use them to create better-looking animation. I'm naming the attachments `mouth_a`, `mouth_b`, `mouth_c`, etc. You can choose any naming scheme you like and Rhubarb will detect it, as long as it's consistent (including upper and lower case). For instance, `A-Lips`, `B-Lips`, `C-Lips`, … is fine; `mouth a`, `mouth B`, `Mouth-C`, … isn't.
