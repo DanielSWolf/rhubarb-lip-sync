@@ -81,15 +81,12 @@ class RhubarbTask(
 	}
 
 	private fun createProcessBuilderArgs(dialogFilePath: Path?): List<String> {
-		val extendedMouthShapesString =
-			if (extendedMouthShapes.any()) extendedMouthShapes.joinToString(separator = "")
-			else "\"\""
 		return mutableListOf(
 			rhubarbBinFilePath.toString(),
 			"--machineReadable",
 			"--recognizer", recognizer,
 			"--exportFormat", "json",
-			"--extendedShapes", extendedMouthShapesString
+			"--extendedShapes", extendedMouthShapes.joinToString(separator = "")
 		).apply {
 			if (dialogFilePath != null) {
 				addAll(listOf(
