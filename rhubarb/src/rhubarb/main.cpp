@@ -24,7 +24,9 @@
 #include "animation/targetShapeSet.h"
 #include <boost/utility/in_place_factory.hpp>
 #include "tools/platformTools.h"
-#include "sinks.h"
+#include "sinks/MachineReadableStderrSink.h"
+#include "sinks/NiceStderrSink.h"
+#include "sinks/QuietStderrSink.h"
 #include "semanticEntries.h"
 #include "RecognizerType.h"
 #include "recognition/PocketSphinxRecognizer.h"

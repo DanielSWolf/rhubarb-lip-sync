@@ -14,43 +14,73 @@
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
+#include "fileTools.h"
 
 using std::filesystem::path;
 using std::string;
 using std::vector;
 
-path getBinPath() {
-	static const path binPath = [] {
-		try {
-			// Determine path length
-			const int pathLength = wai_getExecutablePath(nullptr, 0, nullptr);
-			if (pathLength == -1) {
-				throw std::runtime_error("Error determining path length.");
-			}
-
-			// Get path
-			// Note: According to documentation, pathLength does *not* include the trailing zero.
-			// Actually, it does.
-			// In case there are situations where it doesn't, we allocate one character more.
-			std::vector<char> buffer(pathLength + 1);
-			if (wai_getExecutablePath(buffer.data(), static_cast<int>(buffer.size()), nullptr) == -1) {
-				throw std::runtime_error("Error reading path.");
-			}
-			buffer[pathLength] = 0;
-
-			// Convert to std::filesystem::path
-			const string pathString(buffer.data());
-			path result(std::filesystem::canonical(pathString).make_preferred());
-			return result;
-		} catch (...) {
-			std::throw_with_nested(std::runtime_error("Could not determine path of bin directory."));
+path _getBinPath() {
+	try {
+		// Determine path length
+		const int pathLength = wai_getExecutablePath(nullptr, 0, nullptr);
+		if (pathLength == -1) {
+			throw std::runtime_error("Error determining path length.");
 		}
-	}();
-	return binPath;
+
+		// Get path
+		// Note: According to documentation, pathLength does *not* include the trailing zero.
+		// Actually, it does.
+		// In case there are situations where it doesn't, we allocate one character more.
+		std::vector<char> buffer(pathLength + 1);
+		if (wai_getExecutablePath(buffer.data(), static_cast<int>(buffer.size()), nullptr) == -1) {
+			throw std::runtime_error("Error reading path.");
+		}
+		buffer[pathLength] = 0;
+
+		// Convert to std::filesystem::path
+		const string pathString(buffer.data());
+		return path(std::filesystem::canonical(pathString).make_preferred());
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error("Could not determine path of bin directory."));
+	}
 }
 
+// Returns the path of the Rhubarb executable binary.
+path getBinPath() {
+	static const path result = _getBinPath();
+	return result;
+}
+
+path _getBinDirectory() {
+	path binPath = getBinPath();
+	path binDirectory = binPath.parent_path();
+
+	// Perform sanity checks on bin directory
+	path testPath = binDirectory / "res" / "sphinx" / "cmudict-en-us.dict";
+	if (!std::filesystem::exists(testPath)) {
+		throw std::runtime_error(fmt::format(
+			"Found Rhubarb executable at {}, but could not find resource file {}.",
+			binPath.u8string(),
+			testPath.u8string()
+		));
+	}
+	try {
+		throwIfNotReadable(testPath);
+	} catch (...) {
+		throw std::runtime_error(fmt::format(
+			"Cannot read resource file {}. Please check file permissions.",
+			testPath.u8string()
+		));
+	}
+
+	return binDirectory;
+}
+
+// Returns the directory containing the Rhubarb executable binary.
 path getBinDirectory() {
-	return getBinPath().parent_path();
+	static const path result = _getBinDirectory();
+	return result;
 }
 
 path getTempFilePath() {

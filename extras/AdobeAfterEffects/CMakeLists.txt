@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.24)
 
-set(afterEffectsFiles
-	"Rhubarb Lip Sync.jsx"
-	"README.adoc"
+install(
+	FILES
+		"Rhubarb Lip Sync.jsx"
+		"README.adoc"
+	DESTINATION "extras/AdobeAfterEffects"
 )
 
 install(
-	FILES ${afterEffectsFiles}
+	DIRECTORY demo
 	DESTINATION "extras/AdobeAfterEffects"
 )

@@ -1,0 +1,8 @@
+# Config file for Prettier, a JavaScript/TypeScript code formatter.
+
+useTabs: false
+tabWidth: 2
+printWidth: 100
+singleQuote: true
+arrowParens: avoid
+trailingComma: none

@@ -4,7 +4,7 @@ include(FetchContent)
 include("../appInfo.cmake")
 
 # Support legacy OS X versions
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 
 # Enable C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -94,6 +94,7 @@ set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 include_directories(SYSTEM "lib/tclap-1.2.1/include")
 
 # ... Google Test
+set(INSTALL_GTEST OFF) # Prevent library files from ending up in our artifacts
 FetchContent_Declare(googletest
 	GIT_REPOSITORY https://github.com/google/googletest.git
 	GIT_TAG v1.16.0
@@ -497,6 +498,12 @@ target_link_libraries(rhubarb-tools
 
 # Define Rhubarb executable
 add_executable(rhubarb
+	src/rhubarb/sinks/MachineReadableStderrSink.cpp
+	src/rhubarb/sinks/MachineReadableStderrSink.h
+	src/rhubarb/sinks/NiceStderrSink.cpp
+	src/rhubarb/sinks/NiceStderrSink.h
+	src/rhubarb/sinks/QuietStderrSink.cpp
+	src/rhubarb/sinks/QuietStderrSink.h
 	src/rhubarb/main.cpp
 	src/rhubarb/ExportFormat.cpp
 	src/rhubarb/ExportFormat.h
@@ -504,8 +511,6 @@ add_executable(rhubarb
 	src/rhubarb/RecognizerType.h
 	src/rhubarb/semanticEntries.cpp
 	src/rhubarb/semanticEntries.h
-	src/rhubarb/sinks.cpp
-	src/rhubarb/sinks.h
 )
 target_include_directories(rhubarb PUBLIC "src/rhubarb")
 target_link_libraries(rhubarb
