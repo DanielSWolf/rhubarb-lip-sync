@@ -42,7 +42,8 @@ std::string opusErrorToString(int errorCode) {
 
 template <typename T>
 T throwOnError(T code) {
-	if (code < 0)
+        // OP_HOLE, though technically an error code, is only informational
+	if (code < 0 && code != OP_HOLE)
 	{
 		const std::string message = fmt::format("{} (Opus error {})", opusErrorToString(code), code);
 		throw std::runtime_error(message);
@@ -88,6 +89,9 @@ OggOpusFileReader::OggOpusFileReader(const path& filePath)
 	OggOpusFileHandle file(filePath);
 
 	const OpusHead* opusHead = op_head(file.get(), -1);
+	if (!opusHead) {
+		throw std::runtime_error("Failed to retrieve Opus header (null pointer).");
+	}
 	channelCount = opusHead->channel_count;
 
 	ogg_int64_t pcmTotal = op_pcm_total(file.get(), -1);
@@ -116,10 +120,7 @@ SampleReader OggOpusFileReader::createUnsafeSampleReader() const {
 			throwOnError(op_pcm_seek(file->get(), index));
 
 			bufferStart = index;
-			int samplesRead = op_read_float(file->get(), buffer.data(), maxSize, nullptr);
-			if (samplesRead < 0) {
-				throw std::runtime_error("Error reading Opus samples.");
-			}
+			int samplesRead = throwOnError(op_read_float(file->get(), buffer.data(), maxSize, nullptr));
 			bufferSize = static_cast<size_type>(samplesRead);
 			if (bufferSize == 0) {
 				throw std::runtime_error("Unexpected end of file.");

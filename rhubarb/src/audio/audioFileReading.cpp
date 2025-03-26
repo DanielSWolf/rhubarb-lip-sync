@@ -24,7 +24,7 @@ std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
 			return std::make_unique<OggOpusFileReader>(filePath);
 		}
 		throw runtime_error(format(
-			"Unsupported file extension '{}'. Supported extensions are '.wav', '.ogg', and '.opus'`.",
+			"Unsupported file extension '{}'. Supported extensions are '.wav', '.ogg', and '.opus'.",
 			extension
 		));
 	} catch (...) {
