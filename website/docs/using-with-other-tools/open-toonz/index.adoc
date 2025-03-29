@@ -1,0 +1,67 @@
+= Open­Toonz
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with OpenToonz.
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Prepare your mouth drawings
+
+To use Rhubarb Lip Sync with OpenToonz, you need a level with frames representing the different mouth shapes.
+
+OpenToonz requires that the frame names use the Preston Blair naming convention.
+
+That means your drawings should be labeled as follows:
+
+* *MBP* — closed mouth (equivalent to *A*)
+* *etc* — clenched teeth (equivalent to *B*)
+* *E* — open mouth (equivalent to *C*)
+* *AI* — wide open (equivalent to *D*)
+* *O* — rounded mouth (equivalent to *E*)
+* *U* — puckered lips (equivalent to *F*)
+* *FV* — upper teeth touching lip (equivalent to *G*)
+* *L* — tongue raised for long L sound (equivalent to *H*)
+* *rest* — idle/neutral mouth (equivalent to *X*)
+
+[NOTE]
+====
+Only the basic shapes *MBP*, *etc*, *E*, *AI*, *O*, and *U* are required.
+The others are optional.
+====
+
+== Generate animation data
+
+OpenToonz understands `.dat` switch files, just like Moho.
+Rhubarb can generate these files using the `--exportFormat dat` option.
+
+To output Preston Blair names, you must add the `--datUsePrestonBlair` option:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat --datUsePrestonBlair my-recording.wav
+----
+
+You can also control the frame rate using `--datFrameRate`:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat --datUsePrestonBlair --datFrameRate 30 my-recording.wav
+----
+
+You can include or exclude extended shapes by passing `--extendedShapes`:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat --datUsePrestonBlair --extendedShapes GX my-recording.wav
+----
+
+== Import into OpenToonz
+
+Import your drawing level as a switch layer (also known as a sub-Xsheet or sub-sheet).
+
+Then use OpenToonz's lip sync feature to load the `.dat` file you generated.
+
+OpenToonz will match the timing information in the file to the frames in your drawing level based on the Preston Blair shape names.
+
+You should now see the mouth changing in sync with the audio.

@@ -1,0 +1,61 @@
+= Adobe After Effects
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with Adobe After Effects.
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Install the After Effects script
+
+. In After Effects, go to *File > Scripts > Install Script File...*.
+. Select the file `Rhubarb Lip Sync.jsx` from the `extras/AdobeAfterEffects` subdirectory of the Rhubarb folder.
+. Restart After Effects.
+
+[NOTE]
+====
+If you're using an older version of After Effects that doesn't support *Install Script File...*, you can manually copy the script into the After Effects scripts folder.
+
+On Windows, this folder is usually:
+
+[source]
+----
+C:\Program Files\Adobe\Adobe After Effects <version>\Support Files\Scripts
+----
+
+On macOS, it's usually:
+
+[source]
+----
+/Applications/Adobe After Effects <version>/Scripts
+----
+====
+
+== Set up your mouth composition
+
+Before generating animation, you need a composition that contains all your mouth shapes.
+
+Each shape should occupy one frame in the timeline:
+- Frame `00:00` should contain the *A* shape
+- Frame `00:01` should contain *B*
+- … and so on through *F*
+- If you're using extended shapes, *G*, *H*, and *X* should go on frames `00:06`, `00:07`, and `00:08`
+
+You can name the layers however you like, as long as the order is correct.
+
+For a working example, see the demo project included in the Rhubarb download:
+`extras/AdobeAfterEffects/demo`
+
+image::after-effects-setup.png[]
+
+== Run the script
+
+. In After Effects, select *File > Scripts > Rhubarb Lip Sync.jsx*.
+. A dialog window will open.
+. Select the audio file containing your recorded dialog.
+. Optionally, select a text file with the transcript of the dialog to improve accuracy.
+. Adjust other options as needed.
+
+Hover over any field to see a tooltip with more information.
+
+When you run the script, Rhubarb Lip Sync will analyze the audio, generate mouth shape data, and create keyframes in your mouth composition accordingly.

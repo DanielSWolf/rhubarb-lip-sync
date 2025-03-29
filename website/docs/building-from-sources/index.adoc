@@ -1,0 +1,67 @@
+= Building from sources
+:eleventy-layout: page
+
+Rhubarb Lip Sync is available as pre-built binaries for Windows, macOS, and Linux.
+If you'd like to modify the code or build it yourself—for example, to use it on a different platform—this page explains how to compile it from source.
+
+== Requirements
+
+To build Rhubarb Lip Sync, you'll need the following tools installed:
+
+* CMake 3.10 or later
+* A C++ compiler with support for C++17
+  (Rhubarb is regularly built using Visual Studio 2019, Xcode 14, GCC 10, and Clang 12)
+* A recent version of Boost
+* JDK 8.x
+  Required only if you want to build *Rhubarb for Spine*
+
+[TODO]
+====
+Confirm the exact JDK version required for *Rhubarb for Spine*
+====
+
+== Steps
+
+. Clone the Rhubarb Lip Sync repository or download the source code from GitHub.
+. Create a new directory named `build` inside the root of the repository.
+. Open a terminal or command prompt and navigate into the `build` directory.
+. Run CMake to configure the project:
+
+[source,console]
+----
+cmake ..
+----
+
+You can pass options to choose a compiler or specify a build system.
+
+See `.github/workflows/ci.yml` in the project for real-world configuration examples.
+
+. Build the project:
+
+[source,console]
+----
+cmake --build . --config Release
+----
+
+After the build completes, you'll find the `rhubarb` executable in the output directory.
+
+== Platform notes
+
+* On Windows, Visual Studio will be used by default if available.
+* On macOS, Xcode or Clang is typically used.
+* On Linux, CMake will default to GCC or Clang.
+
+== Optional: Building Rhubarb for Spine
+
+If you want to use the graphical *Rhubarb for Spine* tool, make sure the required JDK version is installed and configured.
+
+The `.jar` file is built as part of the regular build process if Java is available.
+
+== Troubleshooting
+
+If you run into problems:
+
+* Double-check that your compiler supports C++17.
+* Make sure all required dependencies are installed and properly detected by CMake.
+* Use the `--logFile` option during testing to capture diagnostic output.
+* You can also look at the continuous integration setup in `.github/workflows/ci.yml` for platform-specific examples.

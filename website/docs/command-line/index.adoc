@@ -1,0 +1,302 @@
+= Command line guide
+:eleventy-layout: page
+
+Rhubarb Lip Sync is primarily a command-line tool.
+This means you run it by typing commands into a terminal or command prompt.
+
+The following sections will guide you through the basic usage of Rhubarb Lip Sync from the command line.
+If you're familiar with command-line tools, you can skip to the <<reference>> section.
+
+== Basic usage
+
+[[minimal-example]]
+=== Minimal example
+
+The minimal way of using Rhubarb Lip Sync is to call it with just an audio file:
+
+[source,console]
+----
+rhubarb hello-there.wav
+----
+
+This will analyze the audio file `hello-there.wav`, generate lip sync data, and print it to the console.
+The output may look something like this:
+
+[source,console]
+----
+Generating lip sync data for hello-there.wav.
+Progress: [####################] 100%
+0.00	X
+0.14	C
+0.19	E
+0.38	F
+0.45	B
+0.52	C
+0.59	B
+0.73	X
+0.77	X
+Done.
+----
+
+This particular audio file contains the phrase "`Hello there`", and the output says which mouth shape to use at each point in time.
+Each line starts with a time in seconds, followed by the name of the mouth shape to use at that time, according to the link:/docs/mouth-shapes[Mouth shapes] page.
+Let's break down the output:
+
+[cols="2,2,3,8"]
+|===
+| Time | Dialog | Mouth shape |
+
+| 0.00 | - | image:/docs/mouth-shapes/img/mouth-x.webp[width=80] *X*
+| Initially, the mouth is closed.
+
+| 0.14 | "`H EH`" | image:/docs/mouth-shapes/img/mouth-c.webp[width=80] *C*
+| As soon as the mouth opens, it forms the half-open *C* shape for the "`EH`" sound.
+Real humans don't hold their mouths still for a "`H`" sound, but already anticipate the next sound.
+
+| 0.19 | "`L OW...`" | image:/docs/mouth-shapes/img/mouth-e.webp[width=80] *E*
+| Next, the mouth forms the rounded *E* shape for the first part of the "`OW`" diphthong.
+Again, the mouth already assumes this shape during the "`L`" sound.
+
+| 0.38 | "`...OW`" | image:/docs/mouth-shapes/img/mouth-f.webp[width=80] *F*
+| This is the *F* shape for the second part of the "`OW`" diphthong.
+
+| 0.45 | "`DH`" | image:/docs/mouth-shapes/img/mouth-b.webp[width=80] *B*
+| The next mouth shapes are straightforward.
+
+| 0.52 | "`EH`" | image:/docs/mouth-shapes/img/mouth-c.webp[width=80] *C* |
+
+| 0.59 | "`R`" | image:/docs/mouth-shapes/img/mouth-b.webp[width=80] *B* |
+
+| 0.73 | - | image:/docs/mouth-shapes/img/mouth-x.webp[width=80] *X* |
+
+| 0.77 | - | image:/docs/mouth-shapes/img/mouth-x.webp[width=80] *X*
+| The last line is redundant and simply marks the end of the audio file.
+|===
+
+=== Specifying an output file
+
+As we saw, Rhubarb Lip Sync prints the lip sync data to the console unless you tell it otherwise.
+To save the output to a file, use the `-o` option followed by the desired file name:
+
+[source,console]
+----
+rhubarb -o hello-there.tsv hello-there.wav
+----
+
+This will create a file named `hello-there.tsv` in the current directory, containing same lip sync data we saw above.
+
+=== Choosing mouth shapes
+
+Rhubarb Lip Sync always uses at least the six basic mouth shapes *A* through *F* (see the link:/docs/mouth-shapes[Mouth shapes] page).
+By default, it also uses the three extended shapes *G*, *H*, and *X*.
+This gives you the the best lip sync possible, but also means that you'll have to draw all nine mouth shapes for your character.
+
+To use fewer extended mouth shapes, you can use the `--extendedShapes` option.
+The following example uses the *G* and *H* extended mouth shape:
+
+[source,console]
+----
+rhubarb -o hello-there.tsv --extendedShapes GH hello-there.wav
+----
+
+To use only the six basic mouth shapes and no extended shapes, pass an empty string.
+You'll need to place it in quotes:
+
+[source,console]
+----
+rhubarb -o hello-there.tsv --extendedShapes "" hello-there.wav
+----
+
+=== Specifying dialog
+
+Rhubarb Lip Sync can generate lip sync data based on the audio alone, but its results can be more precise if you also provide the text of the spoken dialog.
+To do this, first create a plain text file containing the dialog of the audio file, like this:
+
+.hello-there.txt
+[source,text]
+----
+Hello there!
+----
+
+Then pass it to Rhubarb using the `-d` option:
+
+[source,console]
+----
+rhubarb -o hello-there.tsv -d hello-there.txt hello-there.wav
+----
+
+It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate.
+
+=== Choosing the output format
+
+So far, we've only seen the default output format with its time and mouth shape columns.
+This format is called tab-separated values (TSV).
+Depending on what you want to do with the lip sync data, you can choose from several output formats.
+
+If you're using Rhubarb Lip Sync with another tool, such as a game engine or animation software, you need to use the specific output format that this tool can read.
+In this case, check link:/docs/using-with-other-tools[Using with other tools] for details about the required output format.
+
+If you know how to program and want to use the lip sync data in other ways, check out link:/docs/output-formats[Output formats] for details about the available formats.
+
+This example sets the output format to JSON, which is a common format for data exchange between programs:
+
+[source,console]
+----
+rhubarb -o hello-there.json --exportFormat json hello-there.wav
+----
+
+[[recognizer]]
+=== Choosing the recognizer
+
+By default, Rhubarb Lip Sync uses an English speech recognizer called PocketSphinx to analyze the audio.
+This works well for English dialog, but not for other languages.
+If you want to use Rhubarb Lip Sync with languages other than English, use the phonetic recognizer instead.
+The results will be less precise than for English dialog, but it will work with any language.
+
+To select the phonetic recognizer:
+
+[source,console]
+----
+rhubarb --recognizer phonetic -o hello-there.tsv hello-there.wav
+----
+
+[[reference]]
+== Reference
+
+=== Common command-line options
+
+The following command-line options are the most common:
+
+[cols="2,5a"]
+|===
+| Option | Description
+
+| _<input file>_
+| The audio file to be analyzed.
+This must be the last command-line argument.
+
+Supported file formats:
+
+* WAVE (.wav)
+* Ogg Vorbis (.ogg)
+
+| `-r` _<recognizer>_, +
+`--recognizer` _<recognizer>_
+| Specifies how Rhubarb Lip Sync recognizes speech within the recording.
+
+Options:
+
+* `pocketSphinx` (for English recordings)
+* `phonetic` (for non-English recordings)
+
+NOTE: When using the phonetic recognizer, specifying the dialog text has no effect.
+
+_Default value: ``pocketSphinx``_
+
+| `-f` _<format>_, +
+`--exportFormat` _<format>_
+| The export format.
+
+Options:
+
+* `tsv`: TSV format (tab-separated values) (default)
+* `xml`: XML format
+* `json`: JSON format
+* `dat`: Switch data format for Moho and OpenToonz
+
+_Default value: ``tsv``_
+
+| `-d` _<path>_, +
+`--dialogFile` _<path>_
+| With this option, you can provide Rhubarb Lip Sync with the dialog text to get more reliable results. Specify the path to a plain-text file (in ASCII or UTF-8 format) containing the dialog contained in the audio file. Rhubarb Lip Sync will still perform word recognition internally, but it will prefer words and phrases that occur in the dialog file. This leads to better recognition results and thus more reliable animation.
+
+For instance, let's say you're recording dialog for a computer game. The script says: "`That's all gobbledygook to me.`" But actually, the voice artist ends up saying "`That's _just_ gobbledygook to me,`" deviating from the dialog. If you specify a dialog file with the original line ("`That's all gobbledygook to me`"), this will still allow Rhubarb Lip Sync to produce better results, because it will watch out for the uncommon word "`gobbledygook`". Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
+
+_It is always a good idea to specify the dialog text. This will usually lead to more reliable mouth animation, even if the text is not completely accurate._
+
+[[extendedShapes]]
+| `--extendedShapes` _<string>_
+| As described in <<mouth-shapes>>, Rhubarb Lip Sync uses six basic mouth shapes and up to three _extended mouth shapes_, which are optional. Use this option to specify which extended mouth shapes should be used. For example, to use only the {G} and {X} extended mouth shapes, specify `GX`; to use only the six basic mouth shapes, specify an empty string: `""`.
+
+_Default value: ``GHX``_
+
+| `-o`, +
+`--output` _<output file>_
+| The name of the output file to create. If the file already exists, it will be overwritten. If you don't specify an output file, the result will be written to `stdout`.
+
+| `--version`
+| Displays version information and exits.
+
+| `-h`, +
+`--help`
+| Displays usage information and exits.
+
+| `--datFrameRate` _number_
+| Only valid when using the `dat` export format. Controls the frame rate for the output file.
+
+_Default value: 24_
+
+| `--datUsePrestonBlair`
+| Only valid when using the `dat` export format. Uses Preston Blair mouth shapes names instead of the default alphabetical ones. This applies the following mapping:
+
+!===
+! Alphabetic name ! Preston Blair name
+
+! A ! MBP
+! B ! etc
+! C ! E
+! D ! AI
+! E ! O
+! F ! U
+! G ! FV
+! H ! L
+! X ! rest
+!===
+
+*Caution:* This mapping is only applied when exporting, _after_ the recording has been animated. To control which mouth shapes to use, use the <<extendedShapes,`extendedShapes`>> option _with the alphabetic names_.
+
+*Tip:* For optimal results, make sure your mouth drawings follow the guidelines in the <<mouth-shapes>> section. This is easier if you stick to the alphabetic names instead of the Preston Blair names. The only situation where you _need_ to use the Preston Blair names is when you're using OpenToonz, because OpenToonz only supports the Preston Blair names.
+
+|===
+
+=== Advanced command-line options
+
+The following command-line options can be helpful in special situations, especially when automating Rhubarb Lip Sync.
+
+[cols="2,5"]
+|===
+| Option | Description
+
+[[quiet]]
+| `-q`, +
+`--quiet`
+| By default, Rhubarb Lip Sync writes a number of progress messages to `stderr`. If you're using it as part of a batch process, this may clutter your console. If you specify the `--quiet` flag, there won't be any output to `stderr` unless an error occurred.
+
+You can combine this option with the <<consoleLevel,`consoleLevel`>> option to change the minimum event level that is printed to `stderr`.
+
+| `--machineReadable`
+a| This option is useful if you want to integrate Rhubarb Lip Sync with another (possibly graphical) application. All status messages to `stderr` will be in structured JSON format, allowing your program to parse them and display a graphical progress bar or something similar. For details, see <<machineReadable,Machine-readable status messages>>.
+
+[[consoleLevel]]
+| `--consoleLevel` _<level>_
+| Sets the log level for reporting to the console (`stderr`). Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+If <<quiet,`--quiet`>> is also specified, only events with the specified level or higher will be printed. Otherwise, a small number of essential events (startup, progress, etc.) will be printed even if their levels are below the specified value.
+
+_Default value: ``error``_
+
+| `--logFile` _<path>_
+| Creates a log file with diagnostic information at the specified path.
+
+|`--logLevel` _<level>_
+| Sets the log level for the log file. Only events with the specified level or higher will be logged. Options: `trace`, `debug`, `info`, `warning`, `error`, `fatal`.
+
+_Default value: ``debug``_
+
+| `--threads` _<number>_
+| Rhubarb Lip Sync uses multithreading to speed up processing. By default, it creates as many worker threads as there are cores on your CPU, which results in optimal processing speed. You may choose to specify a lower number if you feel that Rhubarb Lip Sync is slowing down other applications. Specifying a higher number is not recommended, as it won't result in any additional speed-up.
+
+Note that for short audio files, Rhubarb Lip Sync may choose to use fewer threads than specified.
+
+_Default value: as many threads as your CPU has cores_
+|===

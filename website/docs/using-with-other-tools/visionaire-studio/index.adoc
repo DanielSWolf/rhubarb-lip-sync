@@ -1,0 +1,74 @@
+= Visionaire Studio
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with Visionaire Studio.
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Prepare your animations
+
+Before using Rhubarb, you need to create talk animations that correspond to the mouth shapes.
+
+Each animation frame should represent a different mouth shape.
+
+Visionaire Studio expects the frames to be ordered like this:
+
+* Frame 1: *A*
+* Frame 2: *B*
+* Frame 3: *C*
+* Frame 4: *D*
+* Frame 5: *E*
+* Frame 6: *F*
+* Frame 7: *G* (optional)
+* Frame 8: *H* (optional)
+* Frame 9: *X* (optional)
+
+These shapes are described in detail in the link:../../docs/command-line-guide.adoc#mouth-shapes[*Command line guide*].
+
+== Generate a TSV file
+
+Rhubarb generates `.tsv` files (tab-separated values) that Visionaire Studio uses for lip sync.
+
+The basic command looks like this:
+
+[source,console]
+----
+rhubarb -o 10101.tsv 10101.wav
+----
+
+If you want better accuracy, especially for unusual or complex dialog, include a transcript of the speech:
+
+[source,console]
+----
+rhubarb -o 10101.tsv -d 10101.txt 10101.wav
+----
+
+You can also specify which extended mouth shapes to use:
+
+[source,console]
+----
+rhubarb -o 10101.tsv --extendedShapes GX 10101.wav
+----
+
+Optionally, you can replace the shape letters in the `.tsv` file with frame numbers.
+This allows you to use different animations or orientations (e.g., emotional states or head turns).
+Just open the `.tsv` file in a text editor and substitute letters with numbers if needed.
+
+== Use in Visionaire Studio
+
+Visionaire Studio will automatically use a `.tsv` file for lip sync if:
+
+* The `.tsv` file has the exact same name as the audio file (e.g., `10101.tsv` and `10101.wav`)
+* Both files are in the same folder
+
+When the speech plays, Visionaire Studio will reference the `.tsv` file and play the appropriate animation frames based on the timing.
+
+== Notes and tips
+
+* Rhubarb supports both `.wav` and `.ogg` (Vorbis) formats.
+* The audio should be clean and clear.
+  Avoid background noise, music, or heavy audio processing.
+* Including a text transcript usually improves results, especially for rare or complex words.
+* Rhubarb's technology is not real-time.
+  It analyzes entire utterances at once and is best used with pre-recorded dialog.

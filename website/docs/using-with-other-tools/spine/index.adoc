@@ -1,0 +1,86 @@
+= Spine
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with Spine.
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Requirements
+
+Rhubarb for Spine is a graphical tool included with Rhubarb Lip Sync.
+
+To use it, you need:
+
+* Spine 3.7 or newer
+* A working Java installation
+
+[TODO]
+====
+Document the required Java version.
+====
+
+== Set up your Spine project
+
+You can add lip sync animation to any Spine skeleton.
+
+First, make sure your character has a dedicated slot for the mouth.
+For example, you might name the slot _mouth_.
+
+Next, add image attachments to that slot for each mouth shape.
+At a minimum, you need the basic shapes:
+*A*, *B*, *C*, *D*, *E*, and *F*.
+
+You can optionally include *G*, *H*, and *X* for more nuanced animation.
+
+You can name your attachments however you like, as long as the naming is consistent.
+For example, _mouth_a_, _mouth_b_, _mouth_c_, etc., or _A-Lips_, _B-Lips_, _C-Lips_.
+
+Avoid inconsistent naming like _mouth a_, _mouth B_, or _Mouth-C_.
+
+Finally, add audio events to your animation.
+Each event should include the path to the corresponding audio file.
+
+Optionally, you can enter the spoken dialog as text in the event's _string_ property to improve recognition accuracy.
+
+A working example project is included in the Rhubarb download at:
+_extras/EsotericSoftwareSpine/demo_
+
+== Export from Spine
+
+To prepare the project for Rhubarb, export your skeleton using _Spine > Export…_.
+
+Use the following settings:
+
+* _Format_: JSON
+* _Folder_: the same folder that contains your `.spine` project file
+* Enable _Nonessential data_
+
+Click _Export_ to create the `.json` file.
+
+== Run Rhubarb for Spine
+
+Open _rhubarb-for-spine.jar_ from the _extras/EsotericSoftwareSpine_ folder.
+
+You can launch it by double-clicking the file, or by running it from the command line with Java.
+
+In the application window:
+
+* Drag-and-drop the exported JSON file, or use the _..._ button to select it
+* Choose your mouth slot from the dropdown list
+* Rhubarb will auto-detect your naming scheme and display the detected shapes
+* Review the list of audio events and click _Animate_ to lip-sync each one
+
+Each animation will be added to the JSON file once it finishes.
+
+== Import into Spine
+
+To load the new animations into your Spine project:
+
+. In Spine, delete the existing skeleton (you will re-import it).
+. Select _Spine > Import Data…_.
+. Choose the updated `.json` file.
+. Make sure _New project_ is unchecked.
+. Click _OK_ to re-import the skeleton.
+
+You should now see new lip-synced animations listed under your skeleton.

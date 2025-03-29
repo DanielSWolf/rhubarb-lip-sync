@@ -1,0 +1,166 @@
+{% macro renderNav(items) %}
+  {% for item in items %}
+    <li class="nav-item">
+      {% set itemTitle = item.title or collections.titlesByUrl[item.url] or '???' %}
+      {% if item.url == page.url %}
+        <div class="nav-link active fw-bold">{{ itemTitle }}</div>
+      {% elif item.url %}
+        <a class="nav-link" href="{{ item.url }}">{{ itemTitle }}</a>
+      {% else %}
+        <div class="nav-link disabled">{{ itemTitle }}</div>
+      {% endif %}
+      {% if item.children %}
+        <ul class="nav flex-column ms-3">
+          {{ renderNav(item.children) }}
+        </ul>
+      {% endif %}
+    </li>
+  {% endfor %}
+{% endmacro %}
+
+{% macro renderSocialLinks(iconSize="") %}
+  <a href="https://github.com/DanielSWolf/rhubarb-lip-sync" target="_blank" title="GitHub">
+    <i class="bi bi-github {{ iconSize }}"></i>
+  </a>
+  <a href="https://bsky.app/profile/rhubarblipsync.bsky.social" target="_blank" title="Bluesky">
+    <i class="bi bi-bluesky {{ iconSize }}"></i>
+  </a>
+  {% set sourcePath = originalPath or originalpath or ('website/' + page.inputPath) %}
+  {% set editUrl = 'https://github.com/DanielSWolf/rhubarb-lip-sync/edit/website/' + sourcePath %}
+  <a href="{{ editUrl | url }}" class="text-decoration-none small" target="_blank">
+    Edit this page
+  </a>
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/_styles/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+    <link rel="stylesheet" href="/pagefind/pagefind-modular-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.css">
+
+    {% set siteTitle = 'Rhubarb Lip Sync' %}
+    <title>{% if title and title != siteTitle %}{{ title }} — {% endif %}{{ siteTitle }}</title>
+  </head>
+  <body>
+
+    <!-- Top navbar -->
+    <nav class="navbar navbar-expand-lg bg-light border-bottom">
+      <div class="container-fluid d-flex align-items-center">
+        <!-- Logo -->
+        <a class="navbar-brand" href="/">
+          <img src="/img-global/logo.svg" alt="Logo" style="height: 3rem;">
+        </a>
+
+        <div class="flex-grow-1"></div>
+
+        <!-- Desktop-only top bar content -->
+        <div class="d-none d-md-flex align-items-center flex-wrap gap-3 mx-3">
+          <input id="desktop-search-input" class="form-control form-control-sm w-auto" type="search" placeholder="Search...">
+          {{ renderSocialLinks() }}
+        </div>
+
+        <!-- Mobile toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-label="Toggle navigation">
+          ☰
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile off-canvas menu -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu">
+      <!-- Header with close button -->
+      <div class="offcanvas-header">
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="offcanvas-body">
+        <!-- Links and search input (only sm) -->
+        <div class="d-md-none">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            {{ renderSocialLinks("fs-5") }}
+          </div>
+
+          <input id="mobile-search-input" class="form-control form-control-sm w-auto" type="search" placeholder="Search...">
+          <div id="mobile-search-results"></div>
+
+          <hr class="my-3">
+        </div>
+
+        <ul class="nav main-nav flex-column">
+          {{ renderNav(nav) }}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main layout -->
+    <div class="container-xxl">
+      <div class="row">
+        <!-- Sidebar (desktop only) -->
+        <nav class="main-nav d-none d-lg-block col-lg-2 border-end">
+          <div class="position-sticky top-0 overflow-auto vh-100 pt-3">
+            <ul class="nav flex-column">
+              {{ renderNav(nav) }}
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Page content -->
+        {% set tableOfContent = content | toc %}
+        <main class="{{'col-lg-8' if tableOfContent else 'col-lg-10'}} ms-auto" data-pagefind-body>
+          <div id="desktop-search-results"></div>
+
+          <h1>{{ title }}</h1>
+          {{ content | safe }}
+        </main>
+
+        <!-- TOC (optional) -->
+        {% if tableOfContent %}
+        <aside class="toc d-none d-lg-block col-lg-2 border-start">
+          <div class="position-sticky top-0 overflow-auto vh-100 pt-3">
+            <nav aria-labelledby="toc-heading">
+              <h6 id="toc-heading">On this page</h6>
+              {{ tableOfContent | safe }}
+            </nav>
+          </div>
+        </aside>
+        {% endif %}
+      </div>
+    </div>
+
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="/pagefind/pagefind-modular-ui.js"></script>
+    <script>
+      for (const type of ["desktop", "mobile"]) {
+        const search = new PagefindModularUI.Instance();
+        search.add(new PagefindModularUI.Input({ inputElement: `#${type}-search-input` }));
+        search.add(new PagefindModularUI.ResultList({
+          containerElement: `#${type}-search-results`
+        }));
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.js"></script>
+    <script>
+      // Convert email links from text to actual mailto links
+      document.querySelectorAll('.email-link').forEach(element => {
+        const match = element.textContent.match(/^(.+?) \((\S+) at (\S+) dot (\w+)\)$/);
+        if (match) {
+          const [, title, user, domain, tld] = match;
+          const a = document.createElement('a');
+          a.href = `mailto:${user}@${domain}.${tld}`;
+          a.textContent = title;
+          element.replaceWith(a);
+        }
+      });
+    </script>
+  </body>
+</html>

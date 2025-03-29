@@ -1,0 +1,62 @@
+= Getting started
+:eleventy-layout: page
+:experimental:
+
+To get started with Rhubarb Lip Sync, follow these steps to install it on your system.
+
+== 1. Download Rhubarb
+
+To use Rhubarb Lip Sync, first download the latest version from its GitHub https://github.com/DanielSWolf/rhubarb-lip-sync/releases[Releases] page.
+Every release comes with precompiled binaries for Windows, macOS, and Linux.
+Download the archive for your operating system, e.g. `Rhubarb-Lip-Sync-_X.Y.Z_-Windows.zip` for Windows.
+
+== 2. Unpack the archive
+
+Once downloaded, unpack the archive to a directory of your choice.
+
+== 3. Add Rhubarb to path
+
+Next, make the `rhubarb` command available from the command line.
+To do that, you need to add the Rhubarb directory (the directory containing `rhubarb``, `README.adoc`, etc.) to your system's `PATH` environment variable.
+
+.On Windows
+****
+. In the File Explorer, press and hold the kbd:[Shift] key while right-clicking on the Rhubarb directory.
+. In the context menu, select _Copy as path_.
+. Press kbd:[Start] + kbd:[R] to open the Run dialog.
+. Type `sysdm.cpl` and press kbd:[Enter] to open the System Properties window.
+. In the System Properties window, go to the _Advanced_ tab and click the _Environment Variables..._ button.
+. In the _Environment Variables_ window, under _System variables_, select the _Path_ variable, then click _Edit..._.
+. In the Edit Environment Variable window, click _New_, then paste the path you copied earlier.
+. Click _OK_ to close all windows.
+. To make sure everything is working, open a new Command Prompt window by pressing kbd:[Start] + kbd:[R], typing `cmd`, and pressing kbd:[Enter]. Type `rhubarb --version` and press kbd:[Enter]. You should see the version number of Rhubarb Lip Sync printed to the screen.
+****
+
+.On macOS
+****
+. In the Finder app, right-click on the Rhubarb directory (the directory containing `rhubarb`, `README.adoc`, etc.).
+. While the context menu is open, press and hold the kbd:[Option] key. This will change some of the menu items.
+. Select _Copy [...] as Pathname_.
+. Click on the Spotlight search icon (the little magnifying glass) at the top-right of your screen.
+. Into the search bar that opens, type "`terminal`", then press kbd:[Enter].
+. In the Terminal window, type `touch ~/.zshrc` and confirm with kbd:[Enter].
+. Next, type `open -e ~/.zshrc` and confirm with kbd:[Enter]. The TextEdit app should open with a file.
+. If the file already contains text, move to the end of the file and add a new line.
+. Type `export PATH="`, press kbd:[Cmd] + kbd:[V] to paste the path you copied earlier, then type `:$PATH"`. +
+The resulting line should look something like `export PATH="/Users/Daniel/Rhubarb-Lip-Sync:$PATH"`.
+. Save the file and close TextEdit.
+. To make sure everything is working, close the terminal window, then open it again as described above. Type `rhubarb --version` and confirm with kbd:[Enter]. You should see the version number of Rhubarb Lip Sync printed to the screen.
+****
+
+.On Linux
+****
+If you're using Linux, I trust you know the drill. 😉
+****
+
+== Next steps
+
+Now that you have Rhubarb Lip Sync installed, you can start using it to generate lip sync data from audio files.
+There are two ways of using Rhubarb Lip Sync:
+
+* You can use Rhubarb Lip Sync with various animation software; see link:/docs/using-with-other-tools[Using with other tools].
+* Alternatively, if you know how to program, you can use the command line interface to generate lip sync data, then use that data any way you like. For details, refer to the link:/docs/command-line[command line guide].

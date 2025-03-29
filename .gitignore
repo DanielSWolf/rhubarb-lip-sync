@@ -1,3 +1,6 @@
 .vs/
 build/
+node_modules/
+public/
 *.user
+package-lock.json

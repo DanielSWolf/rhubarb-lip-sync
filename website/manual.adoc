@@ -1,0 +1,45 @@
+= Rhubarb Lip Sync: Manual
+:toc: left
+:icons: font
+
+This document contains the manual for Rhubarb Lip Sync {revnumber}.
+For the latest version, please visit the official website at https://www.rhubarb-lip-sync.com[rhubarb-lip-sync.com].
+
+:leveloffset: +1
+
+:imagesdir: getting-started
+include::getting-started/index.adoc[]
+
+:imagesdir: docs/mouth-shapes
+include::docs/mouth-shapes/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools
+include::docs/using-with-other-tools/index.adoc[]
+
+:leveloffset: +1
+
+:imagesdir: docs/using-with-other-tools/after-effects
+include::docs/using-with-other-tools/after-effects/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools/moho
+include::docs/using-with-other-tools/moho/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools/open-toonz
+include::docs/using-with-other-tools/open-toonz/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools/spine
+include::docs/using-with-other-tools/spine/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools/vegas-pro
+include::docs/using-with-other-tools/vegas-pro/index.adoc[]
+
+:imagesdir: docs/using-with-other-tools/visionaire-studio
+include::docs/using-with-other-tools/visionaire-studio/index.adoc[]
+
+:leveloffset: -1
+
+:imagesdir: docs/command-line
+include::docs/command-line/index.adoc[]
+
+:imagesdir: docs/building-from-sources
+include::docs/building-from-sources/index.adoc[]

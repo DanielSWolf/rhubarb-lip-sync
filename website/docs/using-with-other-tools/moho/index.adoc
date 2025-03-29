@@ -1,0 +1,57 @@
+= Moho
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with Moho.
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Prepare your mouth switch layer
+
+To use Rhubarb Lip Sync with Moho, your character should have a switch layer with mouth drawings for the different mouth shapes.
+
+At a minimum, you need the six basic shapes:
+*A*, *B*, *C*, *D*, *E*, and *F*.
+
+You can optionally include any of the extended shapes:
+*G*, *H*, and *X*.
+
+You can name the layers however you like, as long as the order and naming is consistent.
+Moho does not require the use of Preston Blair names.
+
+== Generate animation data
+
+Moho understands `.dat` files that contain switch data.
+Rhubarb can generate these files using the `--exportFormat dat` option.
+
+Here is a minimal command that creates a Moho-compatible `.dat` file:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat my-recording.wav
+----
+
+By default, Rhubarb will generate data using 24 frames per second.
+If your project uses a different frame rate, you can specify it with the `--datFrameRate` option:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat --datFrameRate 30 my-recording.wav
+----
+
+If you want to use the extended mouth shapes, you can specify which ones to include:
+
+[source,console]
+----
+rhubarb -o output.dat --exportFormat dat --extendedShapes GX my-recording.wav
+----
+
+== Import into Moho
+
+In Moho, open your project and select the switch layer used for lip sync.
+
+Then import the `.dat` file using *File > Import > Switch Data File...*.
+
+Moho will automatically apply the lip sync animation to your switch layer based on the contents of the `.dat` file.
+
+You should now see the mouth changing in sync with the audio.

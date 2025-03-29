@@ -1,0 +1,40 @@
+= FAQ
+:eleventy-layout: page
+
+Here are answers to some frequently asked questions about Rhubarb Lip Sync.
+
+== Can I use Rhubarb Lip Sync for real-time mouth animation?
+
+No, that's currently not possible.
+
+Rhubarb Lip Sync analyzes entire utterances—short segments of speech, usually a few seconds long.
+It needs to process the full audio input before generating animation data.
+
+In live settings, this kind of delayed processing isn't feasible.
+Even if Rhubarb were rewritten to run continuously, the result would often appear *too late* to look convincing.
+
+That's because spoken language involves anticipation.
+Your mouth starts forming the shape for the next sound *before* the sound is audible.
+For example, in the word *glue*, your lips form the *oo* shape while you're still saying the *g*.
+
+Since a real-time system can't know what's coming next, it would always lag behind.
+In practice, even a small delay—like 100 milliseconds—can make a mouth animation look out of sync.
+
+If you're working with live or TTS-generated speech, your best option may be to use phoneme timing data provided directly by your TTS system.
+In theory, Rhubarb could be modified to consume this data instead of analyzing audio, but that would require non-trivial development work.
+
+== The mouth animation is jerky or imprecise. How can I get better results?
+
+A few things can help improve the quality of the lip sync:
+
+* Use a clean, high-quality voice recording.
+  Avoid background noise, distortion, music, or heavy reverb.
+* Include a transcript of the spoken dialog using the `-d` option.
+  This helps Rhubarb recognize difficult or uncommon words—especially in English.
+* Make sure the audio is dry and unfiltered.
+  Audio effects may reduce clarity and confuse the recognizer.
+
+That said, Rhubarb Lip Sync uses somewhat outdated speech recognition technology.
+While it can produce solid results for many types of dialog, it's not perfect.
+
+That's one reason why I'm currently working on *Rhubarb Lip Sync 2*, a full rewrite with improved recognition and animation quality.

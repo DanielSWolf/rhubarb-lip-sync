@@ -1,0 +1,30 @@
+[
+  { "url": "/", "title": "Home" },
+  { "url": "/getting-started/" },
+  {
+    "title": "Documen\u00ADtation",
+    "children": [
+      { "url": "/docs/mouth-shapes/" },
+      { "url": "/docs/command-line/" },
+      { "url": "/docs/output-formats/" },
+      {
+        "url": "/docs/using-with-other-tools/",
+        "children": [
+          { "url": "/docs/using-with-other-tools/after-effects/" },
+          { "url": "/docs/using-with-other-tools/moho/" },
+          { "url": "/docs/using-with-other-tools/open-toonz/" },
+          { "url": "/docs/using-with-other-tools/spine/" },
+          { "url": "/docs/using-with-other-tools/vegas-pro/" },
+          { "url": "/docs/using-with-other-tools/visionaire-studio/" }
+        ]
+      },
+      { "url": "/docs/building-from-sources/" }
+    ]
+  },
+  { "url": "/license/" },
+  { "url": "/changelog/" },
+  {
+    "url": "/community-and-support/",
+    "children": [{ "url": "/code-of-conduct/", "title": "Code of conduct" }, { "url": "/faq/" }]
+  }
+]

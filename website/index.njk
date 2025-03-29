@@ -1,0 +1,63 @@
+---
+title: Rhubarb Lip Sync
+layout: page
+---
+
+<p>
+Rhubarb Lip Sync is a free and open-source tool that automatically generates 2D mouth animation from voice recordings.
+You can use it for video games, animated cartoons, or any project where you want characters to speak without having to perform manual lip sync.
+</p>
+
+<p>
+Learn how to <a href="getting-started">get started</a>!
+</p>
+
+<h2>Made with Rhubarb Lip Sync</h2>
+
+<p>
+Here's a selection of projects that have used Rhubarb Lip Sync to create their mouth animations.
+</p>
+
+<div id="madeWithRhubarbCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    {% for item in madeWithRhubarb %}
+      <button type="button"
+        data-bs-target="#madeWithRhubarbCarousel"
+        data-bs-slide-to="{{ loop.index0 }}"
+        class="{% if loop.index0 == 0 %}active{% endif %}">
+      </button>
+    {% endfor %}
+  </div>
+  <div class="carousel-inner">
+    {% for item in madeWithRhubarb %}
+      <div class="carousel-item{% if loop.index0 == 0 %} active{% endif %}">
+        <a href="{{ item.url }}" target="_blank" class="d-block w-100 text-decoration-none" style="color: inherit;">
+          <img src="img/{{ item.image }}" class="d-block w-100 img-fluid" alt="{{ item.name }}">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="text-white" style="text-shadow: 0px 0px 3px {{ item.shadowColor }};">{{ item.name }} ({{ item.developer }}, {{ item.releaseYear }})</h5>
+            <p style="text-shadow: 0px 0px 3px {{ item.shadowColor }};">{{ item.description }}</p>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#madeWithRhubarbCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#madeWithRhubarbCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<h2>Demo video</h2>
+
+<p>
+Want to see Rhubarb Lip Sync in action?
+Check out this demo video from Thimbleweed Park, the first game to use Rhubarb Lip Sync for its mouth animations.
+</p>
+
+<p>
+<lite-youtube videoid="zzdPSFJRlEo"></lite-youtube>
+</p>

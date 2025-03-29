@@ -1,0 +1,117 @@
+// The pink from the Rhubarb logo
+$rhubarb-pink: #ff6095;
+
+// Darker version of the Rhubarb pink
+$rhubarb-pink-dark: #d63384;
+
+// The gray from the Rhubarb logo
+$rhubarb-gray: #4a4949;
+
+$primary: $rhubarb-pink-dark;
+
+$headings-color: $rhubarb-gray;
+
+$blue: #0d6efd; // predefine
+$info: $blue;
+
+$pink: $rhubarb-pink-dark;
+
+$h2-font-size: 2.2rem;
+
+$nav-link-color: #333;
+$nav-link-disabled-color: #999;
+$nav-link-hover-color: $rhubarb-pink;
+$nav-link-font-size: 0.9rem;
+$nav-link-padding-x: 0;
+$nav-link-padding-y: 0.2rem;
+
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+// Adjust Bootstrap styles
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+pre,
+table,
+.carousel {
+  margin-bottom: 1rem;
+}
+
+li ul,
+li ol {
+  margin-bottom: 0;
+}
+
+.card-body > :last-child {
+  margin-bottom: 0;
+}
+
+h1 {
+  color: $rhubarb-pink;
+}
+
+h7,
+.title {
+  @extend h6;
+  font-style: italic;
+}
+
+.halign-left {
+  @extend .text-start;
+}
+
+.halign-center {
+  @extend .text-center;
+}
+
+.halign-right {
+  @extend .text-end;
+}
+
+.valign-top {
+  @extend .align-top;
+}
+
+.valign-middle {
+  @extend .align-middle;
+}
+
+.valign-bottom {
+  @extend .align-bottom;
+}
+
+code {
+  display: inline-block; // helps with padding + border
+  padding: 0rem 0.3rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-sm;
+  background-color: $gray-100;
+}
+
+kbd {
+  background-color: $gray-100;
+  color: $body-color;
+  border: 1px solid $border-color;
+}
+
+// Custom styles
+
+.sidebar {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.main-nav .nav-link.active {
+  color: $rhubarb-pink;
+}
+
+main {
+  padding: 1rem 0;
+}

@@ -1,0 +1,20 @@
+= Using with other tools
+:eleventy-layout: page
+
+Rhubarb Lip Sync is primarily a command-line tool.
+If you're comfortable with terminal commands, you can use it directly to generate animation data.
+For details, see the link:../command-line-guide.adoc[*Command line guide*].
+
+For everyone else — or if you're using Rhubarb Lip Sync as part of a larger animation pipeline — there are ready-made integrations with various tools.
+
+Some of these integrations provide a graphical interface.
+Others require you to run Rhubarb on the command line first, then import the result into your animation software.
+
+The following integrations are available:
+
+* link:./after-effects.adoc[*Adobe After Effects*]
+* link:./moho.adoc[*Moho*]
+* link:./opentoonz.adoc[*OpenToonz*]
+* link:./spine.adoc[*Spine*]
+* link:./vegas-pro.adoc[*Vegas Pro*]
+* link:./visionaire-studio.adoc[*Visionaire Studio*]

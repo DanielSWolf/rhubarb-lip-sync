@@ -1,0 +1,116 @@
+= Output formats
+:eleventy-layout: page
+
+[[tsv]]
+== TSV (tab-separated values)
+
+TSV is the simplest and most compact export format supported by Rhubarb Lip Sync.
+The following is the output for a recording of a person saying "`Hello there!`", as covered by the link:/docs/command-line#minimal-example[minimal example] in the command line guide.
+
+[source,text]
+----
+0.00	X
+0.14	C
+0.19	E
+0.38	F
+0.45	B
+0.52	C
+0.59	B
+0.73	X
+0.77	X
+----
+
+The TSV format written by Rhubarb Lip Sync is structured as follows:
+
+* Each line starts with a timestamp (in seconds), followed by a tab, followed by the name of the mouth shape.
+* The very first line always has the timestamp 0.00{nbsp}s.
+* The last line marks the end of the recording.
+Its timecode is the length of the recording (truncated to a multiple of 0.01{nbsp}s) and its value is always a closed mouth (shape *X* or *A*).
+
+[[json]]
+== JSON
+
+The JSON format written by Rhubarb Lip Sync is rather verbose.
+The following is the output for a recording of a person saying "`Hello there!`", as covered by the link:/docs/command-line#minimal-example[minimal example] in the command line guide.
+
+[source,json]
+----
+{
+  "metadata": {
+    "soundFile": "C:\\Documents\\hello-there.wav",
+    "duration": 0.77
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.14, "value": "X" },
+    { "start": 0.14, "end": 0.19, "value": "C" },
+    { "start": 0.19, "end": 0.38, "value": "E" },
+    { "start": 0.38, "end": 0.45, "value": "F" },
+    { "start": 0.45, "end": 0.52, "value": "B" },
+    { "start": 0.52, "end": 0.59, "value": "C" },
+    { "start": 0.59, "end": 0.73, "value": "B" },
+    { "start": 0.73, "end": 0.77, "value": "X" },
+  ]
+}
+----
+
+The JSON format is structured as follows:
+
+* The file starts with a `metadata` block with two properties:
+** `soundFile` contains the full path of the original recording. On Windows, this is a backslash-separated path; on Unix-like systems, it is a forward slash-separated path.
+** `duration` contains the duration of the recording, truncated to a multiple of 0.01{nbsp}s.
+* After that, the `mouthCues` block contains one object for each mouth cue.
+** Each mouth cue contains a `start` and `end` timestamp (in seconds) and a `value` property with the name of the mouth shape.
+** All mouth cues are contiguous, meaning that the end of each mouth cue is identical with the start of the following one.
+** The first mouth cue always starts at 0.00{nbsp}s and the last one ends at the duration of the recording.
+
+[[xml]]
+== XML
+
+The XML format written by Rhubarb Lip Sync is similarly verbose as the JSON format.
+The following is the output for a recording of a person saying "`Hello there!`", as covered by the link:/docs/command-line#minimal-example[minimal example] in the command line guide.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<rhubarbResult>
+  <metadata>
+    <soundFile>C:\Documents\hello-there.wav</soundFile>
+    <duration>0.77</duration>
+  </metadata>
+  <mouthCues>
+    <mouthCue start="0.00" end="0.14">X</mouthCue>
+    <mouthCue start="0.14" end="0.19">C</mouthCue>
+    <mouthCue start="0.19" end="0.38">E</mouthCue>
+    <mouthCue start="0.38" end="0.45">F</mouthCue>
+    <mouthCue start="0.45" end="0.52">B</mouthCue>
+    <mouthCue start="0.52" end="0.59">C</mouthCue>
+    <mouthCue start="0.59" end="0.73">B</mouthCue>
+    <mouthCue start="0.73" end="0.77">X</mouthCue>
+  </mouthCues>
+</rhubarbResult>
+----
+
+There is nothing surprising here; everything said about the JSON format applies to XML, too.
+
+[[dat]]
+== DAT (switch data file)
+
+From Moho docs:
+
+The final result is saved out as a
+“switch data file” that can be imported into Moho.
+You can also create a switch data file by hand. To do this, the data file should look
+like this:
+MohoSwitch1
+1 A
+2 A
+10 B
+22 A
+37 C
+40 C
+• The first line is a header that just tells Moho that the file is a switch data file.
+• The following lines contain two items each:
+• The first item is a keyframe.
+ The second item is the name of one of the switch group’s sub-layers. (In this
+example, the switch layer should have three sub-layers, named “A”, “B”,
+and “C”.)

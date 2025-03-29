@@ -1,0 +1,77 @@
+= Vegas Pro
+:eleventy-layout: page
+
+This page explains how to use Rhubarb Lip Sync with Magix Vegas Pro (formerly Sony Vegas).
+
+It assumes that you have already installed Rhubarb Lip Sync and added it to your `PATH`.
+If you have not done so yet, see the link:../../getting-started.adoc[*Getting started*] page.
+
+== Install the Vegas Pro scripts
+
+Rhubarb comes with two script files for Vegas Pro: _Import Rhubarb_ and _Debug Rhubarb_.
+
+To install them:
+
+. Locate the `extras/MagixVegas` folder inside the Rhubarb Lip Sync directory.
+. Copy or symlink the scripts to the Vegas script folder, usually located at:
+
+[source]
+----
+C:\Program Files\VEGAS\VEGAS Pro <version>\Script Menu
+----
+
+. Restart Vegas Pro.
+
+You should now see two new entries under the _Tools > Scripting_ menu:
+
+* _Import Rhubarb_
+* _Debug Rhubarb_
+
+== Generate animation data
+
+Vegas Pro uses Rhubarb's XML export format.
+
+To create the required `.xml` file, run a command like this:
+
+[source,console]
+----
+rhubarb -o output.xml --exportFormat xml my-recording.wav
+----
+
+You can include a text transcript of the dialog for improved results:
+
+[source,console]
+----
+rhubarb -o output.xml --exportFormat xml -d my-recording.txt my-recording.wav
+----
+
+== Create an animation in Vegas Pro
+
+. In Vegas Pro, choose _Tools > Scripting > Import Rhubarb_.
+. A dialog will appear.
+. Fill in the following:
+
+* _Image file_: Select one of your mouth shape images.
+  The image filenames must end with `-A`, `-B`, etc., for each shape.
+  For example: `alison-A.png`, `alison-B.png`, etc.
+  The script will automatically detect the others.
+* _XML file_: Select the `.xml` file created by Rhubarb.
+
+. Click _OK_.
+
+Vegas will create a new project with:
+
+* A video track showing the sequence of mouth images based on Rhubarb's output.
+* An audio track containing the original recording.
+
+== Debugging (optional)
+
+The _Debug Rhubarb_ script can be used to visualize Rhubarb's internal log data.
+
+This is mainly intended for development or troubleshooting.
+
+To use it, you must run Rhubarb and redirect the output log to a file.
+
+Then run _Tools > Scripting > Debug Rhubarb_ and select the log file.
+
+Markers or regions will be added to the timeline based on the log contents.

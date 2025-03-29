@@ -1,0 +1,29 @@
+= Community and support
+:eleventy-layout: page
+
+If you have a question about Rhubarb Lip Sync or want to report a bug, please create an issue on GitHub:
+
+https://github.com/DanielSWolf/rhubarb-lip-sync/issues
+
+Even if you're not sure whether something is a bug, feel free to ask.
+I appreciate all feedback.
+
+If you're already familiar with Rhubarb Lip Sync and want to help others, that's fantastic!
+You can do so by answering questions, improving the documentation, or fixing bugs.
+Any contribution is welcome.
+
+Rhubarb Lip Sync 1.x is not currently in active development.
+That means I'm not planning major changes or new features for version 1.x.
+That's because I'm currently working on a next-generation rewrite: *Rhubarb Lip Sync 2*.
+
+If you'd like to contribute to the project in any way—coding, writing, testing, or helping with this website—please get in touch.
+
+Send me an +++<span class="email-link">email (dwolf at rhubarb-lip-sync dot com)</span>+++!
+
+I'd love to hear from you.
+
+== Code of conduct
+
+All participants in the Rhubarb Lip Sync project are expected to follow our code of conduct.
+
+link:./code-of-conduct.adoc[*Read the code of conduct*]
