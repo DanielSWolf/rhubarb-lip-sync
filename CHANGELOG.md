@@ -1,6 +1,6 @@
 # Version history
 
-## Unreleased
+## Version 1.14.0
 
 * **Added** demo projects for Spine and After Effects.
 * **Fixed** After Effects script on macOS ([issue #77](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/77), [issue #128](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/128))
