@@ -77,6 +77,18 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
+      - name: Checkout changelog
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: CHANGELOG.md
+      - name: Extract changelog data
+        run: |
+          # Store the release name in env.releaseName
+          HEADER=$(awk '/^## / {sub(/^## /, ""); print; exit}' CHANGELOG.md)
+          echo "releaseName=$HEADER" >> $GITHUB_ENV
+
+          # Store the changelog body in changes.txt
+          awk '/^## / {if (found) exit; found=1; next} found' CHANGELOG.md > changes.txt
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -85,6 +97,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: true
+          name: ${{ env.releaseName }}
+          body_path: changes.txt
           files: "*.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
