@@ -71,6 +71,7 @@ jobs:
         with:
           name: ${{ matrix.description }}
           path: build/*.zip
+
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -78,6 +79,8 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
       - name: Create GitHub release draft
         uses: softprops/action-gh-release@v2
         with:
