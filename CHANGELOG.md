@@ -1,37 +1,37 @@
-# Version history
+# Changelog
 
-## Version 1.14.0
+## Version 1.14.0 (2025-04-03)
 
 * **Added** demo projects for Spine and After Effects.
 * **Fixed** After Effects script on macOS ([issue #77](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/77), [issue #128](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/128))
 * **Fixed** Rhubarb for Spine when used on non-Windows systems without extended mouth shapes ([issue #125](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/125))
 * **Changed** the way you make Rhubarb available to After Effects on macOS. This used to be a `/usr/local/bin/` symlink but is now a `PATH` entry ([issue #143](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/143)). For details, see the README file for Rhubarb for After Effects.
 
-## Version 1.13.0
+## Version 1.13.0 (2022-06-14)
 
 * **Improved** animation rules for "F" sound when using just the basic mouth shapes.
 
-## Version 1.12.0
+## Version 1.12.0 (2022-03-12)
 
 * **Added** support for skinning in Rhubarb for Spine ([issue #108](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/108))
 
-## Version 1.11.0
+## Version 1.11.0 (2021-10-06)
 
 * **Added** support for more WAVE file features ([issue #101](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/101))
 * **Changed** Rhubarb Lip Sync for Spine so that it works with any modern JRE ([issue #97](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/97))
 * **Changed** Windows build from 32 bit to 64 bit ([issue #98](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/98))
 
-## Version 1.10.0
+## Version 1.10.0 (2019-07-18)
 
 * **Added** switch data file exporter for Moho (formerly Anime Studio) and OpenToonz ([issue #69](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/69))
 * **Added** support for Spine 3.8 beta ([issue #74](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/74))
 * **Improved** animation rule for OW sound: animating it as E-F rather than F.
 
-## Version 1.9.1
+## Version 1.9.1 (2019-02-10)
 
 * **Fixed** segmentation fault on OS X ([issue #65](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/65)).
 
-## Version 1.9.0
+## Version 1.9.0 (2019-01-28)
 
 * **Added** basic support for non-English recordings through phonetic recognition ([issue #45](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/45)).
 * **Improved** processing speed for WAVE files ([issue #58](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/58)).
@@ -40,22 +40,22 @@
 * **Fixed** a bug that prevented the progress bar from reaching 100% ([issue #48](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/48)).
 * **Fixed** file paths in exported XML and JSON files ([issue #59](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/59)).
 
-## Version 1.8.0
+## Version 1.8.0 (2018-09-01)
 
 * **Added** support for Ogg Vorbis (.ogg) file format ([issue #40](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/40)).
 * **Fixed** build error with some versions of Boost ([issue #41](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/41)).
 
-## Version 1.7.2
+## Version 1.7.2 (2018-04-27)
 
 * **Fixed** bug in Rhubarb for Spine where processing failed depending on the number of existing animations ([issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34#issuecomment-378198776)).
 
-## Version 1.7.1
+## Version 1.7.1 (2018-03-29)
 
 * **Added** more helpful error dialogs for internal errors in Rhubarb Lip Sync for Spine.
 * **Added**: Internal errors in Rhubarb Lip Sync for Spine are logged to the console (`stderr`).
 * **Fixed** generic error message in Rhubarb for Spine ([issue #34](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/34)).
 
-## Version 1.7.0
+## Version 1.7.0 (2018-02-20)
 
 * **Added** integration with Spine animation software (Rhubarb Lip Sync for Spine).
 * **Added** full Unicode support: File names, dialog files, strings in exported files etc. should now be fully Unicode-compatible.
@@ -64,27 +64,27 @@
 * **Changed** message output to the console: Unless specified using `--consoleLevel`, only errors and fatal errors are printed to the console. Previously, warnings were also printed.
 * **Fixed** segfault with WAVE file containing some initial music before spoken words ([issue #25](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/25))
 
-## Version 1.6.0
+## Version 1.6.0 (2017-07-30)
 
 * **Added** a script for lip-syncing in Adobe After Effects.
 * **Added** `--output` command-line option.
 * **Changed** the official spelling of the project: Rhubarb Lip-Sync is now Rhubarb Lip Sync (without the hyphen).
 
-## Version 1.5.0
+## Version 1.5.0 (2017-05-09)
 
 * **Added** animation code optimizing animation for words containing "to".
 * **Improved** animation rules: better animation of ER and AW sounds.
 * **Fixed** compilation with Boost 1.56.0+ ([issue #9](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/9)).
 
-## Version 1.4.2
+## Version 1.4.2 (2017-02-08)
 
 * **Fixed** incorrect animation before some pauses ([issue #7](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/7)).
 
-## Version 1.4.1
+## Version 1.4.1 (2017-02-04)
 
 * **Fixed** crash with message "Time range start must not be less than end." ([issue #6](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/6))
 
-## Version 1.4.0
+## Version 1.4.0 (2017-01-03)
 
 * **Added** animation code preventing long static segments.
 
@@ -94,7 +94,7 @@
 
   Previous versions used mouth shape D (the wide-open mouth) very sparingly. This release uses it more often, which makes the resulting animation more lively and interesting.
 
-## Version 1.3.0
+## Version 1.3.0 (2016-12-22)
 
 * **Improved** animation algorithm: Implemented new, bidirectional animation algorithm.
 
@@ -130,7 +130,7 @@
 
   Rhubarb Lip Sync comes with a huge dictionary containing pronunciations for more than 100,000 English words. If the dialog text contains words not found in this dictionary, Rhubarb Lip Sync will try to guess the correct pronunciation. I've fixed several bugs in the G2P algorithm that does this. As a result, using the `--dialogFile` option now results in even better animation.
 
-## Version 1.2.0
+## Version 1.2.0 (2016-11-25)
 
 * **Improved** dialog handling to allow for incorrect input dialog.
 
@@ -138,7 +138,7 @@
 
   Until now, however, Rhubarb Lip Sync couldn't handle *changed* or *inserted* words, such as a recording saying "That's *just* gobbledygook to me." This restriction has been removed. As of version 1.2.0, the actual recording may freely deviate from the specified dialog text. Rhubarb Lip Sync will ignore the dialog file where it audibly differs from the recording, and benefit from it where it matches.
 
-## Version 1.1.0
+## Version 1.1.0 (2016-10-16)
 
 * **Improved** speech recognition to be more reliable.
 
@@ -164,7 +164,7 @@
   I'm not offering binary distributions for Linux at this time.
   To build the application yourself, you need CMake, Boost, and a C++14-compatible compiler.
 
-## Version 1.0.0
+## Version 1.0.0 (2016-08-11)
 
 * **Improved** animation algorithm: More realistic animation using new, predictive algorithm.
 * **Added** tweening for smoother animation.
@@ -175,13 +175,13 @@
 * **Added** capability to handle recording that deviate from the specified dialog text.
 * **Added** capability to handle unknown words as well as numbers, abbreviations, etc. in the specified dialog text.
 
-## Version 0.2.0
+## Version 0.2.0 (2016-04-17)
 
 * **Added** multiple output formats: TSV, XML, JSON.
 * **Added** experimental option to supply dialog text.
 * **Improved** error handling and error messages.
 
-## Version 0.1.0
+## Version 0.1.0 (2016-02-02)
 
 * **Added** two-pass phone detection using [CMU PocketSphinx](http://cmusphinx.sourceforge.net/).
 * **Added** fixed set of eight mouth shapes, based on the Hanna-Barbera shapes.
