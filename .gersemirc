@@ -1,0 +1,4 @@
+# Config file for gersemi, a CMake code formatter.
+
+line_length: 100
+warn_about_unknown_commands: false

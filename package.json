@@ -1,0 +1,30 @@
+{
+  "name": "rhubarb-lip-sync",
+  "version": "1.14.0",
+  "description": "Rhubarb Lip Sync",
+  "repository": "https://github.com/DanielSWolf/rhubarb-lip-sync.git",
+  "author": "Daniel Wolf <dwolf@rhubarb-lip-sync.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "check": "tsx scripts/bin/check.ts",
+    "fix": "tsx scripts/bin/fix.ts"
+  },
+  "dependencies": {
+    "7zip-bin-full": "^25.1.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^24.3.0",
+    "cli-progress": "^3.12.0",
+    "execa": "^9.6.0",
+    "fs-extra": "^11.3.1",
+    "glob": "^11.0.3",
+    "moize": "^6.1.6",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.4"
+  },
+  "customDependencies": {
+    "clangFormat": "20@master-796e77c",
+    "gersemi": "0.22.2",
+    "uv": "0.8.17"
+  }
+}

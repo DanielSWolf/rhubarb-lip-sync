@@ -1,0 +1,27 @@
+# Config file for ClangFormat, a C/C++/... code formatter.
+
+BasedOnStyle: Chromium
+BreakBinaryOperations: RespectPrecedence
+BreakConstructorInitializers: AfterColon
+AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AlignOperands: DontAlign
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: WithoutElse
+BinPackArguments: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakStringLiterals: false
+ColumnLimit: 100
+CompactNamespaces: true
+IncludeBlocks: Regroup
+IndentWidth: 4
+InsertNewlineAtEOF: true
+LineEnding: LF
+PackConstructorInitializers: Never
+QualifierAlignment: Custom
+QualifierOrder: ['friend', 'static', 'inline', 'constexpr', 'const', 'volatile', 'restrict', 'type']
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseInsensitive
+SpacesBeforeTrailingComments: 1
