@@ -1,15 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <boost/lexical_cast.hpp>
 #include <utf8proc.h>
+
+#include <boost/lexical_cast.hpp>
+#include <vector>
 
 std::vector<std::string> splitIntoLines(const std::string& s);
 
 std::vector<std::string> wrapSingleLineString(
-    const std::string& s,
-    int lineLength,
-    int hangingIndent = 0
+    const std::string& s, int lineLength, int hangingIndent = 0
 );
 
 std::vector<std::string> wrapString(const std::string& s, int lineLength, int hangingIndent = 0);
@@ -31,14 +30,13 @@ enum class NormalizationOptions : int {
     StripCharacterMarkings = UTF8PROC_STRIPMARK
 };
 
-constexpr NormalizationOptions
-operator|(NormalizationOptions a, NormalizationOptions b) {
+constexpr NormalizationOptions operator|(NormalizationOptions a, NormalizationOptions b) {
     return static_cast<NormalizationOptions>(static_cast<int>(a) | static_cast<int>(b));
 }
 
 std::string normalizeUnicode(const std::string& s, NormalizationOptions options);
 
-template<typename T>
+template <typename T>
 std::string join(T range, const std::string separator) {
     std::string result;
     bool isFirst = true;

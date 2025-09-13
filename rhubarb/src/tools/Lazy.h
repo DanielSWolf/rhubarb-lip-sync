@@ -1,12 +1,12 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <mutex>
-#include <functional>
 
 // Class template for lazy initialization.
 // Copies use reference semantics.
-template<typename T>
+template <typename T>
 class Lazy {
     // Shared state between copies
     struct State {
@@ -56,10 +56,9 @@ public:
 
 private:
     void init() const {
-        std::call_once(
-            state->initialized,
-            [&] { state->value = std::make_unique<T>(state->createValue()); }
-        );
+        std::call_once(state->initialized, [&] {
+            state->value = std::make_unique<T>(state->createValue());
+        });
     }
 
     std::shared_ptr<State> state = std::make_shared<State>();

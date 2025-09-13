@@ -3,6 +3,7 @@
 #include <atomic>
 #include <future>
 #include <iostream>
+
 #include "progress.h"
 
 class ProgressBar : public ProgressSink {
@@ -26,8 +27,8 @@ private:
     void updateText(const std::string& text);
 
     std::future<void> updateLoopFuture;
-    std::atomic<double> currentProgress { 0 };
-    std::atomic<bool> done { false };
+    std::atomic<double> currentProgress{0};
+    std::atomic<bool> done{false};
 
     std::ostream& stream;
     std::string currentText;

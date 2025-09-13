@@ -15,15 +15,15 @@ jobs:
             publish: true
           - description: macOS - Xcode
             os: macos-14
-            cmakeOptions: ""
+            cmakeOptions: ''
             publish: true
           - description: Linux - GCC
             os: ubuntu-24.04
-            cmakeOptions: "-D CMAKE_C_COMPILER=gcc-14 -D CMAKE_CXX_COMPILER=g++-14"
+            cmakeOptions: '-D CMAKE_C_COMPILER=gcc-14 -D CMAKE_CXX_COMPILER=g++-14'
             publish: true
           - description: Linux - Clang
             os: ubuntu-24.04
-            cmakeOptions: "-D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18"
+            cmakeOptions: '-D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18'
             publish: false
 
     env:
@@ -81,7 +81,7 @@ jobs:
         if: ${{ matrix.publish }}
         uses: actions/upload-artifact@v4
         with:
-          name: "binaries ${{ matrix.description }}"
+          name: 'binaries ${{ matrix.description }}'
           path: build/*.zip
 
   release:
@@ -114,6 +114,6 @@ jobs:
           draft: true
           name: ${{ env.releaseName }}
           body_path: changes.txt
-          files: "*.zip"
+          files: '*.zip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

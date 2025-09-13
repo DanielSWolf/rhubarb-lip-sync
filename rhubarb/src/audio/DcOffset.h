@@ -10,6 +10,7 @@ public:
     std::unique_ptr<AudioClip> clone() const override;
     int getSampleRate() const override;
     size_type size() const override;
+
 private:
     SampleReader createUnsafeSampleReader() const override;
 

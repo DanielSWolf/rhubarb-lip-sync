@@ -1,30 +1,31 @@
 #include "voiceActivityDetection.h"
-#include "DcOffset.h"
-#include "SampleRateConverter.h"
-#include "logging/logging.h"
-#include "tools/pairs.h"
-#include <boost/range/adaptor/transformed.hpp>
-#include <webrtc/common_audio/vad/include/webrtc_vad.h>
-#include "processing.h"
+
 #include <gsl_util.h>
-#include "tools/parallel.h"
+#include <webrtc/common_audio/vad/include/webrtc_vad.h>
 #include <webrtc/common_audio/vad/vad_core.h>
 
-using std::vector;
+#include <boost/range/adaptor/transformed.hpp>
+
+#include "DcOffset.h"
+#include "logging/logging.h"
+#include "processing.h"
+#include "SampleRateConverter.h"
+#include "tools/pairs.h"
+#include "tools/parallel.h"
+
 using boost::adaptors::transformed;
 using fmt::format;
 using std::runtime_error;
 using std::unique_ptr;
+using std::vector;
 
 JoiningBoundedTimeline<void> detectVoiceActivity(
-    const AudioClip& inputAudioClip,
-    ProgressSink& progressSink
+    const AudioClip& inputAudioClip, ProgressSink& progressSink
 ) {
     // Prepare audio for VAD
     constexpr int webRtcSamplingRate = 8000;
-    const unique_ptr<AudioClip> audioClip = inputAudioClip.clone()
-        | resample(webRtcSamplingRate)
-        | removeDcOffset();
+    const unique_ptr<AudioClip> audioClip =
+        inputAudioClip.clone() | resample(webRtcSamplingRate) | removeDcOffset();
 
     VadInst* vadHandle = WebRtcVad_Create();
     if (!vadHandle) throw runtime_error("Error creating WebRTC VAD handle.");
@@ -46,12 +47,8 @@ JoiningBoundedTimeline<void> detectVoiceActivity(
         // WebRTC is picky regarding buffer size
         if (buffer.size() < frameSize) return;
 
-        const int result = WebRtcVad_Process(
-            vadHandle,
-            webRtcSamplingRate,
-            buffer.data(),
-            buffer.size()
-        );
+        const int result =
+            WebRtcVad_Process(vadHandle, webRtcSamplingRate, buffer.data(), buffer.size());
         if (result == -1) throw runtime_error("Error processing audio buffer using WebRTC VAD.");
 
         // Ignore the result of WebRtcVad_Process, instead directly interpret the internal VAD flag.
@@ -86,9 +83,12 @@ JoiningBoundedTimeline<void> detectVoiceActivity(
     logging::debugFormat(
         "Found {} sections of voice activity: {}",
         activity.size(),
-        join(activity | transformed([](const Timed<void>& t) {
-            return format("{0}-{1}", t.getStart(), t.getEnd());
-        }), ", ")
+        join(
+            activity | transformed([](const Timed<void>& t) {
+                return format("{0}-{1}", t.getStart(), t.getEnd());
+            }),
+            ", "
+        )
     );
 
     return activity;

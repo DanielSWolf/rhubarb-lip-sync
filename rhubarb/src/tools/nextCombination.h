@@ -7,12 +7,12 @@
 //
 // Designed after next_permutation in STL
 // Inspired by Mark Nelson's article http://www.dogma.net/markn/articles/Permutations/
-// 
+//
 // Start with a sorted container with thee iterators -- first, k, last
-// After each iteration, the first k elements of the container will be 
+// After each iteration, the first k elements of the container will be
 // a combination. When there are no more combinations, the container
 // will return to the original sorted order.
-template<typename Iterator>
+template <typename Iterator>
 inline bool next_combination(const Iterator first, Iterator k, const Iterator last) {
     // Handle degenerate cases
     if (first == last || std::next(first) == last || first == k || k == last) {

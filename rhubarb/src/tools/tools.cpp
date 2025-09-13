@@ -1,8 +1,11 @@
 #include "tools.h"
-#include "platformTools.h"
+
 #include <format.h>
+
 #include <chrono>
 #include <vector>
+
+#include "platformTools.h"
 
 using std::string;
 using std::chrono::duration;

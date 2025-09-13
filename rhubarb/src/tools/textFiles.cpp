@@ -1,6 +1,9 @@
 #include "textFiles.h"
+
 #include <format.h>
+
 #include <fstream>
+
 #include "stringTools.h"
 
 using std::string;
@@ -21,7 +24,8 @@ string readUtf8File(path filePath) {
 
         return text;
     } catch (...) {
-        std::throw_with_nested(std::runtime_error(fmt::format("Error reading file {0}.", filePath.u8string())));
+        std::throw_with_nested(
+            std::runtime_error(fmt::format("Error reading file {0}.", filePath.u8string()))
+        );
     }
 }
-

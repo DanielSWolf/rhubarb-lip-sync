@@ -1,16 +1,10 @@
 #pragma once
 
 #include <filesystem>
+
 #include "AudioClip.h"
 
-enum class SampleFormat {
-    UInt8,
-    Int16,
-    Int24,
-    Int32,
-    Float32,
-    Float64
-};
+enum class SampleFormat { UInt8, Int16, Int24, Int32, Float32, Float64 };
 
 struct WaveFormatInfo {
     int bytesPerFrame;

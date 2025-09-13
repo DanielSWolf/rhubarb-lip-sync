@@ -1,4 +1,5 @@
 ﻿#include <gmock/gmock.h>
+
 #include "tools/stringTools.h"
 
 using namespace testing;
@@ -22,7 +23,15 @@ TEST(splitIntoLines, handlesEmptyElements) {
 TEST(wrapSingleLineString, basic) {
     const char* lipsum =
         "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.";
-    EXPECT_THAT(wrapSingleLineString(lipsum, 30), ElementsAre("Lorem ipsum dolor sit amet,", "consectetur adipisici elit,", "sed eiusmod tempor incidunt ut", "labore et dolore magna aliqua."));
+    EXPECT_THAT(
+        wrapSingleLineString(lipsum, 30),
+        ElementsAre(
+            "Lorem ipsum dolor sit amet,",
+            "consectetur adipisici elit,",
+            "sed eiusmod tempor incidunt ut",
+            "labore et dolore magna aliqua."
+        )
+    );
 }
 
 TEST(wrapSingleLineString, preciseWrapPosition) {
@@ -71,7 +80,10 @@ TEST(wrapSingleLineString, errorHandling) {
 // wrapString
 
 TEST(wrapString, basic) {
-    EXPECT_THAT(wrapString("\n\nLine no 3\n\nLine no 4\n", 8), ElementsAre("", "", "Line no", "3", "", "Line no", "4", ""));
+    EXPECT_THAT(
+        wrapString("\n\nLine no 3\n\nLine no 4\n", 8),
+        ElementsAre("", "", "Line no", "3", "", "Line no", "4", "")
+    );
 }
 
 // latin1ToWide
@@ -89,7 +101,8 @@ TEST(latin1ToWide, basic) {
 TEST(utf8ToAscii, string) {
     EXPECT_EQ(
         "A naive man called  was having pina colada and creme brulee.",
-        utf8ToAscii("A naïve man called 晨 was having piña colada and crème brûlée."));
+        utf8ToAscii("A naïve man called 晨 was having piña colada and crème brûlée.")
+    );
     EXPECT_EQ(string(""), utf8ToAscii(""));
     EXPECT_EQ(string("- - - - - - - - - -"), utf8ToAscii("- ‐ ‑ ‒ – — ― ﹘ ﹣ －"));
     EXPECT_EQ(string("' ' ' ' \" \" \" \" \" \""), utf8ToAscii("‘ ’ ‚ ‛ “ ” „ ‟ « »"));

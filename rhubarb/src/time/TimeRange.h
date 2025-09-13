@@ -37,6 +37,7 @@ public:
 
     bool operator==(const TimeRange& rhs) const;
     bool operator!=(const TimeRange& rhs) const;
+
 private:
     time_type start, end;
 };

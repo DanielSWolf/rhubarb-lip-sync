@@ -1,13 +1,15 @@
 #include "logging.h"
-#include "tools/tools.h"
+
 #include <mutex>
+
 #include "Entry.h"
+#include "tools/tools.h"
 
 using namespace logging;
+using std::lock_guard;
+using std::shared_ptr;
 using std::string;
 using std::vector;
-using std::shared_ptr;
-using std::lock_guard;
 
 std::mutex& getLogMutex() {
     static std::mutex mutex;

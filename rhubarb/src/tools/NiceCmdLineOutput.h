@@ -7,6 +7,7 @@ public:
     void usage(TCLAP::CmdLineInterface& cli) override;
     void version(TCLAP::CmdLineInterface& cli) override;
     void failure(TCLAP::CmdLineInterface& cli, TCLAP::ArgException& e) override;
+
 private:
     // Writes a brief usage message with short args.
     void printShortUsage(TCLAP::CmdLineInterface& cli, std::ostream& outStream) const;

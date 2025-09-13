@@ -4,212 +4,253 @@
 // Rules
 //
 // get rid of some digraphs
-{ wregex(L"ch"), L"ç" },
-{ wregex(L"sh"), L"$$" },
-{ wregex(L"ph"), L"f" },
-{ wregex(L"th"), L"+" },
-{ wregex(L"qu"), L"kw" },
-// and other spelling-level changes
-{ wregex(L"w(r)"), L"$1" },
-{ wregex(L"w(ho)"), L"$1" },
-{ wregex(L"(w)h"), L"$1" },
-{ wregex(L"(^r)h"), L"$1" },
-{ wregex(L"(x)h"), L"$1" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@])h($)"), L"$1$2" },
-{ wregex(L"(^e)x([aeiouäëïöüâêîôûùò@])"), L"$1gz$2" },
-{ wregex(L"x"), L"ks" },
-{ wregex(L"'"), L"" },
-// gh is particularly variable
-{ wregex(L"gh([aeiouäëïöüâêîôûùò@])"), L"g$1" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a(gh)"), L"$1ä$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e(gh)"), L"$1ë$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i(gh)"), L"$1ï$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o(gh)"), L"$1ö$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u(gh)"), L"$1ü$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])â(gh)"), L"$1ä$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])ê(gh)"), L"$1ë$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])î(gh)"), L"$1ï$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])ô(gh)"), L"$1ö$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])û(gh)"), L"$1ü$2" },
-{ wregex(L"ough(t)"), L"ò$1" },
-{ wregex(L"augh(t)"), L"ò$1" },
-{ wregex(L"ough"), L"ö" },
-{ wregex(L"gh"), L"" },
-// unpronounceable combinations
-{ wregex(L"(^)g(n)"), L"$1$2" },
-{ wregex(L"(^)k(n)"), L"$1$2" },
-{ wregex(L"(^)m(n)"), L"$1$2" },
-{ wregex(L"(^)p(t)"), L"$1$2" },
-{ wregex(L"(^)p(s)"), L"$1$2" },
-{ wregex(L"(^)t(m)"), L"$1$2" },
-// medial y = i
-{ wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ])y($)"), L"$1ï$2" },
-{ wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ]{2})y($)"), L"$1ï$2" },
-{ wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ]{3})y($)"), L"$1ï$2" },
-{ wregex(L"ey"), L"ë" },
-{ wregex(L"ay"), L"ä" },
-{ wregex(L"oy"), L"öy" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y([bcdfghjklmnpqrstvwxyzç+$ñ])"), L"$1i$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y($)"), L"$1i$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y(e$)"), L"$1i$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ]{2})ie($)"), L"$1ï$2" },
-{ wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ])ie($)"), L"$1ï$2" },
-// sSl can simplify
-{ wregex(L"(s)t(l[aeiouäëïöüâêîôûùò@]$)"), L"$1$2" },
-// affrication of t + front vowel
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ci([aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ti([aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([aeiouäëïöüâêîôûùò@])"), L"$1çu$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([rl][aeiouäëïöüâêîôûùò@])"), L"$1çu$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])si(o)"), L"$1$$$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@])si(o)"), L"$1j$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])s(ur)"), L"$1$$$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@])s(ur)"), L"$1j$2" },
-{ wregex(L"(k)s(u[aeiouäëïöüâêîôûùò@])"), L"$1$$$2" },
-{ wregex(L"(k)s(u[rl])"), L"$1$$$2" },
-// intervocalic s
-{ wregex(L"([eiou])s([aeiouäëïöüâêîôûùò@])"), L"$1z$2" },
-// al to ol (do this before respelling)
-{ wregex(L"a(ls)"), L"ò$1" },
-{ wregex(L"a(lr)"), L"ò$1" },
-{ wregex(L"a(l{2}$)"), L"ò$1" },
-{ wregex(L"a(lm(?:[aeiouäëïöüâêîôûùò@])?$)"), L"ò$1" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a(l[td+])"), L"$1ò$2" },
-{ wregex(L"(^)a(l[td+])"), L"$1ò$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])al(k)"), L"$1ò$2" },
-// soft c and g
-{ wregex(L"c([eiêîy])"), L"s$1" },
-{ wregex(L"c"), L"k" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ge(a)"), L"$1j$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ge(o)"), L"$1j$2" },
-{ wregex(L"g([eiêîy])"), L"j$1" },
-// init/final guF was there just to harden the g
-{ wregex(L"(^)gu([eiêîy])"), L"$1g$2" },
-{ wregex(L"gu(e$)"), L"g$1" },
-// untangle reverse-written final liquids
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])re($)"), L"$1@r$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])le($)"), L"$1@l$2" },
-// vowels are long medially
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ä$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ë$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ï$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ö$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ü$2" },
-{ wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ä$2" }, { wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ë$2" }, { wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ï$2" }, { wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ö$2" }, { wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ü$2" },
-// and short before 2 consonants or a final one
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1â$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ê$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1î$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ô$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1û$2" },
-{ wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1â$2" }, { wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ê$2" }, { wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1î$2" }, { wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ô$2" }, { wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1û$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1â$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ê$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1î$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ô$2" }, { wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1û$2" },
-{ wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1â$2" }, { wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ê$2" }, { wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1î$2" }, { wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ô$2" }, { wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1û$2" },
-// special but general rules
-{ wregex(L"î(nd$)"), L"ï$1" },
-{ wregex(L"ô(s{2}$)"), L"ò$1" },
-{ wregex(L"ô(g$)"), L"ò$1" },
-{ wregex(L"ô(f[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ò$1" },
-{ wregex(L"ô(l[td+])"), L"ö$1" },
-{ wregex(L"(w)â(\\$)"), L"$1ò$2" },
-{ wregex(L"(w)â((?:t)?ç)"), L"$1ò$2" },
-{ wregex(L"(w)â([tdns+])"), L"$1ô$2" },
-// soft gn
-{ wregex(L"îg([mnñ]$)"), L"ï$1" },
-{ wregex(L"îg([mnñ][bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ï$1" },
-{ wregex(L"(ei)g(n)"), L"$1$2" },
-// handle ous before removing -e
-{ wregex(L"ou(s$)"), L"@$1" },
-{ wregex(L"ou(s[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"@$1" },
-// remove silent -e
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)e($)"), L"$1$2" },
-// common suffixes that hide a silent e
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(mênt$)"), L"$1$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(nês{2}$)"), L"$1$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(li$)"), L"$1$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(fûl$)"), L"$1$2" },
-// another common suffix
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ï(nês{2}$)"), L"$1ë$2" },
-// shorten (1-char) weak penults after a long
-// note: this error breaks almost as many words as it fixes...
-{ wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1â$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ê$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1î$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ô$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1û$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1â$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ê$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1î$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ô$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1û$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1â$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ê$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1î$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1ô$2" }, { wregex(L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"), L"$1û$2" },
-// double vowels
-{ wregex(L"eau"), L"ö" },
-{ wregex(L"ai"), L"ä" },
-{ wregex(L"au"), L"ò" },
-{ wregex(L"âw"), L"ò" },
-{ wregex(L"e{2}"), L"ë" },
-{ wregex(L"ea"), L"ë" },
-{ wregex(L"(s)ei"), L"$1ë" },
-{ wregex(L"ei"), L"ä" },
-{ wregex(L"eo"), L"ë@" },
-{ wregex(L"êw"), L"ü" },
-{ wregex(L"eu"), L"ü" },
-{ wregex(L"ie"), L"ë" },
-{ wregex(L"(i)[aeiouäëïöüâêîôûùò@]"), L"$1@" },
-{ wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)i"), L"$1ï" },
-{ wregex(L"i(@)"), L"ë$1" },
-{ wregex(L"oa"), L"ö" },
-{ wregex(L"oe($)"), L"ö$1" },
-{ wregex(L"o{2}(k)"), L"ù$1" },
-{ wregex(L"o{2}"), L"u" },
-{ wregex(L"oul(d$)"), L"ù$1" },
-{ wregex(L"ou"), L"ôw" },
-{ wregex(L"oi"), L"öy" },
-{ wregex(L"ua"), L"ü@" },
-{ wregex(L"ue"), L"u" },
-{ wregex(L"ui"), L"u" },
-{ wregex(L"ôw($)"), L"ö$1" },
-// those pesky final syllabics
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[aeiouäëïöüâêîôûùò@])?)[aeiouäëïöüâêîôûùò@](l$)"), L"$1@$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ê(n$)"), L"$1@$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)î(n$)"), L"$1@$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)â(n$)"), L"$1@$2" },
-{ wregex(L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ô(n$)"), L"$1@$2" },
-// suffix simplifications
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})[aâä](b@l$)"), L"$1@$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]l)ë(@n$)"), L"$1y$2" },
-{ wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]n)ë(@n$)"), L"$1y$2" },
-// unpronounceable finals
-{ wregex(L"(m)b($)"), L"$1$2" },
-{ wregex(L"(m)n($)"), L"$1$2" },
-// color the final vowels
-{ wregex(L"a($)"), L"@$1" },
-{ wregex(L"e($)"), L"ë$1" },
-{ wregex(L"i($)"), L"ë$1" },
-{ wregex(L"o($)"), L"ö$1" },
-// vowels before r  V=aeiouäëïöüâêîôûùò@
-{ wregex(L"ôw(r[bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])"), L"ö$1" },
-{ wregex(L"ô(r)"), L"ö$1" },
-{ wregex(L"ò(r)"), L"ö$1" },
-{ wregex(L"(w)â(r[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"$1ö$2" },
-{ wregex(L"(w)â(r$)"), L"$1ö$2" },
-{ wregex(L"ê(r{2})"), L"ä$1" },
-{ wregex(L"ë(r[iîï][bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ä$1" },
-{ wregex(L"â(r{2})"), L"ä$1" },
-{ wregex(L"â(r[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ô$1" },
-{ wregex(L"â(r$)"), L"ô$1" },
-{ wregex(L"â(r)"), L"ä$1" },
-{ wregex(L"ê(r)"), L"@$1" },
-{ wregex(L"î(r)"), L"@$1" },
-{ wregex(L"û(r)"), L"@$1" },
-{ wregex(L"ù(r)"), L"@$1" },
-// handle ng
-{ wregex(L"ng([fs$+])"), L"ñ$1" },
-{ wregex(L"ng([bdg])"), L"ñ$1" },
-{ wregex(L"ng([ptk])"), L"ñ$1" },
-{ wregex(L"ng($)"), L"ñ$1" },
-{ wregex(L"n(g)"), L"ñ$1" },
-{ wregex(L"n(k)"), L"ñ$1" },
-{ wregex(L"ô(ñ)"), L"ò$1" },
-{ wregex(L"â(ñ)"), L"ä$1" },
-// really a morphophonological rule, but it's cute
-{ wregex(L"([bdg])s($)"), L"$1z$2" },
-{ wregex(L"s(m$)"), L"z$1" },
-// double consonants
-{ wregex(L"s(s)"), L"$1" },
-{ wregex(L"s(\\$)"), L"$1" },
-{ wregex(L"t(t)"), L"$1" },
-{ wregex(L"t(ç)"), L"$1" },
-{ wregex(L"p(p)"), L"$1" },
-{ wregex(L"k(k)"), L"$1" },
-{ wregex(L"b(b)"), L"$1" },
-{ wregex(L"d(d)"), L"$1" },
-{ wregex(L"d(j)"), L"$1" },
-{ wregex(L"g(g)"), L"$1" },
-{ wregex(L"n(n)"), L"$1" },
-{ wregex(L"m(m)"), L"$1" },
-{ wregex(L"r(r)"), L"$1" },
-{ wregex(L"l(l)"), L"$1" },
-{ wregex(L"f(f)"), L"$1" },
-{ wregex(L"z(z)"), L"$1" },
-// There are a number of cases not covered by these rules.
-// Let's add some reasonable fallback rules.
-{ wregex(L"a"), L"â" },
-{ wregex(L"e"), L"@" },
-{ wregex(L"i"), L"ë" },
-{ wregex(L"o"), L"ö" },
-{ wregex(L"q"), L"k" },
+{wregex(L"ch"), L"ç"}, {wregex(L"sh"), L"$$"}, {wregex(L"ph"), L"f"}, {wregex(L"th"), L"+"},
+    {wregex(L"qu"), L"kw"},
+    // and other spelling-level changes
+    {wregex(L"w(r)"), L"$1"}, {wregex(L"w(ho)"), L"$1"}, {wregex(L"(w)h"), L"$1"},
+    {wregex(L"(^r)h"), L"$1"}, {wregex(L"(x)h"), L"$1"},
+    {wregex(L"([aeiouäëïöüâêîôûùò@])h($)"), L"$1$2"},
+    {wregex(L"(^e)x([aeiouäëïöüâêîôûùò@])"), L"$1gz$2"}, {wregex(L"x"), L"ks"}, {wregex(L"'"), L""},
+    // gh is particularly variable
+    {wregex(L"gh([aeiouäëïöüâêîôûùò@])"), L"g$1"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a(gh)"), L"$1ä$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e(gh)"), L"$1ë$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i(gh)"), L"$1ï$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o(gh)"), L"$1ö$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u(gh)"), L"$1ü$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])â(gh)"), L"$1ä$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])ê(gh)"), L"$1ë$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])î(gh)"), L"$1ï$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])ô(gh)"), L"$1ö$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])û(gh)"), L"$1ü$2"}, {wregex(L"ough(t)"), L"ò$1"},
+    {wregex(L"augh(t)"), L"ò$1"}, {wregex(L"ough"), L"ö"}, {wregex(L"gh"), L""},
+    // unpronounceable combinations
+    {wregex(L"(^)g(n)"), L"$1$2"}, {wregex(L"(^)k(n)"), L"$1$2"}, {wregex(L"(^)m(n)"), L"$1$2"},
+    {wregex(L"(^)p(t)"), L"$1$2"}, {wregex(L"(^)p(s)"), L"$1$2"}, {wregex(L"(^)t(m)"), L"$1$2"},
+    // medial y = i
+    {wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ])y($)"), L"$1ï$2"},
+    {wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ]{2})y($)"), L"$1ï$2"},
+    {wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ]{3})y($)"), L"$1ï$2"}, {wregex(L"ey"), L"ë"},
+    {wregex(L"ay"), L"ä"}, {wregex(L"oy"), L"öy"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y([bcdfghjklmnpqrstvwxyzç+$ñ])"), L"$1i$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y($)"), L"$1i$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])y(e$)"), L"$1i$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ]{2})ie($)"), L"$1ï$2"},
+    {wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ])ie($)"), L"$1ï$2"},
+    // sSl can simplify
+    {wregex(L"(s)t(l[aeiouäëïöüâêîôûùò@]$)"), L"$1$2"},
+    // affrication of t + front vowel
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ci([aeiouäëïöüâêîôûùò@])"), L"$1$$$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ti([aeiouäëïöüâêîôûùò@])"), L"$1$$$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([aeiouäëïöüâêîôûùò@])"), L"$1çu$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])tu([rl][aeiouäëïöüâêîôûùò@])"),
+     L"$1çu$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])si(o)"), L"$1$$$2"},
+    {wregex(L"([aeiouäëïöüâêîôûùò@])si(o)"), L"$1j$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])s(ur)"), L"$1$$$2"},
+    {wregex(L"([aeiouäëïöüâêîôûùò@])s(ur)"), L"$1j$2"},
+    {wregex(L"(k)s(u[aeiouäëïöüâêîôûùò@])"), L"$1$$$2"}, {wregex(L"(k)s(u[rl])"), L"$1$$$2"},
+    // intervocalic s
+    {wregex(L"([eiou])s([aeiouäëïöüâêîôûùò@])"), L"$1z$2"},
+    // al to ol (do this before respelling)
+    {wregex(L"a(ls)"), L"ò$1"}, {wregex(L"a(lr)"), L"ò$1"}, {wregex(L"a(l{2}$)"), L"ò$1"},
+    {wregex(L"a(lm(?:[aeiouäëïöüâêîôûùò@])?$)"), L"ò$1"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a(l[td+])"), L"$1ò$2"},
+    {wregex(L"(^)a(l[td+])"), L"$1ò$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])al(k)"), L"$1ò$2"},
+    // soft c and g
+    {wregex(L"c([eiêîy])"), L"s$1"}, {wregex(L"c"), L"k"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ge(a)"), L"$1j$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])ge(o)"), L"$1j$2"},
+    {wregex(L"g([eiêîy])"), L"j$1"},
+    // init/final guF was there just to harden the g
+    {wregex(L"(^)gu([eiêîy])"), L"$1g$2"}, {wregex(L"gu(e$)"), L"g$1"},
+    // untangle reverse-written final liquids
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])re($)"), L"$1@r$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])le($)"), L"$1@l$2"},
+    // vowels are long medially
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"),
+     L"$1ä$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"),
+     L"$1ë$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"),
+     L"$1ï$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"),
+     L"$1ö$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"),
+     L"$1ü$2"},
+    {wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ä$2"},
+    {wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ë$2"},
+    {wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ï$2"},
+    {wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ö$2"},
+    {wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@])"), L"$1ü$2"},
+    // and short before 2 consonants or a final one
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1â$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ê$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1î$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ô$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1û$2"},
+    {wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1â$2"},
+    {wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ê$2"},
+    {wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1î$2"},
+    {wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1ô$2"},
+    {wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ]{2})"), L"$1û$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])a([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1â$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])e([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ê$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])i([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1î$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])o([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ô$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñ])u([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1û$2"},
+    {wregex(L"(^)a([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1â$2"},
+    {wregex(L"(^)e([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ê$2"},
+    {wregex(L"(^)i([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1î$2"},
+    {wregex(L"(^)o([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1ô$2"},
+    {wregex(L"(^)u([bcdfghjklmnpqrstvwxyzç+$ñ]$)"), L"$1û$2"},
+    // special but general rules
+    {wregex(L"î(nd$)"), L"ï$1"}, {wregex(L"ô(s{2}$)"), L"ò$1"}, {wregex(L"ô(g$)"), L"ò$1"},
+    {wregex(L"ô(f[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ò$1"}, {wregex(L"ô(l[td+])"), L"ö$1"},
+    {wregex(L"(w)â(\\$)"), L"$1ò$2"}, {wregex(L"(w)â((?:t)?ç)"), L"$1ò$2"},
+    {wregex(L"(w)â([tdns+])"), L"$1ô$2"},
+    // soft gn
+    {wregex(L"îg([mnñ]$)"), L"ï$1"}, {wregex(L"îg([mnñ][bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ï$1"},
+    {wregex(L"(ei)g(n)"), L"$1$2"},
+    // handle ous before removing -e
+    {wregex(L"ou(s$)"), L"@$1"}, {wregex(L"ou(s[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"@$1"},
+    // remove silent -e
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)e($)"
+     ),
+     L"$1$2"},
+    // common suffixes that hide a silent e
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(mênt$)"), L"$1$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(nês{2}$)"), L"$1$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(li$)"), L"$1$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ë(fûl$)"), L"$1$2"},
+    // another common suffix
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})ï(nês{2}$)"), L"$1ë$2"},
+    // shorten (1-char) weak penults after a long
+    // note: this error breaks almost as many words as it fixes...
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1â$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ê$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1î$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ô$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1û$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1â$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ê$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1î$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ô$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1û$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ä([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1â$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ë([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ê$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ï([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1î$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ö([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1ô$2"},
+    {wregex(
+         L"([äëïöüäëïöüäëïöüùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?(?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ü([bcdfghjklmnpqrstvwxyzç+$ñ][aeiouäëïöüâêîôûùò@]$)"
+     ),
+     L"$1û$2"},
+    // double vowels
+    {wregex(L"eau"), L"ö"}, {wregex(L"ai"), L"ä"}, {wregex(L"au"), L"ò"}, {wregex(L"âw"), L"ò"},
+    {wregex(L"e{2}"), L"ë"}, {wregex(L"ea"), L"ë"}, {wregex(L"(s)ei"), L"$1ë"},
+    {wregex(L"ei"), L"ä"}, {wregex(L"eo"), L"ë@"}, {wregex(L"êw"), L"ü"}, {wregex(L"eu"), L"ü"},
+    {wregex(L"ie"), L"ë"}, {wregex(L"(i)[aeiouäëïöüâêîôûùò@]"), L"$1@"},
+    {wregex(L"(^[bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)i"), L"$1ï"},
+    {wregex(L"i(@)"), L"ë$1"}, {wregex(L"oa"), L"ö"}, {wregex(L"oe($)"), L"ö$1"},
+    {wregex(L"o{2}(k)"), L"ù$1"}, {wregex(L"o{2}"), L"u"}, {wregex(L"oul(d$)"), L"ù$1"},
+    {wregex(L"ou"), L"ôw"}, {wregex(L"oi"), L"öy"}, {wregex(L"ua"), L"ü@"}, {wregex(L"ue"), L"u"},
+    {wregex(L"ui"), L"u"}, {wregex(L"ôw($)"), L"ö$1"},
+    // those pesky final syllabics
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[aeiouäëïöüâêîôûùò@])?)[aeiouäëïöüâêîôûùò@](l$)"
+     ),
+     L"$1@$2"},
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ê(n$)"
+     ),
+     L"$1@$2"},
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)î(n$)"
+     ),
+     L"$1@$2"},
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)â(n$)"
+     ),
+     L"$1@$2"},
+    {wregex(
+         L"([aeiouäëïöüâêîôûùò@][bcdfghjklmnpqrstvwxyzç+$ñ](?:[bcdfghjklmnpqrstvwxyzç+$ñ])?)ô(n$)"
+     ),
+     L"$1@$2"},
+    // suffix simplifications
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]{3})[aâä](b@l$)"), L"$1@$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]l)ë(@n$)"), L"$1y$2"},
+    {wregex(L"([bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@]n)ë(@n$)"), L"$1y$2"},
+    // unpronounceable finals
+    {wregex(L"(m)b($)"), L"$1$2"}, {wregex(L"(m)n($)"), L"$1$2"},
+    // color the final vowels
+    {wregex(L"a($)"), L"@$1"}, {wregex(L"e($)"), L"ë$1"}, {wregex(L"i($)"), L"ë$1"},
+    {wregex(L"o($)"), L"ö$1"},
+    // vowels before r  V=aeiouäëïöüâêîôûùò@
+    {wregex(L"ôw(r[bcdfghjklmnpqrstvwxyzç+$ñaeiouäëïöüâêîôûùò@])"), L"ö$1"},
+    {wregex(L"ô(r)"), L"ö$1"}, {wregex(L"ò(r)"), L"ö$1"},
+    {wregex(L"(w)â(r[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"$1ö$2"}, {wregex(L"(w)â(r$)"), L"$1ö$2"},
+    {wregex(L"ê(r{2})"), L"ä$1"}, {wregex(L"ë(r[iîï][bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ä$1"},
+    {wregex(L"â(r{2})"), L"ä$1"}, {wregex(L"â(r[bcdfghjklmnpqrstvwxyzç+$ñ])"), L"ô$1"},
+    {wregex(L"â(r$)"), L"ô$1"}, {wregex(L"â(r)"), L"ä$1"}, {wregex(L"ê(r)"), L"@$1"},
+    {wregex(L"î(r)"), L"@$1"}, {wregex(L"û(r)"), L"@$1"}, {wregex(L"ù(r)"), L"@$1"},
+    // handle ng
+    {wregex(L"ng([fs$+])"), L"ñ$1"}, {wregex(L"ng([bdg])"), L"ñ$1"}, {wregex(L"ng([ptk])"), L"ñ$1"},
+    {wregex(L"ng($)"), L"ñ$1"}, {wregex(L"n(g)"), L"ñ$1"}, {wregex(L"n(k)"), L"ñ$1"},
+    {wregex(L"ô(ñ)"), L"ò$1"}, {wregex(L"â(ñ)"), L"ä$1"},
+    // really a morphophonological rule, but it's cute
+    {wregex(L"([bdg])s($)"), L"$1z$2"}, {wregex(L"s(m$)"), L"z$1"},
+    // double consonants
+    {wregex(L"s(s)"), L"$1"}, {wregex(L"s(\\$)"), L"$1"}, {wregex(L"t(t)"), L"$1"},
+    {wregex(L"t(ç)"), L"$1"}, {wregex(L"p(p)"), L"$1"}, {wregex(L"k(k)"), L"$1"},
+    {wregex(L"b(b)"), L"$1"}, {wregex(L"d(d)"), L"$1"}, {wregex(L"d(j)"), L"$1"},
+    {wregex(L"g(g)"), L"$1"}, {wregex(L"n(n)"), L"$1"}, {wregex(L"m(m)"), L"$1"},
+    {wregex(L"r(r)"), L"$1"}, {wregex(L"l(l)"), L"$1"}, {wregex(L"f(f)"), L"$1"},
+    {wregex(L"z(z)"), L"$1"},
+    // There are a number of cases not covered by these rules.
+    // Let's add some reasonable fallback rules.
+    {wregex(L"a"), L"â"}, {wregex(L"e"), L"@"}, {wregex(L"i"), L"ë"}, {wregex(L"o"), L"ö"},
+    {wregex(L"q"), L"k"},

@@ -1,10 +1,10 @@
 #include "exporterTools.h"
+
 #include "animation/targetShapeSet.h"
 
 // Makes sure there is at least one mouth shape
 std::vector<Timed<Shape>> dummyShapeIfEmpty(
-    const JoiningTimeline<Shape>& animation,
-    const ShapeSet& targetShapeSet
+    const JoiningTimeline<Shape>& animation, const ShapeSet& targetShapeSet
 ) {
     std::vector<Timed<Shape>> result;
     std::copy(animation.begin(), animation.end(), std::back_inserter(result));

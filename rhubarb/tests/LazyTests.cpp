@@ -1,4 +1,5 @@
 #include <gmock/gmock.h>
+
 #include "tools/Lazy.h"
 
 using namespace testing;
@@ -6,7 +7,9 @@ using namespace testing;
 // Not copyable, no default constructor, movable
 struct Foo {
     const int value;
-    Foo(int value) : value(value) {}
+
+    Foo(int value) :
+        value(value) {}
 
     Foo() = delete;
     Foo(const Foo&) = delete;
@@ -18,7 +21,10 @@ struct Foo {
 
 TEST(Lazy, basicUsage) {
     bool lambdaCalled = false;
-    Lazy<Foo> lazy([&lambdaCalled] { lambdaCalled = true; return Foo(42); });
+    Lazy<Foo> lazy([&lambdaCalled] {
+        lambdaCalled = true;
+        return Foo(42);
+    });
     EXPECT_FALSE(lambdaCalled);
     EXPECT_FALSE(static_cast<bool>(lazy));
     EXPECT_EQ(42, (*lazy).value);
@@ -30,7 +36,10 @@ TEST(Lazy, basicUsage) {
 
 TEST(Lazy, constUsage) {
     bool lambdaCalled = false;
-    const Lazy<Foo> lazy([&lambdaCalled] { lambdaCalled = true; return Foo(42); });
+    const Lazy<Foo> lazy([&lambdaCalled] {
+        lambdaCalled = true;
+        return Foo(42);
+    });
     EXPECT_FALSE(lambdaCalled);
     EXPECT_FALSE(static_cast<bool>(lazy));
     EXPECT_EQ(42, (*lazy).value);
@@ -71,5 +80,6 @@ TEST(Lazy, demo) {
     auto c = lazy->member;
 
     // Check if initialized
-    if (lazy) { /* ... */ }
+    if (lazy) { /* ... */
+    }
 }

@@ -1,19 +1,22 @@
-#include <format.h>
 #include "WaveFileReader.h"
-#include "ioTools.h"
-#include <iostream>
-#include "tools/platformTools.h"
-#include "tools/fileTools.h"
 
-using std::runtime_error;
+#include <format.h>
+
+#include <iostream>
+
+#include "ioTools.h"
+#include "tools/fileTools.h"
+#include "tools/platformTools.h"
+
 using fmt::format;
+using std::runtime_error;
 using std::string;
 using namespace little_endian;
-using std::unique_ptr;
-using std::make_unique;
 using std::make_shared;
-using std::filesystem::path;
+using std::make_unique;
 using std::streamoff;
+using std::unique_ptr;
+using std::filesystem::path;
 
 #define INT24_MIN (-8388608)
 #define INT24_MAX 8388607
@@ -31,15 +34,15 @@ streamoff roundUpToEven(streamoff i) {
 }
 
 namespace Codec {
-    constexpr int Pcm = 0x01;
-    constexpr int Float = 0x03;
-    constexpr int Extensible = 0xFFFE;
-};
+constexpr int Pcm = 0x01;
+constexpr int Float = 0x03;
+constexpr int Extensible = 0xFFFE;
+}; // namespace Codec
 
 string codecToString(int codec);
 
 WaveFormatInfo getWaveFormatInfo(const path& filePath) {
-    WaveFormatInfo formatInfo {};
+    WaveFormatInfo formatInfo{};
 
     auto file = openFile(filePath);
 
@@ -74,8 +77,7 @@ WaveFormatInfo getWaveFormatInfo(const path& filePath) {
         const streamoff chunkSize = read<int32_t>(file);
         const streamoff chunkEnd = roundUpToEven(file.tellg() + chunkSize);
         switch (chunkId) {
-            case fourcc('f', 'm', 't', ' '):
-            {
+            case fourcc('f', 'm', 't', ' '): {
                 // Read relevant data
                 uint16_t codec = read<uint16_t>(file);
                 formatInfo.channelCount = read<uint16_t>(file);
@@ -118,7 +120,8 @@ WaveFormatInfo getWaveFormatInfo(const path& filePath) {
                             bytesPerSample = 4;
                         } else {
                             throw runtime_error(
-                                format("Unsupported sample format: {}-bit PCM.", bitsPerSample));
+                                format("Unsupported sample format: {}-bit PCM.", bitsPerSample)
+                            );
                         }
                         if (bytesPerSample != bytesPerFrame / formatInfo.channelCount) {
                             throw runtime_error("Unsupported sample organization.");
@@ -132,30 +135,30 @@ WaveFormatInfo getWaveFormatInfo(const path& filePath) {
                             formatInfo.sampleFormat = SampleFormat::Float64;
                             bytesPerSample = 8;
                         } else {
-                            throw runtime_error(
-                                format("Unsupported sample format: {}-bit IEEE Float.", bitsPerSample)
-                            );
+                            throw runtime_error(format(
+                                "Unsupported sample format: {}-bit IEEE Float.", bitsPerSample
+                            ));
                         }
                         break;
                     default:
                         throw runtime_error(format(
                             "Unsupported audio codec: '{}'. Only uncompressed codecs ('{}' and '{}') are supported.",
-                            codecToString(codec), codecToString(Codec::Pcm), codecToString(Codec::Float)
+                            codecToString(codec),
+                            codecToString(Codec::Pcm),
+                            codecToString(Codec::Float)
                         ));
                 }
                 formatInfo.bytesPerFrame = bytesPerSample * formatInfo.channelCount;
                 processedFormatChunk = true;
                 break;
             }
-            case fourcc('d', 'a', 't', 'a'):
-            {
+            case fourcc('d', 'a', 't', 'a'): {
                 formatInfo.dataOffset = file.tellg();
                 formatInfo.frameCount = chunkSize / formatInfo.bytesPerFrame;
                 processedDataChunk = true;
                 break;
             }
-            default:
-            {
+            default: {
                 // Ignore unknown chunk
                 break;
             }
@@ -180,45 +183,37 @@ unique_ptr<AudioClip> WaveFileReader::clone() const {
 }
 
 inline AudioClip::value_type readSample(
-    std::ifstream& file,
-    SampleFormat sampleFormat,
-    int channelCount
+    std::ifstream& file, SampleFormat sampleFormat, int channelCount
 ) {
     float sum = 0;
     for (int channelIndex = 0; channelIndex < channelCount; channelIndex++) {
         switch (sampleFormat) {
-            case SampleFormat::UInt8:
-            {
+            case SampleFormat::UInt8: {
                 const uint8_t raw = read<uint8_t>(file);
                 sum += toNormalizedFloat(raw, 0, UINT8_MAX);
                 break;
             }
-            case SampleFormat::Int16:
-            {
+            case SampleFormat::Int16: {
                 const int16_t raw = read<int16_t>(file);
                 sum += toNormalizedFloat(raw, INT16_MIN, INT16_MAX);
                 break;
             }
-            case SampleFormat::Int24:
-            {
+            case SampleFormat::Int24: {
                 int raw = read<int, 24>(file);
                 if (raw & 0x800000) raw |= 0xFF000000; // Fix two's complement
                 sum += toNormalizedFloat(raw, INT24_MIN, INT24_MAX);
                 break;
             }
-            case SampleFormat::Int32:
-            {
+            case SampleFormat::Int32: {
                 const int32_t raw = read<int32_t>(file);
                 sum += toNormalizedFloat(raw, INT32_MIN, INT32_MAX);
                 break;
             }
-            case SampleFormat::Float32:
-            {
+            case SampleFormat::Float32: {
                 sum += read<float>(file);
                 break;
             }
-            case SampleFormat::Float64:
-            {
+            case SampleFormat::Float64: {
                 sum += static_cast<float>(read<double>(file));
                 break;
             }
@@ -229,14 +224,11 @@ inline AudioClip::value_type readSample(
 }
 
 SampleReader WaveFileReader::createUnsafeSampleReader() const {
-    return
-        [
-            formatInfo = formatInfo,
+    return [formatInfo = formatInfo,
             file = std::make_shared<std::ifstream>(openFile(filePath)),
-            filePos = std::streampos(0)
-        ](size_type index) mutable {
-        const std::streampos newFilePos = formatInfo.dataOffset
-            + static_cast<streamoff>(index * formatInfo.bytesPerFrame);
+            filePos = std::streampos(0)](size_type index) mutable {
+        const std::streampos newFilePos =
+            formatInfo.dataOffset + static_cast<streamoff>(index * formatInfo.bytesPerFrame);
         if (newFilePos != filePos) {
             file->seekg(newFilePos);
         }
@@ -491,7 +483,6 @@ string codecToString(int codec) {
         case 0xf1ac: return "Free Lossless Audio Codec FLAC";
         case 0xfffe: return "Extensible";
         case 0xffff: return "Development";
-        default:
-            return format("{0:#x}", codec);
+        default: return format("{0:#x}", codec);
     }
 }

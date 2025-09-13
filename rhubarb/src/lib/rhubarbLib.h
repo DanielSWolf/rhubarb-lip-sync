@@ -1,12 +1,13 @@
 #pragma once
 
-#include "core/Shape.h"
-#include "time/ContinuousTimeline.h"
-#include "audio/AudioClip.h"
-#include "tools/progress.h"
 #include <filesystem>
+
 #include "animation/targetShapeSet.h"
+#include "audio/AudioClip.h"
+#include "core/Shape.h"
 #include "recognition/Recognizer.h"
+#include "time/ContinuousTimeline.h"
+#include "tools/progress.h"
 
 JoiningContinuousTimeline<Shape> animateAudioClip(
     const AudioClip& audioClip,
@@ -14,7 +15,8 @@ JoiningContinuousTimeline<Shape> animateAudioClip(
     const Recognizer& recognizer,
     const ShapeSet& targetShapeSet,
     int maxThreadCount,
-    ProgressSink& progressSink);
+    ProgressSink& progressSink
+);
 
 JoiningContinuousTimeline<Shape> animateWaveFile(
     std::filesystem::path filePath,
@@ -22,4 +24,5 @@ JoiningContinuousTimeline<Shape> animateWaveFile(
     const Recognizer& recognizer,
     const ShapeSet& targetShapeSet,
     int maxThreadCount,
-    ProgressSink& progressSink);
+    ProgressSink& progressSink
+);

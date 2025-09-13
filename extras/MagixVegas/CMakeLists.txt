@@ -8,7 +8,4 @@ set(vegasFiles
     "README.adoc"
 )
 
-install(
-    FILES ${vegasFiles}
-    DESTINATION "extras/MagixVegas"
-)
+install(FILES ${vegasFiles} DESTINATION "extras/MagixVegas")

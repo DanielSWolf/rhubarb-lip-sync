@@ -1,18 +1,20 @@
 #include "audioFileReading.h"
-#include <format.h>
-#include "WaveFileReader.h"
-#include <boost/algorithm/string.hpp>
-#include "OggVorbisFileReader.h"
 
-using std::filesystem::path;
-using std::string;
-using std::runtime_error;
+#include <format.h>
+
+#include <boost/algorithm/string.hpp>
+
+#include "OggVorbisFileReader.h"
+#include "WaveFileReader.h"
+
 using fmt::format;
+using std::runtime_error;
+using std::string;
+using std::filesystem::path;
 
 std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
     try {
-        const string extension =
-            boost::algorithm::to_lower_copy(filePath.extension().u8string());
+        const string extension = boost::algorithm::to_lower_copy(filePath.extension().u8string());
         if (extension == ".wav") {
             return std::make_unique<WaveFileReader>(filePath);
         }
@@ -24,6 +26,8 @@ std::unique_ptr<AudioClip> createAudioFileClip(path filePath) {
             extension
         ));
     } catch (...) {
-        std::throw_with_nested(runtime_error(format("Could not open sound file {}.", filePath.u8string())));
+        std::throw_with_nested(
+            runtime_error(format("Could not open sound file {}.", filePath.u8string()))
+        );
     }
 }

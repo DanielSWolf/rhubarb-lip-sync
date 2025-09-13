@@ -1,9 +1,10 @@
 #pragma once
 
 #include <set>
+
+#include "core/Phone.h"
 #include "core/Shape.h"
 #include "time/Timeline.h"
-#include "core/Phone.h"
 
 // Returns the basic shape (A-F) that most closely resembles the specified shape.
 Shape getBasicShape(Shape shape);

@@ -1,4 +1,5 @@
 #include "AudioClip.h"
+
 #include <format.h>
 
 using std::invalid_argument;
@@ -11,6 +12,7 @@ class SafeSampleReader {
 public:
     SafeSampleReader(SampleReader unsafeRead, AudioClip::size_type size);
     AudioClip::value_type operator()(AudioClip::size_type index);
+
 private:
     SampleReader unsafeRead;
     AudioClip::size_type size;
@@ -20,19 +22,16 @@ private:
 
 SafeSampleReader::SafeSampleReader(SampleReader unsafeRead, AudioClip::size_type size) :
     unsafeRead(unsafeRead),
-    size(size)
-{}
+    size(size) {}
 
 inline AudioClip::value_type SafeSampleReader::operator()(AudioClip::size_type index) {
     if (index < 0) {
         throw invalid_argument(fmt::format("Cannot read from sample index {}. Index < 0.", index));
     }
     if (index >= size) {
-        throw invalid_argument(fmt::format(
-            "Cannot read from sample index {}. Clip size is {}.",
-            index,
-            size
-        ));
+        throw invalid_argument(
+            fmt::format("Cannot read from sample index {}. Clip size is {}.", index, size)
+        );
     }
     if (index == lastIndex) {
         return lastSample;
@@ -60,10 +59,8 @@ std::unique_ptr<AudioClip> operator|(std::unique_ptr<AudioClip> clip, const Audi
 }
 
 SampleIterator::SampleIterator() :
-    sampleIndex(0)
-{}
+    sampleIndex(0) {}
 
 SampleIterator::SampleIterator(const AudioClip& audioClip, size_type sampleIndex) :
     sampleReader([&audioClip] { return audioClip.createSampleReader(); }),
-    sampleIndex(sampleIndex)
-{}
+    sampleIndex(sampleIndex) {}

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/Phone.h"
 #include "animationRules.h"
+#include "core/Phone.h"
 #include "time/BoundedTimeline.h"
 #include "time/ContinuousTimeline.h"
 #include "time/TimeRange.h"

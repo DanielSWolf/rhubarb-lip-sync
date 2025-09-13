@@ -1,4 +1,5 @@
 #include "pauseAnimation.h"
+
 #include "animationRules.h"
 
 Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
@@ -30,7 +31,7 @@ Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
 
 JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& animation) {
     JoiningContinuousTimeline<Shape> result(animation);
-    
+
     for_each_adjacent(
         animation.begin(),
         animation.end(),
