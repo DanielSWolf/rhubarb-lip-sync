@@ -109,7 +109,7 @@ class AnimationFileModel(val parentModel: MainModel, animationFilePath: Path, pr
 
         val result = StringBuilder()
         val missingShapesString = missingBasicShapes.joinToString()
-        result.appendln(
+        result.appendLine(
             if (missingBasicShapes.count() > 1)
                 "Mouth shapes $missingShapesString are missing."
             else

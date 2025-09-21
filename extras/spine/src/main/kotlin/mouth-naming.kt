@@ -36,7 +36,7 @@ class MouthNaming(private val prefix: String, private val suffix: String, privat
         val name = if (mouthShapeCasing == MouthShapeCasing.Upper)
             mouthShape.toString()
         else
-            mouthShape.toString().toLowerCase(Locale.ROOT)
+            mouthShape.toString().lowercase(Locale.ROOT)
         return "$prefix$name$suffix"
     }
 

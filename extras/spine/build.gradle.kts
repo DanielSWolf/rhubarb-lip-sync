@@ -2,56 +2,63 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 plugins {
-	kotlin("jvm") version "1.6.0"
-	id("org.openjfx.javafxplugin") version "0.0.10"
+    kotlin("jvm") version "1.9.25"
+    id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
 fun getVersion(): String {
-	// Dynamically read version from CMake file
-	val file = File(rootDir.parentFile.parentFile, "app-info.cmake")
-	val text = file.readText()
-	val major = Regex("""appVersionMajor\s+(\d+)""").find(text)!!.groupValues[1]
-	val minor = Regex("""appVersionMinor\s+(\d+)""").find(text)!!.groupValues[1]
-	val patch = Regex("""appVersionPatch\s+(\d+)""").find(text)!!.groupValues[1]
-	val suffix = Regex("""appVersionSuffix\s+"(.*?)"""").find(text)!!.groupValues[1]
-	return "$major.$minor.$patch$suffix"
+    // Dynamically read version from CMake file
+    val file = File(rootDir.parentFile.parentFile, "app-info.toml")
+    val text = file.readText()
+    return Regex("""appVersion\s*=\s*"(.*?)"(?:)""").find(text)!!.groupValues[1]
 }
 
 group = "com.rhubarb_lip_sync"
 version = getVersion()
 
 repositories {
-	mavenCentral()
-	jcenter()
-	maven("https://oss.sonatype.org/content/repositories/snapshots")
+    mavenCentral()
 }
 
 dependencies {
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0")
-	implementation("com.beust:klaxon:5.5")
-	implementation("org.apache.commons:commons-lang3:3.12.0")
-	implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-	testImplementation("org.assertj:assertj-core:3.21.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.25")
+    implementation("com.beust:klaxon:5.6")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("no.tornado:tornadofx:1.7.20")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.2")
+    testImplementation("org.assertj:assertj-core:3.27.4")
 }
 
 javafx {
-    version = "15.0.1"
+    version = "21"
     modules("javafx.controls")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
 tasks.withType<KotlinCompile> {
-	kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "11"
 }
 
 tasks.test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 tasks.withType<Jar> {
-	manifest {
-		attributes("Main-Class" to "com.rhubarb_lip_sync.rhubarb_for_spine.MainKt")
-	}
-
-	from(configurations.compileClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    manifest {
+        attributes("Main-Class" to "com.rhubarb_lip_sync.rhubarb_for_spine.MainKt")
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    exclude("module-info.class", "META-INF/versions/**", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
