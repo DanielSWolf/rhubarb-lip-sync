@@ -1,7 +1,7 @@
 **/*.md
 
 /build/
-/extras/esoteric-software-spine/src/test/data/jsonFiles/*.json
+/extras/spine/src/test/data/jsonFiles/*.json
 /lib/
 /rhubarb/lib/
 /website/

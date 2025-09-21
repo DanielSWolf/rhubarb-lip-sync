@@ -6,7 +6,7 @@ image:../../img/spine.png[image]
 
 == Installation
 
-https://github.com/DanielSWolf/rhubarb-lip-sync/releases[Download Rhubarb Lip Sync] for your platform, then extract the archive file in a directory on your computer. You'll find Rhubarb Lip Sync for Spine in the directory `extras/esoteric-software-spine`.
+https://github.com/DanielSWolf/rhubarb-lip-sync/releases[Download Rhubarb Lip Sync] for your platform, then extract the archive file in a directory on your computer. You'll find Rhubarb Lip Sync for Spine in the directory `extras/spine`.
 
 To create lip sync animation, you'll need Spine 3.7 or better.
 

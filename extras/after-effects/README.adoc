@@ -61,7 +61,7 @@ The resulting line should look something like `export PATH="/Users/Daniel/Rhubar
 
 === 3. Install After Effects script
 
-In After Effects, go to _File_ > _Scripts_ > _Install Script File..._, then select the script file `Rhubarb Lip Sync.jsx` from the `extras/adobe-after-effects` subdirectory of Rhubarb Lip Sync.
+In After Effects, go to _File_ > _Scripts_ > _Install Script File..._, then select the script file `Rhubarb Lip Sync.jsx` from the `extras/after-effects` subdirectory of Rhubarb Lip Sync.
 
 Older After Effects versions don't have this command, so you'll have to manually copy (or symlink) the script file into your After Effects scripts directory.
 
@@ -78,7 +78,7 @@ To start, you need a composition containing all your mouth shapes.
 The first frame (`00:00`) should contain the {A} mouth shape, the second frame (`00:01`) should contain the {B} mouth shape, and so on.
 The optional mouth shapes {G}, {H}, and {X} belong at `00:06`, `00:07`, and `00:08`, respectively.
 
-For your first experiments, check out the demo project in the `extras/adobe-after-effects/demo` directory.
+For your first experiments, check out the demo project in the `extras/after-effects/demo` directory.
 
 image:after-effects-setup.png[]
 
