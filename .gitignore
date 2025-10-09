@@ -2,6 +2,7 @@
 .vscode/
 *.user
 build/
+cli-build/
 node_modules/
 
 package-lock.json

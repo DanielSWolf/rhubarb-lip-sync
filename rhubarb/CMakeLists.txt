@@ -1,7 +1,31 @@
 cmake_minimum_required(VERSION 3.24)
 
 include(FetchContent)
-include("../app-info.cmake")
+
+# Read version from package.json
+file(READ "../package.json" jsonContent)
+string(JSON appVersion GET "${jsonContent}" version)
+
+project("Rhubarb Lip Sync")
+
+# Set output directories for build artifacts
+set(RHUBARB_ARTIFACT_DIR "" CACHE PATH "Artifact directory")
+if(RHUBARB_ARTIFACT_DIR)
+    if(CMAKE_CONFIGURATION_TYPES)
+        foreach(cfg ${CMAKE_CONFIGURATION_TYPES})
+            string(TOUPPER "${cfg}" CFGU)
+            set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFGU} "${RHUBARB_ARTIFACT_DIR}")
+            set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFGU} "${RHUBARB_ARTIFACT_DIR}")
+            set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFGU} "${RHUBARB_ARTIFACT_DIR}")
+            set(CMAKE_PDB_OUTPUT_DIRECTORY_${CFGU} "${RHUBARB_ARTIFACT_DIR}")
+        endforeach()
+    else()
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${RHUBARB_ARTIFACT_DIR}")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${RHUBARB_ARTIFACT_DIR}")
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${RHUBARB_ARTIFACT_DIR}")
+        set(CMAKE_PDB_OUTPUT_DIRECTORY "${RHUBARB_ARTIFACT_DIR}")
+    endif()
+endif()
 
 # Support legacy OS X versions
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
@@ -336,7 +360,7 @@ target_link_libraries(
 )
 
 # ... rhubarb-core
-configure_file(src/core/app-info.cpp.in app-info.cpp ESCAPE_QUOTES)
+configure_file(src/core/app-info.cpp.in app-info.cpp)
 add_library(
     rhubarb-core
     ${CMAKE_CURRENT_BINARY_DIR}/app-info.cpp
@@ -521,58 +545,18 @@ target_link_libraries(
     rhubarb-audio
 )
 
-# Copies the specified files in a post-build event, then installs them
-function(copy_and_install sourceGlob relativeTargetDirectory)
-    # Set `sourcePaths`
-    file(GLOB sourcePaths "${sourceGlob}")
-
-    foreach(sourcePath ${sourcePaths})
-        if(NOT IS_DIRECTORY ${sourcePath})
-            # Set `fileName`
-            get_filename_component(fileName "${sourcePath}" NAME)
-
-            # Copy file during build
-            add_custom_command(
-                TARGET rhubarb
-                POST_BUILD
-                COMMAND
-                    ${CMAKE_COMMAND} -E copy "${sourcePath}"
-                    "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
-                COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
-            )
-
-            # Install file
-            install(FILES "${sourcePath}" DESTINATION "${relativeTargetDirectory}")
-        endif()
-    endforeach()
+# Copy a whole directory tree next to the built target after build
+function(copy_dir target srcDir relativeDstDir)
+    set(dstDir "$<TARGET_FILE_DIR:${target}>/${relativeDstDir}")
+    add_custom_command(
+        TARGET ${target}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${dstDir}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${srcDir}" "${dstDir}"
+        COMMENT "Copying ${srcDir} -> ${dstDir}"
+        VERBATIM
+    )
 endfunction()
 
-# Copies the specified files in a post-build event
-function(copy sourceGlob relativeTargetDirectory)
-    # Set `sourcePaths`
-    file(GLOB sourcePaths "${sourceGlob}")
-
-    foreach(sourcePath ${sourcePaths})
-        if(NOT IS_DIRECTORY ${sourcePath})
-            # Set `fileName`
-            get_filename_component(fileName "${sourcePath}" NAME)
-
-            # Copy file during build
-            add_custom_command(
-                TARGET rhubarb
-                POST_BUILD
-                COMMAND
-                    ${CMAKE_COMMAND} -E copy "${sourcePath}"
-                    "$<TARGET_FILE_DIR:rhubarb>/${relativeTargetDirectory}/${fileName}"
-                COMMENT "Creating '${relativeTargetDirectory}/${fileName}'"
-            )
-        endif()
-    endforeach()
-endfunction()
-
-copy_and_install("lib/pocketsphinx-rev13216/model/en-us/*" "res/sphinx")
-copy_and_install("lib/cmusphinx-en-us-5.2/*" "res/sphinx/acoustic-model")
-
-copy_and_install("tests/resources/*" "tests/resources")
-
-install(TARGETS rhubarb RUNTIME DESTINATION .)
+copy_dir(rhubarb "${CMAKE_CURRENT_SOURCE_DIR}/lib/pocketsphinx-rev13216/model/en-us" "res/sphinx")
+copy_dir(rhubarb "${CMAKE_CURRENT_SOURCE_DIR}/lib/cmusphinx-en-us-5.2" "res/sphinx/acoustic-model")

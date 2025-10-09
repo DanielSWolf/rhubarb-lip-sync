@@ -9,21 +9,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - description: Windows - Visual Studio
-            os: windows-2022
-            cmakeOptions: '-G "Visual Studio 17 2022" -A x64'
+          - os: windows-2022
+            compiler: msvc
             publish: true
-          - description: macOS - Xcode
-            os: macos-14
-            cmakeOptions: ''
+          - os: macos-14
+            compiler: xcode
             publish: true
-          - description: Linux - GCC
-            os: ubuntu-24.04
-            cmakeOptions: '-D CMAKE_C_COMPILER=gcc-14 -D CMAKE_CXX_COMPILER=g++-14'
+          - os: ubuntu-24.04
+            compiler: gcc
             publish: true
-          - description: Linux - Clang
-            os: ubuntu-24.04
-            cmakeOptions: '-D CMAKE_C_COMPILER=clang-18 -D CMAKE_CXX_COMPILER=clang++-18'
+          - os: ubuntu-24.04
+            compiler: clang
             publish: false
 
     env:
@@ -31,10 +27,20 @@ jobs:
       BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.86.0/boost_1_86_0.tar.bz2/download
 
     steps:
+      - name: Deactivate EOL conversion
+        shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Install NPM dependencies
+        shell: bash
+        run: npm install
 
       - name: Restore Boost from cache
         uses: actions/cache@v4
@@ -60,30 +66,22 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build Rhubarb
+      - name: Check code
         shell: bash
-        run: |
-          mkdir build
-          cd build
-          cmake ${{ matrix.cmakeOptions }} ..
-          cmake --build . --config Release --target package
+        run: npm run check
 
-      - name: Run tests
+      - name: Build, test, and package
         shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            ./build/rhubarb/Release/runTests.exe
-          else
-            ./build/rhubarb/runTests
-          fi
+        run: npm run build -- --test --compiler ${{ matrix.compiler }}
 
       - name: Upload artifacts
         if: ${{ matrix.publish }}
         uses: actions/upload-artifact@v4
         with:
-          name: 'binaries ${{ matrix.description }}'
-          path: build/*.zip
-
+          name: 'binaries ${{ matrix.os }} ${{ matrix.compiler }}'
+          path: |
+            cli-build/*.zip
+            cli-build/*.tar.xz
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -114,6 +112,8 @@ jobs:
           draft: true
           name: ${{ env.releaseName }}
           body_path: changes.txt
-          files: '*.zip'
+          files: |
+            '*.zip'
+            '*.tar.gz'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

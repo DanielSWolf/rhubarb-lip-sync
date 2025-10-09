@@ -1,6 +1,7 @@
 **/*.md
 
 /build/
+/cli-build/
 /extras/spine/src/test/data/jsonFiles/*.json
 /lib/
 /rhubarb/lib/
