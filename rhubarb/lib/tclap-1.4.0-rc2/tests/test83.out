@@ -1,0 +1,7 @@
+-nx (--name) -- Argument flag can only be one character long
+-  (--name) -- Argument flag cannot be either '-' or '--' or a space.
+-- (--name) -- Argument flag cannot be either '-' or '--' or a space.
+--- (--name) -- Argument flag can only be one character long
+-n (-- ) -- Argument name begin with either '-' or '--' or space.
+-n (---) -- Argument name begin with either '-' or '--' or space.
+-n (----) -- Argument name begin with either '-' or '--' or space.

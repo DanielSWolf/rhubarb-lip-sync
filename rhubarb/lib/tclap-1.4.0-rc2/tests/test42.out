@@ -1,0 +1,41 @@
+
+USAGE: 
+
+   test3  [-Bh] [--version] [-f=<float> ...] [-i=<int> ...]
+          --stringTest=<string> unTest1 unTest2 [fileName ...]
+
+
+Where: 
+
+   -B,  --existTestB
+     exist Test B
+
+   --stringTest=<string>
+     (required) string test
+
+   -i=<int>,  --intTest=<int>  (accepted multiple times)
+     multi int test
+
+   -f=<float>,  --floatTest=<float>  (accepted multiple times)
+     multi float test
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   unTest1 <string>
+     (required) unlabeled test one
+
+   unTest2 <string>
+     (required) unlabeled test two
+
+   fileName (accepted multiple times) <fileNameString>
+     file names
+
+   this is a message
+

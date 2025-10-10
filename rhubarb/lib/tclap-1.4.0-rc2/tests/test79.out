@@ -1,0 +1,9 @@
+PARSE ERROR:  
+             Required argument missing: name
+
+Brief USAGE: 
+   test21  [/hr] [~~version] /n <string>
+
+For complete USAGE and HELP type: 
+   test21 ~~help
+

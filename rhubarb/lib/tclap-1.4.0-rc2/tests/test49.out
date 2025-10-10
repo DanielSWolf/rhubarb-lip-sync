@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -s (--stringTest)
+             Couldn't find delimiter for this argument!
+
+Brief USAGE: 
+   test8  [-Bh] [--version] [-f=<float> ...] [-i=<int> ...] -s=<string>
+          unTest1 unTest2 [fileName ...]
+
+For complete USAGE and HELP type: 
+   test8 --help
+

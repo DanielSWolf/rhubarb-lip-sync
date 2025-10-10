@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -i (--intTest)
+             Couldn't read argument value from string '9a'
+
+Brief USAGE: 
+   test3  [-Bh] [--version] [-f=<float> ...] [-i=<int> ...]
+          --stringTest=<string> unTest1 unTest2 [fileName ...]
+
+For complete USAGE and HELP type: 
+   test3 --help
+

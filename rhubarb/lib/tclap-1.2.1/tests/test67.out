@@ -1,9 +1,0 @@
-PARSE ERROR: Argument: -v (--vect)
-             a 1 0.3 is not a 3D vector
-
-Brief USAGE: 
-   ../examples/test12  -v <3D vector> ...  [--] [--version] [-h]
-
-For complete USAGE and HELP type: 
-   ../examples/test12 --help
-

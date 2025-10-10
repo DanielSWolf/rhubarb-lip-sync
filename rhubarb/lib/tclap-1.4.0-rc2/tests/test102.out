@@ -1,0 +1,91 @@
+<?xml version='1.0'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+	"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<refentry>
+<refmeta>
+<refentrytitle>test36</refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+<refnamediv>
+<refname>test36</refname>
+<refpurpose></refpurpose>
+</refnamediv>
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>test36</command>
+<arg choice='opt'>-a <replaceable>int</replaceable></arg>
+<group choice='plain'>
+<arg choice='opt'>--</arg>
+<arg choice='opt'>--version</arg>
+<arg choice='opt'>-h</arg>
+</group>
+</cmdsynopsis>
+</refsynopsisdiv>
+<refsect1>
+<title>Description</title>
+<para>
+
+</para>
+</refsect1>
+<refsect1>
+<title>Options</title>
+<variablelist>
+<varlistentry>
+<term>
+<option>-a</option>
+</term>
+<term>
+<option>--a_int <replaceable>int</replaceable></option>
+</term>
+<listitem>
+<para>
+int arg
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>--</option>
+</term>
+<term>
+<option>--ignore_rest</option>
+</term>
+<listitem>
+<para>
+Ignores the rest of the labeled arguments following this flag.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>--version</option>
+</term>
+<listitem>
+<para>
+Displays version information and exits.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>-h</option>
+</term>
+<term>
+<option>--help</option>
+</term>
+<listitem>
+<para>
+Displays usage information and exits.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+<refsect1>
+<title>Version</title>
+<para>
+none
+</para>
+</refsect1>
+</refentry>

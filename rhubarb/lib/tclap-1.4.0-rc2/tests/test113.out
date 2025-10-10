@@ -1,0 +1,22 @@
+
+USAGE: 
+
+   test45  [-h] [--version]
+
+
+Where: 
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   This is a program with a quite elaborate description
+   As it is so long we use multiple lines.
+   But these are so far apart.
+   Even though I want only one line break
+

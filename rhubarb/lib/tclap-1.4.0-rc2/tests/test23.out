@@ -1,0 +1,11 @@
+PARSE ERROR: Argument: -d
+             Couldn't find match for argument
+
+Brief USAGE: 
+   test5  [-h] [--ddd] [--version] {-a <string>|-b <string>} {-g <string>|
+          --eee <string>|--fff <string>} {-i <string> ...|-j <string> ...}
+          -c <string>
+
+For complete USAGE and HELP type: 
+   test5 --help
+

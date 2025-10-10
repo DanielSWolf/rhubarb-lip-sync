@@ -1,0 +1,9 @@
+PARSE ERROR: Argument: -a AND -b provided.
+             Only one is allowed.
+
+Brief USAGE: 
+   test20  [-h] [--version] {-a|-b}
+
+For complete USAGE and HELP type: 
+   test20 --help
+

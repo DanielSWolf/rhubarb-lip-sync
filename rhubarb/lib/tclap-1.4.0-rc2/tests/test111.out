@@ -1,0 +1,1 @@
+Caught SpecificationException: -a <string>,  --aaa <string> -- Required arguments are not allowed in an exclusive grouping.

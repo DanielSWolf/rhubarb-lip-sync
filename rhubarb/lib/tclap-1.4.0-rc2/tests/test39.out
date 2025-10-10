@@ -1,0 +1,17 @@
+PARSE ERROR: Argument: (--times)
+             Value '6' does not meet constraint: 1|2|3
+
+Brief USAGE: 
+   ThisIsAVeryLongProgramNameDesignedToTestSpacePrintWhichUsedToHaveProblem
+                                        sWithLongProgramNamesIThinkItIsNowL
+                                        ongEnough  [-dh] [--version] [-b
+                                        <float lte 1>] [-f <negative int>]
+                                        [-g <negative int>] [-l <int>] [-s
+                                        <name string>] [-u <float lte 1>]
+                                        [-x <filename>] [-z <filename>] -n
+                                        <homer|marge|bart|lisa|maggie> ...
+                                        [times ...]
+
+For complete USAGE and HELP type: 
+   ThisIsAVeryLongProgramNameDesignedToTestSpacePrintWhichUsedToHaveProblemsWithLongProgramNamesIThinkItIsNowLongEnough --help
+

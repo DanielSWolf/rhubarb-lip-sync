@@ -1,0 +1,25 @@
+* Tests [1/1]
+** DONE Fix remainig test failures
+- State "DONE"       from "TODO"       [2019-11-24 sön 16:07]
+- State "DONE"       from "TODO"       [2019-11-24 sön 16:07]
+* ArgGroups [1/5]
+** TODO Take ArgContainer in most places where CmdLineInterface is used (maybe it's correct)
+** TODO Arg group that can specify dependencies, like [-c [-de] [--pedantic] [-n number]]
+** TODO Fix longUsage to work with arg groups and in particular StandaloneArgs (t100 is good start)
+** TODO ArgGroups are now everywhere, get rid of long list of args?
+** DONE Get rid of forceRequired and make _required const.
+- State "DONE"       from "TODO"       [2019-11-24 sön 18:11]
+* Formatting [0/1]
+** TODO Fix so that long/short names are printed more briefly
+Instead of:   -n <homer|marge|bart|lisa|maggie>,  --name <homer|marge|bart|lisa
+      |maggie>  (accepted multiple times)
+
+Do something like:    -n, --name <homer|marge|bart|lisa|maggie> (accepted multiple times)
+
+
+
+
+COPY TEST5 AND MAKE REQUIRED TO CHECK THAT WE GET EXCEPTION
+* 1.4 Release
+** TODO Re-format all code with clang-format before release
+** TODO Review all doxy-comments

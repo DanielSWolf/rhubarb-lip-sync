@@ -157,7 +157,9 @@ The [sphinxbase](https://github.com/cmusphinx/sphinxbase) library is released un
 
 The [TCLAP](http://tclap.sourceforge.net/) library is released under the **MIT License (MIT)**.
 
-> Copyright (c) 2003 Michael E. Smoot
+> Copyright (c) 2003-2012 Michael E. Smoot\
+> Copyright (c) 2004-2016 Daniel Aarno\
+> Copyright (c) 2017-2021 Google LLC
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >

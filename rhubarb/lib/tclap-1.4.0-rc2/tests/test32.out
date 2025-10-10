@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -f (--floatTest)
+             More than one valid value parsed from string '1.0.0'
+
+Brief USAGE: 
+   test3  [-Bh] [--version] [-f=<float> ...] [-i=<int> ...]
+          --stringTest=<string> unTest1 unTest2 [fileName ...]
+
+For complete USAGE and HELP type: 
+   test3 --help
+

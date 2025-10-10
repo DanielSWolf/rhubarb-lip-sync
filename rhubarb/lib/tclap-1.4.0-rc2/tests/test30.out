@@ -1,0 +1,10 @@
+PARSE ERROR: Argument: -i (--intTest)
+             Couldn't read argument value from string '2.1'
+
+Brief USAGE: 
+   test2  [-ABCh] [--version] [-f <float>] -i <int> -s <string> unTest
+          [fileName ...]
+
+For complete USAGE and HELP type: 
+   test2 --help
+

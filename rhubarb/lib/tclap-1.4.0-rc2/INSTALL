@@ -1,0 +1,43 @@
+Basic Installation
+==================
+
+TCLAP is a header-only library, so on most modern systems you can
+simply copy the .../include/tclap directory to your project, or simply
+add .../include to the include path for the compiler. The path prefix
+"..." here refers to the root directory of TCLAP (i.e., where you
+cloned or extracted it).
+
+CMake Installation
+==================
+
+TCLAP uses CMake (https://cmake.org/) to configure, build, test, and
+install the library. If you have CMake installed on your system you
+can build and install TCLAP in the following way (all commands
+executed from the root TCLAP directory).
+
+mkdir build
+cd build
+cmake  ..
+cmake --build .
+cmake --install .
+
+This will try to detect some parameters for your system and create a
+configuration file to match it. The last command will install the
+headers in the default install location (requires CMake 3.15 or
+later). For earlier versions you can use the platform install command
+(e.g., `make install`). To install in an alternative location,
+substitute `cmake ..` above with:
+`cmake -DCMAKE_INSTALL_PREFIX=</your/install/prefix> ..`.
+
+After TCLAP has been installed, you can use it by adding the install
+location to your compilers include path and define HAVE_TCLAP_CONFIG_H
+to use the config picked up by the system. On most systems the
+defaults are good enough and it is not necessary to rely on the
+configuration detected by CMake - it is mostly used to work around
+some old compiler and Windows issues.
+
+VisualStudio Users
+==================
+
+VisualStudio can work with CMake, use the "File->Open Folder" option
+to import the project into VisualStudio.

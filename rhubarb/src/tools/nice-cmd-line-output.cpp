@@ -1,5 +1,7 @@
 #include "nice-cmd-line-output.h"
 
+#include <algorithm>
+
 #include "platform-tools.h"
 #include "regex"
 #include "table-printer.h"
@@ -49,55 +51,18 @@ void NiceCmdLineOutput::failure(CmdLineInterface& cli, TCLAP::ArgException& e) {
     }
 }
 
+// Prints regular arguments, ignoring argument groups (which we don't use anyway)
 void NiceCmdLineOutput::printShortUsage(CmdLineInterface& cli, std::ostream& outStream) const {
     string shortUsage = getBinaryName() + " ";
-
-    // Print XOR arguments
-    TCLAP::XorHandler xorHandler = cli.getXorHandler();
-    const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
-    for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
-        shortUsage += " {";
-
-        for (auto arg : xorArgGroup)
-            shortUsage += arg->shortID() + "|";
-        shortUsage.pop_back();
-
-        shortUsage += '}';
-    }
-
-    // Print regular arguments
-    std::list<TCLAP::Arg*> argList = cli.getArgList();
-    for (auto arg : argList) {
-        if (xorHandler.contains(arg)) continue;
-
+    for (auto arg : cli.getArgList())
         shortUsage += " " + arg->shortID();
-    }
 
     outStream << shortUsage << endl;
 }
 
+// Printa regular arguments, ignoring argument groups (which we don't use anyway)
 void NiceCmdLineOutput::printLongUsage(CmdLineInterface& cli, std::ostream& outStream) const {
     TablePrinter tablePrinter(&outStream, {20, 56});
-
-    // Print XOR arguments
-    TCLAP::XorHandler xorHandler = cli.getXorHandler();
-    const vector<vector<TCLAP::Arg*>> xorArgGroups = xorHandler.getXorList();
-    for (const vector<TCLAP::Arg*>& xorArgGroup : xorArgGroups) {
-        for (auto arg : xorArgGroup) {
-            if (arg != xorArgGroup[0]) {
-                outStream << "-- or --" << endl;
-            }
-
-            tablePrinter.printRow({arg->longID(), arg->getDescription()});
-        }
-        outStream << endl;
-    }
-
-    // Print regular arguments
-    std::list<TCLAP::Arg*> argList = cli.getArgList();
-    for (auto arg : argList) {
-        if (xorHandler.contains(arg)) continue;
-
+    for (auto arg : cli.getArgList())
         tablePrinter.printRow({arg->longID(), arg->getDescription()});
-    }
 }

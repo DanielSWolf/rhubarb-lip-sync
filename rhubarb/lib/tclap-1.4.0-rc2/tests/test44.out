@@ -1,0 +1,51 @@
+
+USAGE: 
+
+   test5  [-h] [--ddd] [--version] {-a <string>|-b <string>} {-g <string>|
+          --eee <string>|--fff <string>} {-i <string> ...|-j <string> ...}
+          -c <string>
+
+
+Where: 
+
+   -c <string>,  --ccc <string>
+     (required) c test
+
+   --ddd
+     d test
+
+   One of:
+      -a <string>,  --aaa <string>
+        or test a
+
+      -b <string>,  --bbb <string>
+        or test b
+
+   One of:
+      --eee <string>
+        e test
+
+      --fff <string>
+        f test
+
+      -g <string>,  --ggg <string>
+        g test
+
+   One of:
+      -i <string>,  --iii <string>  (accepted multiple times)
+        or test i
+
+      -j <string>,  --jjj <string>  (accepted multiple times)
+        or test j
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   this is a message
+

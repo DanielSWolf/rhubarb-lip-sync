@@ -1,0 +1,4 @@
+file(GLOB HEADER_FILES *.h)
+
+#target_sources(TCLAP INTERFACE ${HEADER_FILES})
+install(FILES ${HEADER_FILES} DESTINATION include/tclap COMPONENT lib)

@@ -1,0 +1,9 @@
+PARSE ERROR:  
+             Required argument missing: vect
+
+Brief USAGE: 
+   test11  [-h] [--version] -v <3D vector>
+
+For complete USAGE and HELP type: 
+   test11 --help
+

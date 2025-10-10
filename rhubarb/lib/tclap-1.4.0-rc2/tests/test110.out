@@ -1,0 +1,5 @@
+
+USAGE: 
+
+   test42  [-cdeh] [--version] [-a|-b] {-f|--gopt} [-n <number>] req1
+

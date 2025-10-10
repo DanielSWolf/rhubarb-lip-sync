@@ -1,0 +1,28 @@
+PARSE ERROR: Argument: -r (--reverse)
+             Argument already set!
+
+
+USAGE: 
+
+   test9  [-NrV] [word]
+
+
+Where: 
+
+   -r,  --reverse
+     REVERSE instead of FORWARDS
+
+   -V,  --verbose  (accepted multiple times)
+     Level of verbosity
+
+   -N,  --noise  (accepted multiple times)
+     Level of noise
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   word <won't see this>
+     a random word
+
+   Command description message
+

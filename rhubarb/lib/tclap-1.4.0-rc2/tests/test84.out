@@ -1,0 +1,121 @@
+<?xml version='1.0'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+	"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<refentry>
+<refmeta>
+<refentrytitle>test25</refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+<refnamediv>
+<refname>test25</refname>
+<refpurpose>this is a message</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>test25</command>
+<arg choice='opt' rep='repeat'>-A <replaceable></replaceable></arg>
+<group choice='req'>
+<arg choice='opt'>-s <replaceable>string</replaceable></arg>
+<arg choice='opt'>-B</arg>
+</group>
+<group choice='plain'>
+<arg choice='opt'>--</arg>
+<arg choice='opt'>--version</arg>
+<arg choice='opt'>-h</arg>
+</group>
+</cmdsynopsis>
+</refsynopsisdiv>
+<refsect1>
+<title>Description</title>
+<para>
+this is a message
+</para>
+</refsect1>
+<refsect1>
+<title>Options</title>
+<variablelist>
+<varlistentry>
+<term>
+<option>-A</option>
+</term>
+<term>
+<option>--sA <replaceable></replaceable></option>
+</term>
+<listitem>
+<para>
+exist Test A
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>-s</option>
+</term>
+<term>
+<option>--Bs <replaceable>string</replaceable></option>
+</term>
+<listitem>
+<para>
+string test
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>-B</option>
+</term>
+<term>
+<option>--sB</option>
+</term>
+<listitem>
+<para>
+exist Test B
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>--</option>
+</term>
+<term>
+<option>--ignore_rest</option>
+</term>
+<listitem>
+<para>
+Ignores the rest of the labeled arguments following this flag.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>--version</option>
+</term>
+<listitem>
+<para>
+Displays version information and exits.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<option>-h</option>
+</term>
+<term>
+<option>--help</option>
+</term>
+<listitem>
+<para>
+Displays usage information and exits.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+<refsect1>
+<title>Version</title>
+<para>
+0.99
+</para>
+</refsect1>
+</refentry>

@@ -1,0 +1,182 @@
+language: cpp
+cache:
+  - ccache
+  - directories:
+    - externalobjects
+    - $HOME/Library/Caches/Homebrew
+    - /usr/local/Homebrew
+dist: bionic
+
+git:
+  depth: false
+
+# Only build the master branch, and pull-requests.
+# This turns off commit builds to other branches
+# branches:
+#   only: 
+#     - master
+
+before_cache:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew cleanup; fi
+# Credit https://discourse.brew.sh/t/best-practice-for-homebrew-on-travis-brew-update-is-5min-to-build-time/5215/9
+# Cache only .git files under "/usr/local/Homebrew" so "brew update" does not take 5min every build
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then find /usr/local/Homebrew \! -regex ".+\.git.+" -delete; fi
+
+addons:
+  apt:
+    sources:
+      - sourceline: 'deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu bionic main'
+        key_url: 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x60C317803A41BA51845E371A1E9377A2BA9EF27F'
+      - sourceline: 'deb http://ppa.launchpad.net/ubuntu-toolchain-r/ppa/ubuntu bionic main'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-5.0 main'
+        key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6.0 main'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main'
+      - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
+        key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
+      - sourceline: 'deb http://ppa.launchpad.net/jonathonf/gcc/ubuntu bionic main'
+        key_url: 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x4AB0F789CBA31744CC7DA76A8CF63AD3F06FC659'
+    packages:
+      - cmake
+      - ninja-build
+      - g++-4.8
+      - g++-5
+      - g++-6
+      - g++-7
+      - g++-8
+      - g++-9
+      - gcc-4.8
+      - gcc-5
+      - gcc-6
+      - gcc-7
+      - gcc-8
+      - gcc-9
+      - clang-3.9
+      - clang-4.0
+      - clang-5.0
+      - clang-6.0
+      - clang-7
+      - clang-8
+      - clang-9
+
+matrix:
+  include:
+    - os: linux
+      env:
+         - MATRIX_EVAL="export CC=gcc-4.8 CXX=g++-4.8"
+    - os: linux
+      env:
+         - MATRIX_EVAL="export CC=gcc-5 CXX=g++-5"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=gcc-6 CXX=g++-6"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=gcc-7 CXX=g++-7"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=gcc-8 CXX=g++-8"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=gcc-9 CXX=g++-9"
+#Linux Clang Starts Here
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-3.9 CXX=clang++-3.9"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-4.0 CXX=clang++-4.0"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-5.0 CXX=clang++-5.0"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-6.0 CXX=clang++-6.0"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-7 CXX=clang++-7"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-8 CXX=clang++-8"
+    - os: linux
+      env:
+        - MATRIX_EVAL="export CC=clang-9 CXX=clang++-9"
+#OSX GCC Starts here
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - MATRIX_EVAL="export CC=gcc-6 CXX=g++-6"
+      addons:
+        homebrew:
+          packages:
+            - cmake
+            - ccache
+            - ninja
+            - python
+            - gcc@6
+          update: yes
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - MATRIX_EVAL="export CC=gcc-7 CXX=g++-7"
+      addons:
+        homebrew:
+          packages:
+            - cmake
+            - ccache
+            - ninja
+            - python
+            - gcc@7
+          update: yes
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - MATRIX_EVAL="export CC=gcc-8 CXX=g++-8"
+      addons:
+        homebrew:
+          packages:
+            - cmake
+            - ccache
+            - ninja
+            - python
+            - gcc@8
+          update: yes
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - MATRIX_EVAL="export CC=gcc-9 CXX=g++-9"
+      addons:
+        homebrew:
+          packages:
+            - cmake
+            - ccache
+            - ninja
+            - python
+            - gcc@9
+          update: yes
+#OSX clang starts here
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - MATRIX_EVAL="export CC=clang CXX=clang++"
+      addons:
+        homebrew:
+          packages:
+            - cmake
+            - ccache
+            - ninja
+            - python
+          update: yes
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+
+script:
+#  NOTE:  ${TRAVIS_BUILD_DIR} is actually the source checkout directory ${TRAVIS_BUILD_DIR}/build is the BUILD_DIR
+  - mkdir -p ${TRAVIS_BUILD_DIR}/build && cd ${TRAVIS_BUILD_DIR}/build
+  - "export PATH=\"$(echo ${PATH} | awk -v RS=: -v ORS=: '/ccache/ {next} {print}')\""
+  - cd ${TRAVIS_BUILD_DIR}/build && cmake -GNinja -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DBUILD_DOC:BOOL=OFF -DBUILD_TESTING:BOOL=ON -DCMAKE_BUILD_TYPE:STRING=Release ${TRAVIS_BUILD_DIR}
+  - cd ${TRAVIS_BUILD_DIR}/build && ctest -D Experimental -j2

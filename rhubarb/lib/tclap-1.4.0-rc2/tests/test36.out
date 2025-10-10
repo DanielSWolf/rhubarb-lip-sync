@@ -1,0 +1,9 @@
+PARSE ERROR: Argument: (--times)
+             Value '6' does not meet constraint: 1|2|3
+
+Brief USAGE: 
+   test6  [-h] [--version] -n <homer|marge|bart|lisa|maggie> times
+
+For complete USAGE and HELP type: 
+   test6 --help
+

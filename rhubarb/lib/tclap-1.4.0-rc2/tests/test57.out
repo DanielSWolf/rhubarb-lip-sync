@@ -1,0 +1,11 @@
+PARSE ERROR: Argument: -i AND -j provided.
+             Only one is allowed.
+
+Brief USAGE: 
+   test5  [-h] [--ddd] [--version] {-a <string>|-b <string>} {-g <string>|
+          --eee <string>|--fff <string>} {-i <string> ...|-j <string> ...}
+          -c <string>
+
+For complete USAGE and HELP type: 
+   test5 --help
+

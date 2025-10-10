@@ -1,0 +1,44 @@
+
+USAGE: 
+
+   test2  [-ABCh] [--version] [-f <float>] -i <int> -s <string> unTest
+          [fileName ...]
+
+
+Where: 
+
+   -B,  --existTestB
+     tests for the existence of B
+
+   -C,  --existTestC
+     tests for the existence of C
+
+   -A,  --existTestA
+     tests for the existence of A
+
+   -s <string>,  --stringTest <string>
+     (required) string test
+
+   -i <int>,  --intTest <int>
+     (required) integer test
+
+   -f <float>,  --floatTest <float>
+     float test
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   unTest <string>
+     (required) unlabeld test
+
+   fileName (accepted multiple times) <string>
+     file names
+
+   this is a message
+

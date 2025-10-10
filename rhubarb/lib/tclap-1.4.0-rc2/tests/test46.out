@@ -1,0 +1,65 @@
+
+USAGE: 
+
+   ThisIsAVeryLongProgramNameDesignedToTestSpacePrintWhichUsedToHaveProblem
+                                        sWithLongProgramNamesIThinkItIsNowL
+                                        ongEnough  [-dh] [--version] [-b
+                                        <float lte 1>] [-f <negative int>]
+                                        [-g <negative int>] [-l <int>] [-s
+                                        <name string>] [-u <float lte 1>]
+                                        [-x <filename>] [-z <filename>] -n
+                                        <homer|marge|bart|lisa|maggie> ...
+                                        [times ...]
+
+
+Where: 
+
+   -n <homer|marge|bart|lisa|maggie>,  --name <homer|marge|bart|lisa|
+      maggie>  (accepted multiple times)
+     (required) Name to print. This is a long, nonsensical message to test
+     line wrapping.  Hopefully it works.
+
+   -f <negative int>,  --gapCreate <negative int>
+     The cost of creating a gap
+
+   -g <negative int>,  --gap-Extend <negative int>
+     The cost for each extension of a gap
+
+   -d,  --isDna
+     The input sequences are DNA
+
+   -s <name string>,  --scoring--Matrix <name string>
+     Scoring Matrix name
+
+   -x <filename>,  --filename1 <filename>
+     Sequence 1 filename (FASTA format)
+
+   -z <filename>,  --filename2 <filename>
+     Sequence 2 filename (FASTA format)
+
+   -b <float lte 1>,  --lowerBound <float lte 1>
+     lower percentage bound
+
+   -u <float lte 1>,  --upperBound <float lte 1>
+     upper percentage bound
+
+   -l <int>,  --limit <int>
+     Max number of alignments allowed
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+   times (accepted multiple times) <1|2|3>
+     Number of times to print
+
+   Command description message. This is a long multi-line message meant to
+   test line wrapping.  This is more text that doesn't really do anything
+   besides take up lots of space that otherwise might be used for something
+   real.  That should be enough, don't you think?
+

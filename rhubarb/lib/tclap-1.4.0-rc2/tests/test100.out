@@ -1,0 +1,21 @@
+
+USAGE: 
+
+   test35  [-h] [--version] [-a <int>]
+
+
+Where: 
+
+   -a <int>,  --a_int <int>
+     int arg
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+

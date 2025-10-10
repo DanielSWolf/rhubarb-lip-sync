@@ -1,0 +1,9 @@
+PARSE ERROR:  
+             The args vector must not be empty, the first entry should contain the program's name.
+
+Brief USAGE: 
+   not_set_yet  [-h] [--version]
+
+For complete USAGE and HELP type: 
+   not_set_yet --help
+

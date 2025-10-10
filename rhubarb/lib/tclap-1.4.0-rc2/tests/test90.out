@@ -1,0 +1,28 @@
+
+USAGE: 
+
+   test29  [-h] [--version] [-a <int>|-b <int>|-s <str>]
+
+
+Where: 
+
+   Either of:
+      -a <int>,  --a_int <int>
+        first int arg
+
+      -b <int>,  --b_int <int>
+        second int arg
+
+      -s <str>,  --str <str>
+        string arg
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+

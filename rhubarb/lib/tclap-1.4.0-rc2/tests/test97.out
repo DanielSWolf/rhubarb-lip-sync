@@ -1,0 +1,9 @@
+PARSE ERROR: Argument: -b AND -s provided.
+             Only one is allowed.
+
+Brief USAGE: 
+   test32  [-h] [--version] {-a <int>|-b <int>|-s <str>}
+
+For complete USAGE and HELP type: 
+   test32 --help
+

@@ -127,7 +127,8 @@ int main(int platformArgc, char* platformArgv[]) {
     const char argumentValueSeparator = ' ';
     tclap::CmdLine cmd(appName, argumentValueSeparator, appVersion);
     cmd.setExceptionHandling(false);
-    cmd.setOutput(new NiceCmdLineOutput());
+    auto niceCmdLineOutput = std::make_shared<NiceCmdLineOutput>();
+    cmd.setOutput(niceCmdLineOutput.get());
 
     tclap::ValueArg<string> outputFileName(
         "o", "output", "The output file path.", false, string(), "string", cmd
@@ -330,7 +331,7 @@ int main(int platformArgc, char* platformArgv[]) {
         return 0;
     } catch (tclap::ArgException& e) {
         // Error parsing command-line args.
-        cmd.getOutput()->failure(cmd, e);
+        niceCmdLineOutput->failure(cmd, e);
         logging::log(FailureEntry("Invalid command line."));
         return 1;
     } catch (tclap::ExitException&) {

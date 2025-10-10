@@ -92,7 +92,7 @@ target_compile_definitions(pocketSphinx PUBLIC __POCKETSPHINX_EXPORT_H__=1 POCKE
 set_target_properties(pocketSphinx PROPERTIES FOLDER lib)
 
 # ... TCLAP
-include_directories(SYSTEM "lib/tclap-1.2.1/include")
+include_directories(SYSTEM "lib/tclap-1.4.0-rc2/include")
 
 # ... Google Test
 set(INSTALL_GTEST OFF) # Prevent library files from ending up in our artifacts

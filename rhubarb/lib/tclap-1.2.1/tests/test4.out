@@ -1,9 +1,0 @@
-PARSE ERROR:  
-             Required argument missing: name
-
-Brief USAGE: 
-   ../examples/test1  [-r] -n <string> [--] [--version] [-h]
-
-For complete USAGE and HELP type: 
-   ../examples/test1 --help
-
