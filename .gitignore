@@ -1,9 +1,11 @@
+.idea/
 .vs/
 .vscode/
-*.user
 build/
 cli-build/
 node_modules/
 
+*.DotSettings
+*.user
 package-lock.json
 yarn.lock

@@ -1,0 +1,4 @@
+# Config file for Clang-Tidy, a static code analyzer for C/C++.
+
+# Disable all checks in this folder
+Checks: '-*'
