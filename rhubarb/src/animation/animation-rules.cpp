@@ -1,29 +1,30 @@
 #include "animation-rules.h"
 
+#include <array>
 #include <boost/algorithm/clamp.hpp>
 
 #include "shape-shorthands.h"
 #include "time/continuous-timeline.h"
-#include "tools/array.h"
 
 using boost::optional;
 using boost::algorithm::clamp;
 using std::array;
 using std::map;
 using std::pair;
+using std::to_array;
 using std::chrono::duration_cast;
 
 constexpr size_t shapeValueCount = static_cast<size_t>(Shape::EndSentinel);
 
 Shape getBasicShape(Shape shape) {
     static constexpr array<Shape, shapeValueCount> basicShapes =
-        make_array(A, B, C, D, E, F, A, C, A);
+        to_array({A, B, C, D, E, F, A, C, A});
     return basicShapes[static_cast<size_t>(shape)];
 }
 
 Shape relax(Shape shape) {
     static constexpr array<Shape, shapeValueCount> relaxedShapes =
-        make_array(A, B, B, C, C, B, X, B, X);
+        to_array({A, B, B, C, C, B, X, B, X});
     return relaxedShapes[static_cast<size_t>(shape)];
 }
 
@@ -34,18 +35,17 @@ Shape getClosestShape(Shape reference, ShapeSet shapes) {
 
     // A matrix that for each shape contains all shapes in ascending order of effort required to
     // move to them
-    static constexpr array<array<Shape, shapeValueCount>, shapeValueCount> effortMatrix =
-        make_array(
-            /* A */ make_array(A, X, G, B, C, H, E, D, F),
-            /* B */ make_array(B, G, A, X, C, H, E, D, F),
-            /* C */ make_array(C, H, B, G, D, A, X, E, F),
-            /* D */ make_array(D, C, H, B, G, A, X, E, F),
-            /* E */ make_array(E, C, H, B, G, A, X, D, F),
-            /* F */ make_array(F, B, G, A, X, C, H, E, D),
-            /* G */ make_array(G, A, B, C, H, X, E, D, F),
-            /* H */ make_array(H, C, B, G, D, A, X, E, F), // Like C
-            /* X */ make_array(X, A, G, B, C, H, E, D, F)  // Like A
-        );
+    static constexpr array<array<Shape, shapeValueCount>, shapeValueCount> effortMatrix = to_array({
+        /* A */ to_array({A, X, G, B, C, H, E, D, F}),
+        /* B */ to_array({B, G, A, X, C, H, E, D, F}),
+        /* C */ to_array({C, H, B, G, D, A, X, E, F}),
+        /* D */ to_array({D, C, H, B, G, A, X, E, F}),
+        /* E */ to_array({E, C, H, B, G, A, X, D, F}),
+        /* F */ to_array({F, B, G, A, X, C, H, E, D}),
+        /* G */ to_array({G, A, B, C, H, X, E, D, F}),
+        /* H */ to_array({H, C, B, G, D, A, X, E, F}), // Like C
+        /* X */ to_array({X, A, G, B, C, H, E, D, F})  // Like A
+    });
 
     auto& closestShapes = effortMatrix.at(static_cast<size_t>(reference));
     for (Shape closestShape : closestShapes) {

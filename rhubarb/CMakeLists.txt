@@ -491,7 +491,6 @@ target_link_libraries(rhubarb-time cppFormat rhubarb-logging)
 # ... rhubarb-tools
 add_library(
     rhubarb-tools
-    src/tools/array.h
     src/tools/enum-converter.h
     src/tools/exceptions.cpp
     src/tools/exceptions.h
