@@ -3,7 +3,7 @@
 #include <array>
 #include <boost/algorithm/clamp.hpp>
 
-#include "shape-shorthands.h"
+#include "core/shape.h"
 #include "time/continuous-timeline.h"
 
 using boost::optional;
@@ -13,6 +13,8 @@ using std::map;
 using std::pair;
 using std::to_array;
 using std::chrono::duration_cast;
+
+using enum Shape;
 
 constexpr size_t shapeValueCount = static_cast<size_t>(Shape::EndSentinel);
 

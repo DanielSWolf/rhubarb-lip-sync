@@ -333,7 +333,6 @@ add_library(
     src/animation/rough-animation.h
     src/animation/shape-rule.cpp
     src/animation/shape-rule.h
-    src/animation/shape-shorthands.h
     src/animation/static-segments.cpp
     src/animation/static-segments.h
     src/animation/target-shape-set.cpp
