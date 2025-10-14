@@ -1,6 +1,14 @@
-#include "target-shape-set.h"
+module;
 
-Shape convertToTargetShapeSet(Shape shape, const ShapeSet& targetShapeSet) {
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
+
+export module rhubarb.animation:target_shape_set;
+
+import :shape_rule;
+
+// Returns the closest shape to the specified one that occurs in the target shape set.
+export Shape convertToTargetShapeSet(Shape shape, const ShapeSet& targetShapeSet) {
     if (targetShapeSet.find(shape) != targetShapeSet.end()) {
         return shape;
     }
@@ -13,7 +21,9 @@ Shape convertToTargetShapeSet(Shape shape, const ShapeSet& targetShapeSet) {
     return basicShape;
 }
 
-ShapeSet convertToTargetShapeSet(const ShapeSet& shapes, const ShapeSet& targetShapeSet) {
+// Replaces each shape in the specified set with the closest shape that occurs in the target shape
+// set.
+export ShapeSet convertToTargetShapeSet(const ShapeSet& shapes, const ShapeSet& targetShapeSet) {
     ShapeSet result;
     for (Shape shape : shapes) {
         result.insert(convertToTargetShapeSet(shape, targetShapeSet));
@@ -21,7 +31,8 @@ ShapeSet convertToTargetShapeSet(const ShapeSet& shapes, const ShapeSet& targetS
     return result;
 }
 
-ContinuousTimeline<ShapeRule> convertToTargetShapeSet(
+// Replaces each shape in each rule with the closest shape that occurs in the target shape set.
+export ContinuousTimeline<ShapeRule> convertToTargetShapeSet(
     const ContinuousTimeline<ShapeRule>& shapeRules, const ShapeSet& targetShapeSet
 ) {
     ContinuousTimeline<ShapeRule> result(shapeRules);
@@ -33,7 +44,9 @@ ContinuousTimeline<ShapeRule> convertToTargetShapeSet(
     return result;
 }
 
-JoiningContinuousTimeline<Shape> convertToTargetShapeSet(
+// Replaces each shape in the specified animation with the closest shape that occurs in the target
+// shape set.
+export JoiningContinuousTimeline<Shape> convertToTargetShapeSet(
     const JoiningContinuousTimeline<Shape>& animation, const ShapeSet& targetShapeSet
 ) {
     JoiningContinuousTimeline<Shape> result(animation);

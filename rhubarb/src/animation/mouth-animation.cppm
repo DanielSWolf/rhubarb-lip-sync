@@ -1,15 +1,21 @@
-#include "mouth-animation.h"
+module;
 
-#include "pause-animation.h"
-#include "rough-animation.h"
-#include "shape-rule.h"
-#include "static-segments.h"
-#include "target-shape-set.h"
+#include "core/phone.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
 #include "time/timed-logging.h"
-#include "timing-optimization.h"
-#include "tweening.h"
 
-JoiningContinuousTimeline<Shape> animate(
+export module rhubarb.animation:mouth_animation;
+
+import :pause_animation;
+import :rough_animation;
+import :shape_rule;
+import :static_segments;
+import :target_shape_set;
+import :timing_optimization;
+import :tweening;
+
+export JoiningContinuousTimeline<Shape> animate(
     const BoundedTimeline<Phone>& phones, const ShapeSet& targetShapeSet
 ) {
     // Create timeline of shape rules

@@ -1,11 +1,16 @@
-#include "timing-optimization.h"
+module;
 
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <map>
 
-#include "shape-rule.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
 #include "time/timed-logging.h"
+
+export module rhubarb.animation:timing_optimization;
+
+import :shape_rule;
 
 using std::map;
 using std::string;
@@ -177,7 +182,12 @@ JoiningContinuousTimeline<Shape> retime(
 
 enum class MouthState { Idle, Closed, Open };
 
-JoiningContinuousTimeline<Shape> optimizeTiming(const JoiningContinuousTimeline<Shape>& animation) {
+// Changes the timing of an existing animation to reduce jitter and to make sure all shapes register
+// visually.
+// In some cases, shapes may be omitted.
+export JoiningContinuousTimeline<Shape> optimizeTiming(
+    const JoiningContinuousTimeline<Shape>& animation
+) {
     // Identify segments with idle, closed, and open mouth shapes
     JoiningContinuousTimeline<MouthState> segments(animation.getRange(), MouthState::Idle);
     for (const auto& timedShape : animation) {

@@ -7,7 +7,6 @@
 #include <fstream>
 #include <iostream>
 
-#include "animation/target-shape-set.h"
 #include "core/app-info.h"
 #include "export-format.h"
 #include "exporters/dat-exporter.h"

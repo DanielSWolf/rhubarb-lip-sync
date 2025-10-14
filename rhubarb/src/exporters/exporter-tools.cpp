@@ -1,6 +1,6 @@
 #include "exporter-tools.h"
 
-#include "animation/target-shape-set.h"
+import rhubarb.animation;
 
 // Makes sure there is at least one mouth shape
 std::vector<Timed<Shape>> dummyShapeIfEmpty(

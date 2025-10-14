@@ -1,8 +1,16 @@
-#include "tweening.h"
+module;
 
-#include "animation-rules.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
 
-JoiningContinuousTimeline<Shape> insertTweens(const JoiningContinuousTimeline<Shape>& animation) {
+export module rhubarb.animation:tweening;
+
+import :animation_rules;
+
+// Takes an existing animation and inserts inbetween shapes for smoother results.
+export JoiningContinuousTimeline<Shape> insertTweens(
+    const JoiningContinuousTimeline<Shape>& animation
+) {
     const centiseconds minTweenDuration = 4_cs;
     const centiseconds maxTweenDuration = 8_cs;
 

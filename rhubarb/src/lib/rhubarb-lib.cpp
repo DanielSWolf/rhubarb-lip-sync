@@ -1,9 +1,8 @@
 #include "rhubarb-lib.h"
 
-#include "animation/mouth-animation.h"
 #include "audio/audio-file-reading.h"
-#include "core/phone.h"
-#include "tools/text-files.h"
+
+import rhubarb.animation;
 
 using boost::optional;
 using std::string;

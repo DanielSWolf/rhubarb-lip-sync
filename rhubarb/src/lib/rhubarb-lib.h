@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include "animation/target-shape-set.h"
 #include "audio/audio-clip.h"
 #include "core/shape.h"
 #include "recognition/recognizer.h"

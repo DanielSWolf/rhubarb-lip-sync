@@ -3,8 +3,14 @@
 #include <set>
 #include <type_traits>
 
+#include "centiseconds.h"
 #include "timed.h"
 #include "tools/tools.h"
+
+using std::chrono::operator<;
+using std::chrono::operator>;
+using std::chrono::operator>=;
+using std::chrono::operator<=;
 
 enum class FindMode { SampleLeft, SampleRight, SearchLeft, SearchRight };
 

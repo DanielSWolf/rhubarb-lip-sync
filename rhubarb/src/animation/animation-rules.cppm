@@ -1,10 +1,14 @@
-#include "animation-rules.h"
+module;
 
 #include <array>
 #include <boost/algorithm/clamp.hpp>
+#include <set>
 
+#include "core/phone.h"
 #include "core/shape.h"
-#include "time/continuous-timeline.h"
+#include "time/timeline.h"
+
+export module rhubarb.animation:animation_rules;
 
 using boost::optional;
 using boost::algorithm::clamp;
@@ -18,18 +22,21 @@ using enum Shape;
 
 constexpr size_t shapeValueCount = static_cast<size_t>(Shape::EndSentinel);
 
+// Returns the basic shape (A-F) that most closely resembles the specified shape.
 Shape getBasicShape(Shape shape) {
     static constexpr array<Shape, shapeValueCount> basicShapes =
         to_array({A, B, C, D, E, F, A, C, A});
     return basicShapes[static_cast<size_t>(shape)];
 }
 
+// Returns the mouth shape that results from relaxing the specified shape.
 Shape relax(Shape shape) {
     static constexpr array<Shape, shapeValueCount> relaxedShapes =
         to_array({A, B, B, C, C, B, X, B, X});
     return relaxedShapes[static_cast<size_t>(shape)];
 }
 
+// Gets the shape from a non-empty set of shapes that most closely resembles a reference shape.
 Shape getClosestShape(Shape reference, ShapeSet shapes) {
     if (shapes.empty()) {
         throw std::invalid_argument("Cannot select from empty set of shapes.");
@@ -59,6 +66,19 @@ Shape getClosestShape(Shape reference, ShapeSet shapes) {
     throw std::invalid_argument("Unable to find closest shape.");
 }
 
+// Indicates how to time a tween between two mouth shapes
+enum class TweenTiming {
+    // Tween should end at the original transition
+    Early,
+
+    // Tween should overlap both original mouth shapes equally
+    Centered,
+
+    // Tween should begin at the original transition
+    Late
+};
+
+// Returns the tween shape and timing to use to transition between the specified two mouth shapes.
 optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
     // Note that most of the following rules work in one direction only.
     // That's because in animation, the mouth should usually "pop" open without inbetweens,
@@ -78,6 +98,10 @@ optional<pair<Shape, TweenTiming>> getTween(Shape first, Shape second) {
     return it != lookup.end() ? it->second : optional<pair<Shape, TweenTiming>>();
 }
 
+// Returns the shape set(s) to use for a given phone.
+// The resulting timeline will always cover the entire duration of the phone (starting at 0 cs).
+// It may extend into the negative time range if animation is required prior to the sound being
+// heard.
 Timeline<ShapeSet> getShapeSets(Phone phone, centiseconds duration, centiseconds previousDuration) {
     // Returns a timeline with a single shape set
     const auto single = [duration](ShapeSet value) {

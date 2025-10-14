@@ -1,11 +1,22 @@
-#include "static-segments.h"
+module;
 
+#include <functional>
 #include <numeric>
 #include <vector>
 
+#include "core/phone.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
 #include "tools/next-combination.h"
 
+export module rhubarb.animation:static_segments;
+
+import :shape_rule;
+
 using std::vector;
+
+export using AnimationFunction =
+    std::function<JoiningContinuousTimeline<Shape>(const ContinuousTimeline<ShapeRule>&)>;
 
 int getSyllableCount(const ContinuousTimeline<ShapeRule>& shapeRules, TimeRange timeRange) {
     if (timeRange.empty()) return 0;
@@ -210,7 +221,13 @@ TimeRange extendToFixedRules(
     return {first->getStart(), last->getEnd()};
 }
 
-JoiningContinuousTimeline<Shape> avoidStaticSegments(
+// Calls the specified animation function with the specified shape rules.
+// If the resulting animation contains long static segments, the shape rules are tweaked and
+// animated again.
+// Static segments happen rather often.
+// See
+// http://animateducated.blogspot.de/2016/10/lip-sync-animation-2.html?showComment=1478861729702#c2940729096183546458.
+export JoiningContinuousTimeline<Shape> avoidStaticSegments(
     const ContinuousTimeline<ShapeRule>& shapeRules, const AnimationFunction& animate
 ) {
     const auto animation = animate(shapeRules);

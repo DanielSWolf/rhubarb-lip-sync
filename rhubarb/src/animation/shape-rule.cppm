@@ -1,9 +1,16 @@
-#include "shape-rule.h"
+module;
 
 #include <boost/range/adaptor/transformed.hpp>
-#include <utility>
 
+#include "core/phone.h"
+#include "core/shape.h"
+#include "time/bounded-timeline.h"
 #include "time/continuous-timeline.h"
+#include "time/time-range.h"
+
+export module rhubarb.animation:shape_rule;
+
+import :animation_rules;
 
 using boost::optional;
 using boost::adaptors::transformed;
@@ -21,30 +28,37 @@ ContinuousTimeline<optional<T>, AutoJoin> boundedTimelinetoContinuousOptional(
     };
 }
 
-ShapeRule::ShapeRule(ShapeSet shapeSet, optional<Phone> phone, TimeRange phoneTiming) :
-    shapeSet(std::move(shapeSet)),
-    phone(std::move(phone)),
-    phoneTiming(phoneTiming) {}
+export struct ShapeRule {
+    ShapeSet shapeSet;
+    optional<Phone> phone;
+    TimeRange phoneTiming;
 
-ShapeRule ShapeRule::getInvalid() {
-    return {{}, boost::none, {0_cs, 0_cs}};
-}
+    ShapeRule(ShapeSet shapeSet, optional<Phone> phone, TimeRange phoneTiming) :
+        shapeSet(std::move(shapeSet)),
+        phone(std::move(phone)),
+        phoneTiming(phoneTiming) {}
 
-bool ShapeRule::operator==(const ShapeRule& rhs) const {
-    return shapeSet == rhs.shapeSet && phone == rhs.phone && phoneTiming == rhs.phoneTiming;
-}
+    static ShapeRule getInvalid() {
+        return {{}, boost::none, {0_cs, 0_cs}};
+    }
 
-bool ShapeRule::operator!=(const ShapeRule& rhs) const {
-    return !operator==(rhs);
-}
+    bool operator==(const ShapeRule& rhs) const {
+        return shapeSet == rhs.shapeSet && phone == rhs.phone && phoneTiming == rhs.phoneTiming;
+    }
 
-bool ShapeRule::operator<(const ShapeRule& rhs) const {
-    return shapeSet < rhs.shapeSet
-        || phone < rhs.phone
-        || phoneTiming.getStart() < rhs.phoneTiming.getStart()
-        || phoneTiming.getEnd() < rhs.phoneTiming.getEnd();
-}
+    bool operator!=(const ShapeRule& rhs) const {
+        return !operator==(rhs);
+    }
 
+    bool operator<(const ShapeRule& rhs) const {
+        return shapeSet < rhs.shapeSet
+            || phone < rhs.phone
+            || phoneTiming.getStart() < rhs.phoneTiming.getStart()
+            || phoneTiming.getEnd() < rhs.phoneTiming.getEnd();
+    }
+};
+
+// Returns shape rules for an entire timeline of phones.
 ContinuousTimeline<ShapeRule> getShapeRules(const BoundedTimeline<Phone>& phones) {
     // Convert to continuous timeline so that silences aren't skipped when iterating
     auto continuousPhones = boundedTimelinetoContinuousOptional(phones);

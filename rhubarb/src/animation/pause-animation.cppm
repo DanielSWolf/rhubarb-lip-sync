@@ -1,6 +1,11 @@
-#include "pause-animation.h"
+module;
 
-#include "animation-rules.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
+
+export module rhubarb.animation:pause_animation;
+
+import :animation_rules;
 
 Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
     // For very short pauses: Just hold the previous shape
@@ -29,7 +34,10 @@ Shape getPauseShape(Shape previous, Shape next, centiseconds duration) {
     return Shape::X;
 }
 
-JoiningContinuousTimeline<Shape> animatePauses(const JoiningContinuousTimeline<Shape>& animation) {
+// Takes an existing animation and modifies the pauses (X shapes) to look better.
+export JoiningContinuousTimeline<Shape> animatePauses(
+    const JoiningContinuousTimeline<Shape>& animation
+) {
     JoiningContinuousTimeline<Shape> result(animation);
 
     for_each_adjacent(

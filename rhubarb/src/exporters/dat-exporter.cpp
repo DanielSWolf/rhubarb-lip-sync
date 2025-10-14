@@ -2,7 +2,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "animation/target-shape-set.h"
+import rhubarb.animation;
 
 using std::string;
 using std::chrono::duration;

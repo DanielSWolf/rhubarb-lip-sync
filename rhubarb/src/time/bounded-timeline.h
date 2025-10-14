@@ -2,6 +2,15 @@
 
 #include "timeline.h"
 
+// FIXME: Remove this workaround once we're using modules exclusively
+inline centiseconds _min(centiseconds a, centiseconds b) {
+    return a < b ? a : b;
+}
+
+inline centiseconds _max(centiseconds a, centiseconds b) {
+    return a > b ? a : b;
+}
+
 template <typename T, bool AutoJoin = false>
 class BoundedTimeline : public Timeline<T, AutoJoin> {
     using typename Timeline<T, AutoJoin>::time_type;
@@ -48,7 +57,7 @@ public:
         // Clip the value's range to bounds
         TimeRange& valueRange = timedValue.getTimeRange();
         valueRange.resize(
-            max(range.getStart(), valueRange.getStart()), min(range.getEnd(), valueRange.getEnd())
+            _max(range.getStart(), valueRange.getStart()), _min(range.getEnd(), valueRange.getEnd())
         );
 
         return Timeline<T, AutoJoin>::set(timedValue);

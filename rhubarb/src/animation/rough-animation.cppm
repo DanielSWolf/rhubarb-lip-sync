@@ -1,8 +1,17 @@
-#include "rough-animation.h"
+module;
 
 #include <boost/optional.hpp>
 
-// Create timeline of shapes using a bidirectional algorithm.
+#include "core/phone.h"
+#include "core/shape.h"
+#include "time/continuous-timeline.h"
+
+export module rhubarb.animation:rough_animation;
+
+import :shape_rule;
+
+// Does a rough animation (no tweening, special pause animation, etc.) using a bidirectional
+// algorithm.
 // Here's a rough sketch:
 //
 // * Most consonants result in shape sets with multiple options; most vowels have only one shape

@@ -321,26 +321,23 @@ set_target_properties(vorbis PROPERTIES FOLDER lib)
 include_directories("src")
 
 # ... rhubarb-animation
-add_library(
+add_library(rhubarb-animation)
+target_sources(
     rhubarb-animation
-    src/animation/animation-rules.cpp
-    src/animation/animation-rules.h
-    src/animation/mouth-animation.cpp
-    src/animation/mouth-animation.h
-    src/animation/pause-animation.cpp
-    src/animation/pause-animation.h
-    src/animation/rough-animation.cpp
-    src/animation/rough-animation.h
-    src/animation/shape-rule.cpp
-    src/animation/shape-rule.h
-    src/animation/static-segments.cpp
-    src/animation/static-segments.h
-    src/animation/target-shape-set.cpp
-    src/animation/target-shape-set.h
-    src/animation/timing-optimization.cpp
-    src/animation/timing-optimization.h
-    src/animation/tweening.cpp
-    src/animation/tweening.h
+    PUBLIC
+        FILE_SET publicModules
+            TYPE CXX_MODULES
+            FILES
+                src/animation/animation.cppm
+                src/animation/animation-rules.cppm
+                src/animation/mouth-animation.cppm
+                src/animation/pause-animation.cppm
+                src/animation/rough-animation.cppm
+                src/animation/shape-rule.cppm
+                src/animation/static-segments.cppm
+                src/animation/target-shape-set.cppm
+                src/animation/timing-optimization.cppm
+                src/animation/tweening.cppm
 )
 target_include_directories(rhubarb-animation PRIVATE "src/animation")
 target_link_libraries(rhubarb-animation rhubarb-core rhubarb-logging rhubarb-time)
