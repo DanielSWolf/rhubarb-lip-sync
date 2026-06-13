@@ -21,6 +21,7 @@
 #include "exporters/TsvExporter.h"
 #include "exporters/XmlExporter.h"
 #include "exporters/JsonExporter.h"
+#include "exporters/exporterTools.h"
 #include "animation/targetShapeSet.h"
 #include <boost/utility/in_place_factory.hpp>
 #include "tools/platformTools.h"
@@ -191,6 +192,15 @@ int main(int platformArgc, char* platformArgv[]) {
 		false, 24.0, "number", cmd
 	);
 
+	tclap::ValueArg<int> minCueDuration(
+		"", "minCueDuration",
+		"Minimum duration (in milliseconds) of a mouth cue in the output. "
+		"Cues shorter than this value are merged into the preceding cue. "
+		"Use this to suppress sub-frame flicker at your target frame rate "
+		"(e.g. 42 for 24 fps, 83 for 12 fps). Default: 0 (no filtering).",
+		false, 0, "ms", cmd
+	);
+
 	auto exportFormats = vector<ExportFormat>(ExportFormatConverter::get().getValues());
 	tclap::ValuesConstraint<ExportFormat> exportFormatConstraint(exportFormats);
 	tclap::ValueArg<ExportFormat> exportFormat(
@@ -277,7 +287,11 @@ int main(int platformArgc, char* platformArgv[]) {
 				outputFile = boost::in_place(u8path(outputFileName.getValue()));
 				outputFile->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			}
-			ExporterInput exporterInput = ExporterInput(inputFilePath, animation, targetShapeSet);
+			// Optionally suppress sub-frame cues before export
+			const centiseconds minCueDurationCs(minCueDuration.getValue() / 10);
+			const JoiningContinuousTimeline<Shape> filteredAnimation =
+				mergeShortCues(animation, minCueDurationCs);
+			ExporterInput exporterInput = ExporterInput(inputFilePath, filteredAnimation, targetShapeSet);
 			logging::info("Starting export.");
 			exporter->exportAnimation(exporterInput, outputFile ? *outputFile : std::cout);
 			logging::info("Done exporting.");
