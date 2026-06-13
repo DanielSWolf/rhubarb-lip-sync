@@ -109,10 +109,34 @@ ShapeSet getTargetShapeSet(const string& extendedShapesString) {
 	// All basic shapes are mandatory
 	ShapeSet result(ShapeConverter::get().getBasicShapes());
 
-	// Add any extended shapes
+	// An empty string is valid and means "use only the six basic shapes"
+	if (extendedShapesString.empty()) {
+		return result;
+	}
+
+	const ShapeSet extendedShapes(ShapeConverter::get().getExtendedShapes());
+
+	// Add any extended shapes, validating each character
 	for (char ch : extendedShapesString) {
-		Shape shape = ShapeConverter::get().parse(string(1, ch));
-		result.insert(shape);
+		const string shapeString(1, ch);
+
+		// Check whether the character is a known shape at all
+		boost::optional<Shape> shape = ShapeConverter::get().tryParse(shapeString);
+		if (!shape) {
+			throw std::invalid_argument(fmt::format(
+				"'{}' is not a valid mouth shape. Valid extended shapes are: G, H, X.",
+				shapeString));
+		}
+
+		// Check whether it is an extended (optional) shape, not a basic one
+		if (extendedShapes.find(*shape) == extendedShapes.end()) {
+			throw std::invalid_argument(fmt::format(
+				"'{}' is a basic mouth shape and is always included. "
+				"--extendedShapes only accepts optional shapes: G, H, X.",
+				shapeString));
+		}
+
+		result.insert(*shape);
 	}
 	return result;
 }
