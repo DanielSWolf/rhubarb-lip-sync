@@ -271,11 +271,174 @@ add_library(vorbis
 	lib/vorbis-1.3.6/lib/window.c
 )
 target_include_directories(vorbis SYSTEM PUBLIC "lib/vorbis-1.3.6/include")
-target_link_libraries(vorbis
-	ogg
-)
+target_link_libraries(vorbis ogg)
 target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
 set_target_properties(vorbis PROPERTIES FOLDER lib)
+
+# ... Opus (decoder; encoder sources included because silk/celt are shared)
+add_library(opus
+	lib/opus-1.5.2/src/opus.c
+	lib/opus-1.5.2/src/opus_decoder.c
+	lib/opus-1.5.2/src/opus_encoder.c
+	lib/opus-1.5.2/src/extensions.c
+	lib/opus-1.5.2/src/opus_multistream.c
+	lib/opus-1.5.2/src/opus_multistream_decoder.c
+	lib/opus-1.5.2/src/opus_multistream_encoder.c
+	lib/opus-1.5.2/src/repacketizer.c
+	lib/opus-1.5.2/src/opus_projection_decoder.c
+	lib/opus-1.5.2/src/opus_projection_encoder.c
+	lib/opus-1.5.2/src/mapping_matrix.c
+	lib/opus-1.5.2/src/analysis.c
+	lib/opus-1.5.2/src/mlp.c
+	lib/opus-1.5.2/src/mlp_data.c
+	lib/opus-1.5.2/celt/bands.c
+	lib/opus-1.5.2/celt/celt.c
+	lib/opus-1.5.2/celt/celt_decoder.c
+	lib/opus-1.5.2/celt/celt_encoder.c
+	lib/opus-1.5.2/celt/celt_lpc.c
+	lib/opus-1.5.2/celt/cwrs.c
+	lib/opus-1.5.2/celt/entcode.c
+	lib/opus-1.5.2/celt/entdec.c
+	lib/opus-1.5.2/celt/entenc.c
+	lib/opus-1.5.2/celt/kiss_fft.c
+	lib/opus-1.5.2/celt/laplace.c
+	lib/opus-1.5.2/celt/mathops.c
+	lib/opus-1.5.2/celt/mdct.c
+	lib/opus-1.5.2/celt/modes.c
+	lib/opus-1.5.2/celt/pitch.c
+	lib/opus-1.5.2/celt/quant_bands.c
+	lib/opus-1.5.2/celt/rate.c
+	lib/opus-1.5.2/celt/vq.c
+	lib/opus-1.5.2/silk/CNG.c
+	lib/opus-1.5.2/silk/code_signs.c
+	lib/opus-1.5.2/silk/init_decoder.c
+	lib/opus-1.5.2/silk/decode_core.c
+	lib/opus-1.5.2/silk/decode_frame.c
+	lib/opus-1.5.2/silk/decode_parameters.c
+	lib/opus-1.5.2/silk/decode_indices.c
+	lib/opus-1.5.2/silk/decode_pulses.c
+	lib/opus-1.5.2/silk/decoder_set_fs.c
+	lib/opus-1.5.2/silk/dec_API.c
+	lib/opus-1.5.2/silk/enc_API.c
+	lib/opus-1.5.2/silk/encode_indices.c
+	lib/opus-1.5.2/silk/encode_pulses.c
+	lib/opus-1.5.2/silk/gain_quant.c
+	lib/opus-1.5.2/silk/interpolate.c
+	lib/opus-1.5.2/silk/LP_variable_cutoff.c
+	lib/opus-1.5.2/silk/NLSF_decode.c
+	lib/opus-1.5.2/silk/NSQ.c
+	lib/opus-1.5.2/silk/NSQ_del_dec.c
+	lib/opus-1.5.2/silk/PLC.c
+	lib/opus-1.5.2/silk/shell_coder.c
+	lib/opus-1.5.2/silk/tables_gain.c
+	lib/opus-1.5.2/silk/tables_LTP.c
+	lib/opus-1.5.2/silk/tables_NLSF_CB_NB_MB.c
+	lib/opus-1.5.2/silk/tables_NLSF_CB_WB.c
+	lib/opus-1.5.2/silk/tables_other.c
+	lib/opus-1.5.2/silk/tables_pitch_lag.c
+	lib/opus-1.5.2/silk/tables_pulses_per_block.c
+	lib/opus-1.5.2/silk/VAD.c
+	lib/opus-1.5.2/silk/control_audio_bandwidth.c
+	lib/opus-1.5.2/silk/quant_LTP_gains.c
+	lib/opus-1.5.2/silk/VQ_WMat_EC.c
+	lib/opus-1.5.2/silk/HP_variable_cutoff.c
+	lib/opus-1.5.2/silk/NLSF_encode.c
+	lib/opus-1.5.2/silk/NLSF_VQ.c
+	lib/opus-1.5.2/silk/NLSF_unpack.c
+	lib/opus-1.5.2/silk/NLSF_del_dec_quant.c
+	lib/opus-1.5.2/silk/process_NLSFs.c
+	lib/opus-1.5.2/silk/stereo_LR_to_MS.c
+	lib/opus-1.5.2/silk/stereo_MS_to_LR.c
+	lib/opus-1.5.2/silk/check_control_input.c
+	lib/opus-1.5.2/silk/control_SNR.c
+	lib/opus-1.5.2/silk/init_encoder.c
+	lib/opus-1.5.2/silk/control_codec.c
+	lib/opus-1.5.2/silk/A2NLSF.c
+	lib/opus-1.5.2/silk/ana_filt_bank_1.c
+	lib/opus-1.5.2/silk/biquad_alt.c
+	lib/opus-1.5.2/silk/bwexpander_32.c
+	lib/opus-1.5.2/silk/bwexpander.c
+	lib/opus-1.5.2/silk/debug.c
+	lib/opus-1.5.2/silk/decode_pitch.c
+	lib/opus-1.5.2/silk/inner_prod_aligned.c
+	lib/opus-1.5.2/silk/lin2log.c
+	lib/opus-1.5.2/silk/log2lin.c
+	lib/opus-1.5.2/silk/LPC_analysis_filter.c
+	lib/opus-1.5.2/silk/LPC_inv_pred_gain.c
+	lib/opus-1.5.2/silk/table_LSF_cos.c
+	lib/opus-1.5.2/silk/NLSF2A.c
+	lib/opus-1.5.2/silk/NLSF_stabilize.c
+	lib/opus-1.5.2/silk/NLSF_VQ_weights_laroia.c
+	lib/opus-1.5.2/silk/pitch_est_tables.c
+	lib/opus-1.5.2/silk/resampler.c
+	lib/opus-1.5.2/silk/resampler_down2_3.c
+	lib/opus-1.5.2/silk/resampler_down2.c
+	lib/opus-1.5.2/silk/resampler_private_AR2.c
+	lib/opus-1.5.2/silk/resampler_private_down_FIR.c
+	lib/opus-1.5.2/silk/resampler_private_IIR_FIR.c
+	lib/opus-1.5.2/silk/resampler_private_up2_HQ.c
+	lib/opus-1.5.2/silk/resampler_rom.c
+	lib/opus-1.5.2/silk/sigm_Q15.c
+	lib/opus-1.5.2/silk/sort.c
+	lib/opus-1.5.2/silk/sum_sqr_shift.c
+	lib/opus-1.5.2/silk/stereo_decode_pred.c
+	lib/opus-1.5.2/silk/stereo_encode_pred.c
+	lib/opus-1.5.2/silk/stereo_find_predictor.c
+	lib/opus-1.5.2/silk/stereo_quant_pred.c
+	lib/opus-1.5.2/silk/LPC_fit.c
+	lib/opus-1.5.2/silk/float/apply_sine_window_FLP.c
+	lib/opus-1.5.2/silk/float/corrMatrix_FLP.c
+	lib/opus-1.5.2/silk/float/encode_frame_FLP.c
+	lib/opus-1.5.2/silk/float/find_LPC_FLP.c
+	lib/opus-1.5.2/silk/float/find_LTP_FLP.c
+	lib/opus-1.5.2/silk/float/find_pitch_lags_FLP.c
+	lib/opus-1.5.2/silk/float/find_pred_coefs_FLP.c
+	lib/opus-1.5.2/silk/float/LPC_analysis_filter_FLP.c
+	lib/opus-1.5.2/silk/float/LTP_analysis_filter_FLP.c
+	lib/opus-1.5.2/silk/float/LTP_scale_ctrl_FLP.c
+	lib/opus-1.5.2/silk/float/noise_shape_analysis_FLP.c
+	lib/opus-1.5.2/silk/float/process_gains_FLP.c
+	lib/opus-1.5.2/silk/float/regularize_correlations_FLP.c
+	lib/opus-1.5.2/silk/float/residual_energy_FLP.c
+	lib/opus-1.5.2/silk/float/warped_autocorrelation_FLP.c
+	lib/opus-1.5.2/silk/float/wrappers_FLP.c
+	lib/opus-1.5.2/silk/float/autocorrelation_FLP.c
+	lib/opus-1.5.2/silk/float/burg_modified_FLP.c
+	lib/opus-1.5.2/silk/float/bwexpander_FLP.c
+	lib/opus-1.5.2/silk/float/energy_FLP.c
+	lib/opus-1.5.2/silk/float/inner_product_FLP.c
+	lib/opus-1.5.2/silk/float/k2a_FLP.c
+	lib/opus-1.5.2/silk/float/LPC_inv_pred_gain_FLP.c
+	lib/opus-1.5.2/silk/float/pitch_analysis_core_FLP.c
+	lib/opus-1.5.2/silk/float/scale_copy_vector_FLP.c
+	lib/opus-1.5.2/silk/float/scale_vector_FLP.c
+	lib/opus-1.5.2/silk/float/schur_FLP.c
+	lib/opus-1.5.2/silk/float/sort_FLP.c
+)
+target_include_directories(opus SYSTEM PUBLIC
+	"lib/opus-1.5.2/include"
+	"lib/opus-1.5.2"        # for config.h
+	"lib/opus-1.5.2/celt"
+	"lib/opus-1.5.2/silk"
+	"lib/opus-1.5.2/silk/float"
+)
+target_compile_options(opus PRIVATE ${disableWarningsFlags})
+target_compile_definitions(opus PRIVATE HAVE_CONFIG_H)
+set_target_properties(opus PROPERTIES FOLDER lib)
+
+# ... Opusfile (no HTTP support — we only need local-file decoding)
+add_library(opusfile
+	lib/opusfile-0.12/include/opusfile.h
+	lib/opusfile-0.12/src/info.c
+	lib/opusfile-0.12/src/internal.c
+	lib/opusfile-0.12/src/opusfile.c
+	lib/opusfile-0.12/src/stream.c
+)
+target_include_directories(opusfile SYSTEM PUBLIC "lib/opusfile-0.12/include")
+target_link_libraries(opusfile ogg opus)
+target_compile_options(opusfile PRIVATE ${disableWarningsFlags})
+target_compile_definitions(opusfile PRIVATE OP_DISABLE_HTTP)
+set_target_properties(opusfile PROPERTIES FOLDER lib)
 
 # Define Rhubarb libraries
 
@@ -323,6 +486,8 @@ add_library(rhubarb-audio
 	src/audio/ioTools.h
 	src/audio/OggVorbisFileReader.cpp
 	src/audio/OggVorbisFileReader.h
+	src/audio/OggOpusFileReader.cpp
+	src/audio/OggOpusFileReader.h
 	src/audio/processing.cpp
 	src/audio/processing.h
 	src/audio/SampleRateConverter.cpp
@@ -338,6 +503,7 @@ target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
 	vorbis
+	opusfile
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools
