@@ -9,10 +9,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
+          - os: windows-2025-vs2026
             compiler: msvc
             publish: true
-          - os: macos-14
+          - os: macos-26
             compiler: xcode
             publish: true
           - os: ubuntu-24.04

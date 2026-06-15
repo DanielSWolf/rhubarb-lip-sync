@@ -63,7 +63,7 @@ async function buildRhubarb({ compiler, test }: BuildOptions) {
 
   // Configure CMake
   const compilerOptions = {
-    msvc: ['-G', 'Visual Studio 17 2022', '-A', 'x64'],
+    msvc: ['-G', 'Visual Studio 18 2026', '-A', 'x64'],
     xcode: ['-G', 'Xcode'],
     gcc: [
       ...['-G', 'Unix Makefiles'],
