@@ -253,22 +253,12 @@ The [WebRTC](https://chromium.googlesource.com/external/webrtc) library is relea
 
 ### `[whereami]` Where Am I?
 
-The [Where Am I?](https://github.com/gpakosz/whereami) library is released under the **DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE**.
+The [Where Am I?](https://github.com/gpakosz/whereami) library is released under the **MIT License (MIT)**.
 
-> DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-> Version 2, December 2004
+> Copyright Gregory Pakosz
 >
-> Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >
-> Everyone is permitted to copy and distribute verbatim or modified copies of this license document, and changing it is allowed as long as the name is changed.
+> The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 >
-> DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
->
-> 0. You just DO WHAT THE FUCK YOU WANT TO.
-> 1. Bla bla bla
-> 2. Montesqieu et camembert, vive la France, zut alors!
->
-> WTFPLv2 is very permissive, see http://www.wtfpl.net/faq/
->
-> However, if this WTFPLV2 is REALLY a blocker and is the reason you can't use this project, contact me and I'll dual license it.
-
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
