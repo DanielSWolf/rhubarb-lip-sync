@@ -277,6 +277,43 @@ target_link_libraries(vorbis
 target_compile_options(vorbis PRIVATE ${disableWarningsFlags})
 set_target_properties(vorbis PROPERTIES FOLDER lib)
 
+# ... Opus
+FetchContent_Declare(opus
+	GIT_REPOSITORY https://github.com/xiph/opus.git
+	GIT_TAG v1.5.2
+	GIT_SHALLOW TRUE
+)
+set(OPUS_BUILD_SHARED_LIBRARY OFF)
+set(OPUS_BUILD_TESTING OFF)
+set(OPUS_BUILD_PROGRAMS OFF)
+set(OPUS_INSTALL_PKG_CONFIG_MODULE OFF)
+set(OPUS_INSTALL_CMAKE_CONFIG_MODULE OFF)
+FetchContent_MakeAvailable(opus)
+target_compile_options(opus PRIVATE ${disableWarningsFlags})
+set_target_properties(opus PROPERTIES FOLDER lib)
+
+# ... opusfile
+# opusfile's own CMake script expects installed Ogg and Opus packages, so just
+# download the sources and build the parts we need (no HTTP support).
+FetchContent_Declare(opusfile
+	GIT_REPOSITORY https://github.com/xiph/opusfile.git
+	GIT_TAG v0.12
+	GIT_SHALLOW TRUE
+	SOURCE_SUBDIR do-not-add-subdirectory
+)
+FetchContent_MakeAvailable(opusfile)
+add_library(opusfile
+	${opusfile_SOURCE_DIR}/include/opusfile.h
+	${opusfile_SOURCE_DIR}/src/info.c
+	${opusfile_SOURCE_DIR}/src/internal.c
+	${opusfile_SOURCE_DIR}/src/opusfile.c
+	${opusfile_SOURCE_DIR}/src/stream.c
+)
+target_include_directories(opusfile SYSTEM PUBLIC "${opusfile_SOURCE_DIR}/include")
+target_link_libraries(opusfile PUBLIC ogg opus)
+target_compile_options(opusfile PRIVATE ${disableWarningsFlags})
+set_target_properties(opusfile PROPERTIES FOLDER lib)
+
 # Define Rhubarb libraries
 
 include_directories("src")
@@ -321,6 +358,8 @@ add_library(rhubarb-audio
 	src/audio/DcOffset.cpp
 	src/audio/DcOffset.h
 	src/audio/ioTools.h
+	src/audio/OggOpusFileReader.cpp
+	src/audio/OggOpusFileReader.h
 	src/audio/OggVorbisFileReader.cpp
 	src/audio/OggVorbisFileReader.h
 	src/audio/processing.cpp
@@ -338,6 +377,7 @@ target_include_directories(rhubarb-audio PRIVATE "src/audio")
 target_link_libraries(rhubarb-audio
 	webRtc
 	vorbis
+	opusfile
 	rhubarb-logging
 	rhubarb-time
 	rhubarb-tools
