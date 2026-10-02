@@ -1,5 +1,9 @@
 # Version history
 
+## Unreleased
+
+* **Added** support for Opus audio files (`.opus`) ([issue #161](https://github.com/DanielSWolf/rhubarb-lip-sync/issues/161))
+
 ## Version 1.14.0
 
 * **Added** demo projects for Spine and After Effects.

@@ -139,7 +139,7 @@ The following command-line options are the most common:
 | Option | Description
 
 | _<input file>_
-| The audio file to be analyzed. This must be the last command-line argument. Supported file formats are WAVE (.wav) and Ogg Vorbis (.ogg).
+| The audio file to be analyzed. This must be the last command-line argument. Supported file formats are WAVE (.wav), Ogg Vorbis (.ogg), and Ogg Opus (.opus).
 
 | `-r` _<recognizer>_, `--recognizer` _<recognizer>_
 | Specifies how Rhubarb Lip Sync recognizes speech within the recording. Options: `pocketSphinx` (use for English recordings), `phonetic` (use for non-English recordings). For details, see <<recognizers>>.
